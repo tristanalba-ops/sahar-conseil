@@ -3,123 +3,144 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SAHAR Conseil — Open Data pour les professionnels</title>
-  <meta property="og:title" content="SAHAR Conseil — Open Data pour les professionnels" />
-  <meta property="og:description" content="Transformez les données publiques en outils d'aide à la décision : DVF, DPE, INSEE. Scoring, cartes, exports PDF." />
+  <title>SAHAR Conseil — Data + CRM pour les professionnels</title>
+  <meta name="description" content="SAHAR transforme les données publiques en leads qualifiés et gère votre pipeline commercial. Immobilier, énergie, retail. Scoring, CRM, exports." />
+  <meta property="og:title" content="SAHAR Conseil — Data + CRM pour les professionnels" />
+  <meta property="og:description" content="De la donnée publique au closing. Détectez les opportunités, scorez vos prospects, gérez votre pipeline." />
   <meta property="og:url" content="https://tristanalba-ops.github.io/sahar-conseil/" />
   <meta name="theme-color" content="#1a1a1a" />
-  <meta name="description" content="SAHAR Conseil transforme les données publiques en outils d'aide à la décision pour les professionnels." />
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-      font-size: 16px;
-      line-height: 1.65;
-      color: #1a1a1a;
-      background: #fff;
-    }
-    a { color: #1a1a1a; }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;font-size:16px;line-height:1.65;color:#1a1a1a;background:#fff}
+    a{color:#1a1a1a}
 
-    nav {
-      border-bottom: 1px solid #e5e5e5;
-      padding: 0 5%;
-      height: 56px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      position: sticky;
-      top: 0;
-      background: #fff;
-      z-index: 10;
-    }
-    .logo { font-weight: 600; font-size: 1rem; text-decoration: none; color: #1a1a1a; }
-    .nav-links { display: flex; gap: 2rem; list-style: none; }
-    .nav-links a { text-decoration: none; font-size: 0.9rem; color: #555; }
-    .nav-links a:hover { color: #1a1a1a; }
-    .nav-cta { font-size: 0.875rem; font-weight: 500; text-decoration: none; background: #1a1a1a; color: #fff; padding: 0.5rem 1.1rem; border-radius: 6px; }
+    nav{border-bottom:1px solid #e5e5e5;padding:0 5%;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff;z-index:100}
+    .logo{font-weight:600;font-size:1rem;text-decoration:none;color:#1a1a1a}
+    .nav-links{display:flex;gap:2rem;list-style:none}
+    .nav-links a{text-decoration:none;font-size:.88rem;color:#555}
+    .nav-links a:hover{color:#1a1a1a}
+    .nav-cta{font-size:.875rem;font-weight:500;text-decoration:none;background:#1a1a1a;color:#fff;padding:.5rem 1.1rem;border-radius:6px}
 
-    .container { max-width: 860px; margin: 0 auto; padding: 0 5%; }
+    .container{max-width:900px;margin:0 auto;padding:0 5%}
+    section{padding:5rem 0;border-bottom:1px solid #e5e5e5}
+    section:last-of-type{border-bottom:none}
 
-    section { padding: 5rem 0; border-bottom: 1px solid #e5e5e5; }
-    section:last-of-type { border-bottom: none; }
+    /* HERO */
+    .hero{padding:5.5rem 0 4rem}
+    .hero-tag{font-size:.75rem;text-transform:uppercase;letter-spacing:.1em;color:#888;margin-bottom:1.25rem}
+    .hero h1{font-size:clamp(2rem,4vw,3rem);font-weight:600;letter-spacing:-.03em;line-height:1.12;margin-bottom:1.25rem;max-width:680px}
+    .hero h1 em{font-style:normal;border-bottom:2px solid #1a1a1a}
+    .hero-lead{font-size:1.05rem;color:#444;max-width:520px;margin-bottom:2rem}
+    .hero-actions{display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:2.5rem}
+    .btn{display:inline-block;padding:.65rem 1.4rem;border-radius:6px;font-size:.9rem;font-weight:500;text-decoration:none;transition:opacity .15s}
+    .btn:hover{opacity:.8}
+    .btn-dark{background:#1a1a1a;color:#fff}
+    .btn-outline{border:1px solid #ccc;color:#1a1a1a}
+    .hero-proof{display:flex;gap:2rem;flex-wrap:wrap}
+    .proof-item span:first-child{font-weight:600;font-size:1.05rem}
+    .proof-item span:last-child{font-size:.82rem;color:#888;margin-left:.4rem}
 
-    .hero { padding: 6rem 0 5rem; }
-    .hero-label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.08em; color: #888; margin-bottom: 1.5rem; }
-    .hero h1 { font-size: clamp(2rem, 4vw, 3rem); font-weight: 600; letter-spacing: -0.03em; line-height: 1.15; margin-bottom: 1.5rem; max-width: 600px; }
-    .hero p { font-size: 1.05rem; color: #444; max-width: 520px; margin-bottom: 2.5rem; }
-    .hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; }
-    .btn { display: inline-block; padding: 0.65rem 1.4rem; border-radius: 6px; font-size: 0.9rem; font-weight: 500; text-decoration: none; }
-    .btn-dark { background: #1a1a1a; color: #fff; }
-    .btn-outline { border: 1px solid #ccc; color: #1a1a1a; }
+    /* SECTION */
+    .section-tag{font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;color:#888;margin-bottom:.75rem}
+    h2{font-size:1.55rem;font-weight:600;letter-spacing:-.02em;margin-bottom:.9rem}
+    .section-lead{font-size:1rem;color:#555;max-width:520px;margin-bottom:2.5rem}
 
-    .section-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: #888; margin-bottom: 0.75rem; }
-    h2 { font-size: 1.6rem; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 1rem; }
-    .section-intro { font-size: 1rem; color: #555; max-width: 520px; margin-bottom: 3rem; }
+    /* SERVICES */
+    .services{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:#e5e5e5;border:1px solid #e5e5e5;border-radius:10px;overflow:hidden;margin-top:2rem}
+    .service{background:#fff;padding:2rem}
+    .service-num{font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:#888;margin-bottom:.75rem}
+    .service h3{font-size:1.15rem;font-weight:600;margin-bottom:.5rem}
+    .service p{font-size:.9rem;color:#555;margin-bottom:1.25rem}
+    .service-features{list-style:none;display:flex;flex-direction:column;gap:.4rem}
+    .service-features li{font-size:.85rem;color:#333;display:flex;align-items:flex-start;gap:.5rem}
+    .service-features li::before{content:"→";color:#888;flex-shrink:0;margin-top:1px}
+    .service-link{display:inline-block;margin-top:1.25rem;font-size:.85rem;font-weight:500;text-decoration:none;color:#1a1a1a;border-bottom:1px solid #ccc}
 
-    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 2rem; padding: 3rem 0; }
-    .stat-num { font-size: 2rem; font-weight: 600; letter-spacing: -0.02em; }
-    .stat-label { font-size: 0.85rem; color: #666; margin-top: 0.2rem; }
+    /* PIPELINE */
+    .pipeline{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:#e5e5e5;border:1px solid #e5e5e5;border-radius:10px;overflow:hidden;margin-top:2rem}
+    .pipeline-step{background:#fff;padding:1.25rem;text-align:center}
+    .p-num{font-size:1.4rem;font-weight:600;display:block;letter-spacing:-.02em}
+    .p-stage{font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#888;display:block;margin:.25rem 0 .4rem}
+    .p-desc{font-size:.78rem;color:#666;line-height:1.4}
 
-    .tools-list { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: #e5e5e5; border: 1px solid #e5e5e5; border-radius: 8px; overflow: hidden; }
-    .tool-item { background: #fff; padding: 1.5rem; }
-    .tool-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.6rem; }
-    .tool-name { font-weight: 600; font-size: 0.95rem; }
-    .tool-status { font-size: 0.7rem; padding: 0.2rem 0.6rem; border-radius: 100px; font-weight: 500; white-space: nowrap; }
-    .status-live { background: #e8f5e9; color: #2e7d32; }
-    .status-beta { background: #fff8e1; color: #f57f17; }
-    .status-soon { background: #f5f5f5; color: #888; }
-    .tool-sector { font-size: 0.78rem; color: #888; margin-bottom: 0.5rem; }
-    .tool-desc { font-size: 0.88rem; color: #555; line-height: 1.5; }
+    /* OUTILS */
+    .tools-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-top:2rem}
+    .tool{border:1px solid #e5e5e5;border-radius:8px;padding:1.25rem}
+    .tool-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.5rem}
+    .tool-name{font-weight:600;font-size:.92rem}
+    .badge{font-size:.68rem;font-weight:600;padding:.2rem .55rem;border-radius:100px}
+    .badge-live{background:#e8f5e9;color:#2e7d32}
+    .badge-beta{background:#fff8e1;color:#e65100}
+    .badge-soon{background:#f5f5f5;color:#888}
+    .tool-sector{font-size:.75rem;color:#888;margin-bottom:.4rem}
+    .tool-desc{font-size:.83rem;color:#555;line-height:1.45}
+    .tool-cta{display:inline-block;margin-top:.75rem;font-size:.78rem;font-weight:500;text-decoration:none;color:#1a1a1a;border-bottom:1px solid #ddd}
 
-    .sectors-list { display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid #e5e5e5; border-radius: 8px; overflow: hidden; }
-    .sector-item { padding: 1.5rem; border-right: 1px solid #e5e5e5; border-bottom: 1px solid #e5e5e5; }
-    .sector-item:nth-child(3n) { border-right: none; }
-    .sector-item:nth-last-child(-n+3) { border-bottom: none; }
-    .sector-name { font-weight: 600; font-size: 0.9rem; margin-bottom: 0.3rem; }
-    .sector-desc { font-size: 0.82rem; color: #666; line-height: 1.5; }
+    /* CRM FEATURES */
+    .crm-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:2rem}
+    .crm-card{border:1px solid #e5e5e5;border-radius:8px;padding:1.25rem}
+    .crm-card h3{font-size:.92rem;font-weight:600;margin-bottom:.4rem}
+    .crm-card p{font-size:.84rem;color:#555;margin:0}
 
-    .steps { border: 1px solid #e5e5e5; border-radius: 8px; overflow: hidden; }
-    .step { display: flex; gap: 1.5rem; padding: 1.5rem; border-bottom: 1px solid #e5e5e5; align-items: flex-start; }
-    .step:last-child { border-bottom: none; }
-    .step-num { font-size: 0.75rem; font-weight: 600; color: #aaa; min-width: 24px; padding-top: 2px; }
-    .step-title { font-weight: 600; font-size: 0.9rem; margin-bottom: 0.2rem; }
-    .step-desc { font-size: 0.88rem; color: #555; }
+    /* KPI */
+    .kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-top:2rem}
+    .kpi{border:1px solid #e5e5e5;border-radius:8px;padding:1.25rem;text-align:center}
+    .kpi-val{font-size:1.7rem;font-weight:600;letter-spacing:-.02em;display:block}
+    .kpi-label{font-size:.75rem;color:#666;display:block;margin-top:.2rem}
 
-    .pricing-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: #e5e5e5; border: 1px solid #e5e5e5; border-radius: 8px; overflow: hidden; }
-    .plan { background: #fff; padding: 1.5rem; }
-    .plan.featured { background: #fafafa; }
-    .plan-name { font-weight: 600; font-size: 0.9rem; margin-bottom: 0.5rem; }
-    .plan-price { font-size: 1.6rem; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 0.25rem; }
-    .plan-price span { font-size: 0.8rem; font-weight: 400; color: #888; }
-    .plan-desc { font-size: 0.82rem; color: #666; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid #e5e5e5; }
-    .plan-features { list-style: none; display: flex; flex-direction: column; gap: 0.4rem; }
-    .plan-features li { font-size: 0.83rem; color: #aaa; display: flex; gap: 0.5rem; }
-    .plan-features li::before { content: "—"; }
-    .plan-features li.on { color: #444; }
-    .plan-features li.on::before { content: "✓"; color: #2e7d32; }
+    /* PRICING */
+    .pricing{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:2rem}
+    .plan{border:1px solid #e5e5e5;border-radius:8px;padding:1.5rem}
+    .plan.featured{border-color:#1a1a1a;border-width:1.5px}
+    .plan-tag{font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:#888;margin-bottom:.6rem}
+    .plan-price{font-size:1.9rem;font-weight:600;letter-spacing:-.02em;margin-bottom:.25rem}
+    .plan-price span{font-size:.85rem;font-weight:400;color:#888}
+    .plan-desc{font-size:.82rem;color:#666;margin-bottom:1rem;padding-bottom:1rem;border-bottom:1px solid #e5e5e5}
+    .plan-features{list-style:none;display:flex;flex-direction:column;gap:.35rem;margin-bottom:1.25rem}
+    .plan-features li{font-size:.82rem;color:#444;display:flex;gap:.4rem}
+    .plan-features li::before{content:"✓";color:#2e7d32;flex-shrink:0}
+    .plan-features li.off{color:#bbb}
+    .plan-features li.off::before{content:"—";color:#ddd}
 
-    .contact-form { max-width: 480px; display: flex; flex-direction: column; gap: 1rem; }
-    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-    .field { display: flex; flex-direction: column; gap: 0.35rem; }
-    label { font-size: 0.85rem; font-weight: 500; color: #333; }
-    input, select, textarea { font-family: inherit; font-size: 0.9rem; padding: 0.6rem 0.85rem; border: 1px solid #ddd; border-radius: 6px; background: #fff; color: #1a1a1a; outline: none; }
-    input:focus, select:focus, textarea:focus { border-color: #1a1a1a; }
-    textarea { min-height: 90px; resize: vertical; }
-    .form-note { font-size: 0.78rem; color: #999; }
+    /* SECTEURS */
+    .sectors{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid #e5e5e5;border-radius:8px;overflow:hidden}
+    .sector{padding:1.25rem;border-right:1px solid #e5e5e5;border-bottom:1px solid #e5e5e5}
+    .sector:nth-child(3n){border-right:none}
+    .sector:nth-last-child(-n+3){border-bottom:none}
+    .sector h3{font-size:.88rem;font-weight:600;margin-bottom:.3rem}
+    .sector p{font-size:.8rem;color:#666;margin:0}
 
-    footer { padding: 2.5rem 0; border-top: 1px solid #e5e5e5; }
-    .footer-inner { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
-    footer p { font-size: 0.82rem; color: #888; }
-    .footer-links { display: flex; gap: 1.5rem; list-style: none; }
-    .footer-links a { font-size: 0.82rem; color: #888; text-decoration: none; }
-    .footer-links a:hover { color: #1a1a1a; }
+    /* CONTACT */
+    .contact-wrap{display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:start}
+    .contact-info h2{margin-bottom:.75rem}
+    .contact-info p{color:#555;font-size:.95rem;margin-bottom:1.25rem}
+    .contact-detail{display:flex;flex-direction:column;gap:.5rem;margin-top:1.5rem}
+    .contact-detail a{font-size:.9rem;color:#555;text-decoration:none}
+    .contact-detail a:hover{color:#1a1a1a}
+    .form{display:flex;flex-direction:column;gap:.85rem}
+    .field{display:flex;flex-direction:column;gap:.3rem}
+    label{font-size:.82rem;font-weight:500;color:#333}
+    input,select,textarea{font-family:inherit;font-size:.9rem;padding:.6rem .85rem;border:1px solid #ddd;border-radius:6px;background:#fff;color:#1a1a1a;outline:none;width:100%}
+    input:focus,select:focus,textarea:focus{border-color:#1a1a1a}
+    textarea{min-height:85px;resize:vertical}
+    .form-note{font-size:.75rem;color:#aaa}
 
-    @media (max-width: 640px) {
-      .tools-list, .pricing-grid { grid-template-columns: 1fr; }
-      .sectors-list { grid-template-columns: 1fr 1fr; }
-      .form-row { grid-template-columns: 1fr; }
-      .nav-links { display: none; }
+    /* FOOTER */
+    footer{padding:2.5rem 0;border-top:1px solid #e5e5e5}
+    .footer-inner{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem}
+    footer p{font-size:.8rem;color:#888}
+    .footer-links{display:flex;gap:1.5rem;list-style:none}
+    .footer-links a{font-size:.8rem;color:#888;text-decoration:none}
+    .footer-links a:hover{color:#1a1a1a}
+
+    /* MOBILE */
+    @media(max-width:700px){
+      .nav-links{display:none}
+      .services,.pipeline,.tools-grid,.crm-grid,.kpi-row,.pricing,.contact-wrap{grid-template-columns:1fr}
+      .sectors{grid-template-columns:1fr 1fr}
+      .sector:nth-child(3n){border-right:1px solid #e5e5e5}
+      .sector:nth-child(2n){border-right:none}
     }
   </style>
 </head>
@@ -128,7 +149,9 @@
 <nav>
   <a href="#" class="logo">SAHAR Conseil</a>
   <ul class="nav-links">
+    <li><a href="#services">Services</a></li>
     <li><a href="#outils">Outils</a></li>
+    <li><a href="#crm">CRM</a></li>
     <li><a href="#tarifs">Tarifs</a></li>
     <li><a href="#contact">Contact</a></li>
   </ul>
@@ -137,209 +160,308 @@
 
 <div class="container">
 
+  <!-- HERO -->
   <section class="hero">
-    <p class="hero-label">Open Data — Décision</p>
-    <h1>Des données publiques aux décisions professionnelles.</h1>
-    <p>SAHAR Conseil transforme les données ouvertes françaises — DVF, DPE, INSEE — en outils d'analyse concrets pour les professionnels de l'immobilier, de l'énergie et du commerce.</p>
-    <div style="display:flex;gap:2rem;margin-bottom:2rem;flex-wrap:wrap;">
-      <div><span style="font-weight:600;font-size:1.1rem">421 000</span><span style="font-size:.85rem;color:#666;margin-left:.4rem">transactions Gironde</span></div>
-      <div><span style="font-weight:600;font-size:1.1rem">100%</span><span style="font-size:.85rem;color:#666;margin-left:.4rem">open data public</span></div>
-      <div><span style="font-weight:600;font-size:1.1rem">0€</span><span style="font-size:.85rem;color:#666;margin-left:.4rem">pour démarrer</span></div>
-    </div>
+    <p class="hero-tag">Open Data → Pipeline → Closing</p>
+    <h1>De la donnée publique<br>au <em>deal signé</em>.</h1>
+    <p class="hero-lead">SAHAR détecte les opportunités dans les données ouvertes françaises, les score, et les pousse dans votre pipeline commercial. Immobilier, énergie, retail.</p>
     <div class="hero-actions">
-      <a href="#outils" class="btn btn-dark">Voir les outils</a>
-      <a href="#contact" class="btn btn-outline">Demander une démo</a>
+      <a href="#contact" class="btn btn-dark">Démarrer gratuitement</a>
+      <a href="#services" class="btn btn-outline">Voir comment ça marche</a>
+    </div>
+    <div class="hero-proof">
+      <div class="proof-item"><span>421 000</span><span>transactions Gironde</span></div>
+      <div class="proof-item"><span>10M+</span><span>logements DPE</span></div>
+      <div class="proof-item"><span>0€</span><span>pour démarrer</span></div>
+      <div class="proof-item"><span>30 sec</span><span>pour un rapport</span></div>
     </div>
   </section>
 
-  <section>
-    <div class="stats">
-      <div><div class="stat-num">5M+</div><div class="stat-label">Transactions DVF analysables</div></div>
-      <div><div class="stat-num">10M+</div><div class="stat-label">Logements DPE disponibles</div></div>
-      <div><div class="stat-num">36 000</div><div class="stat-label">Communes couvertes</div></div>
-      <div><div class="stat-num">100%</div><div class="stat-label">Open data publique</div></div>
-    </div>
-  </section>
-
-  <section id="outils">
-    <p class="section-label">Suite d'outils</p>
-    <h2>Outils métiers, pas dashboards génériques.</h2>
-    <p class="section-intro">Chaque outil est conçu pour un cas d'usage précis, avec un scoring propriétaire et des exports directement utilisables.</p>
-    <div class="tools-list">
-      <div class="tool-item">
-        <div class="tool-top"><span class="tool-name">DVF Analyse Pro</span><span class="tool-status status-live">Disponible</span></div>
-        <div class="tool-sector">Immobilier</div>
-        <p class="tool-desc">Score d'opportunité sur les transactions, carte des prix au m², détection des biens sous-valorisés. Export Excel et PDF.</p>
-        <a href="#contact" style="display:inline-block;margin-top:.75rem;font-size:.8rem;font-weight:500;color:#1a1a1a;text-decoration:none;border-bottom:1px solid #ccc">Demander un accès →</a>
-      </div>
-      <div class="tool-item">
-        <div class="tool-top"><span class="tool-name">DPE Scanner</span><span class="tool-status status-live">Disponible</span></div>
-        <div class="tool-sector">Énergie / Rénovation</div>
-        <p class="tool-desc">Liste de prospects F/G par commune, score d'urgence rénovation, export CRM-ready pour artisans RGE et bailleurs.</p>
-        <a href="#contact" style="display:inline-block;margin-top:.75rem;font-size:.8rem;font-weight:500;color:#1a1a1a;text-decoration:none;border-bottom:1px solid #ccc">Demander un accès →</a>
-      </div>
-      <div class="tool-item">
-        <div class="tool-top"><span class="tool-name">Zone Score Retail</span><span class="tool-status status-beta">Bêta</span></div>
-        <div class="tool-sector">Retail / Franchise</div>
-        <p class="tool-desc">Score attractivité commerciale 0–100 : densité équipements, population, niveau de concurrence SIRENE.</p>
-      </div>
-      <div class="tool-item">
-        <div class="tool-top"><span class="tool-name">EV Potential Map</span><span class="tool-status status-soon">À venir</span></div>
-        <div class="tool-sector">Automobile</div>
-        <p class="tool-desc">Potentiel véhicules électriques par IRIS, zones blanches de bornes, score de pénétration par département.</p>
-      </div>
-      <div class="tool-item">
-        <div class="tool-top"><span class="tool-name">RH Tension Map</span><span class="tool-status status-soon">À venir</span></div>
-        <div class="tool-sector">RH / Recrutement</div>
-        <p class="tool-desc">Tension recrutement par bassin d'emploi et métier, indice DARES, carte des zones sous-dotées.</p>
-      </div>
-      <div class="tool-item">
-        <div class="tool-top"><span class="tool-name">Étude sur mesure</span><span class="tool-status status-soon">Sur demande</span></div>
-        <div class="tool-sector">Tous secteurs</div>
-        <p class="tool-desc">Analyse territoriale personnalisée. Rapport PDF + présentation, livré en 5 jours ouvrés.</p>
-      </div>
-    </div>
-  </section>
-
-  <section id="secteurs">
-    <p class="section-label">Secteurs</p>
-    <h2>Multi-sectoriel.</h2>
-    <p class="section-intro">Même logique, même interface, mêmes standards — appliqués aux enjeux de chaque métier.</p>
-    <div class="sectors-list">
-      <div class="sector-item"><div class="sector-name">Immobilier</div><div class="sector-desc">Prix réels, opportunités sous-valorisées, analyse de marché</div></div>
-      <div class="sector-item"><div class="sector-name">Énergie / Rénovation</div><div class="sector-desc">Passoires thermiques, priorité rénovation, ciblage prospects</div></div>
-      <div class="sector-item"><div class="sector-name">Retail / Franchise</div><div class="sector-desc">Attractivité zone, concurrence, zones blanches</div></div>
-      <div class="sector-item"><div class="sector-name">Automobile</div><div class="sector-desc">Potentiel EV, parc immatriculé, zones prioritaires</div></div>
-      <div class="sector-item"><div class="sector-name">RH / Recrutement</div><div class="sector-desc">Tension recrutement, bassins d'emploi, dynamique chômage</div></div>
-      <div class="sector-item"><div class="sector-name">Santé (v2)</div><div class="sector-desc">Déserts médicaux, densité praticiens, attractivité</div></div>
-    </div>
-  </section>
-
-  <section>
-    <p class="section-label">Méthode</p>
-    <h2>De la donnée brute à la décision.</h2>
-    <p class="section-intro">Quatre étapes, moins de trente secondes.</p>
-    <div class="steps">
-      <div class="step"><span class="step-num">01</span><div><div class="step-title">Choisir la zone</div><div class="step-desc">Département, commune ou code postal. Les données se chargent automatiquement depuis les sources ouvertes.</div></div></div>
-      <div class="step"><span class="step-num">02</span><div><div class="step-title">Appliquer les filtres</div><div class="step-desc">Type de bien, surface, période, budget. Les résultats se mettent à jour en temps réel.</div></div></div>
-      <div class="step"><span class="step-num">03</span><div><div class="step-title">Lire le score</div><div class="step-desc">Chaque résultat est scoré de 0 à 100 selon des critères métier pondérés. Vert = opportunité. Rouge = marché tendu.</div></div></div>
-      <div class="step"><span class="step-num">04</span><div><div class="step-title">Exporter et agir</div><div class="step-desc">Rapport PDF professionnel ou fichier Excel prêt pour votre CRM, en un clic.</div></div></div>
-    </div>
-  </section>
-
-  <section id="tarifs">
-    <p class="section-label">Tarifs</p>
-    <h2>Simple. Transparent. Sans engagement.</h2>
-    <p class="section-intro">Annuler à tout moment.</p>
-    <div class="pricing-grid">
-      <div class="plan">
-        <div class="plan-name">Découverte</div>
-        <div class="plan-price">0 € <span>/mois</span></div>
-        <div class="plan-desc">Pour tester</div>
-        <ul class="plan-features">
-          <li class="on">Accès 1 outil</li>
-          <li class="on">5 recherches/mois</li>
-          <li class="on">Carte interactive</li>
-          <li>Exports</li>
-          <li>Scoring complet</li>
+  <!-- SERVICES -->
+  <section id="services">
+    <p class="section-tag">Deux services</p>
+    <h2>Data. Pipeline. Les deux.</h2>
+    <p class="section-lead">SAHAR propose deux services complémentaires. Prenez l'un, l'autre, ou les deux — selon où vous en êtes.</p>
+    <div class="services">
+      <div class="service">
+        <div class="service-num">Service 01</div>
+        <h3>Détection & Analyse</h3>
+        <p>Transformez les données publiques en listes de prospects qualifiés et scorés. DVF, DPE, INSEE, SIRENE — toutes les sources exploitées automatiquement.</p>
+        <ul class="service-features">
+          <li>Score d'opportunité 0–100 par prospect</li>
+          <li>Carte interactive des transactions</li>
+          <li>Filtres secteur, surface, prix, date</li>
+          <li>Rapport PDF marché en 1 clic</li>
+          <li>Export Excel prêt pour votre CRM</li>
         </ul>
+        <a href="immobilier.html" class="service-link">Voir l'outil immobilier →</a>
+      </div>
+      <div class="service">
+        <div class="service-num">Service 02</div>
+        <h3>Pipeline & CRM</h3>
+        <p>Gérez vos prospects directement dans SAHAR. De la détection au closing, un seul outil. Pas besoin de jongler entre 4 logiciels.</p>
+        <ul class="service-features">
+          <li>Pipeline Kanban : Détecté → Contacté → Qualifié → Closing</li>
+          <li>Fiche prospect enrichie avec données open data</li>
+          <li>Notes, historique, rappels</li>
+          <li>KPIs commerciaux en temps réel</li>
+          <li>Mobile first — utilisable terrain</li>
+        </ul>
+        <a href="crm.html" class="service-link">Voir le CRM →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- PIPELINE VISUEL -->
+  <section>
+    <p class="section-tag">Méthode</p>
+    <h2>Un seul flux. De la donnée au deal.</h2>
+    <p class="section-lead">Chaque étape est outillée. Rien ne se perd entre la détection et le closing.</p>
+    <div class="pipeline">
+      <div class="pipeline-step">
+        <span class="p-num">01</span>
+        <span class="p-stage">Détection</span>
+        <span class="p-desc">Open data scanné automatiquement. DVF, DPE, INSEE.</span>
+      </div>
+      <div class="pipeline-step">
+        <span class="p-num">02</span>
+        <span class="p-stage">Scoring</span>
+        <span class="p-desc">Chaque opportunité scorée 0–100 selon critères métier.</span>
+      </div>
+      <div class="pipeline-step">
+        <span class="p-num">03</span>
+        <span class="p-stage">Qualification</span>
+        <span class="p-desc">Fiche enrichie, contexte marché, historique prospect.</span>
+      </div>
+      <div class="pipeline-step">
+        <span class="p-num">04</span>
+        <span class="p-stage">Action</span>
+        <span class="p-desc">Appel, email, visite. Tout tracé dans le pipeline.</span>
+      </div>
+      <div class="pipeline-step">
+        <span class="p-num">05</span>
+        <span class="p-stage">Closing</span>
+        <span class="p-desc">Deal fermé. KPIs mis à jour. Prochain prospect.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- OUTILS -->
+  <section id="outils">
+    <p class="section-tag">Suite d'outils</p>
+    <h2>Un outil par secteur, un pipeline pour tous.</h2>
+    <p class="section-lead">Chaque outil détecte les opportunités dans son secteur et les pousse automatiquement dans votre CRM SAHAR.</p>
+    <div class="tools-grid">
+      <div class="tool">
+        <div class="tool-top"><span class="tool-name">DVF Analyse Pro</span><span class="badge badge-live">Live</span></div>
+        <div class="tool-sector">Immobilier</div>
+        <p class="tool-desc">Transactions réelles, prix au m², scoring sous-valorisation. 421 000 lignes Gironde disponibles.</p>
+        <a href="immobilier.html" class="tool-cta">En savoir plus →</a>
+      </div>
+      <div class="tool">
+        <div class="tool-top"><span class="tool-name">DPE Scanner</span><span class="badge badge-live">Live</span></div>
+        <div class="tool-sector">Énergie / Rénovation</div>
+        <p class="tool-desc">Passoires F/G par commune, score d'urgence, liste prospects CRM-ready pour artisans RGE.</p>
+        <a href="energie-renovation.html" class="tool-cta">En savoir plus →</a>
+      </div>
+      <div class="tool">
+        <div class="tool-top"><span class="tool-name">Zone Score Retail</span><span class="badge badge-beta">Bêta</span></div>
+        <div class="tool-sector">Retail / Franchise</div>
+        <p class="tool-desc">Score attractivité zone, densité concurrence, flux population. Pour les développeurs réseau.</p>
+        <a href="#contact" class="tool-cta">Accès bêta →</a>
+      </div>
+      <div class="tool">
+        <div class="tool-top"><span class="tool-name">EV Potential Map</span><span class="badge badge-soon">Bientôt</span></div>
+        <div class="tool-sector">Automobile</div>
+        <p class="tool-desc">Potentiel VE par IRIS, zones blanches bornes, score pénétration. Pour concessionnaires et réseaux SAV.</p>
+        <a href="#contact" class="tool-cta">Liste d'attente →</a>
+      </div>
+      <div class="tool">
+        <div class="tool-top"><span class="tool-name">RH Tension Map</span><span class="badge badge-soon">Bientôt</span></div>
+        <div class="tool-sector">RH / Recrutement</div>
+        <p class="tool-desc">Tension recrutement par bassin et métier. Pour DRH et cabinets qui veulent savoir où chercher.</p>
+        <a href="#contact" class="tool-cta">Liste d'attente →</a>
+      </div>
+      <div class="tool" style="background:#fafafa">
+        <div class="tool-top"><span class="tool-name">Étude sur mesure</span><span class="badge badge-soon">Sur demande</span></div>
+        <div class="tool-sector">Tous secteurs</div>
+        <p class="tool-desc">Analyse territoriale personnalisée. Rapport PDF + slides. Livré en 5 jours ouvrés. À partir de 500€.</p>
+        <a href="#contact" class="tool-cta">Demander un devis →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- CRM -->
+  <section id="crm">
+    <p class="section-tag">CRM intégré</p>
+    <h2>Votre pipeline commercial, alimenté par la data.</h2>
+    <p class="section-lead">Pas un CRM généraliste. Un CRM construit autour des données open data — chaque prospect arrive déjà enrichi, scoré, contextualisé.</p>
+    <div class="crm-grid">
+      <div class="crm-card">
+        <h3>Pipeline Kanban</h3>
+        <p>Vue colonne : Détecté → Contacté → Qualifié → Proposition → Closing. Glissez vos prospects d'une étape à l'autre. Mobile friendly, utilisable sur le terrain.</p>
+      </div>
+      <div class="crm-card">
+        <h3>Fiche prospect enrichie</h3>
+        <p>Chaque prospect arrive avec ses données open data : prix de marché, score opportunité, historique de la zone. Vous appelez en sachant exactement quoi dire.</p>
+      </div>
+      <div class="crm-card">
+        <h3>KPIs commerciaux</h3>
+        <p>Taux de conversion par étape, délai moyen de closing, valeur pipeline, top opportunités. Tout en temps réel, sans Excel.</p>
+      </div>
+      <div class="crm-card">
+        <h3>Notes & historique</h3>
+        <p>Chaque appel, chaque échange tracé sur la fiche prospect. Rappels configurables. Rien ne se perd, même quand vous gérez 50 prospects en parallèle.</p>
+      </div>
+      <div class="crm-card">
+        <h3>Import / Export</h3>
+        <p>Vos prospects SAHAR exportés en CSV vers HubSpot, Pipedrive, Salesforce ou votre outil maison. Ou importez vos prospects existants pour les enrichir avec la data.</p>
+      </div>
+      <div class="crm-card">
+        <h3>Score SDR</h3>
+        <p>Chaque prospect reçoit un score de priorité pour vos SDR : qui appeler en premier, quel argument utiliser, quelle zone cibler. La donnée au service de la prospection sortante.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- KPIs -->
+  <section>
+    <p class="section-tag">Ce que ça change</p>
+    <h2>Des KPIs qui parlent aux sales.</h2>
+    <p class="section-lead">SAHAR n'est pas un outil BI. C'est un outil de performance commerciale.</p>
+    <div class="kpi-row">
+      <div class="kpi"><span class="kpi-val">3×</span><span class="kpi-label">plus de prospects qualifiés par semaine</span></div>
+      <div class="kpi"><span class="kpi-val">-60%</span><span class="kpi-label">de temps passé à chercher la data</span></div>
+      <div class="kpi"><span class="kpi-val">30s</span><span class="kpi-label">pour générer un rapport marché client</span></div>
+      <div class="kpi"><span class="kpi-val">100%</span><span class="kpi-label">de données officielles vérifiables</span></div>
+    </div>
+  </section>
+
+  <!-- SECTEURS -->
+  <section id="secteurs">
+    <p class="section-tag">Secteurs</p>
+    <h2>Multi-sectoriel. Même logique partout.</h2>
+    <p class="section-lead">La détection change selon le secteur. Le pipeline commercial reste le même.</p>
+    <div class="sectors">
+      <div class="sector"><h3>Immobilier</h3><p>Agents, investisseurs, promoteurs. DVF + scoring sous-valorisation.</p></div>
+      <div class="sector"><h3>Énergie / Rénovation</h3><p>Artisans RGE, bailleurs, bureaux d'études. DPE F/G + score urgence.</p></div>
+      <div class="sector"><h3>Retail / Franchise</h3><p>Développeurs réseau, franchiseurs. Score attractivité zone + concurrence.</p></div>
+      <div class="sector"><h3>Automobile</h3><p>Concessionnaires, réseaux SAV. Potentiel EV + zones blanches bornes.</p></div>
+      <div class="sector"><h3>RH / Recrutement</h3><p>DRH, cabinets. Tension recrutement par bassin et métier DARES.</p></div>
+      <div class="sector"><h3>Sur mesure</h3><p>Votre secteur, vos données, votre scoring. Étude territoriale personnalisée.</p></div>
+    </div>
+  </section>
+
+  <!-- TARIFS -->
+  <section id="tarifs">
+    <p class="section-tag">Tarifs</p>
+    <h2>Simple. Sans engagement.</h2>
+    <p class="section-lead">Annuler à tout moment. Pas de frais cachés.</p>
+    <div class="pricing">
+      <div class="plan">
+        <div class="plan-tag">Démarrer</div>
+        <div class="plan-price">0€ <span>/mois</span></div>
+        <div class="plan-desc">Pour tester l'outil et voir ce que les données donnent sur votre secteur.</div>
+        <ul class="plan-features">
+          <li>1 outil en accès limité</li>
+          <li>5 recherches par mois</li>
+          <li>Carte interactive</li>
+          <li class="off">Export Excel / PDF</li>
+          <li class="off">CRM & pipeline</li>
+          <li class="off">Scoring complet</li>
+        </ul>
+        <a href="#contact" class="btn btn-outline" style="display:block;text-align:center">Commencer</a>
       </div>
       <div class="plan featured">
-        <div class="plan-name">Pro</div>
-        <div class="plan-price">49 € <span>/mois</span></div>
-        <div class="plan-desc">1 outil complet</div>
+        <div class="plan-tag">Recommandé</div>
+        <div class="plan-price">49€ <span>/mois</span></div>
+        <div class="plan-desc">Un outil complet + CRM intégré. Pour les pros qui veulent aller vite.</div>
         <ul class="plan-features">
-          <li class="on">1 outil complet</li>
-          <li class="on">Illimité</li>
-          <li class="on">Scoring complet</li>
-          <li class="on">Export Excel + PDF</li>
-          <li>Multi-outils</li>
+          <li>1 outil complet</li>
+          <li>Recherches illimitées</li>
+          <li>Scoring complet</li>
+          <li>Export Excel + PDF</li>
+          <li>CRM & pipeline Kanban</li>
+          <li>KPIs commerciaux</li>
         </ul>
+        <a href="#contact" class="btn btn-dark" style="display:block;text-align:center">Démarrer</a>
       </div>
       <div class="plan">
-        <div class="plan-name">Business</div>
-        <div class="plan-price">99 € <span>/mois</span></div>
-        <div class="plan-desc">Tous les outils</div>
+        <div class="plan-tag">Business</div>
+        <div class="plan-price">99€ <span>/mois</span></div>
+        <div class="plan-desc">Tous les outils, tous les secteurs, pour les équipes commerciales.</div>
         <ul class="plan-features">
-          <li class="on">Tous les outils</li>
-          <li class="on">Exports illimités</li>
-          <li class="on">PDF brandés</li>
-          <li class="on">Support prioritaire</li>
-          <li>API (v3)</li>
+          <li>Tous les outils</li>
+          <li>CRM multi-utilisateurs</li>
+          <li>Exports illimités</li>
+          <li>Rapports PDF brandés</li>
+          <li>Support prioritaire</li>
+          <li>Intégration HubSpot / Pipedrive</li>
         </ul>
+        <a href="#contact" class="btn btn-outline" style="display:block;text-align:center">Nous contacter</a>
       </div>
-      <div class="plan">
-        <div class="plan-name">Sur mesure</div>
-        <div class="plan-price">500 € <span>/étude</span></div>
-        <div class="plan-desc">Analyse personnalisée</div>
-        <ul class="plan-features">
-          <li class="on">Zone spécifique</li>
-          <li class="on">Scoring custom</li>
-          <li class="on">Rapport PDF</li>
-          <li class="on">Restitution incluse</li>
-        </ul>
-      </div>
+    </div>
+    <p style="margin-top:1.5rem;font-size:.82rem;color:#888;text-align:center">Études sur mesure à partir de 500€ — <a href="#contact" style="color:#888">demander un devis</a></p>
+  </section>
+
+  <!-- SOURCES -->
+  <section>
+    <p class="section-tag">Données sources</p>
+    <h2>100% données officielles.</h2>
+    <p class="section-lead">SAHAR n'invente rien. Il exploite les sources publiques françaises que vous ne lisez pas faute de temps.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin-top:1.5rem">
+      <div style="border:1px solid #e5e5e5;border-radius:8px;padding:1rem;font-size:.85rem"><div style="font-weight:600;margin-bottom:.2rem">data.gouv.fr</div><div style="color:#666">DVF — transactions notariées</div></div>
+      <div style="border:1px solid #e5e5e5;border-radius:8px;padding:1rem;font-size:.85rem"><div style="font-weight:600;margin-bottom:.2rem">ADEME</div><div style="color:#666">Base nationale DPE</div></div>
+      <div style="border:1px solid #e5e5e5;border-radius:8px;padding:1rem;font-size:.85rem"><div style="font-weight:600;margin-bottom:.2rem">INSEE</div><div style="color:#666">IRIS, BPE, socio-éco</div></div>
+      <div style="border:1px solid #e5e5e5;border-radius:8px;padding:1rem;font-size:.85rem"><div style="font-weight:600;margin-bottom:.2rem">Etalab</div><div style="color:#666">Cadastre, BAN, SIRENE</div></div>
+      <div style="border:1px solid #e5e5e5;border-radius:8px;padding:1rem;font-size:.85rem"><div style="font-weight:600;margin-bottom:.2rem">DARES</div><div style="color:#666">Marché du travail, tensions</div></div>
+      <div style="border:1px solid #e5e5e5;border-radius:8px;padding:1rem;font-size:.85rem"><div style="font-weight:600;margin-bottom:.2rem">SDES</div><div style="color:#666">Immatriculations, énergie</div></div>
     </div>
   </section>
 
-  <section style="background:#fafafa;border-top:1px solid #e5e5e5;border-bottom:1px solid #e5e5e5">
-    <p class="section-label">Données sources</p>
-    <h2>Construit sur les données officielles.</h2>
-    <p class="section-intro">SAHAR ne collecte pas de données — il exploite uniquement les sources publiques officielles françaises.</p>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin-top:2rem">
-      <div style="padding:1rem;background:#fff;border:1px solid #e5e5e5;border-radius:8px;font-size:.85rem">
-        <div style="font-weight:600;margin-bottom:.25rem">data.gouv.fr</div>
-        <div style="color:#666">DVF — Demandes de Valeurs Foncières</div>
-      </div>
-      <div style="padding:1rem;background:#fff;border:1px solid #e5e5e5;border-radius:8px;font-size:.85rem">
-        <div style="font-weight:600;margin-bottom:.25rem">ADEME</div>
-        <div style="color:#666">Base nationale des DPE</div>
-      </div>
-      <div style="padding:1rem;background:#fff;border:1px solid #e5e5e5;border-radius:8px;font-size:.85rem">
-        <div style="font-weight:600;margin-bottom:.25rem">INSEE</div>
-        <div style="color:#666">IRIS, BPE, données socio-éco</div>
-      </div>
-      <div style="padding:1rem;background:#fff;border:1px solid #e5e5e5;border-radius:8px;font-size:.85rem">
-        <div style="font-weight:600;margin-bottom:.25rem">Etalab</div>
-        <div style="color:#666">Cadastre, BAN, SIRENE</div>
-      </div>
-    </div>
-  </section>
-
+  <!-- CONTACT -->
   <section id="contact">
-    <p class="section-label">Contact</p>
-    <h2>Demander une démo.</h2>
-    <p class="section-intro">Réponse sous 24h ouvrées.</p>
-    <form class="contact-form" action="https://formspree.io/f/tristan.alba@gmail.com" method="POST">
-      <div class="form-row">
+    <div class="contact-wrap">
+      <div class="contact-info">
+        <p class="section-tag">Contact</p>
+        <h2>On en parle ?</h2>
+        <p>Envoyez votre secteur et votre zone — je reviens vers vous dans la journée avec une démo sur vos données réelles.</p>
+        <p>Pas de présentation générique. Pas de deck de 40 slides. Juste vos données, votre marché, votre pipeline.</p>
+        <div class="contact-detail">
+          <a href="mailto:tristan.alba@gmail.com">tristan.alba@gmail.com</a>
+          <a href="https://linkedin.com/in/tristanalba" target="_blank">LinkedIn — Tristan Alba</a>
+          <span style="font-size:.85rem;color:#aaa">Bordeaux — Gironde</span>
+        </div>
+      </div>
+      <form class="form" action="https://formspree.io/f/xbdplokr" method="POST">
         <div class="field">
           <label>Nom</label>
-          <input type="text" name="nom" placeholder="Jean Dupont" required />
+          <input type="text" name="nom" placeholder="Votre nom" required />
         </div>
         <div class="field">
           <label>Email</label>
-          <input type="email" name="email" placeholder="jean@entreprise.fr" required />
+          <input type="email" name="email" placeholder="votre@email.com" required />
         </div>
-      </div>
-      <div class="field">
-        <label>Secteur</label>
-        <select name="secteur">
-          <option value="">Choisir</option>
-          <option>Immobilier</option>
-          <option>Énergie / Rénovation</option>
-          <option>Retail / Franchise</option>
-          <option>Automobile</option>
-          <option>RH / Recrutement</option>
-          <option>Autre</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>Votre besoin</label>
-        <textarea name="message" placeholder="Je cherche à analyser le marché immobilier sur Lyon..."></textarea>
-      </div>
-      <button type="submit" class="btn btn-dark" style="width:100%">Envoyer →</button>
-      <p class="form-note">Pas de spam. Vos données ne sont pas revendues.</p>
-    </form>
+        <div class="field">
+          <label>Secteur</label>
+          <select name="secteur">
+            <option value="">Votre secteur</option>
+            <option>Immobilier</option>
+            <option>Énergie / Rénovation</option>
+            <option>Retail / Franchise</option>
+            <option>Automobile</option>
+            <option>RH / Recrutement</option>
+            <option>Autre</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Zone géographique & besoin</label>
+          <textarea name="message" placeholder="Ex : agent immo sur Bordeaux, je cherche à détecter les biens sous-valorisés en Gironde..."></textarea>
+        </div>
+        <button type="submit" class="btn btn-dark" style="width:100%;text-align:center">Envoyer →</button>
+        <p class="form-note">Réponse sous 24h. Pas de spam.</p>
+      </form>
+    </div>
   </section>
 
 </div>
@@ -349,9 +471,13 @@
     <div class="footer-inner">
       <p>© 2024 SAHAR Conseil — <a href="mailto:tristan.alba@gmail.com" style="color:#888;text-decoration:none">tristan.alba@gmail.com</a></p>
       <ul class="footer-links">
+        <li><a href="#services">Services</a></li>
         <li><a href="#outils">Outils</a></li>
+        <li><a href="#crm">CRM</a></li>
         <li><a href="#tarifs">Tarifs</a></li>
-        <li><a href="#contact">Contact</a></li>
+        <li><a href="immobilier.html">Immobilier</a></li>
+        <li><a href="energie-renovation.html">Énergie</a></li>
+        <li><a href="crm.html">CRM</a></li>
       </ul>
     </div>
   </div>

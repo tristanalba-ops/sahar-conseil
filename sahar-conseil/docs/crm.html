@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CRM prospection open data — Pipeline SDR & closing — SAHAR Conseil</title>
+  <meta name="description" content="CRM intégré alimenté par les données publiques. Pipeline Kanban, score SDR, KPIs commerciaux, fiche prospect enrichie. Pour les équipes sales qui veulent prospecter avec la data." />
+  <meta property="og:title" content="CRM Data-driven — SAHAR Conseil" />
+  <link rel="canonical" href="https://tristanalba-ops.github.io/sahar-conseil/crm.html" />
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:16px;line-height:1.65;color:#1a1a1a;background:#fff}
+    nav{border-bottom:1px solid #e5e5e5;padding:0 5%;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff;z-index:10}
+    .logo{font-weight:600;font-size:1rem;text-decoration:none;color:#1a1a1a}
+    .nav-cta{font-size:.875rem;font-weight:500;text-decoration:none;background:#1a1a1a;color:#fff;padding:.5rem 1.1rem;border-radius:6px}
+    .container{max-width:760px;margin:0 auto;padding:0 5%}
+    section{padding:3.5rem 0;border-bottom:1px solid #e5e5e5}
+    section:last-of-type{border-bottom:none}
+    .hero{padding:5rem 0 3.5rem}
+    .breadcrumb{font-size:.78rem;color:#888;margin-bottom:1.5rem}
+    .breadcrumb a{color:#888;text-decoration:none}
+    h1{font-size:clamp(1.8rem,3.5vw,2.5rem);font-weight:600;letter-spacing:-.03em;line-height:1.15;margin-bottom:1.2rem}
+    h2{font-size:1.35rem;font-weight:600;letter-spacing:-.02em;margin-bottom:.9rem}
+    h3{font-size:.95rem;font-weight:600;margin-bottom:.4rem}
+    .lead{font-size:1.05rem;color:#444;max-width:560px;margin-bottom:1.75rem}
+    p{color:#333;margin-bottom:1rem}
+    p:last-child{margin-bottom:0}
+    .btn{display:inline-block;padding:.65rem 1.4rem;border-radius:6px;font-size:.9rem;font-weight:500;text-decoration:none}
+    .btn-dark{background:#1a1a1a;color:#fff}
+    .btn-outline{border:1px solid #ccc;color:#1a1a1a}
+    .highlight{background:#f5f5f5;border-left:3px solid #1a1a1a;padding:1rem 1.25rem;border-radius:0 6px 6px 0;margin:1.5rem 0;font-size:.93rem;color:#333}
+    .kanban{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:#e5e5e5;border:1px solid #e5e5e5;border-radius:8px;overflow:hidden;margin-top:1.5rem}
+    .kanban-col{background:#fafafa;padding:1rem}
+    .kanban-header{font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:#888;margin-bottom:.75rem;display:flex;justify-content:space-between;align-items:center}
+    .kanban-count{background:#e5e5e5;border-radius:100px;padding:.1rem .45rem;font-size:.68rem;color:#666}
+    .kanban-card{background:#fff;border:1px solid #e5e5e5;border-radius:6px;padding:.75rem;margin-bottom:.5rem;font-size:.8rem}
+    .kanban-card-name{font-weight:600;margin-bottom:.2rem;font-size:.82rem}
+    .kanban-card-detail{color:#888;font-size:.75rem}
+    .kanban-score{display:inline-block;font-size:.68rem;font-weight:600;padding:.1rem .4rem;border-radius:3px;margin-top:.3rem}
+    .score-high{background:#e8f5e9;color:#2e7d32}
+    .score-med{background:#fff8e1;color:#e65100}
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1.5rem}
+    .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-top:1.5rem}
+    .card{border:1px solid #e5e5e5;border-radius:8px;padding:1.25rem}
+    .card p{font-size:.85rem;color:#555;margin:.3rem 0 0}
+    .kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-top:1.5rem}
+    .kpi{border:1px solid #e5e5e5;border-radius:8px;padding:1.25rem;text-align:center}
+    .kpi-val{font-size:1.6rem;font-weight:600;letter-spacing:-.02em;display:block}
+    .kpi-label{font-size:.75rem;color:#666;display:block;margin-top:.2rem}
+    .faq{border:1px solid #e5e5e5;border-radius:8px;overflow:hidden;margin-top:1.5rem}
+    .faq-item{padding:1.2rem;border-bottom:1px solid #e5e5e5}
+    .faq-item:last-child{border:none}
+    .faq-q{font-weight:600;font-size:.92rem;margin-bottom:.35rem}
+    .faq-a{font-size:.87rem;color:#555}
+    .cta-block{background:#f5f5f5;border-radius:8px;padding:2rem;text-align:center;margin-top:2rem}
+    .cta-block p{color:#666;font-size:.95rem;margin-bottom:1.25rem}
+    footer{padding:2rem 0;border-top:1px solid #e5e5e5}
+    footer p{font-size:.8rem;color:#888}
+    @media(max-width:640px){.grid-2,.grid-3,.kanban,.kpi-row{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<nav>
+  <a href="index.html" class="logo">SAHAR Conseil</a>
+  <a href="index.html#contact" class="nav-cta">Demander une démo</a>
+</nav>
+<div class="container">
+
+  <div class="hero">
+    <div class="breadcrumb"><a href="index.html">Accueil</a> → CRM</div>
+    <h1>Un CRM qui sait déjà qui appeler<br>et pourquoi.</h1>
+    <p class="lead">La plupart des CRM sont des bases de contacts vides. SAHAR fait l'inverse : chaque prospect arrive enrichi avec ses données de marché, son score de priorité, et son contexte. Votre SDR n'a plus qu'à décrocher.</p>
+    <div style="display:flex;gap:1rem;flex-wrap:wrap">
+      <a href="index.html#contact" class="btn btn-dark">Voir le CRM →</a>
+      <a href="index.html#tarifs" class="btn btn-outline">Tarifs</a>
+    </div>
+  </div>
+
+  <section>
+    <h2>Le problème avec les CRM classiques.</h2>
+    <p>HubSpot, Pipedrive, Salesforce — ce sont des outils excellents pour gérer des contacts que vous avez déjà. Mais ils ne vous disent pas qui prospecter, ni pourquoi, ni quand.</p>
+    <div class="highlight">
+      SAHAR fait le travail en amont : il détecte les prospects dans les données publiques, les score selon leur potentiel, et les pousse dans votre pipeline — déjà contextualisés. Votre CRM reçoit des leads chauds, pas des noms dans un tableur.
+    </div>
+    <p>Résultat : vos SDR passent moins de temps à chercher et plus de temps à closer.</p>
+  </section>
+
+  <section>
+    <h2>Le pipeline Kanban — vue terrain.</h2>
+    <p>Quatre colonnes. Un prospect. Un objectif.</p>
+    <div class="kanban">
+      <div class="kanban-col">
+        <div class="kanban-header">Détectés <span class="kanban-count">47</span></div>
+        <div class="kanban-card">
+          <div class="kanban-card-name">Maison — Bordeaux 33200</div>
+          <div class="kanban-card-detail">85m² — 2 850€/m²</div>
+          <span class="kanban-score score-high">Score 84</span>
+        </div>
+        <div class="kanban-card">
+          <div class="kanban-card-name">Appt — Mérignac 33700</div>
+          <div class="kanban-card-detail">DPE G — 1967</div>
+          <span class="kanban-score score-high">Score 91</span>
+        </div>
+      </div>
+      <div class="kanban-col">
+        <div class="kanban-header">Contactés <span class="kanban-count">12</span></div>
+        <div class="kanban-card">
+          <div class="kanban-card-name">Appt — Pessac 33600</div>
+          <div class="kanban-card-detail">Rappel : vendredi</div>
+          <span class="kanban-score score-med">Score 67</span>
+        </div>
+      </div>
+      <div class="kanban-col">
+        <div class="kanban-header">Qualifiés <span class="kanban-count">5</span></div>
+        <div class="kanban-card">
+          <div class="kanban-card-name">Maison — Talence</div>
+          <div class="kanban-card-detail">Devis envoyé</div>
+          <span class="kanban-score score-high">Score 78</span>
+        </div>
+      </div>
+      <div class="kanban-col">
+        <div class="kanban-header">Closing <span class="kanban-count">3</span></div>
+        <div class="kanban-card">
+          <div class="kanban-card-name">Maison — Eysines</div>
+          <div class="kanban-card-detail">Mandat signé ✓</div>
+          <span class="kanban-score score-high">Fermé</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Fonctionnalités CRM.</h2>
+    <div class="grid-2">
+      <div class="card"><h3>Fiche prospect enrichie</h3><p>Données open data intégrées : prix de marché, score opportunité, historique de la zone, étiquette DPE. Vous arrivez à l'appel avec les bons chiffres.</p></div>
+      <div class="card"><h3>Score SDR automatique</h3><p>Chaque prospect scoré 0–100. Vos SDR savent qui appeler en premier sans réunion de priorisation. Le score se recalcule à chaque mise à jour des données.</p></div>
+      <div class="card"><h3>Notes & historique</h3><p>Chaque échange tracé chronologiquement sur la fiche. Rappels configurables. Rien ne se perd même avec 50 prospects en cours.</p></div>
+      <div class="card"><h3>KPIs en temps réel</h3><p>Taux de conversion par étape, délai moyen de closing, valeur pipeline estimée, top 10 opportunités. Tableau de bord commercial sans Excel.</p></div>
+      <div class="card"><h3>Mobile first</h3><p>Interface responsive utilisable depuis votre téléphone sur le terrain. Mettez à jour un prospect après un rendez-vous, en route.</p></div>
+      <div class="card"><h3>Export & intégrations</h3><p>Export CSV vers HubSpot, Pipedrive, Salesforce ou votre outil maison. Import de vos contacts existants pour les enrichir avec la data.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>KPIs commerciaux natifs.</h2>
+    <p>Pas besoin de construire un dashboard sous Excel. SAHAR calcule vos KPIs en temps réel.</p>
+    <div class="kpi-row">
+      <div class="kpi"><span class="kpi-val">Conv.</span><span class="kpi-label">Taux par étape du pipeline</span></div>
+      <div class="kpi"><span class="kpi-val">Délai</span><span class="kpi-label">Durée moyenne de closing</span></div>
+      <div class="kpi"><span class="kpi-val">CAC</span><span class="kpi-label">Coût d'acquisition par deal</span></div>
+      <div class="kpi"><span class="kpi-val">MRR</span><span class="kpi-label">Pipeline pondéré par stage</span></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Pour quelles équipes.</h2>
+    <div class="grid-3">
+      <div class="card"><h3>SDR / BDR</h3><p>Liste de prospects priorisés chaque matin. Plus de prospection à froid depuis LinkedIn. La data fait le tri en amont.</p></div>
+      <div class="card"><h3>Account Executives</h3><p>Contexte marché complet avant chaque appel. Argumentaire basé sur les données officielles, pas des approximations.</p></div>
+      <div class="card"><h3>Sales Managers</h3><p>Vision pipeline en temps réel. KPIs par commercial. Identification des goulots d'étranglement sans réunion hebdomadaire.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Questions fréquentes.</h2>
+    <div class="faq">
+      <div class="faq-item">
+        <div class="faq-q">Le CRM SAHAR remplace-t-il HubSpot ou Pipedrive ?</div>
+        <div class="faq-a">Il peut le remplacer si votre prospection est principalement basée sur les données open data. Sinon, il s'utilise en complément — vous exportez vos prospects SAHAR vers votre CRM existant.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Combien d'utilisateurs peuvent accéder au CRM ?</div>
+        <div class="faq-a">Le plan Pro inclut 1 utilisateur. Le plan Business permet plusieurs utilisateurs avec des pipelines partagés. Contactez-nous pour un accès équipe.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Les données sont-elles sécurisées ?</div>
+        <div class="faq-a">Les notes et données commerciales sont stockées de façon sécurisée. Les données open data viennent de sources publiques officielles.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Peut-on importer des prospects existants ?</div>
+        <div class="faq-a">Oui. Importez votre base existante en CSV — SAHAR l'enrichit automatiquement avec les données open data correspondantes.</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="cta-block">
+    <h2>Votre pipeline mérite mieux qu'un tableur.</h2>
+    <p>Démo en 24h sur vos données et votre secteur.</p>
+    <a href="index.html#contact" class="btn btn-dark">Voir le CRM en action →</a>
+  </div>
+
+</div>
+<footer>
+  <div class="container">
+    <p>© 2024 SAHAR Conseil — <a href="mailto:tristan.alba@gmail.com" style="color:#888;text-decoration:none">tristan.alba@gmail.com</a> — <a href="index.html" style="color:#888;text-decoration:none">Accueil</a></p>
+  </div>
+</footer>
+</body>
+</html>
