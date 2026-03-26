@@ -353,6 +353,8 @@ Exemples :
         help="Afficher les départements disponibles et quitter."
     )
 
+    global DELAI_ENTRE_REQUETES
+
     args = parser.parse_args()
 
     if args.liste:
@@ -361,7 +363,6 @@ Exemples :
         sys.exit(0)
 
     # Ajuster le délai global
-    global DELAI_ENTRE_REQUETES
     DELAI_ENTRE_REQUETES = args.delai
 
     departements = args.dept if args.dept else DEPARTEMENTS
