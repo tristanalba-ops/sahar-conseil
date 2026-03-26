@@ -82,7 +82,36 @@ def load_dvf(departement: str) -> pd.DataFrame:
             )
             st.stop()
 
-    return _clean_dvf(pd.read_csv(raw_path, low_memory=False))
+    # Charger uniquement les colonnes utiles pour économiser la RAM
+    colonnes_utiles = [
+        "id_mutation", "date_mutation", "nature_mutation",
+        "valeur_fonciere", "adresse_numero", "adresse_nom_voie",
+        "code_postal", "code_commune", "nom_commune",
+        "code_departement", "type_local",
+        "surface_reelle_bati", "nombre_pieces_principales",
+        "longitude", "latitude"
+    ]
+    # Lire d'abord les colonnes disponibles
+    cols_dispo = pd.read_csv(raw_path, nrows=0).columns.tolist()
+    cols_a_lire = [c for c in colonnes_utiles if c in cols_dispo]
+
+    # Types optimisés pour réduire la RAM
+    dtype_map = {
+        "code_commune": str,
+        "code_postal": str,
+        "code_departement": str,
+        "nature_mutation": "category",
+        "type_local": "category",
+        "nom_commune": "category",
+    }
+
+    df = pd.read_csv(
+        raw_path,
+        usecols=cols_a_lire,
+        dtype={k: v for k, v in dtype_map.items() if k in cols_a_lire},
+        low_memory=False,
+    )
+    return _clean_dvf(df)
 
 
 def _clean_dvf(df: pd.DataFrame) -> pd.DataFrame:
