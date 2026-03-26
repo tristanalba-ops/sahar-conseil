@@ -161,6 +161,7 @@ def traiter_departement(dept, annees, journal, force=False):
 # ── MAIN ──────────────────────────────────────────────────────────────────────
 
 def main():
+    global DELAI
     p = argparse.ArgumentParser(description="Télécharge les DVF depuis data.gouv.fr")
     p.add_argument("--dept", nargs="+", help="Codes département ex: 33 75 69")
     p.add_argument("--all", action="store_true", help="Tous les départements")
@@ -170,7 +171,6 @@ def main():
     p.add_argument("--delai", type=float, default=DELAI, help=f"Délai entre requêtes (défaut {DELAI}s)")
     args = p.parse_args()
 
-    global DELAI
     DELAI = args.delai
 
     depts = DEPARTEMENTS if args.all else (args.dept or ["33"])
