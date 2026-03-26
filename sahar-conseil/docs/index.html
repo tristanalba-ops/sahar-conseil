@@ -4,6 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SAHAR Conseil — Open Data pour les professionnels</title>
+  <meta property="og:title" content="SAHAR Conseil — Open Data pour les professionnels" />
+  <meta property="og:description" content="Transformez les données publiques en outils d'aide à la décision : DVF, DPE, INSEE. Scoring, cartes, exports PDF." />
+  <meta property="og:url" content="https://tristanalba-ops.github.io/sahar-conseil/" />
+  <meta name="theme-color" content="#1a1a1a" />
   <meta name="description" content="SAHAR Conseil transforme les données publiques en outils d'aide à la décision pour les professionnels." />
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -137,6 +141,11 @@
     <p class="hero-label">Open Data — Décision</p>
     <h1>Des données publiques aux décisions professionnelles.</h1>
     <p>SAHAR Conseil transforme les données ouvertes françaises — DVF, DPE, INSEE — en outils d'analyse concrets pour les professionnels de l'immobilier, de l'énergie et du commerce.</p>
+    <div style="display:flex;gap:2rem;margin-bottom:2rem;flex-wrap:wrap;">
+      <div><span style="font-weight:600;font-size:1.1rem">421 000</span><span style="font-size:.85rem;color:#666;margin-left:.4rem">transactions Gironde</span></div>
+      <div><span style="font-weight:600;font-size:1.1rem">100%</span><span style="font-size:.85rem;color:#666;margin-left:.4rem">open data public</span></div>
+      <div><span style="font-weight:600;font-size:1.1rem">0€</span><span style="font-size:.85rem;color:#666;margin-left:.4rem">pour démarrer</span></div>
+    </div>
     <div class="hero-actions">
       <a href="#outils" class="btn btn-dark">Voir les outils</a>
       <a href="#contact" class="btn btn-outline">Demander une démo</a>
@@ -161,11 +170,13 @@
         <div class="tool-top"><span class="tool-name">DVF Analyse Pro</span><span class="tool-status status-live">Disponible</span></div>
         <div class="tool-sector">Immobilier</div>
         <p class="tool-desc">Score d'opportunité sur les transactions, carte des prix au m², détection des biens sous-valorisés. Export Excel et PDF.</p>
+        <a href="#contact" style="display:inline-block;margin-top:.75rem;font-size:.8rem;font-weight:500;color:#1a1a1a;text-decoration:none;border-bottom:1px solid #ccc">Demander un accès →</a>
       </div>
       <div class="tool-item">
         <div class="tool-top"><span class="tool-name">DPE Scanner</span><span class="tool-status status-live">Disponible</span></div>
         <div class="tool-sector">Énergie / Rénovation</div>
         <p class="tool-desc">Liste de prospects F/G par commune, score d'urgence rénovation, export CRM-ready pour artisans RGE et bailleurs.</p>
+        <a href="#contact" style="display:inline-block;margin-top:.75rem;font-size:.8rem;font-weight:500;color:#1a1a1a;text-decoration:none;border-bottom:1px solid #ccc">Demander un accès →</a>
       </div>
       <div class="tool-item">
         <div class="tool-top"><span class="tool-name">Zone Score Retail</span><span class="tool-status status-beta">Bêta</span></div>
@@ -271,11 +282,35 @@
     </div>
   </section>
 
+  <section style="background:#fafafa;border-top:1px solid #e5e5e5;border-bottom:1px solid #e5e5e5">
+    <p class="section-label">Données sources</p>
+    <h2>Construit sur les données officielles.</h2>
+    <p class="section-intro">SAHAR ne collecte pas de données — il exploite uniquement les sources publiques officielles françaises.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin-top:2rem">
+      <div style="padding:1rem;background:#fff;border:1px solid #e5e5e5;border-radius:8px;font-size:.85rem">
+        <div style="font-weight:600;margin-bottom:.25rem">data.gouv.fr</div>
+        <div style="color:#666">DVF — Demandes de Valeurs Foncières</div>
+      </div>
+      <div style="padding:1rem;background:#fff;border:1px solid #e5e5e5;border-radius:8px;font-size:.85rem">
+        <div style="font-weight:600;margin-bottom:.25rem">ADEME</div>
+        <div style="color:#666">Base nationale des DPE</div>
+      </div>
+      <div style="padding:1rem;background:#fff;border:1px solid #e5e5e5;border-radius:8px;font-size:.85rem">
+        <div style="font-weight:600;margin-bottom:.25rem">INSEE</div>
+        <div style="color:#666">IRIS, BPE, données socio-éco</div>
+      </div>
+      <div style="padding:1rem;background:#fff;border:1px solid #e5e5e5;border-radius:8px;font-size:.85rem">
+        <div style="font-weight:600;margin-bottom:.25rem">Etalab</div>
+        <div style="color:#666">Cadastre, BAN, SIRENE</div>
+      </div>
+    </div>
+  </section>
+
   <section id="contact">
     <p class="section-label">Contact</p>
     <h2>Demander une démo.</h2>
     <p class="section-intro">Réponse sous 24h ouvrées.</p>
-    <form class="contact-form" action="https://formspree.io/f/VOTRE_ID" method="POST">
+    <form class="contact-form" action="https://formspree.io/f/tristan.alba@gmail.com" method="POST">
       <div class="form-row">
         <div class="field">
           <label>Nom</label>
@@ -312,7 +347,7 @@
 <footer>
   <div class="container">
     <div class="footer-inner">
-      <p>© 2024 SAHAR Conseil</p>
+      <p>© 2024 SAHAR Conseil — <a href="mailto:tristan.alba@gmail.com" style="color:#888;text-decoration:none">tristan.alba@gmail.com</a></p>
       <ul class="footer-links">
         <li><a href="#outils">Outils</a></li>
         <li><a href="#tarifs">Tarifs</a></li>
