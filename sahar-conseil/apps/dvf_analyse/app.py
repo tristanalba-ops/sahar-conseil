@@ -136,6 +136,10 @@ with st.sidebar:
         st.warning(f"⚠️ Somme des poids = {total:.2f} (doit être 1.0)")
 
     st.markdown("---")
+    if st.button("🔄 Vider le cache"):
+        st.cache_data.clear()
+        st.rerun()
+
     if st.button("🔓 Se déconnecter"):
         from shared.auth import deconnecter
         deconnecter()
