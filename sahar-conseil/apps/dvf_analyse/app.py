@@ -14,6 +14,8 @@ import json
 from datetime import datetime, date
 
 from shared import crm_db
+from shared.scoring_commune import compute_score_commune
+from shared.rapport_pdf import generer_rapport_commune
 
 # ─── CONFIG ──────────────────────────────────────────────────────────────────
 
@@ -258,10 +260,11 @@ st.markdown("---")
 
 # ─── ONGLETS PRINCIPAUX ───────────────────────────────────────────────────────
 
-tab_data, tab_carte, tab_stats, tab_crm, tab_pilotage, tab_export = st.tabs([
+tab_data, tab_carte, tab_stats, tab_marche, tab_crm, tab_pilotage, tab_export = st.tabs([
     "📋 Transactions",
     "🗺️ Carte",
     "📊 Statistiques",
+    "🏙️ Marché par commune",
     "💼 CRM Pipeline",
     "🎯 Pilotage",
     "📥 Export",
@@ -482,7 +485,195 @@ with tab_stats:
         st.info("Installer plotly pour les graphiques : pip install plotly")
 
 
-# ── TAB 4 : CRM PIPELINE (Mobile-first) ──────────────────────────────────────
+# ── TAB 4 : MARCHÉ PAR COMMUNE ───────────────────────────────────────────────
+
+with tab_marche:
+    st.markdown("### 🏙️ Scoring de tension marché par commune")
+    st.caption(
+        "Chaque commune est scorée sur 5 indicateurs : volume de transactions, "
+        "évolution des prix sur 12 mois, ratio de tension offre/demande. "
+        "Score 0–100 — plus c'est haut, plus le marché est dynamique."
+    )
+
+    with st.spinner("Calcul du scoring communes..."):
+        df_comm = compute_score_commune(df)
+
+    if df_comm.empty:
+        st.warning("Pas assez de données pour scorer les communes (minimum 5 transactions/commune requises).")
+    else:
+        # ── Filtres rapides ───────────────────────────────────────────
+        col_f1, col_f2, col_f3 = st.columns(3)
+        with col_f1:
+            signal_filter = st.multiselect(
+                "Signal marché",
+                options=df_comm["Signal marché"].unique().tolist(),
+                default=df_comm["Signal marché"].unique().tolist()
+            )
+        with col_f2:
+            score_min_c = st.slider("Score minimum", 0, 100, 0, 5, key="score_comm_min")
+        with col_f3:
+            nb_communes = st.slider("Nb communes affichées", 5, 100, 30, 5)
+
+        df_comm_filtre = df_comm[
+            (df_comm["Signal marché"].isin(signal_filter)) &
+            (df_comm["Score marché"] >= score_min_c)
+        ].head(nb_communes)
+
+        # ── Métriques résumé ─────────────────────────────────────────
+        m1, m2, m3, m4 = st.columns(4)
+        with m1:
+            st.metric("Communes analysées", len(df_comm))
+        with m2:
+            opps_fortes = (df_comm["Score marché"] >= 70).sum()
+            st.metric("Marchés score ≥ 70", opps_fortes)
+        with m3:
+            vendeur = df_comm["Signal marché"].str.contains("vendeur", case=False).sum()
+            st.metric("Marchés vendeurs", vendeur)
+        with m4:
+            acheteur = df_comm["Signal marché"].str.contains("Opportunité", case=False).sum()
+            st.metric("Opportunités acheteur", acheteur)
+
+        st.markdown("---")
+
+        # ── Tableau scoring ───────────────────────────────────────────
+        cols_display = [
+            "Commune", "Score marché", "Signal marché",
+            "Prix médian €/m²", "Évolution 12m (%)",
+            "Transactions 12m", "Ratio tension",
+        ]
+        df_display = df_comm_filtre[[c for c in cols_display if c in df_comm_filtre.columns]].copy()
+
+        st.dataframe(
+            df_display,
+            use_container_width=True,
+            hide_index=True,
+            column_config={
+                "Score marché": st.column_config.ProgressColumn(
+                    "Score marché", min_value=0, max_value=100, format="%d"
+                ),
+                "Prix médian €/m²": st.column_config.NumberColumn(
+                    "Prix médian €/m²", format="%d €"
+                ),
+                "Évolution 12m (%)": st.column_config.NumberColumn(
+                    "Évolution 12m (%)", format="%.1f%%"
+                ),
+            }
+        )
+
+        st.markdown("---")
+
+        # ── Graphique top communes ────────────────────────────────────
+        try:
+            import plotly.express as px
+            top_graph = df_comm.head(20).copy()
+            fig_comm_score = px.bar(
+                top_graph,
+                x="Score marché",
+                y="Commune",
+                orientation="h",
+                color="Score marché",
+                color_continuous_scale=["#E24B4A", "#BA7517", "#1D9E75"],
+                title="Top 20 communes — Score de tension marché",
+                labels={"Score marché": "Score", "Commune": ""},
+                text="Score marché"
+            )
+            fig_comm_score.update_layout(
+                height=520,
+                plot_bgcolor="rgba(0,0,0,0)",
+                paper_bgcolor="rgba(0,0,0,0)",
+                coloraxis_showscale=False,
+                yaxis={"categoryorder": "total ascending"},
+                margin=dict(l=0, r=0, t=35, b=0)
+            )
+            fig_comm_score.update_traces(textposition="outside")
+            st.plotly_chart(fig_comm_score, use_container_width=True)
+        except ImportError:
+            pass
+
+        st.markdown("---")
+
+        # ── Génération rapport PDF par commune ────────────────────────
+        st.markdown("### 📄 Rapport PDF par commune")
+        st.caption("Exportez un rapport A4 professionnel pour n'importe quelle commune — à envoyer à un client.")
+
+        communes_dispo = df_comm["Commune"].tolist()
+        commune_pdf = st.selectbox(
+            "Choisir une commune",
+            communes_dispo,
+            key="commune_pdf_select"
+        )
+
+        if commune_pdf:
+            row_pdf = df_comm[df_comm["Commune"] == commune_pdf].iloc[0].to_dict()
+            df_commune_trans = df[df["nom_commune"] == commune_pdf].copy()
+            nb_dept = len(df[df["date_mutation"] >= (pd.Timestamp.now() - pd.DateOffset(months=12))])
+
+            col_prev, col_dl = st.columns([2, 1])
+
+            with col_prev:
+                score_v = row_pdf.get("Score marché", 0)
+                evol_v  = row_pdf.get("Évolution 12m (%)", None)
+                signal_v = row_pdf.get("Signal marché", "—")
+                prix_v  = row_pdf.get("Prix médian €/m²", 0)
+                vol_v   = row_pdf.get("Transactions 12m", 0)
+                evol_str = f"{evol_v:+.1f}%" if evol_v is not None and str(evol_v) != "nan" else "N/D"
+
+                score_color = "#1D9E75" if score_v >= 70 else "#BA7517" if score_v >= 40 else "#E24B4A"
+
+                st.markdown(
+                    f"""
+                    <div style="border:1px solid #e5e5e5;border-radius:8px;padding:16px 20px;background:#fafafa">
+                      <div style="font-size:1.1rem;font-weight:700;color:#185FA5;margin-bottom:10px">
+                        Aperçu — {commune_pdf}
+                      </div>
+                      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:10px">
+                        <div style="text-align:center">
+                          <div style="font-size:1.6rem;font-weight:700;color:{score_color}">{score_v}/100</div>
+                          <div style="font-size:.75rem;color:#888">Score marché</div>
+                        </div>
+                        <div style="text-align:center">
+                          <div style="font-size:1.6rem;font-weight:700;color:#185FA5">{prix_v:,.0f} €</div>
+                          <div style="font-size:.75rem;color:#888">Prix médian €/m²</div>
+                        </div>
+                        <div style="text-align:center">
+                          <div style="font-size:1.6rem;font-weight:700;color:#185FA5">{evol_str}</div>
+                          <div style="font-size:.75rem;color:#888">Évolution 12m</div>
+                        </div>
+                      </div>
+                      <div style="font-size:.85rem;color:#444">
+                        {signal_v} &nbsp;·&nbsp; {int(vol_v)} transactions sur 12 mois
+                      </div>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+
+            with col_dl:
+                st.markdown("<br>", unsafe_allow_html=True)
+                if st.button("🖨️ Générer le rapport PDF", type="primary", use_container_width=True):
+                    with st.spinner("Génération du rapport..."):
+                        try:
+                            pdf_bytes = generer_rapport_commune(
+                                commune=commune_pdf,
+                                dept=dept,
+                                row_commune=row_pdf,
+                                df_transactions=df_commune_trans,
+                                nb_total_dept=nb_dept
+                            )
+                            st.download_button(
+                                label="📥 Télécharger le PDF",
+                                data=pdf_bytes,
+                                file_name=f"sahar_analyse_{commune_pdf.replace(' ', '_')}_{pd.Timestamp.now().strftime('%Y%m%d')}.pdf",
+                                mime="application/pdf",
+                                use_container_width=True,
+                                type="primary"
+                            )
+                            st.success("✅ Rapport généré !")
+                        except Exception as e:
+                            st.error(f"Erreur génération PDF : {e}")
+
+
+# ── TAB 5 : CRM PIPELINE (Mobile-first) ──────────────────────────────────────
 
 with tab_crm:
 
