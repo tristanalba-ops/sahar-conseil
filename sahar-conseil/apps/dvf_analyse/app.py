@@ -154,10 +154,15 @@ STAGES = ["Détecté", "Contacté", "Qualifié", "Proposition", "Closing"]
 STAGE_COLORS = {"Détecté":"#e5e5e5","Contacté":"#fff3cd","Qualifié":"#cfe2ff",
                 "Proposition":"#d1ecf1","Closing":"#d4edda"}
 
-# CRM functions delegated to crm_db module
-add_contact     = crm_db.add_contact
-add_opportunite = crm_db.add_opportunite
-add_activite    = crm_db.add_activite
+# CRM functions — appels directs via crm_db
+def add_contact(nom, email="", tel="", type_contact="Autre", notes=""):
+    return crm_db.add_contact(nom, email, tel, type_contact, notes)
+
+def add_opportunite(contact_id, titre, adresse, type_bien, surface, prix, prix_m2, score, source="DVF"):
+    return crm_db.add_opportunite(contact_id, titre, adresse, type_bien, surface, prix, prix_m2, score, source)
+
+def add_activite(opp_id, type_activite, notes="", date_str=None, statut="À faire"):
+    return crm_db.add_activite(opp_id, type_activite, notes, date_str, statut)
 
 
 # ─── SIDEBAR ──────────────────────────────────────────────────────────────────
