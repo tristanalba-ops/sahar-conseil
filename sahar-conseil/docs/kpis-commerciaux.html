@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KPIs commerciaux pour SDR et équipes sales — Guide 2024 — SAHAR Conseil</title>
+  <meta name="description" content="Quels KPIs suivre pour piloter votre pipeline commercial ? Taux de conversion, délai de closing, CAC, MRR pipeline. Guide pratique pour SDR, Account Executives et Sales Managers." />
+  <meta property="og:title" content="KPIs commerciaux SDR et closing — SAHAR Conseil" />
+  <link rel="canonical" href="https://tristanalba-ops.github.io/sahar-conseil/kpis-commerciaux.html" />
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:16px;line-height:1.7;color:#1a1a1a;background:#fff}
+    nav{border-bottom:1px solid #e5e5e5;padding:0 5%;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff;z-index:10}
+    .logo{font-weight:600;font-size:1rem;text-decoration:none;color:#1a1a1a}
+    .nav-cta{font-size:.875rem;font-weight:500;text-decoration:none;background:#1a1a1a;color:#fff;padding:.5rem 1.1rem;border-radius:6px}
+    .container{max-width:720px;margin:0 auto;padding:0 5%}
+    article{padding:4rem 0}
+    .breadcrumb{font-size:.78rem;color:#888;margin-bottom:2rem}
+    .breadcrumb a{color:#888;text-decoration:none}
+    h1{font-size:clamp(1.8rem,3.5vw,2.4rem);font-weight:600;letter-spacing:-.03em;line-height:1.15;margin-bottom:1.5rem}
+    h2{font-size:1.3rem;font-weight:600;letter-spacing:-.02em;margin:2.5rem 0 .9rem}
+    h3{font-size:1rem;font-weight:600;margin:1.5rem 0 .4rem}
+    p{color:#333;margin-bottom:1.1rem}
+    .lead{font-size:1.05rem;color:#444;margin-bottom:2rem;padding-bottom:2rem;border-bottom:1px solid #e5e5e5}
+    .highlight{background:#f5f5f5;border-left:3px solid #1a1a1a;padding:1rem 1.25rem;border-radius:0 6px 6px 0;margin:1.5rem 0;font-size:.93rem;color:#333}
+    ul,ol{padding-left:1.4rem;margin-bottom:1.1rem}
+    li{color:#333;margin-bottom:.5rem}
+    .kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1.5rem 0}
+    .kpi-card{border:1px solid #e5e5e5;border-radius:8px;padding:1.25rem}
+    .kpi-name{font-weight:700;font-size:.92rem;margin-bottom:.2rem}
+    .kpi-formula{font-size:.75rem;color:#888;font-family:monospace;background:#f5f5f5;padding:.15rem .4rem;border-radius:3px;display:inline-block;margin-bottom:.5rem}
+    .kpi-card p{font-size:.83rem;color:#555;margin:.3rem 0 0}
+    .kpi-bench{font-size:.75rem;color:#2e7d32;font-weight:600;margin-top:.4rem;display:block}
+    .role-tabs{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:#e5e5e5;border:1px solid #e5e5e5;border-radius:8px;overflow:hidden;margin:1.5rem 0}
+    .role{background:#fff;padding:1.25rem}
+    .role-title{font-weight:600;font-size:.88rem;margin-bottom:.6rem;text-transform:uppercase;letter-spacing:.05em;color:#888}
+    .role ul{padding-left:1.1rem;margin:0}
+    .role li{font-size:.82rem;margin-bottom:.3rem}
+    .cta-inline{background:#f5f5f5;border-radius:8px;padding:1.5rem;margin:2rem 0;display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap}
+    .cta-inline p{margin:0;font-size:.95rem}
+    .btn{display:inline-block;padding:.6rem 1.3rem;border-radius:6px;font-size:.88rem;font-weight:500;text-decoration:none;background:#1a1a1a;color:#fff}
+    .error-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1.5rem 0}
+    .error{border:1px solid #ffcdd2;border-radius:8px;padding:1.1rem;background:#ffebee}
+    .error h3{font-size:.88rem;color:#c62828;margin:0 0 .3rem}
+    .error p{font-size:.82rem;color:#555;margin:0}
+    .related{border-top:1px solid #e5e5e5;margin-top:3rem;padding-top:2rem}
+    .related-links{display:flex;flex-direction:column;gap:.5rem;margin-top:.75rem}
+    .related-links a{font-size:.9rem;color:#1a1a1a;text-decoration:none;border-bottom:1px solid #e5e5e5;padding-bottom:.5rem}
+    footer{padding:2rem 0;border-top:1px solid #e5e5e5}
+    footer p{font-size:.8rem;color:#888}
+    @media(max-width:640px){.kpi-grid,.role-tabs,.error-grid{grid-template-columns:1fr}.cta-inline{flex-direction:column}}
+  </style>
+</head>
+<body>
+<nav>
+  <a href="index.html" class="logo">SAHAR Conseil</a>
+  <a href="index.html#contact" class="nav-cta">Demander une démo</a>
+</nav>
+<div class="container">
+<article>
+  <div class="breadcrumb"><a href="index.html">Accueil</a> → <a href="crm.html">CRM</a> → KPIs commerciaux</div>
+
+  <h1>KPIs commerciaux : lesquels suivre, comment les calculer, comment les améliorer</h1>
+
+  <p class="lead">Un pipeline sans KPIs c'est une voiture sans tableau de bord. Vous avancez, mais vous ne savez pas si vous allez dans le bon sens, à quelle vitesse, et quand vous allez tomber en panne. Voici les métriques qui comptent vraiment — pas les vanity metrics.</p>
+
+  <h2>Les 8 KPIs commerciaux essentiels</h2>
+
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-name">Taux de conversion par étape</div>
+      <div class="kpi-formula">Leads passés → étape suivante / leads entrants</div>
+      <p>Identifie exactement où vous perdez des prospects dans le pipeline. Si vous convertissez bien de Détecté à Contacté mais mal de Contacté à Qualifié — c'est votre script d'appel qui est en cause, pas votre sourcing.</p>
+      <span class="kpi-bench">Benchmark B2B : 30–40% Détecté→Contacté, 20–30% Contacté→Qualifié</span>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-name">Délai moyen de closing</div>
+      <div class="kpi-formula">Date closing − Date premier contact</div>
+      <p>Mesure la vélocité de votre cycle de vente. Un délai qui s'allonge indique soit des prospects moins qualifiés en entrée, soit un problème de relance dans le pipeline.</p>
+      <span class="kpi-bench">Objectif : réduire de 15% par trimestre</span>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-name">Taux de contact (SDR)</div>
+      <div class="kpi-formula">Prospects contactés / prospects tentés × 100</div>
+      <p>KPI opérationnel SDR. Mesure la qualité de la liste de prospection. Un taux de contact faible (< 20%) indique des données de mauvaise qualité ou un mauvais timing d'approche.</p>
+      <span class="kpi-bench">Bon taux : > 25% sur cold, > 40% sur warm</span>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-name">Win Rate</div>
+      <div class="kpi-formula">Deals closés / opportunités qualifiées × 100</div>
+      <p>Le ratio deals signés sur opportunités qui sont entrées en phase de proposition. C'est le KPI de closing par excellence. Un win rate faible pointe vers un problème de positionnement ou de gestion des objections.</p>
+      <span class="kpi-bench">Benchmark SaaS : 20–30%</span>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-name">CAC — Coût d'acquisition client</div>
+      <div class="kpi-formula">Coût total sales + marketing / nouveaux clients</div>
+      <p>Combien vous coûte l'acquisition d'un client. À rapporter à la valeur vie client (LTV). Règle : LTV > 3 × CAC pour un business viable. La prospection data réduit le CAC en améliorant la qualification amont.</p>
+      <span class="kpi-bench">Ratio LTV/CAC cible : > 3:1</span>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-name">Pipeline pondéré</div>
+      <div class="kpi-formula">Σ (valeur opportunité × probabilité de closing)</div>
+      <p>La vraie valeur de votre pipeline — pas la valeur brute qui compte toutes les opportunités à 100%. Pondérer par probabilité de closing selon l'étape donne une vision réaliste de votre forecast mensuel.</p>
+      <span class="kpi-bench">À réviser hebdomadairement avec le sales manager</span>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-name">Score de priorité prospect</div>
+      <div class="kpi-formula">Scoring automatique 0–100 selon signal data</div>
+      <p>Spécifique à la prospection data. Chaque prospect entrant dans le pipeline reçoit un score basé sur l'intensité du signal open data qui l'a déclenché. Permet aux SDR de prioriser sans réunion de priorisation.</p>
+      <span class="kpi-bench">SAHAR calcule ce score automatiquement</span>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-name">Vitesse pipeline (Velocity)</div>
+      <div class="kpi-formula">Nbre opps × Win Rate × Valeur moy / Cycle de vente</div>
+      <p>La métrique ultime qui combine volume, qualité et vitesse. Montre combien de revenu votre pipeline génère par jour. Améliorer n'importe laquelle des 4 composantes améliore la velocity.</p>
+      <span class="kpi-bench">À suivre mensuellement pour le forecast</span>
+    </div>
+  </div>
+
+  <h2>KPIs par rôle — ce que chacun doit suivre</h2>
+
+  <div class="role-tabs">
+    <div class="role">
+      <div class="role-title">SDR / BDR</div>
+      <ul>
+        <li>Taux de contact</li>
+        <li>Rendez-vous obtenus / jours</li>
+        <li>Taux de qualification</li>
+        <li>Score moyen des prospects</li>
+        <li>Relances effectuées</li>
+      </ul>
+    </div>
+    <div class="role">
+      <div class="role-title">Account Executive</div>
+      <ul>
+        <li>Win Rate</li>
+        <li>Délai moyen closing</li>
+        <li>Valeur moyenne deal</li>
+        <li>Taux no-show RDV</li>
+        <li>Pipeline pondéré perso</li>
+      </ul>
+    </div>
+    <div class="role">
+      <div class="role-title">Sales Manager</div>
+      <ul>
+        <li>Pipeline pondéré équipe</li>
+        <li>Forecast vs réalisé</li>
+        <li>CAC mensuel</li>
+        <li>Velocity pipeline</li>
+        <li>Churn prospects</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2>Les 5 erreurs de pilotage les plus courantes</h2>
+
+  <div class="error-grid">
+    <div class="error">
+      <h3>Suivre le volume, pas la qualité</h3>
+      <p>100 appels par semaine ne servent à rien si le taux de contact est de 5%. Mieux vaut 40 appels sur une liste data-qualifiée.</p>
+    </div>
+    <div class="error">
+      <h3>Pipeline non nettoyé</h3>
+      <p>Des opportunités "stagnantes" depuis 90 jours faussent tous vos ratios. Un pipeline sain se nettoie chaque semaine.</p>
+    </div>
+    <div class="error">
+      <h3>KPIs sans benchmark</h3>
+      <p>Un win rate de 15% est bon ou mauvais ? Sans référence sectorielle, impossible de savoir si vous devez vous alarmer.</p>
+    </div>
+    <div class="error">
+      <h3>Forecast basé sur le pipeline brut</h3>
+      <p>Additionner toutes les opportunités sans pondérer par probabilité donne un forecast systématiquement trop optimiste.</p>
+    </div>
+    <div class="error">
+      <h3>Revue pipeline mensuelle seulement</h3>
+      <p>En B2B, une semaine sans relance peut faire perdre un deal. La revue pipeline doit être hebdomadaire minimum.</p>
+    </div>
+    <div class="error">
+      <h3>Pas de score d'entrée</h3>
+      <p>Sans scoring à l'entrée du pipeline, les SDR passent autant de temps sur les prospects chauds que sur les froids. Gaspillage.</p>
+    </div>
+  </div>
+
+  <div class="cta-inline">
+    <p>SAHAR calcule vos KPIs en temps réel — sans Excel.</p>
+    <a href="index.html#contact" class="btn">Voir le tableau de bord →</a>
+  </div>
+
+  <h2>Comment améliorer rapidement ses KPIs avec la donnée</h2>
+  <p>La prospection basée sur les données publiques améliore mécaniquement 3 KPIs :</p>
+  <ol>
+    <li><strong>Taux de contact</strong> — vous appelez des gens qui ont un problème avéré, pas une liste aléatoire. Le taux de contact monte parce que vous êtes pertinent.</li>
+    <li><strong>Taux de qualification</strong> — le score d'entrée préfiltre les prospects. Vous consacrez votre temps aux 20% de leads qui génèrent 80% des deals.</li>
+    <li><strong>Win rate</strong> — votre argument est basé sur des données officielles. "Votre logement est classé G selon l'ADEME" est plus convaincant que "je pense que vous avez besoin de rénover".</li>
+  </ol>
+
+  <div class="related">
+    <p style="font-weight:600;font-size:.9rem">Sur le même sujet</p>
+    <div class="related-links">
+      <a href="crm.html">CRM SAHAR — pipeline et KPIs natifs →</a>
+      <a href="prospecter-donnees-publiques.html">Prospecter avec les données publiques françaises →</a>
+      <a href="trouver-prospects-immobiliers.html">Trouver des prospects immobiliers qualifiés →</a>
+    </div>
+  </div>
+</article>
+</div>
+<footer>
+  <div class="container">
+    <p>© 2024 SAHAR Conseil — <a href="mailto:tristan.alba@gmail.com" style="color:#888;text-decoration:none">tristan.alba@gmail.com</a> — <a href="index.html" style="color:#888;text-decoration:none">Accueil</a></p>
+  </div>
+</footer>
+</body>
+</html>

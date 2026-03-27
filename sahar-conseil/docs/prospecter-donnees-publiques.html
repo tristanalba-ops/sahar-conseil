@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Prospecter avec les données publiques françaises — Guide complet — SAHAR Conseil</title>
+  <meta name="description" content="DVF, DPE, INSEE, SIRENE : comment utiliser les données ouvertes françaises pour prospecter des clients B2B. Guide pratique pour commerciaux et équipes sales." />
+  <meta property="og:title" content="Prospection avec open data français — SAHAR Conseil" />
+  <link rel="canonical" href="https://tristanalba-ops.github.io/sahar-conseil/prospecter-donnees-publiques.html" />
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:16px;line-height:1.7;color:#1a1a1a;background:#fff}
+    nav{border-bottom:1px solid #e5e5e5;padding:0 5%;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff;z-index:10}
+    .logo{font-weight:600;font-size:1rem;text-decoration:none;color:#1a1a1a}
+    .nav-cta{font-size:.875rem;font-weight:500;text-decoration:none;background:#1a1a1a;color:#fff;padding:.5rem 1.1rem;border-radius:6px}
+    .container{max-width:720px;margin:0 auto;padding:0 5%}
+    article{padding:4rem 0}
+    .breadcrumb{font-size:.78rem;color:#888;margin-bottom:2rem}
+    .breadcrumb a{color:#888;text-decoration:none}
+    h1{font-size:clamp(1.8rem,3.5vw,2.4rem);font-weight:600;letter-spacing:-.03em;line-height:1.15;margin-bottom:1.5rem}
+    h2{font-size:1.3rem;font-weight:600;letter-spacing:-.02em;margin:2.5rem 0 .9rem}
+    h3{font-size:1rem;font-weight:600;margin:1.5rem 0 .5rem}
+    p{color:#333;margin-bottom:1.1rem}
+    .lead{font-size:1.05rem;color:#444;margin-bottom:2rem;padding-bottom:2rem;border-bottom:1px solid #e5e5e5}
+    .highlight{background:#f5f5f5;border-left:3px solid #1a1a1a;padding:1rem 1.25rem;border-radius:0 6px 6px 0;margin:1.5rem 0;font-size:.93rem;color:#333}
+    ul,ol{padding-left:1.4rem;margin-bottom:1.1rem}
+    li{color:#333;margin-bottom:.5rem}
+    .source-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1.5rem 0}
+    .source{border:1px solid #e5e5e5;border-radius:8px;padding:1.25rem}
+    .source-name{font-weight:700;font-size:.95rem;margin-bottom:.2rem}
+    .source-url{font-size:.75rem;color:#888;margin-bottom:.6rem}
+    .source p{font-size:.83rem;color:#555;margin:0}
+    .source-sector{font-size:.7rem;font-weight:600;display:inline-block;background:#f5f5f5;padding:.15rem .5rem;border-radius:4px;margin-bottom:.5rem;color:#555}
+    .steps{border:1px solid #e5e5e5;border-radius:8px;overflow:hidden;margin:1.5rem 0}
+    .step-item{display:flex;gap:1.25rem;padding:1.1rem 1.25rem;border-bottom:1px solid #e5e5e5;align-items:flex-start}
+    .step-item:last-child{border:none}
+    .step-num{font-weight:700;font-size:.88rem;min-width:22px;color:#888;padding-top:1px}
+    .step-title{font-weight:600;font-size:.9rem;margin-bottom:.2rem}
+    .step-desc{font-size:.84rem;color:#555}
+    .cta-inline{background:#f5f5f5;border-radius:8px;padding:1.5rem;margin:2rem 0;display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap}
+    .cta-inline p{margin:0;font-size:.95rem}
+    .btn{display:inline-block;padding:.6rem 1.3rem;border-radius:6px;font-size:.88rem;font-weight:500;text-decoration:none;background:#1a1a1a;color:#fff}
+    .related{border-top:1px solid #e5e5e5;margin-top:3rem;padding-top:2rem}
+    .related-links{display:flex;flex-direction:column;gap:.5rem;margin-top:.75rem}
+    .related-links a{font-size:.9rem;color:#1a1a1a;text-decoration:none;border-bottom:1px solid #e5e5e5;padding-bottom:.5rem}
+    footer{padding:2rem 0;border-top:1px solid #e5e5e5}
+    footer p{font-size:.8rem;color:#888}
+    @media(max-width:640px){.source-grid{grid-template-columns:1fr}.cta-inline{flex-direction:column}}
+  </style>
+</head>
+<body>
+<nav>
+  <a href="index.html" class="logo">SAHAR Conseil</a>
+  <a href="index.html#contact" class="nav-cta">Demander une démo</a>
+</nav>
+<div class="container">
+<article>
+  <div class="breadcrumb"><a href="index.html">Accueil</a> → Prospection open data</div>
+
+  <h1>Comment prospecter avec les données publiques françaises</h1>
+
+  <p class="lead">En France, des dizaines de bases de données publiques contiennent des signaux commerciaux exploitables. Transactions immobilières, diagnostics énergétiques, création d'entreprises, équipements par commune. Le tout gratuit, mis à jour régulièrement, et inexploité par la majorité de vos concurrents.</p>
+
+  <h2>Pourquoi l'open data est un avantage concurrentiel sous-exploité</h2>
+  <p>La prospection commerciale classique souffre d'un problème fondamental : le signal. Vous savez qui vous voulez contacter, mais vous ne savez pas pourquoi ils auraient besoin de vous maintenant.</p>
+  <p>Les données publiques changent ça. Elles contiennent des signaux de timing :</p>
+  <ul>
+    <li>Un logement classé F qui expire un bail → urgence réglementaire</li>
+    <li>Une transaction immobilière à -15% de la médiane → opportunité</li>
+    <li>Une entreprise créée il y a 6 mois dans votre secteur → prospect froid à warm</li>
+    <li>Une zone sans borne de recharge VE dans un département riche → opportunité retail</li>
+  </ul>
+  <div class="highlight">
+    La différence entre prospecter à froid et prospecter avec la data : vous arrivez à l'appel avec un argument contextuel. "J'ai vu que votre logement est classé F" ou "J'ai analysé les transactions dans votre secteur" — ça change tout à la conversion.
+  </div>
+
+  <h2>Les 6 sources open data les plus utiles pour prospecter</h2>
+
+  <div class="source-grid">
+    <div class="source">
+      <div class="source-name">DVF — Demandes de Valeurs Foncières</div>
+      <div class="source-url">files.data.gouv.fr/geo-dvf</div>
+      <div class="source-sector">Immobilier · Foncier</div>
+      <p>Toutes les transactions notariées depuis 2019. Prix signé, adresse, surface. Signal : bien sous la médiane = opportunité d'achat ou de mandat.</p>
+    </div>
+    <div class="source">
+      <div class="source-name">DPE — Base ADEME</div>
+      <div class="source-url">data.ademe.fr</div>
+      <div class="source-sector">Énergie · Rénovation</div>
+      <p>10M+ diagnostics de performance énergétique. Signal : logement F/G = propriétaire contraint par la loi. Urgence réglementaire forte.</p>
+    </div>
+    <div class="source">
+      <div class="source-name">SIRENE — Base entreprises INSEE</div>
+      <div class="source-url">api.insee.fr</div>
+      <div class="source-sector">B2B · Tous secteurs</div>
+      <p>Toutes les entreprises françaises avec NAF, effectif, date création, adresse. Signal : création récente = besoins en équipement, services, RH.</p>
+    </div>
+    <div class="source">
+      <div class="source-name">BPE — Base Permanente Équipements</div>
+      <div class="source-url">insee.fr/statistiques</div>
+      <div class="source-sector">Retail · Franchise</div>
+      <p>Tous les équipements par commune : commerces, médecins, écoles, transports. Signal : absence d'un type d'équipement = zone blanche commerciale.</p>
+    </div>
+    <div class="source">
+      <div class="source-name">IRVE — Bornes de recharge VE</div>
+      <div class="source-url">data.gouv.fr</div>
+      <div class="source-sector">Automobile · Énergie</div>
+      <p>Localisation de toutes les bornes de recharge en France. Signal : zone sans borne dans un département à fort potentiel VE = opportunité.</p>
+    </div>
+    <div class="source">
+      <div class="source-name">DARES — Marché du travail</div>
+      <div class="source-url">dares.travail.gouv.fr</div>
+      <div class="source-sector">RH · Recrutement</div>
+      <p>Tensions de recrutement par métier et bassin d'emploi. Signal : tension élevée = entreprises qui cherchent activement et ratent leurs recrutements.</p>
+    </div>
+  </div>
+
+  <h2>La méthode en 5 étapes pour prospecter avec l'open data</h2>
+
+  <div class="steps">
+    <div class="step-item">
+      <span class="step-num">01</span>
+      <div>
+        <div class="step-title">Définir votre signal</div>
+        <div class="step-desc">Quel événement dans les données indique qu'un prospect a besoin de vous maintenant ? Pas "qui est dans ma cible" — "qui a un problème que je résous aujourd'hui".</div>
+      </div>
+    </div>
+    <div class="step-item">
+      <span class="step-num">02</span>
+      <div>
+        <div class="step-title">Identifier la source</div>
+        <div class="step-desc">Quelle base de données publique contient ce signal ? DVF pour l'immo, DPE pour la rénovation, SIRENE pour le B2B généraliste, BPE pour le retail.</div>
+      </div>
+    </div>
+    <div class="step-item">
+      <span class="step-num">03</span>
+      <div>
+        <div class="step-title">Filtrer et scorer</div>
+        <div class="step-desc">Appliquer vos critères géographiques et sectoriels. Attribuer un score de priorité basé sur l'intensité du signal. Appeler les scores les plus élevés en premier.</div>
+      </div>
+    </div>
+    <div class="step-item">
+      <span class="step-num">04</span>
+      <div>
+        <div class="step-title">Contextualiser le pitch</div>
+        <div class="step-desc">Construire un argument d'appel basé sur le signal. "J'ai analysé les données de votre zone" est infiniment plus puissant que "je passe vous présenter nos services".</div>
+      </div>
+    </div>
+    <div class="step-item">
+      <span class="step-num">05</span>
+      <div>
+        <div class="step-title">Pousser dans le CRM</div>
+        <div class="step-desc">Chaque prospect enrichi avec ses données contextuelles. Fiche prospect avec le signal qui a déclenché la prospection. Historique complet jusqu'au closing.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cta-inline">
+    <p>SAHAR fait les étapes 1 à 3 automatiquement pour votre secteur.</p>
+    <a href="index.html#contact" class="btn">Voir comment →</a>
+  </div>
+
+  <h2>Les limites de l'open data pour la prospection</h2>
+  <p>Soyons honnêtes. L'open data n'est pas magique :</p>
+  <ul>
+    <li><strong>Délai de publication</strong> — DVF a 6 mois de décalage. DPE est plus rapide mais pas temps réel.</li>
+    <li><strong>Pas de contact direct</strong> — Les données donnent l'adresse du bien, pas le numéro de téléphone du propriétaire. Il faut croiser avec d'autres sources pour obtenir les contacts.</li>
+    <li><strong>Volume à traiter</strong> — Des milliers de biens F/G dans un département. Sans scoring automatique, c'est inexploitable manuellement.</li>
+    <li><strong>Qualité variable</strong> — Certains DPE sont mal renseignés. Certaines adresses DVF sont incomplètes. Il faut nettoyer les données avant d'en faire usage.</li>
+  </ul>
+  <p>C'est exactement pourquoi SAHAR existe : pour résoudre ces 4 problèmes et vous livrer une liste de prospects utilisable directement, pas un fichier CSV brut.</p>
+
+  <h2>Open data vs achat de fichiers prospects — que choisir ?</h2>
+  <p>Les fichiers de prospection achetés (type Kompass, Corporama) ont l'avantage d'inclure les contacts. Mais ils ont deux problèmes : ils coûtent cher, et tout le monde les achète.</p>
+  <p>L'open data est gratuit, plus précis sur les signaux d'urgence, et inexploité par vos concurrents. La combinaison idéale : open data pour le signal et la priorisation, fichiers contacts pour l'adresse email et le téléphone.</p>
+
+  <div class="related">
+    <p style="font-weight:600;font-size:.9rem">Sur le même sujet</p>
+    <div class="related-links">
+      <a href="immobilier.html">DVF Analyse Pro — prospection immobilier par les données →</a>
+      <a href="energie-renovation.html">DPE Scanner — prospects rénovation qualifiés →</a>
+      <a href="kpis-commerciaux.html">KPIs pour mesurer l'efficacité de votre prospection data →</a>
+    </div>
+  </div>
+</article>
+</div>
+<footer>
+  <div class="container">
+    <p>© 2024 SAHAR Conseil — <a href="mailto:tristan.alba@gmail.com" style="color:#888;text-decoration:none">tristan.alba@gmail.com</a> — <a href="index.html" style="color:#888;text-decoration:none">Accueil</a></p>
+  </div>
+</footer>
+</body>
+</html>
