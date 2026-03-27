@@ -40,15 +40,36 @@ crm_db.init_crm()
 
 DPE_API = "https://data.ademe.fr/data-fair/api/v1/datasets/dpe-v2-logements-existants/lines"
 
-@st.cache_data(ttl=3600, show_spinner="Interrogation ADEME...")
+@st.cache_data(ttl=3600, show_spinner="Chargement DPE...")
 def fetch_dpe(code_postal: str, nb: int = 1000) -> pd.DataFrame:
+    """
+    Charge les DPE : parquet local en priorité, API ADEME en fallback.
+    Parquet = téléchargé via data/download_dpe.py
+    """
     import requests
 
-    # URLs ADEME — dataset renommé "dpe03existant" en 2024
+    # ── 1. Chercher parquet local (même logique que DVF) ──────────────────
+    dept = str(code_postal).strip()[:2]
+    for base in [
+        Path(__file__).resolve().parents[2],
+        Path(__file__).resolve().parents[3],
+        Path("/mount/src/sahar-conseil/sahar-conseil"),
+        Path("/mount/src/sahar-conseil"),
+    ]:
+        p = base / "data" / "processed" / f"dpe_{dept}.parquet"
+        if p.exists() and p.stat().st_size > 1000:
+            df = pd.read_parquet(p)
+            # Filtrer par code postal
+            if "code_postal_ban" in df.columns:
+                df_cp = df[df["code_postal_ban"].astype(str).str.startswith(str(code_postal).strip())]
+                if not df_cp.empty:
+                    return df_cp.copy()
+            return df.copy()
+
+    # ── 2. API ADEME en fallback ──────────────────────────────────────────
     ADEME_URLS = [
         "https://data.ademe.fr/data-fair/api/v1/datasets/dpe03existant/lines",
         "https://data.ademe.fr/data-fair/api/v1/datasets/dpe-v2-logements-existants/lines",
-        "https://data.ademe.fr/data-fair/api/v1/datasets/dpe-v2-logements-existants-2/lines",
     ]
 
     SELECT = (
@@ -59,20 +80,15 @@ def fetch_dpe(code_postal: str, nb: int = 1000) -> pd.DataFrame:
         "surface_habitable_logement,type_energie_principale_chauffage"
     )
 
-    params = {
-        "q": code_postal,
-        "q_fields": "code_postal_ban",
-        "size": nb,
-        "select": SELECT,
-    }
+    params = {"q": code_postal, "q_fields": "code_postal_ban", "size": nb, "select": SELECT}
 
     for url in ADEME_URLS:
         try:
             r = requests.get(url, params=params, timeout=30)
             if r.status_code == 200:
-                data = r.json().get("results", [])
-                if data:
-                    df = pd.DataFrame(data)
+                results = r.json().get("results", [])
+                if results:
+                    df = pd.DataFrame(results)
                     df["date_etablissement_dpe"] = pd.to_datetime(
                         df.get("date_etablissement_dpe", pd.Series(dtype=str)), errors="coerce"
                     )
@@ -81,12 +97,14 @@ def fetch_dpe(code_postal: str, nb: int = 1000) -> pd.DataFrame:
                         if col in df.columns:
                             df[col] = pd.to_numeric(df[col], errors="coerce")
                     if "annee_construction" in df.columns:
-                        df["annee_construction"] = pd.to_numeric(df["annee_construction"], errors="coerce").astype("Int64")
+                        df["annee_construction"] = pd.to_numeric(
+                            df["annee_construction"], errors="coerce"
+                        ).astype("Int64")
                     return df
-        except Exception as e:
+        except Exception:
             continue
 
-    st.error(f"API ADEME indisponible — réessayez dans quelques minutes.")
+    st.warning("API ADEME indisponible. Téléchargez les données via `python data/download_dpe.py --dept " + dept + "` puis repoussez sur GitHub.")
     return pd.DataFrame()
 
 
