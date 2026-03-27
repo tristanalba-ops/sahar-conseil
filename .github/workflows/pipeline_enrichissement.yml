@@ -1,0 +1,127 @@
+name: Pipeline Enrichissement DVF + DPE
+
+on:
+  # Déclenchement manuel depuis l'onglet Actions de GitHub
+  workflow_dispatch:
+    inputs:
+      dept:
+        description: "Code département (ex: 33)"
+        required: true
+        default: "33"
+      limit:
+        description: "Limiter nb lignes pour test (laisser vide = tout)"
+        required: false
+        default: ""
+
+  # Déclenchement automatique tous les lundis à 3h du matin
+  schedule:
+    - cron: "0 3 * * 1"
+
+jobs:
+  enrichissement:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      # ── 1. Checkout ──────────────────────────────────────────────────────
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      # ── 2. Python ────────────────────────────────────────────────────────
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Installer les dépendances
+        run: |
+          pip install pandas pyarrow numpy requests scipy rapidfuzz pyproj
+
+      # ── 3. Télécharger DVF si absent ─────────────────────────────────────
+      - name: Télécharger DVF département
+        run: |
+          DEPT="${{ github.event.inputs.dept || '33' }}"
+          PARQUET="sahar-conseil/data/processed/dvf_${DEPT}.parquet"
+          CSV="sahar-conseil/data/raw/dvf_${DEPT}.csv"
+
+          if [ -f "$PARQUET" ]; then
+            echo "Parquet DVF déjà présent : $PARQUET"
+          elif [ -f "$CSV" ]; then
+            echo "CSV DVF présent : $CSV"
+          else
+            echo "Téléchargement DVF département ${DEPT}..."
+            mkdir -p sahar-conseil/data/raw
+            python3 - <<'PYEOF'
+          import requests, gzip, os, sys
+          dept = os.environ.get("DEPT", "33")
+          url = f"https://files.data.gouv.fr/geo-dvf/latest/csv/2024/departements/{dept}.csv.gz"
+          print(f"URL : {url}")
+          r = requests.get(url, timeout=120, stream=True)
+          if r.status_code != 200:
+              print(f"Erreur HTTP {r.status_code}")
+              sys.exit(1)
+          raw = b""
+          for chunk in r.iter_content(chunk_size=1024*1024):
+              raw += chunk
+          data = gzip.decompress(raw)
+          with open(f"sahar-conseil/data/raw/dvf_{dept}.csv", "wb") as f:
+              f.write(data)
+          print(f"DVF téléchargé : {len(data)/1024/1024:.1f} MB")
+          PYEOF
+          fi
+        env:
+          DEPT: ${{ github.event.inputs.dept || '33' }}
+
+      # ── 4. Lancer le pipeline ─────────────────────────────────────────────
+      - name: Lancer le pipeline enrichissement
+        run: |
+          DEPT="${{ github.event.inputs.dept || '33' }}"
+          LIMIT="${{ github.event.inputs.limit }}"
+          mkdir -p sahar-conseil/data/processed
+
+          CMD="python sahar-conseil/apps/carte_scoring/pipeline_enrichissement.py --dept $DEPT"
+          if [ -n "$LIMIT" ]; then
+            CMD="$CMD --limit $LIMIT"
+          fi
+
+          echo "Commande : $CMD"
+          $CMD
+        env:
+          DEPT: ${{ github.event.inputs.dept || '33' }}
+
+      # ── 5. Vérifier la taille du fichier produit ──────────────────────────
+      - name: Vérifier le fichier enrichi
+        run: |
+          DEPT="${{ github.event.inputs.dept || '33' }}"
+          FILE="sahar-conseil/data/processed/enrichi_${DEPT}.parquet"
+          if [ -f "$FILE" ]; then
+            SIZE=$(du -sh "$FILE" | cut -f1)
+            LINES=$(python3 -c "import pandas as pd; df=pd.read_parquet('$FILE'); print(len(df))")
+            echo "✅ Fichier produit : $FILE ($SIZE) — $LINES biens"
+          else
+            echo "❌ Fichier non trouvé : $FILE"
+            exit 1
+          fi
+
+      # ── 6. Commit & push le parquet enrichi ──────────────────────────────
+      - name: Commit parquet enrichi
+        run: |
+          DEPT="${{ github.event.inputs.dept || '33' }}"
+          git config user.name  "SAHAR Pipeline"
+          git config user.email "pipeline@sahar-conseil.fr"
+          git add sahar-conseil/data/processed/enrichi_${DEPT}.parquet
+          git add sahar-conseil/data/processed/dpe_${DEPT}.parquet 2>/dev/null || true
+
+          # Commit seulement s'il y a des changements
+          if git diff --staged --quiet; then
+            echo "Aucun changement — parquet identique."
+          else
+            git commit -m "data: enrichi_${DEPT}.parquet mis à jour — $(date '+%Y-%m-%d')"
+            git push
+            echo "✅ Parquet committé et poussé."
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
