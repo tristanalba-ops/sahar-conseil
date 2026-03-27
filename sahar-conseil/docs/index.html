@@ -341,27 +341,7 @@
           });
         });
 
-        // Injecter les UTMs comme champs cachés dans le formulaire Formspree
-        if (form.action && form.action.indexOf('formspree') !== -1) {
-          Object.keys(allUtms).forEach(function(key) {
-            var input = document.createElement('input');
-            input.type = 'hidden';
-            input.name = key;
-            input.value = allUtms[key];
-            form.appendChild(input);
-          });
-          // Ajouter landing page et referrer
-          ['sahar_landing','sahar_referrer'].forEach(function(key) {
-            var val = sessionStorage.getItem(key);
-            if (val) {
-              var input = document.createElement('input');
-              input.type = 'hidden';
-              input.name = key;
-              input.value = val;
-              form.appendChild(input);
-            }
-          });
-        }
+        // UTMs transmis via fetch() dans le formulaire SAHAR
       });
     });
   })();
@@ -605,7 +585,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <p>Envoyez votre secteur et votre zone géographique. Réponse sous 24h avec une démonstration sur vos données réelles — pas une présentation générique.</p>
         <p style="font-size:.88rem;color:#888;margin-top:1rem">contact@sahar-conseil.fr</p>
       </div>
-      <form class="form" action="https://formspree.io/f/xbdplokr" method="POST" aria-label="Formulaire de contact">
+      <form class="form" id="sahar-contact-form" aria-label="Formulaire de contact">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:.85rem">
           <div class="field">
             <label for="nom">Nom</label>
@@ -632,9 +612,80 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <label for="message">Zone géographique & besoin</label>
           <textarea id="message" name="message" placeholder="Ex : agent immo en Gironde, je cherche à détecter les biens sous-valorisés..."></textarea>
         </div>
-        <button type="submit" class="btn btn-dark" style="width:100%;justify-content:center">Envoyer →</button>
-        <p class="form-note">Réponse sous 24h ouvrées. Pas de spam.</p>
+        <button type="submit" class="btn btn-dark" style="width:100%;justify-content:center" id="sahar-submit-btn">
+          Envoyer →
+        </button>
+        <p class="form-note" id="sahar-form-status"></p>
       </form>
+
+      <script>
+      (function() {
+        var form = document.getElementById('sahar-contact-form');
+        var btn  = document.getElementById('sahar-submit-btn');
+        var status = document.getElementById('sahar-form-status');
+        if (!form) return;
+
+        form.addEventListener('submit', function(e) {
+          e.preventDefault();
+          btn.disabled = true;
+          btn.textContent = 'Envoi en cours…';
+          status.textContent = '';
+
+          // Récupérer les UTMs stockés
+          var utms = {};
+          try { utms = JSON.parse(sessionStorage.getItem('sahar_utms') || '{}'); } catch(x) {}
+
+          var data = {
+            nom:     form.nom.value.trim(),
+            email:   form.email.value.trim(),
+            secteur: form.secteur.value,
+            message: form.message.value.trim(),
+            utm_source:    utms.utm_source    || document.referrer || 'direct',
+            utm_medium:    utms.utm_medium    || 'direct',
+            utm_campaign:  utms.utm_campaign  || '',
+            utm_content:   utms.utm_content   || '',
+            utm_term:      utms.utm_term      || '',
+            sahar_landing: sessionStorage.getItem('sahar_landing') || window.location.pathname,
+            sahar_referrer: sessionStorage.getItem('sahar_referrer') || document.referrer || 'direct'
+          };
+
+          // Push GA4
+          if (window.dataLayer) {
+            dataLayer.push({
+              event: 'sahar_lead_submit',
+              utm_source:   data.utm_source,
+              utm_campaign: data.utm_campaign,
+              secteur:      data.secteur,
+              landing_page: data.sahar_landing
+            });
+          }
+
+          fetch('https://ylrrcbklufshebcizgus.supabase.co/functions/v1/webhook-formspree', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+          })
+          .then(function(r) { return r.json(); })
+          .then(function(res) {
+            if (res.success) {
+              form.reset();
+              btn.textContent = '✓ Message envoyé';
+              btn.style.background = '#1D9E75';
+              status.textContent = 'Réponse sous 24h ouvrées.';
+              status.style.color = '#1D9E75';
+            } else {
+              throw new Error(res.error || 'Erreur');
+            }
+          })
+          .catch(function(err) {
+            btn.disabled = false;
+            btn.textContent = 'Envoyer →';
+            status.textContent = 'Erreur — réessayez ou écrivez à contact@sahar-conseil.fr';
+            status.style.color = '#E24B4A';
+          });
+        });
+      })();
+      </script>
     </div>
   </section>
 
