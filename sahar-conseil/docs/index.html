@@ -620,68 +620,119 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
       <script>
       (function() {
-        var form = document.getElementById('sahar-contact-form');
-        var btn  = document.getElementById('sahar-submit-btn');
-        var status = document.getElementById('sahar-form-status');
+        var SUPA_URL  = "https://ylrrcbklufshebcizgus.supabase.co";
+        var SUPA_KEY  = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlscnJjYmtsdWZzaGViY2l6Z3VzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1NjQzNTEsImV4cCI6MjA5MDE0MDM1MX0.KQjvB5aePbmCcrAu9yYKoIblDG0ui90LXa-DcL7HAEA";
+        var BREVO_KEY = "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";
+        var APP_URL   = "https://sahar-conseil.fr";
+
+        var form   = document.getElementById("sahar-contact-form");
+        var btn    = document.getElementById("sahar-submit-btn");
+        var status = document.getElementById("sahar-form-status");
         if (!form) return;
 
-        form.addEventListener('submit', function(e) {
+        function genId(p) {
+          return p + Math.random().toString(36).slice(2,8).toUpperCase();
+        }
+
+        function sendEmail(toEmail, toNom, subject, html) {
+          return fetch("https://api.brevo.com/v3/smtp/email", {
+            method: "POST",
+            headers: { "api-key": BREVO_KEY, "Content-Type": "application/json" },
+            body: JSON.stringify({
+              sender: { email: "contact@sahar-conseil.fr", name: "SAHAR Conseil" },
+              to: [{ email: toEmail, name: toNom }],
+              subject: subject,
+              htmlContent: html
+            })
+          });
+        }
+
+        form.addEventListener("submit", function(e) {
           e.preventDefault();
           btn.disabled = true;
-          btn.textContent = 'Envoi en cours…';
-          status.textContent = '';
+          btn.textContent = "Envoi en cours…";
+          status.textContent = "";
 
-          // Récupérer les UTMs stockés
           var utms = {};
-          try { utms = JSON.parse(sessionStorage.getItem('sahar_utms') || '{}'); } catch(x) {}
+          try { utms = JSON.parse(sessionStorage.getItem("sahar_utms") || "{}"); } catch(x) {}
 
-          var data = {
-            nom:     form.nom.value.trim(),
-            email:   form.email.value.trim(),
-            secteur: form.secteur.value,
-            message: form.message.value.trim(),
-            utm_source:    utms.utm_source    || document.referrer || 'direct',
-            utm_medium:    utms.utm_medium    || 'direct',
-            utm_campaign:  utms.utm_campaign  || '',
-            utm_content:   utms.utm_content   || '',
-            utm_term:      utms.utm_term      || '',
-            sahar_landing: sessionStorage.getItem('sahar_landing') || window.location.pathname,
-            sahar_referrer: sessionStorage.getItem('sahar_referrer') || document.referrer || 'direct'
-          };
+          var nom     = form.nom.value.trim();
+          var email   = form.email.value.trim();
+          var secteur = form.secteur.value;
+          var message = form.message.value.trim();
+          var prenom  = nom.split(" ")[0];
+          var landing = sessionStorage.getItem("sahar_landing") || window.location.pathname;
+          var referrer= sessionStorage.getItem("sahar_referrer") || document.referrer || "direct";
 
-          // Push GA4
-          if (window.dataLayer) {
-            dataLayer.push({
-              event: 'sahar_lead_submit',
-              utm_source:   data.utm_source,
-              utm_campaign: data.utm_campaign,
-              secteur:      data.secteur,
-              landing_page: data.sahar_landing
-            });
-          }
-
-          fetch('https://ylrrcbklufshebcizgus.supabase.co/functions/v1/webhook-formspree', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
+          // 1. Écrire dans Supabase REST API
+          var compteId = genId("CPT");
+          fetch(SUPA_URL + "/rest/v1/sahar_comptes", {
+            method: "POST",
+            headers: {
+              "apikey": SUPA_KEY,
+              "Authorization": "Bearer " + SUPA_KEY,
+              "Content-Type": "application/json",
+              "Prefer": "return=minimal"
+            },
+            body: JSON.stringify({
+              id: compteId,
+              nom: nom,
+              type: "prospect",
+              email: email,
+              secteur: secteur.toLowerCase().replace(" / ","_").replace(/ /g,"_"),
+              source: "Site inbound",
+              utm_source:   utms.utm_source   || referrer || "direct",
+              utm_medium:   utms.utm_medium   || "direct",
+              utm_campaign: utms.utm_campaign || "",
+              utm_content:  utms.utm_content  || "",
+              landing_page: landing,
+              notes: message,
+              date_creation: new Date().toLocaleDateString("fr-FR"),
+              date_update:   new Date().toLocaleDateString("fr-FR")
+            })
           })
-          .then(function(r) { return r.json(); })
-          .then(function(res) {
-            if (res.success) {
-              form.reset();
-              btn.textContent = '✓ Message envoyé';
-              btn.style.background = '#1D9E75';
-              status.textContent = 'Réponse sous 24h ouvrées.';
-              status.style.color = '#1D9E75';
-            } else {
-              throw new Error(res.error || 'Erreur');
+          .then(function(r) {
+            if (!r.ok && r.status !== 201) throw new Error("Supabase " + r.status);
+
+            // 2. Email J+0 au lead
+            var dataMap = {
+              "Immobilier": "421 000 transactions DVF disponibles",
+              "Énergie / Rénovation": "10M+ diagnostics DPE — passoires F/G",
+              "Retail / Franchise": "Score attractivité zone SIRENE + BPE",
+              "RH / Recrutement": "Tensions recrutement DARES par bassin"
+            };
+            var dataLine = dataMap[secteur] || "Sources DVF, DPE, INSEE, SIRENE";
+            var htmlJ0 = '<div style="font-family:sans-serif;max-width:560px;margin:0 auto;background:#f5f5f5;padding:24px 16px"><div style="background:#fff;border-radius:8px;border:1px solid #e5e5e5"><div style="padding:16px 24px;border-bottom:1px solid #e5e5e5"><strong style="color:#1a1a1a">SAHAR <span style="color:#185FA5">Conseil</span></strong></div><div style="padding:24px"><p style="font-size:20px;font-weight:700;color:#1a1a1a;margin:0 0 14px;letter-spacing:-.02em">Reçu — on revient vers vous sous 24h.</p><p style="font-size:15px;color:#333;line-height:1.7;margin:0 0 14px">Bonjour ' + prenom + ',<br><br>Votre demande est bien reçue. On vous contacte sous <strong>24h ouvrées</strong> avec une démonstration sur vos données réelles — pas une présentation générique.</p><div style="background:#f5f5f5;border-radius:6px;padding:14px 18px;margin:14px 0"><p style="margin:0 0 5px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#888">Ce qu'on a sur votre secteur</p><p style="margin:0;font-size:14px;font-weight:600;color:#1a1a1a">' + dataLine + '</p></div><a href="' + APP_URL + '?utm_source=email&utm_campaign=j0_bienvenue" style="display:inline-block;background:#1a1a1a;color:#fff;text-decoration:none;padding:10px 20px;border-radius:6px;font-size:14px;font-weight:600;margin-top:8px">Voir nos outils →</a></div><div style="padding:14px 24px;border-top:1px solid #f0f0f0"><p style="margin:0;font-size:12px;color:#aaa">SAHAR Conseil · contact@sahar-conseil.fr</p></div></div></div>';
+
+            sendEmail(email, nom, "Reçu — on revient vers vous sous 24h", htmlJ0);
+
+            // 3. Notif interne
+            var htmlNotif = '<div style="font-family:sans-serif;padding:20px"><h2 style="margin:0 0 14px">🔔 Nouveau lead SAHAR</h2><table style="font-size:14px;border-collapse:collapse"><tr><td style="padding:5px 12px 5px 0;color:#888;font-weight:600">Nom</td><td><strong>' + nom + '</strong></td></tr><tr><td style="padding:5px 12px 5px 0;color:#888;font-weight:600">Email</td><td>' + email + '</td></tr><tr><td style="padding:5px 12px 5px 0;color:#888;font-weight:600">Secteur</td><td>' + secteur + '</td></tr><tr><td style="padding:5px 12px 5px 0;color:#888;font-weight:600">Message</td><td>' + message + '</td></tr><tr><td style="padding:5px 12px 5px 0;color:#888;font-weight:600">UTM source</td><td><code>' + (utms.utm_source || "direct") + '</code></td></tr><tr><td style="padding:5px 12px 5px 0;color:#888;font-weight:600">Landing</td><td><code>' + landing + '</code></td></tr></table></div>';
+            sendEmail("contact@sahar-conseil.fr", "SAHAR Admin", "🔔 Nouveau lead : " + nom + " (" + secteur + ")", htmlNotif);
+
+            // 4. GA4
+            if (window.dataLayer) {
+              dataLayer.push({
+                event: "sahar_lead_submit",
+                utm_source: utms.utm_source || "direct",
+                secteur: secteur,
+                landing_page: landing
+              });
             }
+
+            // 5. UI feedback
+            form.reset();
+            btn.textContent = "✓ Message envoyé";
+            btn.style.background = "#1D9E75";
+            status.textContent = "Réponse sous 24h ouvrées.";
+            status.style.color = "#1D9E75";
           })
           .catch(function(err) {
+            console.error("SAHAR form error:", err);
             btn.disabled = false;
-            btn.textContent = 'Envoyer →';
-            status.textContent = 'Erreur — réessayez ou écrivez à contact@sahar-conseil.fr';
-            status.style.color = '#E24B4A';
+            btn.textContent = "Envoyer →";
+            status.textContent = "Erreur — réessayez ou écrivez à contact@sahar-conseil.fr";
+            status.style.color = "#E24B4A";
           });
         });
       })();
