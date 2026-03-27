@@ -954,10 +954,12 @@ with tab_dpe:
                 display_cols = ["commune", "score_croise", "nb_transactions", "prix_m2_median",
                                 "nb_dpe_efg", "nb_f", "nb_g", "pct_fg", "conso_moy"]
                 st.dataframe(
-                    merged[display_cols].head(30).style.background_gradient(
-                        subset=["score_croise", "pct_fg"], cmap="YlOrRd"
-                    ),
+                    merged[display_cols].head(30),
                     use_container_width=True, height=500,
+                    column_config={
+                        "score_croise": st.column_config.ProgressColumn("Score", min_value=0, max_value=100, format="%d"),
+                        "pct_fg": st.column_config.ProgressColumn("% F+G", min_value=0, max_value=100, format="%.0f%%"),
+                    },
                 )
 
             st.markdown("---")
