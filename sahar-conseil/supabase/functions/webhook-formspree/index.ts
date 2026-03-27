@@ -15,8 +15,8 @@
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
-const SUPABASE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+const SUPABASE_URL = Deno.env.get("DB_URL") ?? Deno.env.get("SUPABASE_URL") ?? "";
+const SUPABASE_KEY = Deno.env.get("DB_SERVICE_KEY") ?? Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
 const BREVO_KEY    = Deno.env.get("BREVO_API_KEY") ?? "";
 const APP_URL      = Deno.env.get("APP_URL") ?? "https://sahar-conseil.fr";
 const NOTIF_EMAIL  = Deno.env.get("NOTIF_EMAIL") ?? "contact@sahar-conseil.fr";
