@@ -1,154 +1,81 @@
 # SAHAR Content Factory
 
-Pipeline automatisé de génération de contenu SEO.
+Pipeline automatique de génération d'articles SEO + podcasts.
 
 ## Architecture
 
 ```
-content_factory/
-├── config/
-│   └── keywords.json          ← Seeds + maillage + CTAs + paramètres
-├── modules/
-│   ├── 01_research.py         ← SERP + PAA (ValueSERP ou DuckDuckGo)
-│   ├── 02_trends.py           ← Google Trends (PyTrends)
-│   ├── 03_scorer.py           ← Score intérêt 0-100
-│   ├── 04_writer.py           ← Génération article (Claude API)
-│   ├── 05_checker.py          ← Naturalité anti-IA + reformulation
-│   ├── 06_audio.py            ← Script podcast + TTS ElevenLabs
-│   └── 07_publisher.py        ← Publication GitHub Pages + GA4
-├── output/
-│   ├── research/              ← {slug}.json (SERP + PAA brutes)
-│   ├── scored/                ← {slug}.json (+ score + décision)
-│   ├── articles/              ← {slug}.json (article HTML + statut)
-│   └── audio/                 ← {slug}.mp3 + {slug}_script.txt
-└── run_pipeline.py            ← Orchestrateur principal
+run_pipeline.py          ← Orchestrateur principal
+modules/
+  01_research.py         ← SERP + PAA (ValueSERP / DuckDuckGo fallback)
+  02_trends.py           ← Google Trends (PyTrends)
+  03_scorer.py           ← Score intérêt 0-100
+  04_writer.py           ← Génération article (Claude API)
+  05_checker.py          ← Détection + correction ton IA
+  06_audio.py            ← Script podcast + TTS ElevenLabs
+  07_publisher.py        ← Publication GitHub Pages + GA4
+config/
+  keywords.json          ← Seeds mots-clés + maillage interne + CTAs
+output/
+  research/              ← JSON enrichis par module 01+02+03
+  articles/              ← JSON articles générés
+  audio/                 ← MP3 + scripts podcast
 ```
 
-## Pipeline en 7 étapes
-
-| # | Module | Entrée | Sortie | API |
-|---|--------|--------|--------|-----|
-| 1 | Research | keywords.json | output/research/*.json | ValueSERP (optionnel) |
-| 2 | Trends | output/research/ | enrichit research/ | Google Trends (gratuit) |
-| 3 | Scorer | output/research/ | output/scored/*.json | Aucune |
-| 4 | Writer | output/scored/ | output/articles/*.json | Claude API |
-| 5 | Checker | output/articles/ | met à jour articles/ | Claude API |
-| 6 | Audio | output/articles/ | output/audio/*.mp3 | ElevenLabs |
-| 7 | Publisher | output/articles/ | docs/blog/*.html | GitHub API |
-
-## Configuration
-
-### 1. Variables d'environnement
+## Utilisation rapide
 
 ```bash
-# Obligatoires pour la génération
-export ANTHROPIC_API_KEY="sk-ant-..."
+# Pipeline complet (tous les seeds)
+python run_pipeline.py --all
 
-# Optionnel (fallback DuckDuckGo si absent)
-export VALUESERP_KEY="..."
-
-# Optionnel pour l'audio
-export ELEVENLABS_API_KEY="..."
-
-# Pour la publication auto
-export GITHUB_TOKEN="ghp_..."
-export GA4_API_SECRET="..."
-```
-
-### 2. Secrets GitHub Actions
-
-Aller dans : **Settings → Secrets and variables → Actions → New secret**
-
-| Secret | Obligatoire | Description |
-|--------|-------------|-------------|
-| `ANTHROPIC_API_KEY` | ✅ Oui | Clé API Claude |
-| `ELEVENLABS_API_KEY` | ✅ Oui | Clé API audio |
-| `VALUESERP_KEY` | ⚠️ Optionnel | SERP scraping |
-| `GA4_API_SECRET` | ⚠️ Optionnel | Tracking GA4 |
-| `GA4_MEASUREMENT_ID` | ⚠️ Optionnel | ID GA4 |
-
-### 3. Ajouter des mots-clés
-
-Modifier `config/keywords.json` :
-
-```json
-{
-  "keywords": [
-    {
-      "seed": "votre mot-clé cible",
-      "secteur": "immobilier",
-      "cible": "agents immobiliers",
-      "url_cible": "immobilier.html",
-      "priorite": 1
-    }
-  ]
-}
-```
-
-## Utilisation
-
-### Lancement manuel complet
-
-```bash
-cd sahar-conseil/content_factory
-python run_pipeline.py
-```
-
-### Un seul mot-clé
-
-```bash
+# Un seul mot-clé
 python run_pipeline.py --keyword "passoires thermiques 2025"
+
+# Test sans publication (dry run jusqu'au score)
+python run_pipeline.py --all --dry-run
+
+# Sans génération audio
+python run_pipeline.py --all --skip-audio
+
+# Module par module
+python modules/01_research.py --keyword "dvf immobilier"
+python modules/02_trends.py   --all
+python modules/03_scorer.py   --all
+python modules/04_writer.py   --all --max 3
+python modules/05_checker.py  --all
+python modules/06_audio.py    --all --max 3
+python modules/07_publisher.py --all --max 3
 ```
 
-### Reprendre depuis une étape
+## Variables d'environnement
 
-```bash
-python run_pipeline.py --from-step 4   # reprendre depuis la rédaction
-python run_pipeline.py --from-step 7   # publier seulement
-```
+| Variable | Module | Obligatoire |
+|----------|--------|-------------|
+| `ANTHROPIC_API_KEY` | 04, 05, 06 | ✅ Oui |
+| `GITHUB_TOKEN` (PAT) | 07 | ✅ Oui |
+| `VALUESERP_KEY` | 01 | ⚠️ Optionnel (fallback DDG) |
+| `ELEVENLABS_API_KEY` | 06 | ⚠️ Optionnel (script seul si absent) |
+| `GA4_API_SECRET` | 07 | ⚠️ Optionnel |
 
-### Mode dry-run (sans API)
+## Secrets GitHub à configurer
 
-```bash
-python run_pipeline.py --dry-run
-```
+Dans Settings → Secrets → Actions :
+- `ANTHROPIC_API_KEY`
+- `PAT_TOKEN` (Personal Access Token avec scope repo)
+- `VALUESERP_KEY`
+- `ELEVENLABS_API_KEY`
+- `GA4_API_SECRET`
 
-### Script podcast sans audio
+## Déclenchement automatique
 
-```bash
-python run_pipeline.py --script-only   # génère scripts pour NotebookLM
-```
+Le workflow tourne chaque **lundi à 9h** (Paris).
+Déclenchement manuel possible depuis GitHub Actions → Run workflow.
 
-### Lancer un module seul
+## Coût estimé par article
 
-```bash
-cd modules
-python 01_research.py --keyword "DVF immobilier"
-python 03_scorer.py --report
-python 04_writer.py --slug "dvf-immobilier" --dry
-python 07_publisher.py --all
-```
-
-## Scheduler automatique
-
-Le workflow GitHub Actions `content_factory.yml` se déclenche :
-- **Automatiquement** : chaque lundi à 6h00 UTC
-- **Manuellement** : onglet Actions → Content Factory → Run workflow
-
-## Coûts estimés (20 articles/mois)
-
-| Service | Usage | Coût |
-|---------|-------|------|
-| Claude API (Sonnet) | 20 articles × 2 passes | ~1€ |
-| ElevenLabs | 20 épisodes × 1100 mots | ~2€ |
-| ValueSERP | 20 recherches | ~0,03€ |
-| GitHub Actions | 20 runs × 10 min | Gratuit |
-| **Total** | | **~3€/mois** |
-
-## Statuts des articles
-
-| Statut | Description |
-|--------|-------------|
-| `draft` | Généré par le writer, pas encore vérifié |
-| `reviewed` | Vérifié par le checker, prêt à publier |
-| `published` | Publié sur GitHub Pages |
+| Service | Coût |
+|---------|------|
+| Claude Sonnet (04+05) | ~0,05€ |
+| ElevenLabs TTS (06) | ~0,10€ |
+| ValueSERP (01) | ~0,01€ |
+| **Total** | **~0,16€/article** |

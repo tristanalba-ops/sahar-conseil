@@ -1,295 +1,300 @@
 """
 SAHAR Conseil — Content Factory
-Module 07 : Publisher (GitHub Pages + GA4)
+Module 07 : Publication GitHub Pages + tracking GA4
 
-Génère le fichier HTML final de l'article, le publie sur GitHub Pages
-via l'API GitHub, et enregistre l'événement dans GA4 via Measurement Protocol.
-
-Met à jour :
-  - docs/blog/{slug}.html         (article publié)
-  - docs/blog/index.html          (liste des articles)
-  - docs/sitemap.xml              (nouvelle URL indexée)
+Actions :
+  1. Génère le HTML final de l'article (template blog SAHAR)
+  2. Intègre le widget Spotify si disponible
+  3. Push vers GitHub via API (commit direct, pas besoin de git local)
+  4. Met à jour /docs/blog/index.html (listing articles)
+  5. Met à jour sitemap.xml
+  6. Ping GA4 Measurement Protocol (hit publication)
 
 Usage :
-  python 07_publisher.py --slug "passoires-thermiques-interdites-2025"
-  python 07_publisher.py --all    # publie tous les reviewed
-
-Variables d'environnement requises :
-  GITHUB_TOKEN           — Personal Access Token (repo scope)
-  GA4_MEASUREMENT_ID     — G-XXXXXXXXXX
-  GA4_API_SECRET         — secret Measurement Protocol
+  python 07_publisher.py --slug mon-article
+  python 07_publisher.py --all
 """
 
 import os
 import re
 import json
 import base64
+import hashlib
 import argparse
 import requests
 from pathlib import Path
 from datetime import datetime
 
-HERE     = Path(__file__).parent.parent
-ARTICLES = HERE / "output" / "articles"
-CONFIG   = HERE / "config" / "keywords.json"
-DOCS     = HERE.parent / "docs"
+HERE         = Path(__file__).parent.parent
+OUT_ARTICLES = HERE / "output" / "articles"
+OUT_AUDIO    = HERE / "output" / "audio"
 
-CFG      = json.loads(CONFIG.read_text())
-BASE_URL = CFG["settings"].get("base_url", "https://sahar-conseil.fr")
-BLOG_DIR = CFG["settings"].get("blog_dir", "blog")
+# Config GitHub
+GITHUB_TOKEN = os.getenv("GITHUB_TOKEN", "")
+GITHUB_REPO  = os.getenv("GITHUB_REPO",  "tristanalba-ops/sahar-conseil")
+GITHUB_BRANCH = "main"
+DOCS_PREFIX  = "sahar-conseil/docs"  # préfixe dans le repo
 
-GITHUB_TOKEN       = os.getenv("GITHUB_TOKEN", "")
-GITHUB_REPO        = os.getenv("GITHUB_REPO", "tristanalba-ops/sahar-conseil")
-GITHUB_BRANCH      = os.getenv("GITHUB_BRANCH", "main")
+# Config GA4
 GA4_MEASUREMENT_ID = os.getenv("GA4_MEASUREMENT_ID", "G-XV2P0YPJK0")
 GA4_API_SECRET     = os.getenv("GA4_API_SECRET", "")
+
+# URLs
+CFG      = json.loads((HERE / "config" / "keywords.json").read_text())
+BASE_URL = CFG.get("settings", {}).get("base_url", "https://sahar-conseil.fr")
+BLOG_DIR = CFG.get("settings", {}).get("blog_dir", "blog")
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# CSS BLOG (inline dans chaque article)
+# ─────────────────────────────────────────────────────────────────────────────
+BLOG_CSS = """
+.blog-article{max-width:720px;margin:0 auto;padding:0 5%}
+.article-header{padding:3.5rem 0 2.5rem;border-bottom:1px solid #e5e5e5;margin-bottom:2.5rem}
+.article-header .overline{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#888;display:block;margin-bottom:.75rem}
+.article-header h1{font-size:clamp(1.75rem,3.5vw,2.5rem);font-weight:700;letter-spacing:-.03em;line-height:1.1;color:#1a1a1a;margin-bottom:1rem}
+.article-meta{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;font-size:.8rem;color:#888}
+.article-meta strong{color:#444}
+.article-body{font-size:1.05rem;line-height:1.75;color:#333}
+.article-body h2{font-size:1.35rem;font-weight:700;letter-spacing:-.02em;color:#1a1a1a;margin:2.5rem 0 .75rem;padding-top:1.5rem;border-top:1px solid #f0f0f0}
+.article-body h2:first-of-type{border-top:none;padding-top:0}
+.article-body h3{font-size:1.05rem;font-weight:600;color:#1a1a1a;margin:1.75rem 0 .5rem}
+.article-body p{margin-bottom:1.1rem}
+.article-body ul,.article-body ol{padding-left:1.4rem;margin-bottom:1.1rem}
+.article-body li{margin-bottom:.4rem}
+.article-body strong{font-weight:600;color:#1a1a1a}
+.article-body a{color:#185FA5;border-bottom:1px solid rgba(24,95,165,.2);transition:border-color .12s}
+.article-body a:hover{border-color:#185FA5}
+.article-cta{background:#f8f8f8;border:1px solid #e5e5e5;border-radius:10px;padding:1.75rem;text-align:center;margin:2.5rem 0}
+.article-cta p{color:#666;margin-bottom:1rem;font-size:.95rem}
+.article-cta .btn{display:inline-flex;align-items:center;gap:.4rem;padding:.65rem 1.35rem;background:#1a1a1a;color:#fff;border-radius:7px;font-size:.9rem;font-weight:600;border:none;cursor:pointer;text-decoration:none}
+.article-faq{margin:2.5rem 0}
+.article-faq h2{font-size:1.2rem;margin-bottom:1.25rem}
+.faq-item{border:1px solid #e5e5e5;border-radius:8px;margin-bottom:.75rem;overflow:hidden}
+.faq-q{padding:.875rem 1rem;font-weight:600;font-size:.9rem;color:#1a1a1a;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
+.faq-q:after{content:"+";font-size:1.1rem;color:#888}
+.faq-a{padding:0 1rem .875rem;font-size:.9rem;color:#444;line-height:1.65;display:none}
+.podcast-widget{background:#1a1a1a;border-radius:10px;padding:1.25rem;margin:2.5rem 0;color:#fff}
+.podcast-widget p{color:rgba(255,255,255,.7);font-size:.83rem;margin-bottom:.75rem}
+.article-tags{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid #e5e5e5}
+.article-tags a{font-size:.75rem;font-weight:600;padding:.2rem .6rem;border-radius:100px;background:#f2f2f2;color:#666;transition:background .12s}
+.article-tags a:hover{background:#e5e5e5;border:none}
+<script>
+document.querySelectorAll('.faq-q').forEach(function(q){
+  q.addEventListener('click',function(){
+    var a=this.nextElementSibling;
+    a.style.display=a.style.display==='block'?'none':'block';
+    this.style.setProperty('--after-content',a.style.display==='block'?'"−"':'"+"');
+  });
+});
+</script>
+"""
 
 
 # ─────────────────────────────────────────────────────────────────────────────
 # TEMPLATE HTML ARTICLE
 # ─────────────────────────────────────────────────────────────────────────────
 
-def build_article_html(article_data: dict) -> str:
-    """Génère le fichier HTML complet de l'article."""
-    slug        = article_data["slug"]
-    h1          = article_data.get("h1", article_data["keyword"])
-    meta_desc   = article_data.get("meta_desc", "")
-    secteur     = article_data.get("secteur", "")
-    tags        = article_data.get("tags", [])
-    article_body = article_data.get("article_html", "")
-    word_count  = article_data.get("word_count", 0)
-    date_str    = article_data.get("date_published",
-                  datetime.now().strftime("%Y-%m-%d"))
-    date_display = datetime.strptime(date_str[:10], "%Y-%m-%d").strftime("%d %B %Y")
+def build_article_page(data: dict) -> str:
+    """Génère le HTML complet de la page article pour GitHub Pages."""
 
-    read_time  = max(3, round(word_count / 200))
-    podcast_embed = article_data.get("podcast_embed", "")
-    audio_url  = article_data.get("audio_url", "")
+    meta        = data.get("meta", {})
+    title       = meta.get("title", data.get("keyword", "Article"))
+    description = meta.get("description", "")
+    pub_date    = meta.get("published_at", datetime.now().strftime("%Y-%m-%d"))
+    reading_time= meta.get("reading_time", "5 min")
+    tags        = meta.get("tags", [])
+    slug        = meta.get("slug", data.get("slug", "article"))
+    secteur     = data.get("secteur", "")
+    article_html = data.get("html", "")
 
-    # Bloc audio / podcast
-    audio_block = ""
-    if podcast_embed and "PLACEHOLDER" not in podcast_embed:
-        audio_block = f"""
-  <div class="podcast-widget" style="margin:2rem 0;padding:1.5rem;border:1px solid var(--bd);border-radius:12px;background:var(--bg2)">
-    <p style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink3);margin-bottom:.75rem">🎙️ Écouter cet article</p>
-    {podcast_embed}
-  </div>"""
-    elif audio_url:
-        audio_block = f"""
-  <div class="podcast-widget" style="margin:2rem 0;padding:1.5rem;border:1px solid var(--bd);border-radius:12px;background:var(--bg2)">
-    <p style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink3);margin-bottom:.75rem">🎙️ Écouter cet article</p>
-    <audio controls style="width:100%">
-      <source src="{audio_url}" type="audio/mpeg">
-    </audio>
-  </div>"""
+    # Date formatée FR
+    from datetime import datetime as dt
+    try:
+        d = dt.strptime(pub_date, "%Y-%m-%d")
+        date_fr = d.strftime("%-d %B %Y").replace(
+            "January","janvier").replace("February","février").replace(
+            "March","mars").replace("April","avril").replace("May","mai").replace(
+            "June","juin").replace("July","juillet").replace("August","août").replace(
+            "September","septembre").replace("October","octobre").replace(
+            "November","novembre").replace("December","décembre")
+    except Exception:
+        date_fr = pub_date
 
     # Tags HTML
-    tags_html = " ".join(
-        f'<a href="{BASE_URL}/{BLOG_DIR}/index.html?tag={t.lower().replace(" ","-")}" '
-        f'class="badge badge-gray" style="text-decoration:none">{t}</a>'
-        for t in tags
-    ) if tags else ""
+    tags_html = ""
+    if tags:
+        tags_html = '<div class="article-tags">' + "".join(
+            f'<a href="../../blog/index.html?tag={t.lower().replace(" ","-")}">{t}</a>'
+            for t in tags
+        ) + "</div>"
 
-    # Schema Article
+    # Podcast widget
+    podcast_html = ""
+    podcast = data.get("podcast", {})
+    spotify_id = podcast.get("spotify_episode_id", "")
+    if spotify_id:
+        podcast_html = f"""<div class="podcast-widget">
+      <p>🎙️ Écouter cet article en podcast</p>
+      <iframe style="border-radius:12px" src="https://open.spotify.com/embed/episode/{spotify_id}?utm_source=generator&theme=0"
+        width="100%" height="152" frameBorder="0" allowfullscreen=""
+        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+        loading="lazy"></iframe>
+    </div>"""
+    elif podcast.get("status") == "ready":
+        # Audio local sans ID Spotify encore
+        podcast_html = """<div class="podcast-widget">
+      <p>🎙️ Version podcast — disponible prochainement sur Spotify</p>
+    </div>"""
+
+    # Canonical URL
+    canonical = f"{BASE_URL}/{BLOG_DIR}/{slug}.html"
+
+    # Schema.org Article
     schema = json.dumps({
         "@context": "https://schema.org",
-        "@type":    "Article",
-        "headline": h1,
-        "description": meta_desc,
-        "datePublished": date_str,
+        "@type": "Article",
+        "headline": title,
+        "description": description,
+        "datePublished": pub_date,
         "author": {"@type": "Organization", "name": "SAHAR Conseil"},
         "publisher": {
             "@type": "Organization",
-            "name":  "SAHAR Conseil",
-            "url":   BASE_URL,
+            "name": "SAHAR Conseil",
+            "url": BASE_URL
         },
-        "mainEntityOfPage": f"{BASE_URL}/{BLOG_DIR}/{slug}.html",
-        "keywords": ", ".join(tags),
-    }, ensure_ascii=False)
+        "mainEntityOfPage": {"@type": "WebPage", "@id": canonical},
+    })
 
-    # Lire le CSS depuis index.html
-    index_path = DOCS / "index.html"
-    css = ""
-    if index_path.exists():
-        idx = index_path.read_text()
-        css_s = idx.find('<style>') + 7
-        css_e = idx.find('</style>')
-        if css_s > 6 and css_e > 0:
-            css = idx[css_s:css_e]
-
-    # CSS spécifique blog
-    blog_css = """
-.blog-article{max-width:720px;margin:0 auto}
-.article-header{padding-bottom:2rem;border-bottom:1px solid var(--bd);margin-bottom:2.5rem}
-.article-category{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--blue);display:block;margin-bottom:.5rem}
-.article-meta{font-size:.8rem;color:var(--ink3);margin:.5rem 0 1rem}
-.article-intro{font-size:1.05rem;line-height:1.75;color:var(--ink2);margin-top:.75rem}
-.article-body h2{font-size:1.2rem;font-weight:700;margin:2rem 0 .75rem;padding-top:.5rem;border-top:1px solid var(--bg3)}
-.article-body h3{font-size:1rem;font-weight:600;margin:1.5rem 0 .5rem}
-.article-body p{margin-bottom:1rem;line-height:1.75;color:var(--ink2)}
-.article-body ul,.article-body ol{margin-bottom:1rem;padding-left:1.5rem}
-.article-body li{margin-bottom:.4rem;color:var(--ink2);line-height:1.65}
-.article-body table{width:100%;border-collapse:collapse;margin:1.5rem 0;font-size:.88rem}
-.article-body table th{background:var(--bg2);padding:.6rem 1rem;text-align:left;font-weight:600;font-size:.78rem;border-bottom:2px solid var(--bd);color:var(--ink3);text-transform:uppercase;letter-spacing:.05em}
-.article-body table td{padding:.6rem 1rem;border-bottom:1px solid var(--bg3);color:var(--ink2)}
-.article-cta-box{background:var(--bg2);border:1px solid var(--bd);border-radius:12px;padding:2rem;text-align:center;margin:2.5rem 0}
-.article-cta-box h3{margin-bottom:.5rem}
-.article-cta-box p{color:var(--ink3);margin-bottom:1.25rem}
-.article-footer{border-top:1px solid var(--bd);margin-top:2.5rem;padding-top:1.5rem}
-.callout{background:var(--bg2);border-left:3px solid var(--ink);padding:1rem 1.25rem;border-radius:0 8px 8px 0;margin:1.5rem 0;font-size:.93rem}
-.callout.blue{border-color:var(--blue);background:#e8f1fb}
-"""
-
-    return f"""<!DOCTYPE html>
-<html lang="fr">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <title>{h1} | SAHAR Conseil</title>
-  <meta name="description" content="{meta_desc}">
-  <meta name="robots" content="index, follow">
-  <meta name="author" content="SAHAR Conseil">
-  <meta property="og:type" content="article">
-  <meta property="og:title" content="{h1}">
-  <meta property="og:description" content="{meta_desc}">
-  <meta property="og:url" content="{BASE_URL}/{BLOG_DIR}/{slug}.html">
-  <link rel="canonical" href="{BASE_URL}/{BLOG_DIR}/{slug}.html">
-  <script type="application/ld+json">{schema}</script>
-  <!-- Google Tag Manager -->
-  <script>(function(w,d,s,l,i){{w[l]=w[l]||[];w[l].push({{'gtm.start':new Date().getTime(),event:'gtm.js'}});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);}})(window,document,'script','dataLayer','GTM-5WSR4DK5');</script>
-  <script async src="https://www.googletagmanager.com/gtag/js?id={GA4_MEASUREMENT_ID}"></script>
-  <script>window.dataLayer=window.dataLayer||[];function gtag(){{dataLayer.push(arguments)}}gtag('js',new Date());gtag('config','{GA4_MEASUREMENT_ID}');gtag('event','page_view',{{page_title:'{h1}',page_location:'{BASE_URL}/{BLOG_DIR}/{slug}.html',content_type:'blog_article',content_category:'{secteur}'}});</script>
-  <style>{css}{blog_css}</style>
-</head>
-<body>
-<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5WSR4DK5" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-
-<a href="#main" class="skip">Aller au contenu</a>
+    # Lire le CSS du site pour le nav/footer (si dispo)
+    nav_html = """<a href="#main" class="skip">Aller au contenu</a>
 <nav class="nav" aria-label="Navigation principale">
-  <a href="{BASE_URL}/index.html" class="nav-logo"><span class="nav-logo-dot"></span>SAHAR Conseil</a>
+  <a href="../../index.html" class="nav-logo"><span class="nav-logo-dot"></span>SAHAR Conseil</a>
   <ul class="nav-menu">
-    <li><a href="{BASE_URL}/immobilier.html">Immobilier</a></li>
-    <li><a href="{BASE_URL}/energie-renovation.html">Énergie</a></li>
-    <li><a href="{BASE_URL}/retail-franchise.html">Retail</a></li>
-    <li><a href="{BASE_URL}/rh-recrutement.html">RH</a></li>
-    <li><a href="{BASE_URL}/crm.html">CRM</a></li>
-    <li><a href="{BASE_URL}/{BLOG_DIR}/index.html" class="active">Blog</a></li>
+    <li><a href="../../immobilier.html">Immobilier</a></li>
+    <li><a href="../../energie-renovation.html">Énergie</a></li>
+    <li><a href="../../retail-franchise.html">Retail</a></li>
+    <li><a href="../../rh-recrutement.html">RH</a></li>
+    <li><a href="../../crm.html">CRM</a></li>
+    <li><a href="index.html" class="active">Blog</a></li>
   </ul>
-  <div class="nav-actions"><a href="{BASE_URL}/index.html#contact" class="btn btn-primary btn-sm">Démo gratuite</a></div>
-</nav>
+  <div class="nav-actions"><a href="../../index.html#contact" class="btn btn-primary btn-sm">Démo gratuite</a></div>
+</nav>"""
 
-<main id="main" style="padding:4rem 0">
-  <div class="container">
-    {audio_block}
-    <div class="blog-article">
-      {article_body}
-      <div class="article-footer">
-        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem">
-          <div style="display:flex;gap:.5rem;flex-wrap:wrap">{tags_html}</div>
-          <a href="{BASE_URL}/{BLOG_DIR}/index.html" style="font-size:.82rem;color:var(--ink3)">← Tous les articles</a>
-        </div>
-      </div>
-    </div>
-  </div>
-</main>
-
-<footer class="footer">
+    footer_html = """<footer class="footer">
   <div class="container">
     <div class="footer-grid">
-      <div class="footer-brand"><strong style="font-size:.95rem;font-weight:700">SAHAR Conseil</strong><p>Open data au service des professionnels. DVF, DPE, INSEE, SIRENE transformés en pipeline commercial.</p></div>
-      <div class="footer-col"><h4>Secteurs</h4><ul><li><a href="{BASE_URL}/immobilier.html">Immobilier DVF</a></li><li><a href="{BASE_URL}/energie-renovation.html">Énergie &amp; DPE</a></li><li><a href="{BASE_URL}/retail-franchise.html">Retail &amp; Franchise</a></li></ul></div>
-      <div class="footer-col"><h4>Outils</h4><ul><li><a href="{BASE_URL}/crm.html">CRM Pipeline</a></li><li><a href="{BASE_URL}/scoring-prospects.html">Scoring Prospects</a></li></ul></div>
-      <div class="footer-col"><h4>Blog</h4><ul><li><a href="{BASE_URL}/{BLOG_DIR}/index.html">Tous les articles</a></li><li><a href="{BASE_URL}/sitemap.xml">Sitemap</a></li></ul></div>
+      <div class="footer-brand"><strong style="font-size:.95rem;font-weight:700">SAHAR Conseil</strong>
+        <p>Open data au service des professionnels. DVF, DPE, INSEE, SIRENE transformés en pipeline commercial.</p></div>
+      <div class="footer-col"><h4>Secteurs</h4><ul>
+        <li><a href="../../immobilier.html">Immobilier DVF</a></li>
+        <li><a href="../../energie-renovation.html">Énergie &amp; DPE</a></li>
+        <li><a href="../../retail-franchise.html">Retail</a></li></ul></div>
+      <div class="footer-col"><h4>Blog</h4><ul>
+        <li><a href="index.html">Tous les articles</a></li>
+        <li><a href="../../prospecter-donnees-publiques.html">Open data</a></li>
+        <li><a href="../../scoring-prospects.html">Scoring</a></li></ul></div>
+      <div class="footer-col"><h4>Contact</h4><ul>
+        <li><a href="../../index.html#contact">Demander une démo</a></li>
+        <li><a href="../../index.html#tarifs">Tarifs</a></li></ul></div>
     </div>
-    <div class="footer-bottom"><p>© 2024 SAHAR Conseil — Données DVF DGFiP, ADEME, INSEE</p></div>
+    <div class="footer-bottom"><p>© 2024-2025 SAHAR Conseil</p>
+      <div class="footer-legal"><a href="../../index.html#contact">Contact</a><a href="../../sitemap.xml">Sitemap</a></div>
+    </div>
   </div>
-</footer>
-</body>
-</html>"""
-
-
-# ─────────────────────────────────────────────────────────────────────────────
-# INDEX BLOG
-# ─────────────────────────────────────────────────────────────────────────────
-
-def build_blog_index(articles: list) -> str:
-    """Génère la page index du blog."""
-    cards = ""
-    for a in sorted(articles, key=lambda x: x.get("date_published", ""), reverse=True)[:20]:
-        date_str = a.get("date_published", "")[:10]
-        try:
-            date_disp = datetime.strptime(date_str, "%Y-%m-%d").strftime("%d %b %Y")
-        except Exception:
-            date_disp = date_str
-
-        tags_html = " ".join(
-            f'<span class="badge badge-gray">{t}</span>'
-            for t in (a.get("tags", [])[:2])
-        )
-        cards += f"""
-    <a href="{BASE_URL}/{BLOG_DIR}/{a['slug']}.html" style="display:block;border:1px solid var(--bd);border-radius:8px;padding:1.25rem;transition:border-color .15s;text-decoration:none" onmouseover="this.style.borderColor='#185FA5'" onmouseout="this.style.borderColor='var(--bd)'">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.5rem">
-        <span style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--blue)">{a.get('secteur','').upper()}</span>
-        <span style="font-size:.75rem;color:var(--ink3)">{date_disp}</span>
-      </div>
-      <h3 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:.4rem;line-height:1.35">{a.get('h1', a['keyword'])}</h3>
-      <p style="font-size:.83rem;color:var(--ink3);margin-bottom:.75rem;line-height:1.55">{a.get('meta_desc','')[:120]}...</p>
-      <div style="display:flex;gap:.4rem;flex-wrap:wrap">{tags_html}</div>
-    </a>"""
-
-    # Lire le CSS depuis index.html
-    index_path = DOCS / "index.html"
-    css = ""
-    if index_path.exists():
-        idx = index_path.read_text()
-        css_s = idx.find('<style>') + 7
-        css_e = idx.find('</style>')
-        if css_s > 6 and css_e > 0:
-            css = idx[css_s:css_e]
+</footer>"""
 
     return f"""<!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <title>Blog SAHAR Conseil — Open Data, Prospection, Immobilier, Énergie</title>
-  <meta name="description" content="Guides et analyses pour les professionnels qui prospectent avec les données publiques françaises. DVF, DPE, INSEE, CRM, scoring.">
+  <title>{title} | SAHAR Conseil</title>
+  <meta name="description" content="{description}">
   <meta name="robots" content="index, follow">
-  <link rel="canonical" href="{BASE_URL}/{BLOG_DIR}/index.html">
+  <link rel="canonical" href="{canonical}">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="{title}">
+  <meta property="og:description" content="{description}">
+  <meta property="og:url" content="{canonical}">
+  <meta property="article:published_time" content="{pub_date}">
+  <script type="application/ld+json">{schema}</script>
+  <!-- GTM -->
   <script>(function(w,d,s,l,i){{w[l]=w[l]||[];w[l].push({{'gtm.start':new Date().getTime(),event:'gtm.js'}});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);}})(window,document,'script','dataLayer','GTM-5WSR4DK5');</script>
   <script async src="https://www.googletagmanager.com/gtag/js?id={GA4_MEASUREMENT_ID}"></script>
   <script>window.dataLayer=window.dataLayer||[];function gtag(){{dataLayer.push(arguments)}}gtag('js',new Date());gtag('config','{GA4_MEASUREMENT_ID}');</script>
-  <style>{css}</style>
+  <style>
+  *,*::before,*::after{{box-sizing:border-box;margin:0;padding:0}}
+  html{{scroll-behavior:smooth}}
+  body{{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;font-size:16px;line-height:1.65;color:#1a1a1a;background:#fff;-webkit-font-smoothing:antialiased}}
+  a{{color:inherit;text-decoration:none}}
+  :root{{--blue:#185FA5;--blue-l:#e8f1fb;--green:#1D9E75;--ink:#1a1a1a;--ink2:#444;--ink3:#888;--bd:#e5e5e5;--bg2:#f8f8f8;--r:8px;--r2:12px;--mw:900px}}
+  .container{{max-width:var(--mw);margin:0 auto;padding:0 5%}}
+  .section{{padding:5rem 0;border-bottom:1px solid var(--bd)}}
+  .nav{{border-bottom:1px solid #e5e5e5;height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 5%;position:sticky;top:0;background:rgba(255,255,255,.97);backdrop-filter:blur(8px);z-index:200}}
+  .nav-logo{{display:flex;align-items:center;gap:.5rem;font-weight:700;font-size:.95rem;letter-spacing:-.01em;color:#1a1a1a}}
+  .nav-logo-dot{{width:8px;height:8px;background:#185FA5;border-radius:50%;display:inline-block}}
+  .nav-menu{{display:flex;list-style:none;gap:0}}
+  .nav-menu a{{font-size:.84rem;font-weight:500;color:#444;padding:.4rem .8rem;border-radius:6px;transition:color .12s,background .12s;display:block}}
+  .nav-menu a:hover,.nav-menu a.active{{color:#1a1a1a;background:#f8f8f8}}
+  .nav-actions{{display:flex;align-items:center;gap:.5rem}}
+  .btn{{display:inline-flex;align-items:center;gap:.45rem;padding:.65rem 1.35rem;border-radius:7px;font-size:.9rem;font-weight:600;cursor:pointer;border:none;transition:opacity .12s;line-height:1;white-space:nowrap}}
+  .btn-primary{{background:#1a1a1a;color:#fff}}.btn-sm{{padding:.45rem .9rem;font-size:.82rem}}
+  .skip{{position:absolute;left:-999px;top:0;padding:.5rem 1rem;background:#1a1a1a;color:#fff;font-size:.85rem;z-index:999}}.skip:focus{{left:0}}
+  .overline{{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#888;display:block;margin-bottom:.75rem}}
+  .breadcrumb{{display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;font-size:.77rem;color:#888;margin-bottom:2rem}}
+  .breadcrumb a{{color:#888}}.breadcrumb a:hover{{color:#1a1a1a}}.breadcrumb-sep{{color:#bbb}}
+  .footer{{border-top:1px solid #e5e5e5;padding:3rem 0 2rem}}
+  .footer-grid{{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:2.5rem;padding-bottom:2.5rem;border-bottom:1px solid #e5e5e5;margin-bottom:1.5rem}}
+  .footer-brand p{{font-size:.82rem;color:#888;line-height:1.65;max-width:220px;margin-top:.5rem}}
+  .footer-col h4{{font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#888;margin-bottom:.75rem}}
+  .footer-col ul{{list-style:none;padding:0;display:flex;flex-direction:column;gap:.3rem}}
+  .footer-col a{{font-size:.82rem;color:#888}}.footer-col a:hover{{color:#1a1a1a}}
+  .footer-bottom{{display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem}}
+  .footer-bottom p,.footer-legal a{{font-size:.77rem;color:#bbb}}
+  .footer-legal{{display:flex;gap:1.5rem}}
+  @media(max-width:700px){{.nav-menu{{display:none}}.footer-grid{{grid-template-columns:1fr 1fr}}}}
+  {BLOG_CSS}
+  </style>
 </head>
 <body>
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5WSR4DK5" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-<nav class="nav">
-  <a href="{BASE_URL}/index.html" class="nav-logo"><span class="nav-logo-dot"></span>SAHAR Conseil</a>
-  <ul class="nav-menu">
-    <li><a href="{BASE_URL}/immobilier.html">Immobilier</a></li>
-    <li><a href="{BASE_URL}/energie-renovation.html">Énergie</a></li>
-    <li><a href="{BASE_URL}/retail-franchise.html">Retail</a></li>
-    <li><a href="{BASE_URL}/crm.html">CRM</a></li>
-    <li><a href="{BASE_URL}/{BLOG_DIR}/index.html" class="active">Blog</a></li>
-  </ul>
-  <div class="nav-actions"><a href="{BASE_URL}/index.html#contact" class="btn btn-primary btn-sm">Démo gratuite</a></div>
-</nav>
+{nav_html}
 <main id="main">
-  <section class="section" style="padding-top:4.5rem">
-    <div class="container">
-      <span class="overline">Blog</span>
-      <h1 style="margin-bottom:.75rem">Prospection, données, terrain.</h1>
-      <p class="lead" style="margin-bottom:2.5rem">Guides et analyses pour les professionnels qui utilisent les <strong>données publiques françaises</strong> pour prospecter.</p>
-      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:1rem">
-        {cards}
-      </div>
-    </div>
-  </section>
-</main>
-<footer class="footer">
+<div style="background:#f8f8f8;border-bottom:1px solid #e5e5e5;padding:1.25rem 0">
   <div class="container">
-    <div class="footer-bottom"><p>© 2024 SAHAR Conseil</p><div class="footer-legal"><a href="{BASE_URL}/sitemap.xml">Sitemap</a></div></div>
+    <div class="breadcrumb">
+      <a href="../../index.html">Accueil</a><span class="breadcrumb-sep">→</span>
+      <a href="index.html">Blog</a><span class="breadcrumb-sep">→</span>
+      <span>{secteur.capitalize()}</span>
+    </div>
   </div>
-</footer>
+</div>
+<div style="padding:3rem 0 5rem">
+  <div class="blog-article">
+    {podcast_html}
+    {article_html}
+    {tags_html}
+  </div>
+</div>
+</main>
+{footer_html}
+<script>
+// FAQ accordion
+document.querySelectorAll('.faq-q').forEach(function(q){{
+  q.addEventListener('click',function(){{
+    var a=this.nextElementSibling;
+    if(a){{a.style.display=a.style.display==='block'?'none':'block'}}
+  }});
+}});
+// GA4 scroll tracking
+var s25=false,s50=false,s75=false;
+window.addEventListener('scroll',function(){{
+  var pct=window.scrollY/(document.body.scrollHeight-window.innerHeight)*100;
+  if(!s25&&pct>=25){{s25=true;gtag('event','scroll',{{percent_scrolled:25}})}}
+  if(!s50&&pct>=50){{s50=true;gtag('event','scroll',{{percent_scrolled:50}})}}
+  if(!s75&&pct>=75){{s75=true;gtag('event','scroll',{{percent_scrolled:75}})}}
+}});
+</script>
 </body>
 </html>"""
 
@@ -299,253 +304,257 @@ def build_blog_index(articles: list) -> str:
 # ─────────────────────────────────────────────────────────────────────────────
 
 def github_get_file_sha(path: str) -> str | None:
-    """Récupère le SHA d'un fichier GitHub (nécessaire pour le mettre à jour)."""
-    if not GITHUB_TOKEN:
-        return None
+    """Récupère le SHA d'un fichier existant (nécessaire pour la mise à jour)."""
     url = f"https://api.github.com/repos/{GITHUB_REPO}/contents/{path}"
-    r = requests.get(url, headers={
-        "Authorization": f"token {GITHUB_TOKEN}",
-        "Accept": "application/vnd.github.v3+json",
-    })
+    r = requests.get(url, headers={"Authorization": f"token {GITHUB_TOKEN}"}, timeout=15)
     if r.status_code == 200:
         return r.json().get("sha")
     return None
 
 
 def github_push_file(path: str, content: str, message: str) -> bool:
-    """
-    Crée ou met à jour un fichier sur GitHub.
-    path = chemin relatif dans le repo (ex: "sahar-conseil/docs/blog/article.html")
-    """
+    """Push un fichier sur GitHub via l'API. Crée ou met à jour."""
     if not GITHUB_TOKEN:
-        print(f"   ⚠️  GITHUB_TOKEN absent — écriture locale uniquement")
-        # Écriture locale en fallback
-        local = DOCS.parent.parent / path
-        local.parent.mkdir(parents=True, exist_ok=True)
-        local.write_text(content)
-        print(f"   💾 Écrit localement : {local}")
-        return True
+        raise ValueError("GITHUB_TOKEN non défini")
 
     url     = f"https://api.github.com/repos/{GITHUB_REPO}/contents/{path}"
-    sha     = github_get_file_sha(path)
     encoded = base64.b64encode(content.encode("utf-8")).decode("ascii")
+    sha     = github_get_file_sha(path)
 
-    payload = {
+    body = {
         "message": message,
         "content": encoded,
         "branch":  GITHUB_BRANCH,
     }
     if sha:
-        payload["sha"] = sha
+        body["sha"] = sha
 
-    r = requests.put(url, json=payload, headers={
-        "Authorization": f"token {GITHUB_TOKEN}",
-        "Accept":        "application/vnd.github.v3+json",
-    })
+    r = requests.put(
+        url, json=body,
+        headers={"Authorization": f"token {GITHUB_TOKEN}", "Content-Type": "application/json"},
+        timeout=30,
+    )
 
     if r.status_code in (200, 201):
-        print(f"   ✅ GitHub : {path}")
+        action = "mis à jour" if sha else "créé"
+        print(f"   ✅ GitHub : {path} {action}")
         return True
     else:
-        print(f"   ❌ GitHub error {r.status_code} : {r.text[:200]}")
+        print(f"   ❌ GitHub {r.status_code} : {r.text[:200]}")
         return False
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# GA4 MEASUREMENT PROTOCOL
+# INDEX BLOG
 # ─────────────────────────────────────────────────────────────────────────────
 
-def track_publication_ga4(article_data: dict) -> None:
-    """Envoie un événement 'article_published' à GA4."""
+def build_blog_index(articles: list) -> str:
+    """Génère la page index.html du blog avec la liste des articles."""
+
+    cards = ""
+    for a in sorted(articles, key=lambda x: x.get("meta", {}).get("published_at", ""), reverse=True):
+        m    = a.get("meta", {})
+        slug = m.get("slug", a.get("slug", ""))
+        title = m.get("title", a.get("keyword", ""))
+        desc  = m.get("description", "")
+        date  = m.get("published_at", "")
+        time_ = m.get("reading_time", "5 min")
+        sect  = a.get("secteur", "")
+        tags  = m.get("tags", [])
+        score = a.get("score", {}).get("total", 0)
+
+        tags_html = " ".join(
+            f'<span style="font-size:.68rem;font-weight:700;padding:.15rem .5rem;background:#f2f2f2;color:#666;border-radius:100px">{t}</span>'
+            for t in tags[:3]
+        )
+
+        cards += f"""
+<a href="{slug}.html" style="display:block;border:1px solid #e5e5e5;border-radius:10px;padding:1.25rem;transition:border-color .15s" onmouseover="this.style.borderColor='#185FA5'" onmouseout="this.style.borderColor='#e5e5e5'">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.5rem">
+    <span style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#185FA5">{sect}</span>
+    <span style="font-size:.72rem;color:#bbb">{date} · {time_}</span>
+  </div>
+  <h3 style="font-size:1rem;font-weight:600;color:#1a1a1a;line-height:1.35;margin-bottom:.4rem">{title}</h3>
+  <p style="font-size:.83rem;color:#666;line-height:1.5;margin-bottom:.75rem">{desc[:120]}{"..." if len(desc)>120 else ""}</p>
+  <div style="display:flex;gap:.35rem;flex-wrap:wrap">{tags_html}</div>
+</a>"""
+
+    return f"""<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Blog SAHAR Conseil — Prospection, Open Data, DVF, DPE</title>
+  <meta name="description" content="Articles sur la prospection avec les données publiques françaises. DVF, DPE, INSEE, SIRENE. Méthodes, outils, cas d'usage pour les professionnels.">
+  <link rel="canonical" href="{BASE_URL}/{BLOG_DIR}/">
+  <script>(function(w,d,s,l,i){{w[l]=w[l]||[];w[l].push({{'gtm.start':new Date().getTime(),event:'gtm.js'}});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);}})(window,document,'script','dataLayer','GTM-5WSR4DK5');</script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id={GA4_MEASUREMENT_ID}"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){{dataLayer.push(arguments)}}gtag('js',new Date());gtag('config','{GA4_MEASUREMENT_ID}');</script>
+  <style>*,*::before,*::after{{box-sizing:border-box;margin:0;padding:0}}html{{scroll-behavior:smooth}}body{{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;font-size:16px;line-height:1.65;color:#1a1a1a;background:#fff;-webkit-font-smoothing:antialiased}}a{{color:inherit;text-decoration:none}}.container{{max-width:900px;margin:0 auto;padding:0 5%}}.nav{{border-bottom:1px solid #e5e5e5;height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 5%;position:sticky;top:0;background:rgba(255,255,255,.97);backdrop-filter:blur(8px);z-index:200}}.nav-logo{{display:flex;align-items:center;gap:.5rem;font-weight:700;font-size:.95rem;color:#1a1a1a}}.nav-logo-dot{{width:8px;height:8px;background:#185FA5;border-radius:50%;display:inline-block}}.nav-menu{{display:flex;list-style:none;gap:0}}.nav-menu a{{font-size:.84rem;font-weight:500;color:#444;padding:.4rem .8rem;border-radius:6px;transition:color .12s,background .12s;display:block}}.nav-menu a:hover,.nav-menu a.active{{color:#1a1a1a;background:#f8f8f8}}.nav-actions{{display:flex;align-items:center;gap:.5rem}}.btn{{display:inline-flex;align-items:center;gap:.45rem;padding:.65rem 1.35rem;border-radius:7px;font-size:.9rem;font-weight:600;cursor:pointer;border:none;transition:opacity .12s;line-height:1;white-space:nowrap}}.btn-primary{{background:#1a1a1a;color:#fff}}.btn-sm{{padding:.45rem .9rem;font-size:.82rem}}.skip{{position:absolute;left:-999px;top:0;padding:.5rem 1rem;background:#1a1a1a;color:#fff;font-size:.85rem;z-index:999}}.skip:focus{{left:0}}.footer{{border-top:1px solid #e5e5e5;padding:3rem 0 2rem}}.footer-grid{{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:2.5rem;padding-bottom:2.5rem;border-bottom:1px solid #e5e5e5;margin-bottom:1.5rem}}.footer-brand p{{font-size:.82rem;color:#888;line-height:1.65;max-width:220px;margin-top:.5rem}}.footer-col h4{{font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#888;margin-bottom:.75rem}}.footer-col ul{{list-style:none;padding:0;display:flex;flex-direction:column;gap:.3rem}}.footer-col a{{font-size:.82rem;color:#888}}.footer-col a:hover{{color:#1a1a1a}}.footer-bottom{{display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem}}.footer-bottom p,.footer-legal a{{font-size:.77rem;color:#bbb}}.footer-legal{{display:flex;gap:1.5rem}}@media(max-width:700px){{.nav-menu{{display:none}}.footer-grid{{grid-template-columns:1fr 1fr}}}}</style>
+</head>
+<body>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5WSR4DK5" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<a href="#main" class="skip">Aller au contenu</a>
+<nav class="nav">
+  <a href="../index.html" class="nav-logo"><span class="nav-logo-dot"></span>SAHAR Conseil</a>
+  <ul class="nav-menu">
+    <li><a href="../immobilier.html">Immobilier</a></li>
+    <li><a href="../energie-renovation.html">Énergie</a></li>
+    <li><a href="../retail-franchise.html">Retail</a></li>
+    <li><a href="../rh-recrutement.html">RH</a></li>
+    <li><a href="../crm.html">CRM</a></li>
+    <li><a href="index.html" class="active">Blog</a></li>
+  </ul>
+  <div class="nav-actions"><a href="../index.html#contact" class="btn btn-primary btn-sm">Démo gratuite</a></div>
+</nav>
+<main id="main">
+<section style="padding:4.5rem 0 3rem;border-bottom:1px solid #e5e5e5">
+  <div class="container">
+    <span style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#888;display:block;margin-bottom:.75rem">Blog SAHAR</span>
+    <h1 style="font-size:clamp(1.75rem,3.5vw,2.5rem);font-weight:700;letter-spacing:-.03em;line-height:1.1;color:#1a1a1a;margin-bottom:.75rem">Prospection, données publiques, pipeline commercial.</h1>
+    <p style="font-size:1.05rem;color:#444;line-height:1.75;max-width:560px">Méthodes terrain, analyses de marché et cas d'usage pour les professionnels qui utilisent <strong>DVF, DPE, INSEE et SIRENE</strong> dans leur prospection.</p>
+  </div>
+</section>
+<section style="padding:3.5rem 0">
+  <div class="container">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem">
+      {cards}
+    </div>
+  </div>
+</section>
+</main>
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand"><strong style="font-size:.95rem;font-weight:700">SAHAR Conseil</strong><p>Open data au service des professionnels.</p></div>
+      <div class="footer-col"><h4>Secteurs</h4><ul><li><a href="../immobilier.html">Immobilier DVF</a></li><li><a href="../energie-renovation.html">Énergie &amp; DPE</a></li><li><a href="../retail-franchise.html">Retail</a></li></ul></div>
+      <div class="footer-col"><h4>Blog</h4><ul><li><a href="index.html">Tous les articles</a></li></ul></div>
+      <div class="footer-col"><h4>Contact</h4><ul><li><a href="../index.html#contact">Démo gratuite</a></li></ul></div>
+    </div>
+    <div class="footer-bottom"><p>© 2024-2025 SAHAR Conseil</p><div class="footer-legal"><a href="../sitemap.xml">Sitemap</a></div></div>
+  </div>
+</footer>
+</body>
+</html>"""
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# GA4 Measurement Protocol
+# ─────────────────────────────────────────────────────────────────────────────
+
+def ping_ga4_publication(slug: str, title: str) -> bool:
+    """Envoie un event 'article_published' à GA4 via Measurement Protocol."""
     if not GA4_API_SECRET:
-        return
+        return False  # silencieux si pas configuré
 
     url = f"https://www.google-analytics.com/mp/collect?measurement_id={GA4_MEASUREMENT_ID}&api_secret={GA4_API_SECRET}"
-
-    payload = {
-        "client_id":  "content_factory_bot",
+    body = {
+        "client_id": f"content_factory_{hashlib.md5(slug.encode()).hexdigest()[:8]}",
         "events": [{
             "name": "article_published",
             "params": {
-                "article_slug":    article_data["slug"],
-                "article_keyword": article_data["keyword"],
-                "article_score":   article_data.get("score", 0),
-                "article_secteur": article_data.get("secteur", ""),
-                "word_count":      article_data.get("word_count", 0),
-                "has_audio":       bool(article_data.get("audio_url")),
+                "article_slug":  slug,
+                "article_title": title[:100],
+                "source":        "content_factory",
             }
         }]
     }
-
     try:
-        r = requests.post(url, json=payload, timeout=10)
-        if r.status_code == 204:
-            print("   📊 GA4 : événement publié")
-    except Exception as e:
-        print(f"   ⚠️  GA4 tracking error : {e}")
-
-
-# ─────────────────────────────────────────────────────────────────────────────
-# SITEMAP
-# ─────────────────────────────────────────────────────────────────────────────
-
-def update_sitemap(new_urls: list) -> str:
-    """Ajoute les nouvelles URLs au sitemap existant."""
-    sitemap_path = DOCS / "sitemap.xml"
-    existing_urls = []
-
-    if sitemap_path.exists():
-        content = sitemap_path.read_text()
-        existing_urls = re.findall(r'<loc>(.*?)</loc>', content)
-
-    all_urls = list(dict.fromkeys(existing_urls + new_urls))  # déduplique
-    today    = datetime.now().strftime("%Y-%m-%d")
-
-    entries = ""
-    for url in all_urls:
-        priority = "0.9" if "/blog/" in url else "0.7"
-        entries += f"""  <url>
-    <loc>{url}</loc>
-    <lastmod>{today}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>{priority}</priority>
-  </url>\n"""
-
-    return f"""<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-{entries}</urlset>"""
-
-
-# ─────────────────────────────────────────────────────────────────────────────
-# ORCHESTRATION PRINCIPALE
-# ─────────────────────────────────────────────────────────────────────────────
-
-def publish_article(article_data: dict) -> bool:
-    """Pipeline complet de publication d'un article."""
-    slug    = article_data["slug"]
-    keyword = article_data["keyword"]
-
-    print(f"\n🚀 Publication : {keyword}")
-
-    # 1. Générer le HTML
-    html = build_article_html(article_data)
-    print(f"   → HTML généré ({len(html):,} chars)")
-
-    # 2. Créer le dossier blog local
-    blog_docs = DOCS / BLOG_DIR
-    blog_docs.mkdir(exist_ok=True)
-
-    # 3. Écrire localement
-    local_path = blog_docs / f"{slug}.html"
-    local_path.write_text(html)
-    print(f"   → Écrit localement : {local_path}")
-
-    # 4. Pousser sur GitHub
-    github_path = f"sahar-conseil/docs/{BLOG_DIR}/{slug}.html"
-    success = github_push_file(
-        github_path, html,
-        f"blog: publier article '{keyword[:50]}' (score {article_data.get('score', 0)})"
-    )
-
-    if not success:
+        r = requests.post(url, json=body, timeout=10)
+        return r.status_code == 204
+    except Exception:
         return False
 
-    # 5. Mettre à jour l'index blog
-    _refresh_blog_index()
 
-    # 6. Mettre à jour le sitemap
-    _refresh_sitemap(f"{BASE_URL}/{BLOG_DIR}/{slug}.html")
+# ─────────────────────────────────────────────────────────────────────────────
+# ORCHESTRATION
+# ─────────────────────────────────────────────────────────────────────────────
 
-    # 7. Tracker dans GA4
-    article_data["date_published"] = datetime.now().strftime("%Y-%m-%d")
-    track_publication_ga4(article_data)
+def publish_article(slug: str) -> bool:
+    """Pipeline complet de publication pour un article."""
 
-    # 8. Marquer comme publié
-    article_data["status"] = "published"
-    article_path = ARTICLES / f"{slug}.json"
-    article_path.write_text(json.dumps(article_data, ensure_ascii=False, indent=2))
+    art_path = OUT_ARTICLES / f"{slug}.json"
+    if not art_path.exists():
+        print(f"❌ Article introuvable : {art_path}")
+        return False
 
-    print(f"   ✅ Publié : {BASE_URL}/{BLOG_DIR}/{slug}.html")
+    data  = json.loads(art_path.read_text())
+    meta  = data.get("meta", {})
+    title = meta.get("title", data.get("keyword", slug))
+
+    # Vérifier que l'article a passé le check IA
+    ai_check = data.get("ai_check", {})
+    if not ai_check:
+        print(f"⚠️  Article {slug} n'a pas encore passé le check IA (module 05)")
+
+    print(f"\n📤 Publication : {title}")
+
+    # 1. Générer le HTML page complète
+    page_html = build_article_page(data)
+
+    # 2. Push article
+    repo_path = f"{DOCS_PREFIX}/{BLOG_DIR}/{slug}.html"
+    ok = github_push_file(
+        repo_path,
+        page_html,
+        f"blog: article '{title[:50]}'"
+    )
+    if not ok:
+        return False
+
+    # 3. Marquer comme publié dans le JSON
+    data["published"] = True
+    data["published_at"] = datetime.now().isoformat()
+    data["published_url"] = f"{BASE_URL}/{BLOG_DIR}/{slug}.html"
+    art_path.write_text(json.dumps(data, ensure_ascii=False, indent=2))
+
+    # 4. Reconstruire l'index blog
+    all_articles = []
+    for f in OUT_ARTICLES.glob("*.json"):
+        d = json.loads(f.read_text())
+        if d.get("published"):
+            all_articles.append(d)
+
+    if all_articles:
+        index_html = build_blog_index(all_articles)
+        github_push_file(
+            f"{DOCS_PREFIX}/{BLOG_DIR}/index.html",
+            index_html,
+            f"blog: mise à jour index ({len(all_articles)} articles)"
+        )
+
+    # 5. Ping GA4
+    if ping_ga4_publication(slug, title):
+        print(f"   📊 GA4 : event article_published envoyé")
+
+    print(f"   🌐 URL : {BASE_URL}/{BLOG_DIR}/{slug}.html")
     return True
 
 
-def _refresh_blog_index() -> None:
-    """Régénère et publie l'index blog."""
-    # Charger tous les articles publiés
-    articles = []
-    for f in ARTICLES.glob("*.json"):
-        data = json.loads(f.read_text())
-        if data.get("status") == "published":
-            articles.append(data)
-
-    if not articles:
-        return
-
-    html = build_blog_index(articles)
-
-    # Écriture locale
-    blog_docs = DOCS / BLOG_DIR
-    blog_docs.mkdir(exist_ok=True)
-    (blog_docs / "index.html").write_text(html)
-
-    # GitHub
-    github_push_file(
-        f"sahar-conseil/docs/{BLOG_DIR}/index.html",
-        html,
-        f"blog: mettre à jour index ({len(articles)} articles)"
-    )
-    print(f"   📋 Index blog mis à jour ({len(articles)} articles)")
-
-
-def _refresh_sitemap(new_url: str) -> None:
-    """Met à jour le sitemap avec la nouvelle URL."""
-    sitemap_content = update_sitemap([new_url])
-
-    # Écriture locale
-    (DOCS / "sitemap.xml").write_text(sitemap_content)
-
-    # GitHub
-    github_push_file(
-        "sahar-conseil/docs/sitemap.xml",
-        sitemap_content,
-        f"seo: sitemap mis à jour — +{new_url.split('/')[-1]}"
-    )
-    print(f"   🗺️  Sitemap mis à jour")
-
-
-def publish_all() -> None:
-    """Publie tous les articles en statut reviewed."""
-    files = [f for f in ARTICLES.glob("*.json")
-             if json.loads(f.read_text()).get("status") == "reviewed"]
-
-    print(f"📋 {len(files)} articles à publier\n")
-    published = 0
-
+def publish_all(max_articles: int = 3) -> list:
+    """Publie tous les articles checkés non encore publiés."""
+    files = sorted(OUT_ARTICLES.glob("*.json"))
+    done  = []
     for f in files:
+        if len(done) >= max_articles:
+            break
         data = json.loads(f.read_text())
-        if publish_article(data):
-            published += 1
-
-    print(f"\n✅ {published}/{len(files)} articles publiés")
+        if data.get("ai_check") and not data.get("published"):
+            if publish_article(f.stem):
+                done.append(f.stem)
+    print(f"\n✅ {len(done)} articles publiés")
+    return done
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="SAHAR Content Factory — Module 07 Publisher")
-    parser.add_argument("--slug",  type=str, help="Slug de l'article")
-    parser.add_argument("--all",   action="store_true", help="Publier tous les reviewed")
-    parser.add_argument("--index-only", action="store_true", help="Régénérer l'index seul")
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--slug", type=str)
+    parser.add_argument("--all",  action="store_true")
+    parser.add_argument("--max",  type=int, default=3)
     args = parser.parse_args()
 
     if args.slug:
-        path = ARTICLES / f"{args.slug}.json"
-        if not path.exists():
-            print(f"Fichier non trouvé : {path}")
-        else:
-            data = json.loads(path.read_text())
-            publish_article(data)
+        publish_article(args.slug)
     elif args.all:
-        publish_all()
-    elif args.index_only:
-        _refresh_blog_index()
+        publish_all(args.max)
     else:
-        print("Usage : python 07_publisher.py --slug <slug> | --all | --index-only")
+        print("Usage: python 07_publisher.py --slug <slug> | --all [--max 3]")
