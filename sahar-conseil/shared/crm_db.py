@@ -10,10 +10,11 @@ from typing import Optional
 
 
 def _get_client():
-    """Retourne le client Supabase ou None si non configuré."""
+    """Retourne le client Supabase — service_role prioritaire."""
     try:
         url = st.secrets["SUPABASE_URL"]
-        key = st.secrets["SUPABASE_KEY"]
+        # service_role bypasse RLS — prioritaire
+        key = st.secrets.get("SUPABASE_SERVICE_KEY") or st.secrets["SUPABASE_KEY"]
         from supabase import create_client
         return create_client(url, key)
     except Exception:
