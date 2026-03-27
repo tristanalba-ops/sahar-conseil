@@ -476,163 +476,290 @@ with tab_stats:
         st.info("Installer plotly pour les graphiques : pip install plotly")
 
 
-# ── TAB 4 : CRM PIPELINE ──────────────────────────────────────────────────────
+# ── TAB 4 : CRM PIPELINE (Mobile-first) ──────────────────────────────────────
 
 with tab_crm:
-    crm_tabs = st.tabs(["📌 Pipeline", "👥 Contacts", "🎯 Opportunités", "📅 Activités"])
 
-    # ── CRM : PIPELINE KANBAN ──────────────────────────────────────────────
+    # ── ACTIONS RAPIDES MOBILE ────────────────────────────────────────────
 
+    def action_buttons(contact: dict, opp_id: str = "") -> None:
+        """Boutons clic-to-action pour mobile."""
+        tel   = contact.get("tel","").strip()
+        email = contact.get("email","").strip()
+        nom   = contact.get("nom","")
+
+        btns = []
+        if tel:
+            btns.append(f'''<a href="tel:{tel}" style="display:inline-flex;align-items:center;gap:.4rem;
+            background:#1D9E75;color:#fff;padding:.55rem 1rem;border-radius:6px;text-decoration:none;
+            font-size:.85rem;font-weight:500">📞 Appeler</a>''')
+            btns.append(f'''<a href="sms:{tel}" style="display:inline-flex;align-items:center;gap:.4rem;
+            background:#185FA5;color:#fff;padding:.55rem 1rem;border-radius:6px;text-decoration:none;
+            font-size:.85rem;font-weight:500">💬 SMS</a>''')
+            wa = tel.replace("+","").replace(" ","")
+            btns.append(f'''<a href="https://wa.me/{wa}" target="_blank" style="display:inline-flex;align-items:center;gap:.4rem;
+            background:#25D366;color:#fff;padding:.55rem 1rem;border-radius:6px;text-decoration:none;
+            font-size:.85rem;font-weight:500">🟢 WhatsApp</a>''')
+        if email:
+            btns.append(f'''<a href="mailto:{email}?subject=SAHAR — {nom}" style="display:inline-flex;align-items:center;gap:.4rem;
+            background:#444;color:#fff;padding:.55rem 1rem;border-radius:6px;text-decoration:none;
+            font-size:.85rem;font-weight:500">✉️ Email</a>''')
+        if btns:
+            st.markdown(
+                '<div style="display:flex;gap:.5rem;flex-wrap:wrap;margin:.5rem 0">' + "".join(btns) + '</div>',
+                unsafe_allow_html=True
+            )
+
+    def dictaphone_widget(opp_id: str, key: str) -> None:
+        """Widget dictaphone HTML5 pour compte rendu vocal sur mobile."""
+        st.components.v1.html(f"""
+        <div style="font-family:sans-serif;padding:.5rem 0">
+          <button id="btn_{key}" onclick="toggleRec_{key}()"
+            style="background:#E24B4A;color:#fff;border:none;padding:.6rem 1.2rem;
+            border-radius:6px;font-size:.9rem;cursor:pointer;font-weight:500">
+            🎤 Dicter le compte rendu
+          </button>
+          <span id="status_{key}" style="font-size:.78rem;color:#888;margin-left:.75rem"></span>
+          <div id="result_{key}" style="margin-top:.5rem;padding:.6rem;background:#f5f5f5;
+            border-radius:6px;font-size:.88rem;min-height:40px;display:none"></div>
+          <button id="copy_{key}" onclick="copyText_{key}()"
+            style="display:none;margin-top:.4rem;background:#1a1a1a;color:#fff;border:none;
+            padding:.4rem .9rem;border-radius:6px;font-size:.82rem;cursor:pointer">
+            📋 Copier
+          </button>
+        </div>
+        <script>
+        var rec_{key} = false;
+        var recognition_{key} = null;
+        var transcript_{key} = "";
+
+        function toggleRec_{key}() {{
+          if (!rec_{key}) {{
+            if (!window.SpeechRecognition && !window.webkitSpeechRecognition) {{
+              document.getElementById('status_{key}').textContent = "Dictaphone non supporté sur ce navigateur";
+              return;
+            }}
+            var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition_{key} = new SR();
+            recognition_{key}.lang = 'fr-FR';
+            recognition_{key}.continuous = true;
+            recognition_{key}.interimResults = true;
+            recognition_{key}.onresult = function(e) {{
+              var interim = '';
+              var final = '';
+              for (var i = e.resultIndex; i < e.results.length; i++) {{
+                if (e.results[i].isFinal) final += e.results[i][0].transcript;
+                else interim += e.results[i][0].transcript;
+              }}
+              transcript_{key} += final;
+              var div = document.getElementById('result_{key}');
+              div.style.display = 'block';
+              div.textContent = transcript_{key} + interim;
+            }};
+            recognition_{key}.onerror = function(e) {{
+              document.getElementById('status_{key}').textContent = 'Erreur: ' + e.error;
+            }};
+            recognition_{key}.start();
+            rec_{key} = true;
+            document.getElementById('btn_{key}').textContent = '⏹ Arrêter';
+            document.getElementById('btn_{key}').style.background = '#888';
+            document.getElementById('status_{key}').textContent = '● Enregistrement...';
+          }} else {{
+            recognition_{key}.stop();
+            rec_{key} = false;
+            document.getElementById('btn_{key}').textContent = '🎤 Dicter le compte rendu';
+            document.getElementById('btn_{key}').style.background = '#E24B4A';
+            document.getElementById('status_{key}').textContent = '✓ Terminé';
+            document.getElementById('copy_{key}').style.display = 'inline-block';
+          }}
+        }}
+
+        function copyText_{key}() {{
+          navigator.clipboard.writeText(transcript_{key}).then(function() {{
+            document.getElementById('status_{key}').textContent = '✓ Copié !';
+          }});
+        }}
+        </script>
+        """, height=140)
+
+    # ── ONGLETS CRM ──────────────────────────────────────────────────────
+
+    crm_tabs = st.tabs(["📌 Pipeline", "👥 Contacts", "📅 Activités", "📊 KPIs"])
+
+    # PIPELINE
     with crm_tabs[0]:
-        st.subheader("Pipeline commercial")
-
         opps = st.session_state.crm_opportunites
         if not opps:
-            st.info("Aucune opportunité dans le pipeline. Ajoutez-en depuis l'onglet Transactions.")
+            st.info("Ajoutez des opportunités depuis l'onglet Transactions.")
         else:
-            cols_kanban = st.columns(len(STAGES))
-            for i, stage in enumerate(STAGES):
-                stage_opps = [o for o in opps if o['stage'] == stage]
-                with cols_kanban[i]:
-                    valeur = sum(o['prix'] for o in stage_opps)
-                    st.markdown(f"""
-                    <div style='background:{STAGE_COLORS[stage]};padding:.6rem .8rem;
-                    border-radius:6px;margin-bottom:.75rem'>
-                    <b style='font-size:.82rem'>{stage}</b><br>
-                    <span style='font-size:.75rem;color:#555'>{len(stage_opps)} opp. • {valeur/1000:.0f}k€</span>
-                    </div>""", unsafe_allow_html=True)
+            # Vue mobile : liste par étape avec accordéon
+            for stage in STAGES:
+                stage_opps = [o for o in opps if o["stage"] == stage]
+                valeur = sum(o["prix"] for o in stage_opps)
+                nb = len(stage_opps)
+                st.markdown(
+                    f'''<div style="background:{STAGE_COLORS[stage]};padding:.6rem .9rem;
+                    border-radius:6px;margin:.4rem 0;font-size:.88rem">
+                    <b>{stage}</b> — {nb} opp.
+                    {"  •  " + f"{valeur/1000:.0f}k€" if nb else ""}
+                    </div>''', unsafe_allow_html=True
+                )
+                for opp in stage_opps:
+                    sc = opp["score"]
+                    sc_col = "#1D9E75" if sc>=70 else "#BA7517" if sc>=40 else "#E24B4A"
+                    # Trouver le contact associé
+                    contact = next((c for c in st.session_state.crm_contacts
+                                    if c["id"] == opp.get("contact_id")), {})
 
-                    for opp in stage_opps:
-                        score_color = "#1D9E75" if opp['score']>=70 else "#BA7517" if opp['score']>=40 else "#E24B4A"
-                        with st.expander(f"📍 {opp['titre'][:35]}...", expanded=False):
-                            st.markdown(f"**Adresse :** {opp['adresse']}")
-                            st.markdown(f"**Type :** {opp['type_bien']} — {opp['surface']:.0f} m²")
-                            st.markdown(f"**Prix :** {opp['prix']:,.0f} € ({opp['prix_m2']:.0f} €/m²)")
-                            st.markdown(f"**Score :** <span style='color:{score_color};font-weight:600'>{opp['score']}/100</span>", unsafe_allow_html=True)
-                            st.markdown(f"**Source :** {opp['source']} | **Créé :** {opp['date_creation']}")
+                    with st.expander(f"{opp['titre'][:45]}", expanded=False):
+                        # Infos bien
+                        st.markdown(f"""
+**Adresse :** {opp["adresse"]}
+**Type :** {opp["type_bien"]} — {opp["surface"]:.0f} m²
+**Prix :** {opp["prix"]:,.0f} € ({opp["prix_m2"]:.0f} €/m²)
+**Score :** <span style="color:{sc_col};font-weight:600">{sc}/100</span>
+**Contact :** {contact.get("nom","—")} {contact.get("tel","")}
+""", unsafe_allow_html=True)
 
-                            # Avancer dans le pipeline
-                            current_idx = STAGES.index(opp['stage'])
-                            new_stage = st.selectbox("Étape",
-                                                      STAGES,
-                                                      index=current_idx,
-                                                      key=f"stage_{opp['id']}")
-                            if new_stage != opp['stage']:
-                                crm_db.update_stage(opp['id'], new_stage)
-                                st.rerun()
+                        # Actions clic-to-action
+                        if contact:
+                            action_buttons(contact, opp["id"])
 
-                            # Ajouter activité rapide
-                            act_type = st.selectbox("+ Activité", ["Appel","Email","SMS","WhatsApp","Visite","RDV","Note"],
-                                                     key=f"act_{opp['id']}")
-                            act_note = st.text_input("Note", key=f"note_{opp['id']}")
-                            if st.button("Ajouter", key=f"btn_{opp['id']}"):
-                                add_activite(opp['id'], act_type, act_note)
-                                st.success("Activité ajoutée !")
-                                st.rerun()
+                        # Changer étape
+                        cur_idx = STAGES.index(opp["stage"])
+                        new_stage = st.selectbox("Étape", STAGES, index=cur_idx,
+                                                  key=f"stg_{opp['id']}")
+                        if new_stage != opp["stage"]:
+                            crm_db.update_stage(opp["id"], new_stage)
+                            st.rerun()
 
-        # KPIs pipeline
-        if opps:
-            st.markdown("---")
-            st.subheader("KPIs pipeline")
-            k1, k2, k3, k4 = st.columns(4)
-            with k1: st.metric("Opportunités total", len(opps))
-            with k2: st.metric("Valeur pipeline", f"{sum(o['prix'] for o in opps)/1000:.0f}k€")
-            with k3:
-                closees = [o for o in opps if o['stage'] == 'Closing']
-                st.metric("En closing", len(closees))
-            with k4:
-                score_moyen = sum(o['score'] for o in opps) / len(opps) if opps else 0
-                st.metric("Score moyen", f"{score_moyen:.0f}/100")
+                        # Activité rapide + dictaphone
+                        st.markdown("**Ajouter une activité**")
+                        col_a1, col_a2 = st.columns([1,2])
+                        with col_a1:
+                            act_t = st.selectbox("Type",
+                                ["Appel","Email","SMS","WhatsApp","Visite","RDV","Note"],
+                                key=f"at_{opp['id']}")
+                        with col_a2:
+                            act_n = st.text_input("Note rapide", key=f"an_{opp['id']}")
 
-    # ── CRM : CONTACTS ────────────────────────────────────────────────────
+                        dictaphone_widget(opp["id"], f"d_{opp['id']}")
+                        st.caption("💡 Après dictée : copiez le texte ci-dessus dans la note")
 
+                        if st.button("✓ Enregistrer l'activité", key=f"ab_{opp['id']}", type="primary"):
+                            crm_db.add_activite(opp["id"], act_t, act_n)
+                            st.success("Activité enregistrée !")
+                            st.rerun()
+
+    # CONTACTS
     with crm_tabs[1]:
-        col_c1, col_c2 = st.columns([2, 1])
+        # Formulaire compact
+        with st.expander("➕ Nouveau contact", expanded=not st.session_state.crm_contacts):
+            with st.form("f_contact"):
+                nom_f = st.text_input("Nom *")
+                c1f, c2f = st.columns(2)
+                with c1f: tel_f  = st.text_input("Téléphone")
+                with c2f: email_f = st.text_input("Email")
+                type_f = st.selectbox("Type", ["Vendeur","Acheteur","Investisseur","Promoteur","Agent","Autre"])
+                notes_f = st.text_area("Notes", height=60)
+                if st.form_submit_button("Créer", type="primary") and nom_f:
+                    crm_db.add_contact(nom_f, email_f, tel_f, type_f, notes_f)
+                    st.success(f"✓ {nom_f} créé")
+                    st.rerun()
 
-        with col_c2:
-            with st.form("form_contact"):
-                st.markdown("**Nouveau contact**")
-                nom = st.text_input("Nom *")
-                email = st.text_input("Email")
-                tel = st.text_input("Téléphone")
-                type_c = st.selectbox("Type", ["Vendeur","Acheteur","Investisseur","Promoteur","Agent","Autre"])
-                notes = st.text_area("Notes", height=80)
-                if st.form_submit_button("Créer le contact", type="primary"):
-                    if nom:
-                        add_contact(nom, email, tel, type_c, notes)
-                        st.success(f"Contact {nom} créé !")
-                        st.rerun()
+        # Liste contacts avec actions
+        for c in st.session_state.crm_contacts:
+            nb_opps_c = len([o for o in st.session_state.crm_opportunites if o.get("contact_id") == c["id"]])
+            with st.expander(f"**{c['nom']}** — {c['type']} — {nb_opps_c} opp.", expanded=False):
+                st.markdown(f"📞 {c.get('tel','—')}  |  ✉️ {c.get('email','—')}")
+                if c.get("notes"): st.caption(c["notes"])
+                action_buttons(c)
 
-        with col_c1:
-            contacts = st.session_state.crm_contacts
-            if not contacts:
-                st.info("Aucun contact. Créez-en un depuis le formulaire.")
-            else:
-                df_contacts = pd.DataFrame(contacts)
-                st.dataframe(df_contacts[['id','nom','email','tel','type','date_creation','notes']].rename(columns={
-                    'id':'ID','nom':'Nom','email':'Email','tel':'Téléphone',
-                    'type':'Type','date_creation':'Créé le','notes':'Notes'
-                }), use_container_width=True, hide_index=True)
+                # Activités liées
+                acts_c = [a for a in st.session_state.crm_activites
+                           if any(o["id"] == a["opp_id"] and o.get("contact_id") == c["id"]
+                                  for o in st.session_state.crm_opportunites)]
+                if acts_c:
+                    st.caption(f"Dernières activités ({len(acts_c)}) :")
+                    for a in sorted(acts_c, key=lambda x: x["date_creation"], reverse=True)[:3]:
+                        st.caption(f"  {a['date']} · {a['type']} · {a['notes'][:50]}")
 
-    # ── CRM : OPPORTUNITÉS ────────────────────────────────────────────────
-
+    # ACTIVITÉS
     with crm_tabs[2]:
-        opps = st.session_state.crm_opportunites
-        if not opps:
-            st.info("Aucune opportunité. Ajoutez-en depuis l'onglet Transactions.")
-        else:
-            df_opps = pd.DataFrame(opps)
-            cols_show = ['id','titre','adresse','type_bien','surface','prix','prix_m2','score','stage','date_creation']
-            df_show = df_opps[cols_show].rename(columns={
-                'id':'ID','titre':'Titre','adresse':'Adresse','type_bien':'Type',
-                'surface':'Surface m²','prix':'Prix €','prix_m2':'€/m²',
-                'score':'Score','stage':'Étape','date_creation':'Créé le'
-            })
-            st.dataframe(df_show, use_container_width=True, hide_index=True,
-                         column_config={
-                             "Score": st.column_config.ProgressColumn("Score", min_value=0, max_value=100, format="%d"),
-                             "Prix €": st.column_config.NumberColumn("Prix €", format="%d"),
-                             "€/m²": st.column_config.NumberColumn("€/m²", format="%d"),
-                         })
-
-    # ── CRM : ACTIVITÉS ───────────────────────────────────────────────────
-
-    with crm_tabs[3]:
         acts = st.session_state.crm_activites
 
-        # Formulaire activité manuelle
+        # Formulaire nouvelle activité
         with st.expander("➕ Nouvelle activité"):
-            opps_opts = [f"{o['id']} — {o['titre'][:40]}" for o in st.session_state.crm_opportunites]
-            if opps_opts:
-                with st.form("form_activite"):
-                    opp_sel = st.selectbox("Opportunité", opps_opts)
-                    c1, c2 = st.columns(2)
-                    with c1:
+            opps_list = [f"{o['id']} — {o['titre'][:40]}" for o in st.session_state.crm_opportunites]
+            if opps_list:
+                with st.form("f_activite"):
+                    opp_s = st.selectbox("Opportunité", opps_list)
+                    c1a, c2a = st.columns(2)
+                    with c1a:
                         type_a = st.selectbox("Type", ["Appel","Email","SMS","WhatsApp","Visite","RDV","Note","Relance"])
-                        statut_a = st.selectbox("Statut", ["À faire","Fait","Annulé"])
-                    with c2:
+                        stat_a = st.selectbox("Statut", ["À faire","Fait","Annulé"])
+                    with c2a:
                         date_a = st.date_input("Date", value=date.today())
-                    notes_a = st.text_area("Notes / compte-rendu", height=80)
-                    if st.form_submit_button("Créer l'activité", type="primary"):
-                        opp_id = opp_sel.split(" — ")[0]
-                        add_activite(opp_id, type_a, notes_a, date_a.strftime("%d/%m/%Y"), statut_a)
+                    notes_a = st.text_area("Notes", height=80)
+                    if st.form_submit_button("Créer", type="primary"):
+                        crm_db.add_activite(opp_s.split(" — ")[0], type_a, notes_a,
+                                             date_a.strftime("%d/%m/%Y"), stat_a)
                         st.success("Activité créée !")
                         st.rerun()
             else:
                 st.info("Créez d'abord une opportunité.")
 
-        # Liste des activités
+        # Liste activités par date
         if acts:
-            df_acts = pd.DataFrame(acts)
-            st.dataframe(
-                df_acts[['id','opp_id','type','statut','date','notes']].rename(columns={
-                    'id':'ID','opp_id':'Opport.','type':'Type','statut':'Statut',
-                    'date':'Date','notes':'Notes'
-                }),
-                use_container_width=True, hide_index=True
-            )
+            for a in sorted(acts, key=lambda x: x["date_creation"], reverse=True):
+                opp_ref = next((o["titre"][:30] for o in st.session_state.crm_opportunites
+                                if o["id"] == a["opp_id"]), a["opp_id"])
+                statut_icon = {"Fait":"✅","À faire":"⏳","Annulé":"❌"}.get(a["statut"],"•")
+                st.markdown(
+                    f'''<div style="border:1px solid #e5e5e5;border-radius:6px;padding:.7rem .9rem;margin:.3rem 0;font-size:.85rem">
+                    <b>{statut_icon} {a["type"]}</b> · {a["date"]} · <span style="color:#888">{opp_ref}</span>
+                    <div style="color:#444;margin-top:.3rem">{a.get("notes","")}</div>
+                    </div>''', unsafe_allow_html=True
+                )
         else:
-            st.info("Aucune activité enregistrée.")
+            st.info("Aucune activité.")
+
+    # KPIs
+    with crm_tabs[3]:
+        opps_all = st.session_state.crm_opportunites
+        acts_all  = st.session_state.crm_activites
+        contacts_all = st.session_state.crm_contacts
+
+        k1,k2,k3,k4 = st.columns(2), st.columns(2), None, None
+        c1,c2 = st.columns(2)
+        with c1:
+            st.metric("Contacts", len(contacts_all))
+            st.metric("Opportunités", len(opps_all))
+            st.metric("Activités", len(acts_all))
+        with c2:
+            val = sum(o["prix"] for o in opps_all)
+            st.metric("Valeur pipeline", f"{val/1000:.0f}k€" if val else "0€")
+            closing = len([o for o in opps_all if o["stage"]=="Closing"])
+            st.metric("En closing", closing)
+            sc_moy = sum(o["score"] for o in opps_all)/len(opps_all) if opps_all else 0
+            st.metric("Score moyen", f"{sc_moy:.0f}/100")
+
+        if opps_all:
+            st.markdown("---")
+            st.markdown("**Répartition pipeline**")
+            for stage in STAGES:
+                nb = len([o for o in opps_all if o["stage"]==stage])
+                pct = nb/len(opps_all)*100 if opps_all else 0
+                st.markdown(
+                    f'''<div style="display:flex;align-items:center;gap:.75rem;margin:.3rem 0;font-size:.85rem">
+                    <span style="min-width:90px">{stage}</span>
+                    <div style="flex:1;height:8px;background:#e5e5e5;border-radius:4px;overflow:hidden">
+                      <div style="width:{pct:.0f}%;height:100%;background:{STAGE_COLORS[stage].replace("e5e5e5","888")};
+                      background:#185FA5"></div>
+                    </div>
+                    <span style="color:#888">{nb}</span>
+                    </div>''', unsafe_allow_html=True
+                )
 
 
 # ── TAB 5 : EXPORT ────────────────────────────────────────────────────────────
