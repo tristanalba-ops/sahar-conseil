@@ -33,108 +33,101 @@
   "publisher":{"@type":"Organization","name":"SAHAR Conseil","url":"https://tristanalba-ops.github.io/sahar-conseil/"}
 }
 </script>
-  <style>
-  *{box-sizing:border-box;margin:0;padding:0}
-  html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
-  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
-    font-size:16px;line-height:1.7;color:#1a1a1a;background:#fff;
-    -webkit-font-smoothing:antialiased}
-  a{color:inherit;text-decoration:none}
-  img{max-width:100%;height:auto;display:block}
-  :focus-visible{outline:2px solid #185FA5;outline-offset:2px;border-radius:3px}
-
-  /* Nav */
-  nav{border-bottom:1px solid #e5e5e5;padding:0 5%;height:56px;display:flex;
-    align-items:center;justify-content:space-between;position:sticky;top:0;
-    background:rgba(255,255,255,.97);backdrop-filter:blur(6px);z-index:100}
-  .logo{font-weight:700;font-size:.95rem;letter-spacing:-.01em;color:#1a1a1a}
-  .logo span{color:#185FA5}
-  .nav-links{display:flex;gap:1.5rem;list-style:none}
-  .nav-links a{font-size:.85rem;color:#555;transition:color .15s}
-  .nav-links a:hover{color:#1a1a1a}
-  .nav-cta{font-size:.85rem;font-weight:600;background:#1a1a1a;color:#fff;
-    padding:.5rem 1.1rem;border-radius:6px;transition:opacity .15s}
-  .nav-cta:hover{opacity:.85}
-  .skip-link{position:absolute;left:-999px;top:0;background:#1a1a1a;color:#fff;
-    padding:.5rem 1rem;font-size:.85rem;z-index:999;border-radius:0 0 6px 0}
-  .skip-link:focus{left:0}
-
-  /* Layout */
-  .container{max-width:820px;margin:0 auto;padding:0 5%}
-  article{padding:4rem 0}
-  section{padding:3.5rem 0;border-bottom:1px solid #e5e5e5}
-  section:last-of-type{border-bottom:none}
-
-  /* Typographie */
-  .breadcrumb{font-size:.75rem;color:#888;margin-bottom:2rem;
-    display:flex;gap:.4rem;align-items:center;flex-wrap:wrap}
-  .breadcrumb a{color:#888;transition:color .15s}
-  .breadcrumb a:hover{color:#1a1a1a}
-  .breadcrumb-sep{color:#ccc}
-  h1{font-size:clamp(1.75rem,3.5vw,2.5rem);font-weight:700;
-    letter-spacing:-.03em;line-height:1.12;margin-bottom:1.25rem}
-  h2{font-size:1.3rem;font-weight:600;letter-spacing:-.02em;margin:2.5rem 0 .85rem}
-  h3{font-size:1rem;font-weight:600;margin:1.25rem 0 .4rem}
-  .lead{font-size:1.05rem;color:#444;line-height:1.7;margin-bottom:2rem;
-    padding-bottom:2rem;border-bottom:1px solid #e5e5e5}
-  p{color:#333;margin-bottom:1rem}
-  p:last-child{margin-bottom:0}
-  ul,ol{padding-left:1.4rem;margin-bottom:1rem}
-  li{color:#333;margin-bottom:.4rem}
-  strong{font-weight:600;color:#1a1a1a}
-
-  /* Composants */
-  .btn{display:inline-flex;align-items:center;gap:.4rem;padding:.65rem 1.4rem;
-    border-radius:6px;font-size:.9rem;font-weight:600;transition:opacity .15s}
-  .btn:hover{opacity:.85}
-  .btn-dark{background:#1a1a1a;color:#fff}
-  .btn-outline{border:1.5px solid #ccc;color:#1a1a1a}
-  .highlight{background:#f5f5f5;border-left:3px solid #1a1a1a;padding:1rem 1.25rem;
-    border-radius:0 6px 6px 0;margin:1.5rem 0;font-size:.93rem;color:#333}
-  .highlight strong{display:block;margin-bottom:.3rem}
-  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1.5rem}
-  .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-top:1.5rem}
-  .card{border:1px solid #e5e5e5;border-radius:8px;padding:1.25rem;
-    transition:border-color .15s}
-  .card:hover{border-color:#ccc}
-  .card h3{margin:0 0 .4rem;font-size:.9rem}
-  .card p{font-size:.84rem;color:#555;margin:.3rem 0 0}
-  .tag{display:inline-block;font-size:.72rem;font-weight:600;text-transform:uppercase;
-    letter-spacing:.07em;color:#888;margin-bottom:.6rem}
-  .cta-block{background:#f7f7f7;border:1px solid #e5e5e5;border-radius:8px;
-    padding:2rem;text-align:center;margin:2rem 0}
-  .cta-block p{color:#555;font-size:.95rem;margin-bottom:1.25rem}
-  .related{border-top:1px solid #e5e5e5;margin-top:3rem;padding-top:2rem}
-  .related h2{font-size:1rem;font-weight:600;margin:0 0 .75rem;color:#888;
-    text-transform:uppercase;letter-spacing:.06em}
-  .related-links{display:flex;flex-direction:column;gap:0}
-  .related-links a{font-size:.9rem;color:#1a1a1a;padding:.55rem 0;
-    border-bottom:1px solid #f0f0f0;display:flex;justify-content:space-between;
-    align-items:center;transition:color .15s}
-  .related-links a:hover{color:#185FA5}
-  .related-links a::after{content:"→";color:#ccc;font-size:.8rem}
-
-  /* Footer */
-  footer{border-top:1px solid #e5e5e5;margin-top:0}
-  .footer-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:2rem;
-    padding:2.5rem 0;border-bottom:1px solid #e5e5e5}
-  .footer-col h3{font-size:.8rem;font-weight:600;text-transform:uppercase;
-    letter-spacing:.08em;color:#888;margin-bottom:.6rem}
-  .footer-col ul{list-style:none;padding:0;display:flex;flex-direction:column;gap:.3rem}
-  .footer-col a{font-size:.82rem;color:#777;transition:color .15s}
-  .footer-col a:hover{color:#1a1a1a}
-  .footer-bottom{display:flex;justify-content:space-between;padding:1.25rem 0;
-    flex-wrap:wrap;gap:.5rem}
-  .footer-bottom p{font-size:.77rem;color:#aaa}
-
-  /* Mobile */
-  @media(max-width:640px){
-    .grid-2,.grid-3,.footer-grid{grid-template-columns:1fr}
-    .nav-links{display:none}
-    h1{font-size:1.65rem}
-    article{padding:2.5rem 0}
-  }
-</style>
+  <style>*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;font-size:16px;line-height:1.65;color:#1a1a1a;background:#fff;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}:focus-visible{outline:2px solid #185FA5;outline-offset:3px;border-radius:3px}
+:root{--blue:#185FA5;--blue-l:#e8f1fb;--green:#1D9E75;--red:#E24B4A;--ink:#1a1a1a;--ink2:#444;--ink3:#888;--ink4:#bbb;--bd:#e5e5e5;--bg2:#f8f8f8;--bg3:#f2f2f2;--r:8px;--r2:12px;--mw:900px}
+.container{max-width:var(--mw);margin:0 auto;padding:0 5%}
+.section{padding:5rem 0;border-bottom:1px solid var(--bd)}.section:last-of-type{border-bottom:none}
+/* Nav */
+.nav{border-bottom:1px solid var(--bd);height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 5%;position:sticky;top:0;background:rgba(255,255,255,.97);backdrop-filter:blur(8px);z-index:200}
+.nav-logo{display:flex;align-items:center;gap:.5rem;font-weight:700;font-size:.95rem;letter-spacing:-.01em;color:var(--ink)}
+.nav-logo-dot{width:8px;height:8px;background:var(--blue);border-radius:50%;display:inline-block;flex-shrink:0}
+.nav-menu{display:flex;list-style:none;gap:0}
+.nav-menu a{font-size:.84rem;font-weight:500;color:var(--ink2);padding:.4rem .8rem;border-radius:6px;transition:color .12s,background .12s;display:block}
+.nav-menu a:hover,.nav-menu a.active{color:var(--ink);background:var(--bg2)}
+.nav-actions{display:flex;align-items:center;gap:.5rem}
+.skip{position:absolute;left:-999px;top:0;padding:.5rem 1rem;background:var(--ink);color:#fff;font-size:.85rem;z-index:999}
+.skip:focus{left:0}
+/* Typo */
+h1{font-size:clamp(1.9rem,4vw,3rem);font-weight:700;letter-spacing:-.035em;line-height:1.1;color:var(--ink)}
+h2{font-size:clamp(1.25rem,2.5vw,1.65rem);font-weight:700;letter-spacing:-.025em;line-height:1.2;color:var(--ink)}
+h3{font-size:1rem;font-weight:600;color:var(--ink)}
+.overline{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--ink3);margin-bottom:.75rem;display:block}
+.lead{font-size:1.05rem;color:var(--ink2);line-height:1.75;max-width:580px}
+p{color:var(--ink2);margin-bottom:1rem;line-height:1.7}p:last-child{margin-bottom:0}
+strong{font-weight:600;color:var(--ink)}
+ul,ol{padding-left:1.4rem;margin-bottom:1rem}li{color:var(--ink2);margin-bottom:.4rem;line-height:1.65}
+/* Boutons */
+.btn{display:inline-flex;align-items:center;gap:.45rem;padding:.65rem 1.35rem;border-radius:7px;font-size:.9rem;font-weight:600;cursor:pointer;border:none;transition:opacity .12s,transform .1s;line-height:1;white-space:nowrap}
+.btn:hover{opacity:.85}.btn:active{transform:scale(.98)}
+.btn-primary{background:var(--ink);color:#fff}
+.btn-blue{background:var(--blue);color:#fff}
+.btn-outline{border:1.5px solid var(--bd);color:var(--ink);background:transparent}.btn-outline:hover{border-color:#aaa;background:var(--bg2)}
+.btn-sm{padding:.45rem .9rem;font-size:.82rem}
+.btn-lg{padding:.85rem 1.75rem;font-size:1rem}
+/* Cartes */
+.card{background:#fff;border:1px solid var(--bd);border-radius:var(--r);padding:1.5rem;transition:border-color .15s,box-shadow .15s}
+.card:hover{border-color:#ccc;box-shadow:0 2px 12px rgba(0,0,0,.06)}
+/* Grilles */
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:1rem}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem}
+/* Stats */
+.stat{border:1px solid var(--bd);border-radius:var(--r);padding:1.25rem;text-align:center}
+.stat-val{font-size:1.8rem;font-weight:800;letter-spacing:-.03em;display:block;color:var(--ink);line-height:1}
+.stat-label{font-size:.74rem;color:var(--ink3);display:block;margin-top:.35rem}
+.stat-delta{font-size:.78rem;font-weight:600;display:block;margin-top:.25rem}
+.up{color:var(--green)}.down{color:var(--red)}
+/* Table */
+.dtable{width:100%;border-collapse:collapse;font-size:.88rem}
+.dtable th{background:var(--bg2);padding:.65rem 1rem;text-align:left;font-weight:600;font-size:.76rem;color:var(--ink3);border-bottom:2px solid var(--bd);text-transform:uppercase;letter-spacing:.05em}
+.dtable td{padding:.65rem 1rem;border-bottom:1px solid var(--bg3);color:var(--ink2)}
+.dtable tr:hover td{background:var(--bg2)}.num{font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums}
+/* Badge */
+.badge{display:inline-block;font-size:.69rem;font-weight:700;padding:.18rem .55rem;border-radius:100px}
+.badge-green{background:#e8f5e9;color:#2e7d32}.badge-blue{background:var(--blue-l,#e8f1fb);color:var(--blue)}
+.badge-orange{background:#fff3e0;color:#e65100}.badge-red{background:#ffebee;color:#c62828}
+.badge-gray{background:var(--bg3);color:var(--ink3)}
+/* Callout */
+.callout{background:var(--bg2);border-left:3px solid var(--ink);padding:1rem 1.25rem;border-radius:0 var(--r) var(--r) 0;margin:1.5rem 0;font-size:.93rem}
+.callout.blue{border-color:var(--blue);background:#e8f1fb}
+.callout strong{display:block;margin-bottom:.3rem}
+/* Breadcrumb */
+.breadcrumb{display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;font-size:.77rem;color:var(--ink3);margin-bottom:2rem}
+.breadcrumb a{color:var(--ink3)}.breadcrumb a:hover{color:var(--ink)}.breadcrumb-sep{color:var(--ink4)}
+/* CTA blocks */
+.cta-box{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r2);padding:2.25rem;text-align:center}
+.cta-box p{color:var(--ink3);margin-bottom:1.5rem}
+.cta-strip{background:var(--ink);color:#fff;border-radius:var(--r2);padding:2.5rem;display:flex;justify-content:space-between;align-items:center;gap:2rem}
+.cta-strip h2{color:#fff;margin:0}.cta-strip p{color:rgba(255,255,255,.7);margin:0}
+/* Related */
+.related{border-top:1px solid var(--bd);margin-top:3.5rem;padding-top:2.5rem}
+.related-label{font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink3);margin-bottom:1rem;display:block}
+.related-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
+.related-card{border:1px solid var(--bd);border-radius:var(--r);padding:1rem;transition:border-color .15s}
+.related-card:hover{border-color:var(--blue)}.related-card .tag{font-size:.68rem;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.07em;margin-bottom:.35rem;display:block}
+.related-card h4{font-size:.87rem;line-height:1.35;margin-bottom:.25rem;color:var(--ink)}
+.related-card p{font-size:.79rem;color:var(--ink3);margin:0}
+/* Breadcrumb nav */
+/* Footer */
+.footer{border-top:1px solid var(--bd);padding:3rem 0 2rem}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:2.5rem;padding-bottom:2.5rem;border-bottom:1px solid var(--bd);margin-bottom:1.5rem}
+.footer-brand p{font-size:.82rem;color:var(--ink3);line-height:1.65;max-width:220px;margin-top:.5rem}
+.footer-col h4{font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink3);margin-bottom:.75rem}
+.footer-col ul{list-style:none;padding:0;display:flex;flex-direction:column;gap:.3rem}
+.footer-col a{font-size:.82rem;color:var(--ink3);transition:color .12s}.footer-col a:hover{color:var(--ink)}
+.footer-bottom{display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem}
+.footer-bottom p,.footer-legal a{font-size:.77rem;color:var(--ink4)}
+.footer-legal{display:flex;gap:1.5rem}
+/* Responsive */
+@media(max-width:700px){
+  .nav-menu{display:none}
+  .grid-2,.grid-3,.grid-4,.footer-grid,.related-grid{grid-template-columns:1fr}
+  .cta-strip{flex-direction:column;text-align:center}
+  .section{padding:3.5rem 0}
+}</style>
   <meta name="author" content="SAHAR Conseil" />
   <!-- GA4 via GTM fallback direct -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-XV2P0YPJK0"></script>
@@ -315,17 +308,10 @@
 height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- End Google Tag Manager (noscript) -->
 <a href="#main" class="skip-link">Aller au contenu</a>
-<nav aria-label="Navigation principale">
-  <a href="index.html" class="logo">SAHAR <span>Conseil</span></a>
-  <ul class="nav-links" role="list">
-    <li><a href="immobilier.html">Immobilier</a></li>
-    <li><a href="energie-renovation.html">Énergie</a></li>
-    <li><a href="retail-franchise.html">Retail</a></li>
-    <li><a href="crm.html">CRM</a></li>
-    <li><a href="index.html#tarifs">Tarifs</a></li>
-  </ul>
-  <a href="index.html#contact" class="nav-cta">Démo gratuite</a>
-</nav>
+<a href="#main" class="skip">Aller au contenu</a>
+<nav class="nav"><a href="index.html" class="nav-logo"><span class="nav-logo-dot"></span>SAHAR Conseil</a>
+<ul class="nav-menu"><li><a href="immobilier.html">Immobilier</a></li><li><a href="energie-renovation.html">Énergie</a></li><li><a href="retail-franchise.html">Retail</a></li><li><a href="rh-recrutement.html">RH</a></li><li><a href="crm.html">CRM</a></li><li><a href="index.html#tarifs">Tarifs</a></li></ul>
+<div class="nav-actions"><a href="index.html#contact" class="btn btn-primary btn-sm">Démo gratuite</a></div></nav>
 <div class="container">
 <article id="main">
   <div class="breadcrumb"><a href="index.html">Accueil</a> → <a href="immobilier.html">Immobilier</a> → Lead magnet</div>
@@ -392,47 +378,23 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   </div>
 </article>
 </div>
-<footer>
-  <div class="container">
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:2rem;padding:2.5rem 0;border-bottom:1px solid #e5e5e5">
-      <div>
-        <p style="font-weight:600;font-size:.9rem;margin-bottom:.75rem">Services</p>
-        <ul style="list-style:none;display:flex;flex-direction:column;gap:.4rem">
-          <li><a href="immobilier.html" style="font-size:.83rem;color:#666;text-decoration:none">Analyse immobilier DVF</a></li>
-          <li><a href="energie-renovation.html" style="font-size:.83rem;color:#666;text-decoration:none">Prospection rénovation DPE</a></li>
-          <li><a href="retail-franchise.html" style="font-size:.83rem;color:#666;text-decoration:none">Zone Score Retail</a></li>
-          <li><a href="rh-recrutement.html" style="font-size:.83rem;color:#666;text-decoration:none">RH Tension Map</a></li>
-          <li><a href="crm.html" style="font-size:.83rem;color:#666;text-decoration:none">CRM pipeline commercial</a></li>
-        </ul>
-      </div>
-      <div>
-        <p style="font-weight:600;font-size:.9rem;margin-bottom:.75rem">Ressources</p>
-        <ul style="list-style:none;display:flex;flex-direction:column;gap:.4rem">
-          <li><a href="trouver-prospects-immobiliers.html" style="font-size:.83rem;color:#666;text-decoration:none">Trouver des prospects immo</a></li>
-          <li><a href="passoires-thermiques-interdites.html" style="font-size:.83rem;color:#666;text-decoration:none">Passoires thermiques F/G</a></li>
-          <li><a href="prospecter-donnees-publiques.html" style="font-size:.83rem;color:#666;text-decoration:none">Prospecter avec l'open data</a></li>
-          <li><a href="kpis-commerciaux.html" style="font-size:.83rem;color:#666;text-decoration:none">KPIs commerciaux SDR</a></li>
-          <li><a href="scoring-prospects.html" style="font-size:.83rem;color:#666;text-decoration:none">Scoring prospects</a></li>
-          <li><a href="automatisation-prospection.html" style="font-size:.83rem;color:#666;text-decoration:none">Automatisation prospection</a></li>
-          <li><a href="lead-magnet-immobilier.html" style="font-size:.83rem;color:#666;text-decoration:none">Lead magnet immobilier</a></li>
-          <li><a href="conversion-pipeline.html" style="font-size:.83rem;color:#666;text-decoration:none">Optimiser son pipeline</a></li>
-        </ul>
-      </div>
-      <div>
-        <p style="font-weight:600;font-size:.9rem;margin-bottom:.75rem">SAHAR Conseil</p>
-        <ul style="list-style:none;display:flex;flex-direction:column;gap:.4rem">
-          <li><a href="index.html" style="font-size:.83rem;color:#666;text-decoration:none">Accueil</a></li>
-          <li><a href="index.html#services" style="font-size:.83rem;color:#666;text-decoration:none">Nos services</a></li>
-          <li><a href="index.html#tarifs" style="font-size:.83rem;color:#666;text-decoration:none">Tarifs</a></li>
-          <li><a href="index.html#contact" style="font-size:.83rem;color:#666;text-decoration:none">Contact</a></li>
-        </ul>
-      </div>
-    </div>
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:1.5rem 0;flex-wrap:wrap;gap:.75rem">
-      <p style="font-size:.78rem;color:#aaa">© 2024 SAHAR Conseil — Open data au service des professionnels</p>
-      <p style="font-size:.78rem;color:#aaa">Bordeaux, France</p>
-    </div>
-  </div>
-</footer>
+<footer class="footer"><div class="container">
+<div class="footer-grid">
+<div class="footer-brand"><strong style="font-size:.95rem;font-weight:700">SAHAR Conseil</strong>
+<p>Open data au service des professionnels. DVF, DPE, INSEE, SIRENE transformés en pipeline commercial.</p></div>
+<div class="footer-col"><h4>Secteurs</h4><ul>
+<li><a href="immobilier.html">Immobilier DVF</a></li><li><a href="energie-renovation.html">Énergie &amp; DPE</a></li>
+<li><a href="retail-franchise.html">Retail &amp; Franchise</a></li><li><a href="rh-recrutement.html">RH &amp; Recrutement</a></li></ul></div>
+<div class="footer-col"><h4>Outils</h4><ul>
+<li><a href="crm.html">CRM Pipeline</a></li><li><a href="scoring-prospects.html">Scoring Prospects</a></li>
+<li><a href="automatisation-prospection.html">Automatisation</a></li><li><a href="conversion-pipeline.html">Conversion Pipeline</a></li></ul></div>
+<div class="footer-col"><h4>Ressources</h4><ul>
+<li><a href="trouver-prospects-immobiliers.html">Prospects immobiliers</a></li>
+<li><a href="passoires-thermiques-interdites.html">Passoires thermiques</a></li>
+<li><a href="prospecter-donnees-publiques.html">Open data</a></li>
+<li><a href="kpis-commerciaux.html">KPIs commerciaux</a></li></ul></div></div>
+<div class="footer-bottom"><p>© 2024 SAHAR Conseil — Données DVF DGFiP, ADEME, INSEE</p>
+<div class="footer-legal"><a href="index.html#contact">Contact</a><a href="sitemap.xml">Sitemap</a></div></div>
+</div></footer>
 </body>
 </html>
