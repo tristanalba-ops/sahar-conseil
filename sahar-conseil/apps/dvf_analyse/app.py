@@ -922,8 +922,9 @@ with tab_dpe:
             st.info("Aucune commune en commun entre DVF et DPE. Vérifiez les noms de communes.")
         else:
             # Score croisé : combine score DVF (opportunité immo) + concentration passoires
-            merged["score_dvf"] = merged["score_dvf_moy"].round(0).astype(int)
-            merged["score_dpe"] = (merged["pct_fg"] * 100 / merged["pct_fg"].max()).clip(0, 100).round(0).astype(int)
+            merged["score_dvf"] = merged["score_dvf_moy"].fillna(0).round(0).astype(int)
+            _pct_max = merged["pct_fg"].max()
+            merged["score_dpe"] = (merged["pct_fg"].fillna(0) * 100 / (_pct_max if _pct_max > 0 else 1)).clip(0, 100).round(0).astype(int)
             merged["score_croise"] = ((merged["score_dvf"] * 0.5 + merged["score_dpe"] * 0.5)
                                       .round(0).astype(int))
             merged = merged.sort_values("score_croise", ascending=False)
