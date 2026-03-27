@@ -253,11 +253,12 @@ st.markdown("---")
 
 # ─── ONGLETS PRINCIPAUX ───────────────────────────────────────────────────────
 
-tab_data, tab_carte, tab_stats, tab_crm, tab_export = st.tabs([
+tab_data, tab_carte, tab_stats, tab_crm, tab_pilotage, tab_export = st.tabs([
     "📋 Transactions",
     "🗺️ Carte",
     "📊 Statistiques",
     "💼 CRM Pipeline",
+    "🎯 Pilotage",
     "📥 Export",
 ])
 
@@ -852,6 +853,262 @@ with tab_export:
         st.metric("Contacts CRM", len(st.session_state.crm_contacts))
 
 
+
+# ── TAB PILOTAGE ──────────────────────────────────────────────────────────────
+
+with tab_pilotage:
+    try:
+        import plotly.express as px
+        import plotly.graph_objects as go
+        from plotly.subplots import make_subplots
+    except ImportError:
+        st.error("Installer plotly : pip install plotly")
+        st.stop()
+
+    opps_p   = st.session_state.crm_opportunites
+    acts_p   = st.session_state.crm_activites
+    contacts_p = st.session_state.crm_contacts
+
+    # ── HEADER KPIs ──────────────────────────────────────────────────────
+
+    st.markdown("### 🎯 Tableau de bord commercial")
+
+    val_pipeline = sum(o["prix"] for o in opps_p) if opps_p else 0
+    val_closing  = sum(o["prix"] for o in opps_p if o["stage"]=="Closing") if opps_p else 0
+    nb_acts_semaine = sum(1 for a in acts_p
+                          if a.get("date_creation","").endswith(str(datetime.now().year))) if acts_p else 0
+    win_rate = round(len([o for o in opps_p if o["stage"]=="Closing"]) / len(opps_p) * 100) if opps_p else 0
+
+    k1,k2,k3,k4,k5 = st.columns(5)
+    with k1: st.metric("Contacts", len(contacts_p), delta=None)
+    with k2: st.metric("Opportunités", len(opps_p))
+    with k3: st.metric("Pipeline", f"{val_pipeline/1000:.0f}k€")
+    with k4: st.metric("En closing", f"{val_closing/1000:.0f}k€")
+    with k5: st.metric("Win rate", f"{win_rate}%")
+
+    st.markdown("---")
+
+    # ── ROW 1 : PIPELINE FUNNEL + ACTIVITÉS ──────────────────────────────
+
+    col_f1, col_f2 = st.columns([1, 1])
+
+    with col_f1:
+        st.markdown("**Funnel pipeline**")
+        if opps_p:
+            stages_counts = {s: len([o for o in opps_p if o["stage"]==s]) for s in STAGES}
+            stages_val    = {s: sum(o["prix"] for o in opps_p if o["stage"]==s)/1000 for s in STAGES}
+
+            fig_funnel = go.Figure(go.Funnel(
+                y=STAGES,
+                x=[stages_counts[s] for s in STAGES],
+                texttemplate="%{value} opp.<br>%{percentInitial:.0%}",
+                textposition="inside",
+                marker=dict(color=["#e5e5e5","#fff3cd","#cfe2ff","#d1ecf1","#d4edda"]),
+            ))
+            fig_funnel.update_layout(
+                height=280, margin=dict(l=0,r=0,t=10,b=0),
+                plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)",
+                font=dict(size=11)
+            )
+            st.plotly_chart(fig_funnel, use_container_width=True)
+
+            # Valeur par étape
+            for s in STAGES:
+                pct = stages_counts[s]/len(opps_p)*100 if opps_p else 0
+                st.markdown(
+                    f'<div style="display:flex;justify-content:space-between;'
+                    f'font-size:.82rem;padding:.2rem 0;border-bottom:1px solid #f0f0f0">'
+                    f'<span>{s}</span>'
+                    f'<span style="color:#888">{stages_counts[s]} opp · {stages_val[s]:.0f}k€</span>'
+                    f'</div>',
+                    unsafe_allow_html=True
+                )
+        else:
+            st.info("Aucune opportunité dans le pipeline.")
+
+    with col_f2:
+        st.markdown("**Activités par type**")
+        if acts_p:
+            df_acts_type = pd.DataFrame(acts_p)
+            counts = df_acts_type["type"].value_counts().reset_index()
+            counts.columns = ["Type","Nb"]
+            fig_acts = px.bar(counts, x="Nb", y="Type", orientation="h",
+                              color="Nb", color_continuous_scale="Blues",
+                              labels={"Nb":"","Type":""})
+            fig_acts.update_layout(
+                height=200, margin=dict(l=0,r=0,t=10,b=0),
+                plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)",
+                coloraxis_showscale=False, font=dict(size=11)
+            )
+            st.plotly_chart(fig_acts, use_container_width=True)
+
+            st.markdown("**Statut activités**")
+            for statut in ["À faire","Fait","Annulé"]:
+                nb = len([a for a in acts_p if a.get("statut")==statut])
+                icon = {"À faire":"⏳","Fait":"✅","Annulé":"❌"}.get(statut,"•")
+                st.markdown(
+                    f'<div style="display:flex;justify-content:space-between;font-size:.83rem;padding:.2rem 0">'
+                    f'<span>{icon} {statut}</span><span style="color:#888">{nb}</span></div>',
+                    unsafe_allow_html=True
+                )
+        else:
+            st.info("Aucune activité enregistrée.")
+
+    st.markdown("---")
+
+    # ── ROW 2 : MARCHÉ IMMOBILIER (données DVF) ───────────────────────────
+
+    st.markdown("**Analyse marché — données DVF**")
+
+    col_m1, col_m2, col_m3 = st.columns(3)
+
+    with col_m1:
+        # Prix médian par commune top 10
+        top_comm = (df.groupby("nom_commune")["prix_m2"]
+                    .agg(["median","count"])
+                    .query("count >= 10")
+                    .nlargest(10,"median")
+                    .reset_index())
+        top_comm.columns = ["Commune","Médiane €/m²","Nb ventes"]
+        fig_comm = px.bar(top_comm, x="Médiane €/m²", y="Commune", orientation="h",
+                          title="Top 10 communes — prix médian",
+                          color="Médiane €/m²", color_continuous_scale="Blues")
+        fig_comm.update_layout(
+            height=280, margin=dict(l=0,r=0,t=30,b=0),
+            plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)",
+            coloraxis_showscale=False, font=dict(size=11), showlegend=False
+        )
+        st.plotly_chart(fig_comm, use_container_width=True)
+
+    with col_m2:
+        # Évolution mensuelle prix médian
+        df_trend = df.groupby("mois")["prix_m2"].median().reset_index()
+        df_trend.columns = ["Mois","Prix médian €/m²"]
+        fig_trend = px.area(df_trend, x="Mois", y="Prix médian €/m²",
+                             title="Tendance prix marché",
+                             color_discrete_sequence=["#185FA5"])
+        fig_trend.update_layout(
+            height=280, margin=dict(l=0,r=0,t=30,b=0),
+            plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)",
+            font=dict(size=11)
+        )
+        st.plotly_chart(fig_trend, use_container_width=True)
+
+    with col_m3:
+        # Répartition Appart/Maison + score
+        df_type = df.groupby("type_local").agg(
+            nb=("prix_m2","count"),
+            prix_med=("prix_m2","median"),
+            score_med=("score","mean")
+        ).reset_index()
+
+        fig_type = go.Figure()
+        fig_type.add_trace(go.Bar(
+            name="Volume",
+            x=df_type["type_local"], y=df_type["nb"],
+            marker_color=["#185FA5","#1D9E75"],
+            yaxis="y"
+        ))
+        fig_type.add_trace(go.Scatter(
+            name="Prix médian €/m²",
+            x=df_type["type_local"], y=df_type["prix_med"],
+            mode="markers+lines",
+            marker=dict(size=10, color="#E24B4A"),
+            yaxis="y2"
+        ))
+        fig_type.update_layout(
+            title="Volume & prix par type",
+            height=280, margin=dict(l=0,r=0,t=30,b=0),
+            plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)",
+            font=dict(size=11),
+            yaxis=dict(title="Nb transactions"),
+            yaxis2=dict(title="€/m²", overlaying="y", side="right"),
+            legend=dict(orientation="h", y=-0.15)
+        )
+        st.plotly_chart(fig_type, use_container_width=True)
+
+    st.markdown("---")
+
+    # ── ROW 3 : OPPORTUNITÉS + SCORING ────────────────────────────────────
+
+    col_o1, col_o2 = st.columns([1,1])
+
+    with col_o1:
+        st.markdown("**Opportunités à traiter — score ≥ 70**")
+        top_opps = df[df["score"] >= 70].nlargest(10, "score")[[
+            "score","nom_commune","adresse","type_local",
+            "surface_utile","prix_m2","valeur_fonciere"
+        ]].copy()
+        if not top_opps.empty:
+            top_opps = top_opps.rename(columns={
+                "score":"Score","nom_commune":"Commune","adresse":"Adresse",
+                "type_local":"Type","surface_utile":"m²",
+                "prix_m2":"€/m²","valeur_fonciere":"Prix"
+            })
+            st.dataframe(
+                top_opps, use_container_width=True, hide_index=True,
+                column_config={
+                    "Score": st.column_config.ProgressColumn("Score",min_value=0,max_value=100,format="%d"),
+                    "Prix": st.column_config.NumberColumn("Prix",format="%d €"),
+                    "€/m²": st.column_config.NumberColumn("€/m²",format="%d €"),
+                }
+            )
+        else:
+            st.info("Aucune opportunité score ≥ 70 avec les filtres actuels.")
+
+    with col_o2:
+        st.markdown("**Distribution des scores**")
+        fig_score = px.histogram(
+            df, x="score", nbins=20, color="type_local",
+            color_discrete_map={"Appartement":"#185FA5","Maison":"#1D9E75"},
+            labels={"score":"Score","count":"Nb","type_local":"Type"},
+            barmode="overlay", opacity=0.75
+        )
+        fig_score.add_vline(x=70, line_dash="dash", line_color="#1D9E75",
+                            annotation_text="Seuil fort")
+        fig_score.add_vline(x=40, line_dash="dash", line_color="#BA7517",
+                            annotation_text="Seuil moyen")
+        fig_score.update_layout(
+            height=250, margin=dict(l=0,r=0,t=10,b=0),
+            plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)",
+            font=dict(size=11), legend=dict(orientation="h",y=-0.2)
+        )
+        st.plotly_chart(fig_score, use_container_width=True)
+
+        # Stats résumées
+        st.markdown("**Résumé marché filtré**")
+        c1r, c2r = st.columns(2)
+        with c1r:
+            st.metric("Prix min €/m²", f"{df['prix_m2'].min():.0f}")
+            st.metric("Prix max €/m²", f"{df['prix_m2'].max():.0f}")
+        with c2r:
+            st.metric("Surface min", f"{df['surface_utile'].min():.0f} m²")
+            st.metric("Surface max", f"{df['surface_utile'].max():.0f} m²")
+
+    st.markdown("---")
+
+    # ── ROW 4 : TIMELINE ACTIVITÉS CRM ────────────────────────────────────
+
+    if acts_p:
+        st.markdown("**Timeline activités**")
+        df_timeline = pd.DataFrame(acts_p)
+        if "date" in df_timeline.columns:
+            df_timeline["date_dt"] = pd.to_datetime(df_timeline["date"], format="%d/%m/%Y", errors="coerce")
+            df_day = (df_timeline.dropna(subset=["date_dt"])
+                      .groupby([df_timeline["date_dt"].dt.date,"type"])
+                      .size().reset_index(name="nb"))
+            df_day.columns = ["Date","Type","Nb"]
+            if not df_day.empty:
+                fig_tl = px.bar(df_day, x="Date", y="Nb", color="Type",
+                                labels={"Nb":"Activités","Date":""},
+                                color_discrete_sequence=px.colors.qualitative.Set2)
+                fig_tl.update_layout(
+                    height=200, margin=dict(l=0,r=0,t=10,b=0),
+                    plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)",
+                    font=dict(size=11), legend=dict(orientation="h",y=-0.25)
+                )
+                st.plotly_chart(fig_tl, use_container_width=True)
+
 # ── FOOTER ────────────────────────────────────────────────────────────────────
 
 st.markdown("---")
@@ -859,3 +1116,7 @@ st.caption(
     f"SAHAR Conseil — Sources : DVF data.gouv.fr, INSEE. "
     f"Données à titre indicatif. Dernière mise à jour filtres : {datetime.now().strftime('%d/%m/%Y %H:%M')}"
 )
+
+# ─────────────────────────────────────────────────────────────────────────────
+# MODULE PILOTAGE — injecté après tab_export
+# ─────────────────────────────────────────────────────────────────────────────
