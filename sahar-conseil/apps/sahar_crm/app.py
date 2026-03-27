@@ -78,7 +78,7 @@ SOURCES = ["Site inbound","LinkedIn","Référral","Cold outreach","Événement",
 TYPES_ACT = ["Appel","Email","Démo","Meeting","Note","SMS","WhatsApp","Relance"]
 
 def action_btns(tel="", email="", nom=""):
-    t = tel.replace(" ","").replace("-","").replace(".","")
+    t = str(tel or "").replace(" ","").replace("-","").replace(".","")
     if t.startswith("0"): t = "+33" + t[1:]
     btns = []
     if t:
