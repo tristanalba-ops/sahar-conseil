@@ -1,14 +1,20 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <title>Scoring Prospects — Algorithme et Méthode | SAHAR Conseil</title>
-  <meta name="description" content="Comment calculer un score prospect 0–100 à partir des données publiques. DVF, DPE, SIRENE. Méthode, critères, mise en pratique.">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Scoring Prospects — Prioriser les leads sur données publiques</title>
+  <meta name="description" content="SAHAR Scoring attribue un score 0–100 à chaque prospect sur critères DVF, DPE, INSEE. Priorisez vos contacts commerciaux sur la donnée, pas l'instinct.">
   <meta name="robots" content="index, follow">
+  <meta name="author" content="SAHAR Conseil">
+  
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="SAHAR Conseil">
+  <meta property="og:title" content="Scoring Prospects — Prioriser les leads sur données publiques">
+  <meta property="og:description" content="SAHAR Scoring attribue un score 0–100 à chaque prospect sur critères DVF, DPE, INSEE. Priorisez vos contacts commerciaux sur la donnée, pas l'instinct.">
+  <meta property="og:url" content="https://tristanalba-ops.github.io/sahar-conseil/scoring-prospects.html">
   <link rel="canonical" href="https://tristanalba-ops.github.io/sahar-conseil/scoring-prospects.html">
-  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-5WSR4DK5');</script>
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XV2P0YPJK0"></script>
-  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-XV2P0YPJK0');</script>
+  
   <style>*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
 body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;font-size:16px;line-height:1.65;color:#1a1a1a;background:#fff;-webkit-font-smoothing:antialiased}
@@ -104,92 +110,112 @@ ul,ol{padding-left:1.4rem;margin-bottom:1rem}li{color:var(--ink2);margin-bottom:
   .cta-strip{flex-direction:column;text-align:center}
   .section{padding:3.5rem 0}
 }</style>
-</head>
-<body>
-<a href="#main" class="skip">Aller au contenu</a>
+</head><body><a href="#main" class="skip">Aller au contenu</a>
 <nav class="nav" aria-label="Navigation principale">
-  <a href="index.html" class="nav-logo"><span class="nav-logo-dot"></span>SAHAR Conseil</a>
-  <ul class="nav-menu">
-    <li><a href="immobilier.html">Immobilier</a></li>
-    <li><a href="energie-renovation.html">Énergie</a></li>
-    <li><a href="retail-franchise.html">Retail</a></li>
-    <li><a href="rh-recrutement.html">RH</a></li>
-    <li><a href="crm.html">CRM</a></li>
-    <li><a href="index.html#tarifs">Tarifs</a></li>
-  </ul>
-  <div class="nav-actions"><a href="index.html#contact" class="btn btn-primary btn-sm">Démo gratuite</a></div>
+  <a href="index.html" class="nav-logo">
+    <span class="nav-logo-dot"></span>SAHAR Conseil
+  </a>
+  <ul class="nav-menu"><li><a href="immobilier.html">Immobilier</a></li><li><a href="energie-renovation.html">Énergie</a></li><li><a href="retail-franchise.html">Retail</a></li><li><a href="rh-recrutement.html">RH</a></li><li><a href="crm.html">CRM</a></li><li><a href="index.html#tarifs">Tarifs</a></li></ul>
+  <div class="nav-actions">
+    <a href="index.html#contact" class="btn btn-primary btn-sm">Démo gratuite</a>
+  </div>
 </nav>
 <main id="main">
-
-<section class="section" style="padding-top:4.5rem;padding-bottom:3.5rem;background:var(--bg2)">
-  <div class="container-text" style="max-width:720px;margin:0 auto;padding:0 5%">
-    <div class="breadcrumb">
-      <a href="index.html">Accueil</a><span class="breadcrumb-sep">→</span>
-      <a href="prospecter-donnees-publiques.html">Ressources</a><span class="breadcrumb-sep">→</span>
-      <span>Guide scoring</span>
-    </div>
-    <span class="overline">Guide scoring</span>
-    <h1 style="margin-bottom:1rem">Calculer un <strong>score prospect 0–100</strong> à partir des données publiques</h1>
-    <p class="lead">Comment calculer un score prospect 0–100 à partir des données publiques. DVF, DPE, SIRENE. Méthode, critères, mise en pratique.</p>
-  </div>
-</section>
-
-
-<section class="section">
-  <div class="container-text" style="max-width:720px;margin:0 auto;padding:0 5%">
-    <h2 style="margin-bottom:.75rem">Pourquoi scorer ses prospects</h2>
-    <p>Sans scoring, votre liste de prospects est plate. Tous les contacts ont la même valeur — vous ne savez pas par où commencer. Avec un score 0–100, vous savez exactement <strong>qui appeler en premier, qui relancer, qui mettre en veille</strong>.</p><p>Le scoring ne remplace pas le jugement commercial. Il <strong>libère du temps</strong> pour les vrais appels en éliminant les faux positifs.</p>
-  </div>
-</section>
-<section class="section">
-  <div class="container-text" style="max-width:720px;margin:0 auto;padding:0 5%">
-    <h2 style="margin-bottom:.75rem">Les critères du score DVF</h2>
-    <p>Le score DVF SAHAR combine trois signaux : <strong>l'écart au prix médian IRIS</strong> (40 points max — un bien à −20% de la médiane score fort), <strong>la liquidité du marché</strong> (35 points — nombre de transactions dans la commune sur 12 mois) et <strong>la dynamique sectorielle</strong> (25 points — tendance du prix médian sur 6 mois).</p><div class='callout'><strong>Score ≥ 70 = opportunité qualifiée.</strong> En pratique, 8 à 12% des transactions scorent au-dessus de 70 en Gironde.</div>
-  </div>
-</section>
-<section class="section">
-  <div class="container-text" style="max-width:720px;margin:0 auto;padding:0 5%">
-    <h2 style="margin-bottom:.75rem">Les critères du score DPE</h2>
-    <p>Le score urgence DPE repose sur : l'<strong>étiquette</strong> (G = 50 pts, F = 35 pts, E = 20 pts), la <strong>consommation</strong> en kWh/m²/an (>450 = 30 pts supplémentaires), l'<strong>année de construction</strong> (<1975 = 20 pts). Un logement G de 1965 consommant 500 kWh score 100 — <strong>urgence maximale, rendement chantier optimal</strong>.</p>
-  </div>
-</section>
-<section class="section">
-  <div class="container-text" style="max-width:720px;margin:0 auto;padding:0 5%">
-    <h2 style="margin-bottom:.75rem">Comment utiliser le score dans votre pitch</h2>
-    <p>Le score n'est pas un chiffre interne — c'est un argument commercial. Pour un bien DVF : <em>"Votre logement au [adresse] a été identifié parmi les biens les plus intéressants du secteur selon nos analyses de marché — score 78/100."</em> Pour un prospect DPE : <em>"Votre logement est classé G, construit en 1968. Il fait partie des 5% les plus urgents à rénover selon nos données ADEME."</em></p>
-  </div>
-</section>
-
-<section class="section">
-  <div class="container-text" style="max-width:720px;margin:0 auto;padding:0 5%">
-    <div style="background:var(--bg2);border:1px solid var(--bd);border-radius:12px;padding:2rem;text-align:center">
-      <h3 style="margin-bottom:.5rem">Tester sur vos données réelles</h3>
-      <p style="color:var(--ink3);margin-bottom:1.25rem">Démonstration en 20 minutes sur votre secteur et votre zone.</p>
-      <a href="index.html#contact" class="btn btn-primary">Demander une démo gratuite →</a>
-    </div>
-  </div>
-</section>
-
-<section class="section">
+<section class="section" style="padding-top:4rem;padding-bottom:3.5rem">
   <div class="container">
-    <div class="related">
-      <span class="related-label">Sur le même sujet</span>
-      <div class="related-grid"><a href="immobilier.html" class="related-card"><span class="tag">Outil</span><h4>DVF Analyse Pro</h4><p>Score opportunité automatique</p></a><a href="energie-renovation.html" class="related-card"><span class="tag">Outil</span><h4>DPE Scanner</h4><p>Score urgence rénovation</p></a><a href="conversion-pipeline.html" class="related-card"><span class="tag">Guide</span><h4>Convertir son pipeline</h4><p>Du prospect qualifié au deal signé</p></a></div>
+    <nav class="breadcrumb">
+      <a href="index.html">Accueil</a><span class="breadcrumb-sep">›</span>
+      <span>Scoring Prospects</span>
+    </nav>
+    <h1 style="max-width:680px;margin-bottom:1.25rem">Un <strong>score 0–100</strong> sur chaque prospect.<br>La priorité, pas l'instinct.</h1>
+    <p class="lead" style="margin-bottom:2rem">SAHAR calcule automatiquement un <strong>score multicritères</strong> pour chaque opportunité détectée. DVF, DPE, INSEE, SIRENE — chaque source contribue au score final. Vous passez d'abord aux meilleurs contacts.</p>
+    <div style="display:flex;gap:.75rem;flex-wrap:wrap">
+      <a href="index.html#contact" class="btn btn-primary btn-lg">Démo gratuite →</a>
+      <a href="index.html#outils" class="btn btn-outline btn-lg">Voir tous les outils</a>
     </div>
   </div>
 </section>
-
+<section class="section" style="background:var(--bg2)">
+  <div class="container">
+    <span class="overline">Critères scoring</span>
+    <h2 style="margin-bottom:2rem">Ce qui compte dans le score</h2>
+    <div class="grid-3">
+      <div class="card"><h3 style="margin-bottom:.5rem">DVF — Valeur marché</h3><p>Prix au m² vs médiane locale, surface, type bien, date transaction. <strong>Sous-valorisation = score élevé.</strong></p></div>
+      <div class="card"><h3 style="margin-bottom:.5rem">DPE — Urgence énergie</h3><p>Étiquette F/G, consommation, année construction. <strong>Score urgence rénovation.</strong></p></div>
+      <div class="card"><h3 style="margin-bottom:.5rem">INSEE — Contexte zone</h3><p>Revenu médian, densité, évolution population. Potentiel commercial du secteur.</p></div>
+      <div class="card"><h3 style="margin-bottom:.5rem">Signal activité</h3><p>Récence de la transaction ou du diagnostic. <strong>Signal chaud = score boosté.</strong></p></div>
+      <div class="card"><h3 style="margin-bottom:.5rem">Concurrence estimée</h3><p>Densité d'acteurs SIRENE dans la zone. Moins de concurrence = score plus fort.</p></div>
+      <div class="card"><h3 style="margin-bottom:.5rem">Score final 0–100</h3><p>Agrégation pondérée. <strong>Top 20% = vos contacts prioritaires.</strong></p></div>
+    </div>
+  </div>
+</section>
+<section class="section" style="background:var(--bg2)">
+  <div class="container">
+    <div class="cta-strip">
+      <div><h2>Prêt à tester ?</h2><p>Démo sur vos données. Sans engagement.</p></div>
+      <a href="index.html#contact" class="btn btn-outline" style="border-color:rgba(255,255,255,.3);color:#fff;flex-shrink:0">Demander la démo →</a>
+    </div>
+  </div>
+</section>
+<section class="section"><div class="container"><div class="related">
+  <span class="related-label">Articles liés</span>
+  <div class="related-grid"><a href="prix-immobilier-bordeaux.html" class="related-card">
+          <span class="tag">DVF</span>
+          <h4>Analyser le marché DVF</h4>
+          <p>Transactions et prix au m² en Gironde sur données réelles.</p>
+        </a><a href="scoring-prospects.html" class="related-card">
+          <span class="tag">Scoring</span>
+          <h4>Détecter les sous-valorisations</h4>
+          <p>Score 0–100 par bien : prix, surface, quartier, tendance.</p>
+        </a><a href="conversion-pipeline.html" class="related-card">
+          <span class="tag">CRM</span>
+          <h4>Pipeline prospect immobilier</h4>
+          <p>Du premier contact au signing. Chaque étape outillée.</p>
+        </a></div>
+</div></div></section>
 </main>
 <footer class="footer">
   <div class="container">
     <div class="footer-grid">
-      <div class="footer-brand"><strong style="font-size:.95rem;font-weight:700">SAHAR Conseil</strong><p>Open data au service des professionnels. DVF, DPE, INSEE, SIRENE transformés en pipeline commercial.</p></div>
-      <div class="footer-col"><h4>Secteurs</h4><ul><li><a href="immobilier.html">Immobilier DVF</a></li><li><a href="energie-renovation.html">Énergie &amp; DPE</a></li><li><a href="retail-franchise.html">Retail &amp; Franchise</a></li><li><a href="rh-recrutement.html">RH &amp; Recrutement</a></li></ul></div>
-      <div class="footer-col"><h4>Outils</h4><ul><li><a href="crm.html">CRM Pipeline</a></li><li><a href="scoring-prospects.html">Scoring Prospects</a></li><li><a href="automatisation-prospection.html">Automatisation</a></li></ul></div>
-      <div class="footer-col"><h4>Ressources</h4><ul><li><a href="trouver-prospects-immobiliers.html">Prospects immobiliers</a></li><li><a href="passoires-thermiques-interdites.html">Passoires thermiques</a></li><li><a href="prospecter-donnees-publiques.html">Open data</a></li><li><a href="kpis-commerciaux.html">KPIs</a></li></ul></div>
+      <div class="footer-brand">
+        <strong style="font-size:.95rem;font-weight:700">SAHAR Conseil</strong>
+        <p>Open data au service des professionnels. DVF, DPE, INSEE, SIRENE transformés en pipeline commercial.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Secteurs</h4>
+        <ul>
+          <li><a href="immobilier.html">Immobilier DVF</a></li>
+          <li><a href="energie-renovation.html">Énergie &amp; DPE</a></li>
+          <li><a href="retail-franchise.html">Retail &amp; Franchise</a></li>
+          <li><a href="rh-recrutement.html">RH &amp; Recrutement</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Outils</h4>
+        <ul>
+          <li><a href="crm.html">CRM Pipeline</a></li>
+          <li><a href="scoring-prospects.html">Scoring Prospects</a></li>
+          <li><a href="automatisation-prospection.html">Automatisation</a></li>
+          <li><a href="conversion-pipeline.html">Optimiser le Pipeline</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Ressources</h4>
+        <ul>
+          <li><a href="trouver-prospects-immobiliers.html">Prospects immobiliers</a></li>
+          <li><a href="passoires-thermiques-interdites.html">Passoires thermiques</a></li>
+          <li><a href="prospecter-donnees-publiques.html">Open data</a></li>
+          <li><a href="kpis-commerciaux.html">KPIs commerciaux</a></li>
+          <li><a href="sitemap.xml">Plan du site</a></li>
+        </ul>
+      </div>
     </div>
-    <div class="footer-bottom"><p>© 2024 SAHAR Conseil — Données DVF DGFiP, ADEME, INSEE</p><div class="footer-legal"><a href="index.html#contact">Contact</a><a href="sitemap.xml">Sitemap</a></div></div>
+    <div class="footer-bottom">
+      <p>© 2024 SAHAR Conseil — Données DVF DGFiP, ADEME, INSEE</p>
+      <div class="footer-legal">
+        <a href="index.html#contact">Contact</a>
+        <a href="sitemap.xml">Sitemap</a>
+      </div>
+    </div>
   </div>
-</footer>
-</body>
-</html>
+</footer></body></html>
