@@ -85,6 +85,7 @@ class DataCatalog:
         loaders = {
             "dvf": self._load_dvf,
             "dpe": self._load_dpe,
+            "dpe_communes": self._load_dpe_communes,
             "sirene": self._load_sirene,
             "geo_communes": self._load_communes,
             "irve": self._load_irve,
@@ -127,8 +128,8 @@ class DataCatalog:
         return pd.DataFrame()
 
     def _load_dpe(self, departement: str = "33", etiquettes: List[str] = None, **kwargs) -> pd.DataFrame:
-        """Charge DPE : Parquet > API."""
-        # 1. Parquet processé
+        """Charge DPE : Parquet local > Supabase > API ADEME."""
+        # 1. Parquet processé local
         parquet = PROCESSED / f"dpe_{departement}.parquet"
         if parquet.exists() and parquet.stat().st_size > 1000:
             print(f"[DPE] Chargement Parquet local : {parquet.name}")
@@ -137,10 +138,24 @@ class DataCatalog:
                 df = df[df["etiquette_dpe"].isin(etiquettes)]
             return df
 
-        # 2. API
+        # 2. Supabase (125k+ logements E/F/G en base)
+        try:
+            from shared.supabase_dpe import get_dpe_logements
+            print(f"[DPE] Chargement depuis Supabase pour dept {departement}...")
+            df = get_dpe_logements(
+                departement=departement,
+                etiquettes=etiquettes,
+                limit=kwargs.get("max_results", 10000),
+            )
+            if not df.empty:
+                return df
+        except Exception as e:
+            print(f"[DPE] Supabase indisponible : {e}")
+
+        # 3. API ADEME directe
         client = self._get_client("dpe")
         if client:
-            print(f"[DPE] Chargement via API pour dept {departement}...")
+            print(f"[DPE] Chargement via API ADEME pour dept {departement}...")
             return client.get_logements(
                 departement,
                 etiquettes=etiquettes,
@@ -148,6 +163,21 @@ class DataCatalog:
             )
 
         return pd.DataFrame()
+
+    def _load_dpe_communes(self, departement: str = None, **kwargs) -> pd.DataFrame:
+        """Charge l'agrégation DPE par commune : Parquet local > Supabase."""
+        try:
+            from shared.supabase_dpe import get_dpe_communes
+            return get_dpe_communes(departement=departement)
+        except Exception:
+            # Fallback Parquet direct
+            agg = PROCESSED / "dpe_communes_agg.parquet"
+            if agg.exists():
+                df = pd.read_parquet(agg)
+                if departement:
+                    df = df[df["departement"] == departement]
+                return df
+            return pd.DataFrame()
 
     def _load_sirene(self, departement: str = "33", activite: str = None,
                      token: str = None, **kwargs) -> pd.DataFrame:
