@@ -169,46 +169,75 @@ def add_activite(opp_id, type_activite, notes="", date_str=None, statut="À fair
 
 # ─── SIDEBAR ──────────────────────────────────────────────────────────────────
 
+DEPTS_COUVERTS = ["06", "13", "31", "33", "59", "69", "75"]
+
 with st.sidebar:
-    st.markdown("### 🏠 DVF Analyse Pro")
-    st.caption("SAHAR Conseil")
+    st.markdown(
+        '<div style="text-align:center;padding:.5rem 0">'
+        '<span style="font-size:1.4rem;font-weight:700">SAHAR</span>'
+        '<span style="font-size:.8rem;color:#666;margin-left:.3rem">Conseil</span>'
+        '</div>', unsafe_allow_html=True
+    )
     st.markdown("---")
 
-    dept = st.selectbox("Département", options=[str(i).zfill(2) for i in range(1,96) if i!=20]+["2A","2B"],
-                        index=31)  # 33 par défaut
+    # ── Localisation ──
+    with st.expander("📍 Localisation", expanded=True):
+        dept = st.selectbox("Département", options=DEPTS_COUVERTS,
+                            index=3, help="Départements avec données DVF + DPE")
 
-    types_bien = st.multiselect("Type de bien",
-                                 ["Appartement","Maison"],
-                                 default=["Appartement","Maison"])
+    # ── Période ──
+    with st.expander("📅 Période", expanded=True):
+        periodes_presets = {
+            "12 mois": 12, "24 mois": 24, "36 mois": 36,
+            "5 ans": 60, "Personnalisé": 0
+        }
+        preset_periode = st.radio("Période d'analyse", list(periodes_presets.keys()),
+                                   index=2, horizontal=True)
+        if preset_periode == "Personnalisé":
+            mois_periode = st.slider("Nombre de mois", 3, 84, 36, 3)
+        else:
+            mois_periode = periodes_presets[preset_periode]
 
-    mois_periode = st.slider("Période (mois)", 6, 60, 36, 6)
+        # Période de comparaison
+        compare_label = st.radio("Comparer avec", ["N-1 (même durée)", "Période précédente", "Pas de comparaison"],
+                                  index=0, horizontal=True)
 
-    col_s, col_e = st.columns(2)
-    with col_s: surf_min = st.number_input("Surface min m²", 10, 500, 20, 10)
-    with col_e: surf_max = st.number_input("Surface max m²", 10, 500, 200, 10)
+    # ── Filtres biens ──
+    with st.expander("🏠 Filtres biens", expanded=False):
+        types_bien = st.multiselect("Type de bien",
+                                     ["Appartement", "Maison"],
+                                     default=["Appartement", "Maison"])
 
-    col_p1, col_p2 = st.columns(2)
-    with col_p1: prix_min = st.number_input("Prix min €/m²", 500, 20000, 1000, 500)
-    with col_p2: prix_max = st.number_input("Prix max €/m²", 500, 20000, 10000, 500)
+        col_s, col_e = st.columns(2)
+        with col_s: surf_min = st.number_input("Surface min m²", 5, 500, 20, 5)
+        with col_e: surf_max = st.number_input("Surface max m²", 20, 1000, 300, 10)
 
-    score_min = st.slider("Score minimum", 0, 100, 0, 5)
+        col_p1, col_p2 = st.columns(2)
+        with col_p1: prix_min = st.number_input("Prix min €/m²", 0, 25000, 500, 250)
+        with col_p2: prix_max = st.number_input("Prix max €/m²", 500, 50000, 15000, 500)
+
+        nb_pieces_min = st.number_input("Pièces minimum", 0, 10, 0, 1)
+        score_min = st.slider("Score opportunité min", 0, 100, 0, 5)
+
+    # ── Pondération scoring (mode avancé) ──
+    with st.expander("⚙️ Scoring avancé", expanded=False):
+        w_prix = st.slider("Sous-valorisation", 0.0, 1.0, 0.40, 0.05)
+        w_vol  = st.slider("Volume marché",     0.0, 1.0, 0.30, 0.05)
+        w_dyn  = st.slider("Dynamisme",         0.0, 1.0, 0.30, 0.05)
+        total_w = w_prix + w_vol + w_dyn
+        if abs(total_w - 1.0) > 0.01:
+            st.warning(f"Somme poids = {total_w:.2f} ≠ 1")
 
     st.markdown("---")
-    st.markdown("**Pondération scoring**")
-    w_prix = st.slider("Sous-valorisation", 0.0, 1.0, 0.40, 0.05)
-    w_vol  = st.slider("Volume marché",     0.0, 1.0, 0.30, 0.05)
-    w_dyn  = st.slider("Dynamisme",         0.0, 1.0, 0.30, 0.05)
-    total_w = w_prix + w_vol + w_dyn
-    if abs(total_w - 1.0) > 0.01:
-        st.warning(f"Somme poids = {total_w:.2f} ≠ 1")
-
-    st.markdown("---")
-    if st.button("🔄 Vider le cache"):
-        st.cache_data.clear()
-        st.rerun()
-    if st.button("🔓 Déconnexion"):
-        st.session_state.pop("auth_ok", None)
-        st.rerun()
+    col_btn1, col_btn2 = st.columns(2)
+    with col_btn1:
+        if st.button("🔄 Cache", use_container_width=True):
+            st.cache_data.clear()
+            st.rerun()
+    with col_btn2:
+        if st.button("🔓 Déco", use_container_width=True):
+            st.session_state.pop("auth_ok", None)
+            st.rerun()
 
 
 # ─── CHARGEMENT + FILTRAGE ───────────────────────────────────────────────────
@@ -216,13 +245,44 @@ with st.sidebar:
 with st.spinner("Chargement des données DVF..."):
     df_raw = load_dvf(dept)
 
-cutoff = pd.Timestamp.now() - pd.DateOffset(months=mois_periode)
-df = df_raw[
+now = pd.Timestamp.now()
+cutoff = now - pd.DateOffset(months=mois_periode)
+
+# Période courante
+mask = (
     (df_raw['date_mutation'] >= cutoff) &
     (df_raw['type_local'].isin(types_bien)) &
     (df_raw['surface_utile'].between(surf_min, surf_max)) &
     (df_raw['prix_m2'].between(prix_min, prix_max))
-].copy()
+)
+if nb_pieces_min > 0 and 'nombre_pieces_principales' in df_raw.columns:
+    mask = mask & (df_raw['nombre_pieces_principales'] >= nb_pieces_min)
+df = df_raw[mask].copy()
+
+# Période de comparaison (N-1)
+if compare_label == "N-1 (même durée)":
+    cutoff_comp_start = cutoff - pd.DateOffset(months=mois_periode)
+    cutoff_comp_end = cutoff
+elif compare_label == "Période précédente":
+    cutoff_comp_start = cutoff - pd.DateOffset(months=mois_periode)
+    cutoff_comp_end = cutoff
+else:
+    cutoff_comp_start = None
+    cutoff_comp_end = None
+
+if cutoff_comp_start is not None:
+    mask_comp = (
+        (df_raw['date_mutation'] >= cutoff_comp_start) &
+        (df_raw['date_mutation'] < cutoff_comp_end) &
+        (df_raw['type_local'].isin(types_bien)) &
+        (df_raw['surface_utile'].between(surf_min, surf_max)) &
+        (df_raw['prix_m2'].between(prix_min, prix_max))
+    )
+    if nb_pieces_min > 0 and 'nombre_pieces_principales' in df_raw.columns:
+        mask_comp = mask_comp & (df_raw['nombre_pieces_principales'] >= nb_pieces_min)
+    df_comp = df_raw[mask_comp].copy()
+else:
+    df_comp = pd.DataFrame()
 
 if df.empty:
     st.warning("Aucun résultat avec ces filtres. Élargissez les critères.")
@@ -243,83 +303,80 @@ if df.empty:
 
 # ─── HEADER ───────────────────────────────────────────────────────────────────
 
-st.title("🏠 DVF Analyse Pro")
-st.caption(f"Département {dept} — {len(df):,} transactions filtrées")
+# Helper deltas
+def _delta(val_now, val_prev):
+    """Calcule un delta en % entre deux valeurs."""
+    if val_prev and val_prev > 0 and val_now is not None:
+        return round((val_now - val_prev) / val_prev * 100, 1)
+    return None
 
-# ── ROW 1 : KPIs principaux ─────────────────────────────────────────────
-c1, c2, c3, c4, c5 = st.columns(5)
-with c1: st.metric("Transactions", f"{len(df):,}")
-with c2: st.metric("Prix médian €/m²", f"{df['prix_m2'].median():,.0f} €")
-with c3: st.metric("Surface médiane", f"{df['surface_utile'].median():.0f} m²")
-with c4: st.metric("Prix médian total", f"{df['valeur_fonciere'].median()/1000:.0f} k€")
-with c5:
-    nb_opps = (df['score'] >= 70).sum()
-    st.metric("Opportunités score ≥70", nb_opps)
+def _fmt_delta(d):
+    return f"{d:+.1f}%" if d is not None else None
 
-# ── ROW 2 : KPIs avancés ────────────────────────────────────────────────
-_cutoff_12m = pd.Timestamp.now() - pd.DateOffset(months=12)
-_cutoff_24m = pd.Timestamp.now() - pd.DateOffset(months=24)
-_df_12m = df[df['date_mutation'] >= _cutoff_12m]
-_df_prev = df[(df['date_mutation'] >= _cutoff_24m) & (df['date_mutation'] < _cutoff_12m)]
-
-# Variation prix 12 mois
-_med_now = _df_12m['prix_m2'].median() if len(_df_12m) > 0 else 0
-_med_prev = _df_prev['prix_m2'].median() if len(_df_prev) > 0 else 0
-_var_12m = round((_med_now - _med_prev) / _med_prev * 100, 1) if _med_prev > 0 else None
-
-# Volume mensuel moyen
+# Métriques période courante
+_prix_med = df['prix_m2'].median()
+_surface_med = df['surface_utile'].median()
+_prix_total_med = df['valeur_fonciere'].median()
+nb_opps = (df['score'] >= 70).sum()
+_nb_communes = df['nom_commune'].nunique()
 _nb_mois = max(df['date_mutation'].dt.to_period('M').nunique(), 1)
 _vol_mensuel = round(len(df) / _nb_mois)
-
-# Nb communes actives
-_nb_communes = df['nom_commune'].nunique()
-
-# Taux d'opportunités
 _taux_opps = round(nb_opps / len(df) * 100, 1) if len(df) > 0 else 0
-
-# Indice de liquidité (transactions par commune)
-_liquidite = round(len(df) / max(_nb_communes, 1), 1)
-
-# Prix Q1 / Q3 (quartiles)
 _q1 = df['prix_m2'].quantile(0.25)
 _q3 = df['prix_m2'].quantile(0.75)
+_liquidite = round(len(df) / max(_nb_communes, 1), 1)
 
-k1, k2, k3, k4, k5, k6 = st.columns(6)
-with k1:
-    _delta_str = f"{_var_12m:+.1f}%" if _var_12m is not None else None
-    st.metric("Variation 12 mois", f"{_med_now:,.0f} €/m²", delta=_delta_str)
-with k2:
-    st.metric("Volume mensuel moy.", f"{_vol_mensuel:,}/mois")
-with k3:
-    st.metric("Communes actives", _nb_communes)
-with k4:
-    st.metric("Taux opportunités", f"{_taux_opps}%",
-              help="% de biens avec score ≥ 70")
-with k5:
-    st.metric("Liquidité", f"{_liquidite} tx/commune",
-              help="Transactions moyennes par commune")
-with k6:
-    st.metric("Fourchette €/m²", f"{_q1:,.0f} – {_q3:,.0f}",
-              help="Q1 – Q3 (interquartile)")
+# Métriques période comparaison (deltas)
+if not df_comp.empty:
+    _d_tx = _delta(len(df), len(df_comp))
+    _d_prix = _delta(_prix_med, df_comp['prix_m2'].median())
+    _d_surface = _delta(_surface_med, df_comp['surface_utile'].median())
+    _d_total = _delta(_prix_total_med, df_comp['valeur_fonciere'].median())
+    _d_vol = _delta(_vol_mensuel, round(len(df_comp) / max(df_comp['date_mutation'].dt.to_period('M').nunique(), 1)))
+    _comp_label = f"vs {'N-1' if compare_label.startswith('N-1') else 'période préc.'}"
+else:
+    _d_tx = _d_prix = _d_surface = _d_total = _d_vol = None
+    _comp_label = ""
 
-# ── ROW 3 : Résumé CRM rapide ───────────────────────────────────────────
+# ── Titre + période ──
+_date_debut = df['date_mutation'].min().strftime("%d/%m/%Y") if len(df) > 0 else ""
+_date_fin = df['date_mutation'].max().strftime("%d/%m/%Y") if len(df) > 0 else ""
+st.markdown(
+    f'<div style="display:flex;align-items:baseline;gap:1rem;margin-bottom:.5rem">'
+    f'<span style="font-size:1.6rem;font-weight:700">Dept {dept}</span>'
+    f'<span style="color:#888;font-size:.85rem">{_date_debut} → {_date_fin} — '
+    f'{len(df):,} transactions {_comp_label}</span>'
+    f'</div>', unsafe_allow_html=True
+)
+
+# ── KPIs avec deltas ──
+c1, c2, c3, c4, c5, c6 = st.columns(6)
+c1.metric("Transactions", f"{len(df):,}", _fmt_delta(_d_tx))
+c2.metric("Prix médian €/m²", f"{_prix_med:,.0f}", _fmt_delta(_d_prix))
+c3.metric("Surface médiane", f"{_surface_med:.0f} m²", _fmt_delta(_d_surface))
+c4.metric("Prix médian bien", f"{_prix_total_med/1000:.0f} k€", _fmt_delta(_d_total))
+c5.metric("Volume /mois", f"{_vol_mensuel}", _fmt_delta(_d_vol))
+c6.metric("Opportunités ≥70", f"{nb_opps} ({_taux_opps}%)")
+
+# ── Mini-barre contextuelle ──
+_badges = [
+    f"<b>{_nb_communes}</b> communes",
+    f"<b>{_liquidite}</b> tx/commune",
+    f"Q1–Q3 : <b>{_q1:,.0f}–{_q3:,.0f}</b> €/m²",
+]
 _crm_opps = len(st.session_state.crm_opportunites)
-_crm_contacts = len(st.session_state.crm_contacts)
-_crm_closing = len([o for o in st.session_state.crm_opportunites if o.get("stage") == "Closing"])
-_crm_val = sum(o.get("prix", 0) for o in st.session_state.crm_opportunites)
-
 if _crm_opps > 0:
-    st.markdown(
-        f'<div style="display:flex;gap:1.5rem;padding:.6rem 1rem;background:#f8f9fa;'
-        f'border-radius:8px;font-size:.82rem;color:#555;margin:.5rem 0">'
-        f'<span>💼 CRM : <b>{_crm_contacts}</b> contacts</span>'
-        f'<span>🎯 <b>{_crm_opps}</b> opportunités</span>'
-        f'<span>✅ <b>{_crm_closing}</b> en closing</span>'
-        f'<span>💶 Pipeline : <b>{_crm_val/1000:.0f}k€</b></span>'
-        f'</div>', unsafe_allow_html=True
-    )
+    _crm_closing = len([o for o in st.session_state.crm_opportunites if o.get("stage") == "Closing"])
+    _crm_val = sum(o.get("prix", 0) for o in st.session_state.crm_opportunites)
+    _badges.append(f"CRM: <b>{_crm_opps}</b> opps / <b>{_crm_closing}</b> closing / <b>{_crm_val/1000:.0f}k€</b>")
 
-st.markdown("---")
+st.markdown(
+    '<div style="display:flex;flex-wrap:wrap;gap:.8rem;padding:.4rem .8rem;'
+    'background:#f8f9fa;border-radius:6px;font-size:.78rem;color:#555;margin:.3rem 0">'
+    + ''.join(f'<span>{b}</span>' for b in _badges)
+    + '</div>', unsafe_allow_html=True
+)
+st.markdown("")
 
 
 # ─── ONGLETS PRINCIPAUX ───────────────────────────────────────────────────────
