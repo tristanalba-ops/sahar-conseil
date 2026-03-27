@@ -662,9 +662,13 @@ with tab_crm:
                 with c1f: tel_f  = st.text_input("Téléphone")
                 with c2f: email_f = st.text_input("Email")
                 type_f = st.selectbox("Type", ["Vendeur","Acheteur","Investisseur","Promoteur","Agent","Autre"])
+                secteur_f = st.selectbox("Secteur", ["immobilier","energie","retail","autre"])
                 notes_f = st.text_area("Notes", height=60)
+                send_email_f = st.toggle("Envoyer email de bienvenue", value=True)
                 if st.form_submit_button("Créer", type="primary") and nom_f:
-                    crm_db.add_contact(nom_f, email_f, tel_f, type_f, notes_f)
+                    crm_db.add_contact(nom_f, email_f, tel_f, type_f, notes_f,
+                                       envoyer_email_bienvenue=send_email_f,
+                                       secteur=secteur_f)
                     st.success(f"✓ {nom_f} créé")
                     st.rerun()
 

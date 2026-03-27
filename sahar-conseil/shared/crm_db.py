@@ -46,7 +46,9 @@ def _new_id(prefix: str, liste: list) -> str:
 # ─── CONTACTS ─────────────────────────────────────────────────────────────────
 
 def add_contact(nom: str, email: str = "", tel: str = "",
-                type_contact: str = "Autre", notes: str = "") -> dict:
+                type_contact: str = "Autre", notes: str = "",
+                envoyer_email_bienvenue: bool = False,
+                secteur: str = "") -> dict:
     record = {
         "id": _new_id("C", st.session_state.crm_contacts),
         "nom": nom, "email": email, "tel": tel,
@@ -59,6 +61,17 @@ def add_contact(nom: str, email: str = "", tel: str = "",
         except Exception as e:
             st.warning(f"Supabase write error: {e}")
     st.session_state.crm_contacts.append(record)
+
+    # Email de bienvenue si demandé et email fourni
+    if envoyer_email_bienvenue and email:
+        try:
+            from shared.automation import email_bienvenue_lead
+            ok = email_bienvenue_lead(nom, email, secteur)
+            if ok:
+                st.toast(f"✉️ Email de bienvenue envoyé à {email}")
+        except Exception as e:
+            st.warning(f"Email non envoyé : {e}")
+
     return record
 
 
