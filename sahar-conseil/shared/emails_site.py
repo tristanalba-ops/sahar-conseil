@@ -13,6 +13,26 @@ Usage depuis automation ou webhook :
 """
 
 from shared.automation import envoyer_email, _html, _url
+
+# ─── UTM URL BUILDER ──────────────────────────────────────────────────────────
+
+def _utm_url(base_url: str, source: str = "email", medium: str = "email",
+             campaign: str = "sahar_sequence", content: str = "") -> str:
+    """
+    Génère une URL avec paramètres UTM pour tracker le trafic email.
+    Ces UTMs sont captés par le site, poussés dans le datalayer GTM,
+    et remontés dans GA4 pour attribution.
+
+    Ex: https://sahar-conseil.fr/immobilier.html
+        ?utm_source=email&utm_medium=email&utm_campaign=j0_immo&utm_content=cta_demo
+    """
+    sep = "&" if "?" in base_url else "?"
+    url = f"{base_url}{sep}utm_source={source}&utm_medium={medium}&utm_campaign={campaign}"
+    if content:
+        url += f"&utm_content={content}"
+    return url
+
+
 from datetime import datetime
 
 
@@ -77,11 +97,12 @@ On ne fait pas de présentation générique. On arrive avec vos données,
 votre zone, votre marché.<br><br>
 À très vite.
 """
+    cta_url = _utm_url(_url(), campaign="j0_bienvenue", content="cta_outils")
     html = _html(
         f"Reçu — on revient vers vous sous 24h.",
         corps,
         "Voir nos outils en attendant",
-        _url()
+        cta_url
     )
     texte = (
         f"Bonjour {p}, votre demande est reçue. "
@@ -145,11 +166,12 @@ Je peux vous montrer exactement ce qu'on a sur {label} —
 20 minutes, pas de slides, juste les données.<br><br>
 Vous avez un créneau cette semaine ?
 """
+    cta_url = _utm_url(_url() + "#contact", campaign="j3_relance", content=f"cta_demo_{secteur.lower().replace(' ','_') or 'generique'}")
     html = _html(
         f"Une donnée qui va vous parler, {p}.",
         corps,
         "Planifier une démo",
-        _url() + "#contact"
+        cta_url
     )
     texte = (
         f"{p}, une donnée sur {label} que vous devriez voir. "
@@ -185,7 +207,7 @@ def envoyer_j7(nom: str, email: str, secteur: str = "") -> bool:
                  "Si il baisse, vous négociez mieux mais vous portez plus de risque."),
             ],
             "lien_texte": "Tester le scoring DVF sur votre secteur",
-            "lien_url": _url() + "/immobilier.html",
+            "lien_url": _utm_url(_url() + "/immobilier.html", campaign="j7_contenu", content="immobilier"),
         },
         "Énergie / Rénovation": {
             "titre": "Comment qualifier un prospect DPE en 30 secondes",
@@ -201,7 +223,7 @@ def envoyer_j7(nom: str, email: str, secteur: str = "") -> bool:
                  "Appartement en copropriété = décision collective, délai plus long."),
             ],
             "lien_texte": "Voir les F/G dans votre secteur",
-            "lien_url": _url() + "/energie-renovation.html",
+            "lien_url": _utm_url(_url() + "/energie-renovation.html", campaign="j7_contenu", content="energie"),
         },
     }
 
@@ -216,7 +238,7 @@ def envoyer_j7(nom: str, email: str, secteur: str = "") -> bool:
              "Concurrence, zone blanche, potentiel commercial."),
         ],
         "lien_texte": "Explorer les outils SAHAR",
-        "lien_url": _url(),
+        "lien_url": _utm_url(_url(), campaign="j7_contenu", content="generique"),
     })
 
     points_html = "".join([
