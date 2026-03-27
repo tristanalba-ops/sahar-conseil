@@ -217,3 +217,23 @@ SELECT
 FROM sahar_deals;
 
 SELECT 'SAHAR CRM interne créé ✓' AS statut;
+
+-- ── TABLE SAHAR_LEADS (leads entrants site) ──────────────────────────────────
+CREATE TABLE IF NOT EXISTS sahar_leads (
+  id            TEXT PRIMARY KEY,
+  compte_id     TEXT REFERENCES sahar_comptes(id) ON DELETE SET NULL,
+  nom           TEXT,
+  email         TEXT NOT NULL,
+  secteur       TEXT,
+  message       TEXT,
+  source        TEXT DEFAULT 'site',
+  utm_source    TEXT,
+  utm_campaign  TEXT,
+  landing_page  TEXT,
+  statut        TEXT DEFAULT 'nouveau',  -- nouveau|contacté|qualifié|perdu
+  created_at    TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE sahar_leads DISABLE ROW LEVEL SECURITY;
+
+SELECT 'sahar_leads créée ✓' AS statut;
