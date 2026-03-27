@@ -15,8 +15,9 @@
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const SUPABASE_URL = Deno.env.get("DB_URL") ?? Deno.env.get("SUPABASE_URL") ?? "";
-const SUPABASE_KEY = Deno.env.get("DB_SERVICE_KEY") ?? Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+// Secrets disponibles : DB_URL, DB_SERVICE_KEY, BREVO_API_KEY, NOTIF_EMAIL, APP_URL
+const SUPABASE_URL = Deno.env.get("DB_URL") ?? "";
+const SUPABASE_KEY = Deno.env.get("DB_SERVICE_KEY") ?? "";
 const BREVO_KEY    = Deno.env.get("BREVO_API_KEY") ?? "";
 const APP_URL      = Deno.env.get("APP_URL") ?? "https://sahar-conseil.fr";
 const NOTIF_EMAIL  = Deno.env.get("NOTIF_EMAIL") ?? "contact@sahar-conseil.fr";
@@ -138,6 +139,14 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
+    // Debug : vérifier que les secrets sont chargés
+    if (!SUPABASE_URL || !SUPABASE_KEY) {
+      return new Response(
+        JSON.stringify({ error: "Secrets manquants", url: !!SUPABASE_URL, key: !!SUPABASE_KEY }),
+        { status: 500, headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" } }
+      );
+    }
+
     const body = await req.json();
 
     // ── Extraire les champs Formspree ──────────────────────────────────────
