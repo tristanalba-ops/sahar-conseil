@@ -38,18 +38,64 @@ crm_db.init_crm()
 
 # ─── CHARGEMENT DPE ──────────────────────────────────────────────────────────
 
-DPE_API = "https://data.ademe.fr/data-fair/api/v1/datasets/dpe-v2-logements-existants/lines"
+# Mapping Supabase → colonnes attendues par l'app
+_SUPABASE_RENAME = {
+    "code_postal": "code_postal_ban",
+    "commune": "nom_commune_ban",
+    "adresse": "adresse_ban",
+    "conso_ef": "conso_5_usages_e_finale",
+    "emission_ges": "emission_ges_5_usages",
+    "surface_immeuble": "surface_habitable_logement",
+    "energie_principale": "type_energie_principale_chauffage",
+    "date_dpe": "date_etablissement_dpe",
+    "score_urgence": "score",
+}
+
+
+def _supabase_to_app(df: pd.DataFrame) -> pd.DataFrame:
+    """Renomme les colonnes Supabase vers le format attendu par l'app."""
+    df = df.rename(columns=_SUPABASE_RENAME)
+    # Convertir periode_construction → annee_construction (numérique)
+    if "periode_construction" in df.columns:
+        import re as _re
+        def _extract_year(val):
+            if pd.isna(val):
+                return pd.NA
+            m = _re.search(r"(\d{4})", str(val))
+            return int(m.group(1)) if m else pd.NA
+        df["annee_construction"] = df["periode_construction"].apply(_extract_year).astype("Int64")
+    # Colonnes GPS normalisées
+    if "latitude" in df.columns and "lat" not in df.columns:
+        df["lat"] = df["latitude"]
+    if "longitude" in df.columns and "lon" not in df.columns:
+        df["lon"] = df["longitude"]
+    return df
+
 
 @st.cache_data(ttl=3600, show_spinner="Chargement DPE...")
 def fetch_dpe(code_postal: str, nb: int = 1000) -> pd.DataFrame:
     """
-    Charge les DPE : parquet local en priorité, API ADEME en fallback.
-    Parquet = téléchargé via data/download_dpe.py
+    Charge les DPE : Supabase en priorité, parquet local, API ADEME en fallback.
     """
-    import requests
-
-    # ── 1. Chercher parquet local (même logique que DVF) ──────────────────
     dept = str(code_postal).strip()[:2]
+
+    # ── 1. Supabase (876k DPE, source fiable) ────────────────────────────
+    try:
+        from shared.supabase_dpe import get_dpe_logements
+        df = get_dpe_logements(departement=dept, limit=min(nb, 5000))
+        if not df.empty:
+            df = _supabase_to_app(df)
+            # Filtrer par code postal
+            if "code_postal_ban" in df.columns:
+                cp = str(code_postal).strip()
+                df_cp = df[df["code_postal_ban"].astype(str) == cp]
+                if not df_cp.empty:
+                    return df_cp.copy()
+            return df.copy()
+    except Exception as e:
+        pass  # Fallback suivant
+
+    # ── 2. Parquet local ─────────────────────────────────────────────────
     for base in [
         Path(__file__).resolve().parents[2],
         Path(__file__).resolve().parents[3],
@@ -59,14 +105,14 @@ def fetch_dpe(code_postal: str, nb: int = 1000) -> pd.DataFrame:
         p = base / "data" / "processed" / f"dpe_{dept}.parquet"
         if p.exists() and p.stat().st_size > 1000:
             df = pd.read_parquet(p)
-            # Filtrer par code postal
             if "code_postal_ban" in df.columns:
                 df_cp = df[df["code_postal_ban"].astype(str).str.startswith(str(code_postal).strip())]
                 if not df_cp.empty:
                     return df_cp.copy()
             return df.copy()
 
-    # ── 2. API ADEME en fallback ──────────────────────────────────────────
+    # ── 3. API ADEME en dernier recours ──────────────────────────────────
+    import requests
     ADEME_URLS = [
         "https://data.ademe.fr/data-fair/api/v1/datasets/dpe03existant/lines",
         "https://data.ademe.fr/data-fair/api/v1/datasets/dpe-v2-logements-existants/lines",
@@ -100,11 +146,15 @@ def fetch_dpe(code_postal: str, nb: int = 1000) -> pd.DataFrame:
                         df["annee_construction"] = pd.to_numeric(
                             df["annee_construction"], errors="coerce"
                         ).astype("Int64")
+                    if "latitude" in df.columns:
+                        df["lat"] = df["latitude"]
+                    if "longitude" in df.columns:
+                        df["lon"] = df["longitude"]
                     return df
         except Exception:
             continue
 
-    st.warning("API ADEME indisponible. Téléchargez les données via `python data/download_dpe.py --dept " + dept + "` puis repoussez sur GitHub.")
+    st.warning("Données indisponibles. Supabase et API ADEME injoignables.")
     return pd.DataFrame()
 
 
@@ -195,7 +245,10 @@ if df.empty:
     st.info("Aucun résultat avec ces filtres.")
     st.stop()
 
-df["score"] = score_urgence(df)
+# Score : utiliser score pré-calculé Supabase si dispo, sinon calculer
+if "score" not in df.columns:
+    df["score"] = score_urgence(df)
+df["score"] = pd.to_numeric(df["score"], errors="coerce").fillna(0).astype(int)
 df = df[df["score"] >= score_min].sort_values("score", ascending=False)
 
 # ─── KPIs ────────────────────────────────────────────────────────────────────
@@ -317,6 +370,11 @@ with tab_liste:
 # ── CARTE ──────────────────────────────────────────────────────────────────
 
 with tab_carte:
+    # Normaliser colonnes GPS
+    if "latitude" in df.columns and "lat" not in df.columns:
+        df["lat"] = df["latitude"]
+    if "longitude" in df.columns and "lon" not in df.columns:
+        df["lon"] = df["longitude"]
     df_geo = df.dropna(subset=["lat","lon"])
     if df_geo.empty:
         st.info("Coordonnées GPS non disponibles pour ce code postal.")
