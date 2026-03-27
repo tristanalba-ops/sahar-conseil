@@ -214,10 +214,11 @@ def add_lead(nom: str, email: str, tel: str = "", secteur: str = "",
         except Exception as e:
             st.warning(f"Supabase lead error: {e}")
 
-    # Déclencher email de bienvenue
+    # Email J+0 + notification interne
     try:
-        from shared.automation import email_bienvenue_lead, notifier_nouveau_lead
-        email_bienvenue_lead(nom, email, secteur)
+        from shared.emails_site import envoyer_j0
+        from shared.automation import notifier_nouveau_lead
+        envoyer_j0(nom, email, secteur, message)
         notifier_nouveau_lead(nom, email, secteur, message)
     except Exception:
         pass

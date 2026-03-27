@@ -590,7 +590,7 @@ with tab_crm:
 
     # ── ONGLETS CRM ──────────────────────────────────────────────────────
 
-    crm_tabs = st.tabs(["📌 Pipeline", "👥 Contacts", "📅 Activités", "📊 KPIs"])
+    crm_tabs = st.tabs(["📌 Pipeline", "👥 Contacts", "📅 Activités", "📨 Leads & Séquences", "📊 KPIs"])
 
     # PIPELINE
     with crm_tabs[0]:
@@ -792,8 +792,91 @@ with tab_crm:
         else:
             st.info("Aucune activité.")
 
-    # KPIs
+    # LEADS & SÉQUENCES
     with crm_tabs[3]:
+        st.subheader("Leads entrants & séquences")
+
+        leads = st.session_state.get("crm_leads", [])
+
+        # Ajouter lead manuellement
+        with st.expander("➕ Nouveau lead manuel"):
+            with st.form("f_lead"):
+                c1l, c2l = st.columns(2)
+                with c1l:
+                    nom_l = st.text_input("Nom *")
+                    email_l = st.text_input("Email *")
+                with c2l:
+                    tel_l = st.text_input("Téléphone")
+                    secteur_l = st.selectbox("Secteur",
+                        ["Immobilier","Énergie / Rénovation","Retail / Franchise",
+                         "RH / Recrutement","Automobile","Autre"])
+                msg_l = st.text_area("Message", height=60)
+                if st.form_submit_button("Créer + envoyer J+0", type="primary"):
+                    if nom_l and email_l:
+                        crm_db.add_lead(nom_l, email_l, tel_l, secteur_l, msg_l)
+                        st.success(f"✓ Lead créé — email J+0 envoyé à {email_l}")
+                        st.rerun()
+
+        # Liste leads
+        if leads:
+            for lead in sorted(leads, key=lambda x: x.get("created_at",""), reverse=True)[:20]:
+                statut_icon = {"nouveau":"🆕","contacté":"📞","qualifié":"✅","perdu":"❌"}.get(lead.get("statut","nouveau"),"•")
+                with st.expander(f"{statut_icon} {lead['nom']} — {lead.get('secteur','')} — {lead.get('email','')}"):
+                    c1, c2 = st.columns(2)
+                    with c1:
+                        st.markdown(f"**Email :** {lead.get('email','—')}")
+                        st.markdown(f"**Tél :** {lead.get('tel','—')}")
+                        st.markdown(f"**Source :** {lead.get('source','—')}")
+                    with c2:
+                        nouveau_statut = st.selectbox(
+                            "Statut", ["nouveau","contacté","qualifié","perdu"],
+                            index=["nouveau","contacté","qualifié","perdu"].index(lead.get("statut","nouveau")),
+                            key=f"lstatut_{lead['id']}"
+                        )
+                        if nouveau_statut != lead.get("statut"):
+                            crm_db.update_lead_statut(lead["id"], nouveau_statut)
+                            st.rerun()
+
+                    # Boutons séquence
+                    st.markdown("**Séquence email**")
+                    col_s1, col_s2, col_s3, col_s4 = st.columns(4)
+                    with col_s1:
+                        if st.button("J+0", key=f"j0_{lead['id']}"):
+                            from shared.emails_site import envoyer_j0
+                            ok = envoyer_j0(lead["nom"], lead["email"], lead.get("secteur",""))
+                            st.success("✅ J+0 envoyé") if ok else st.error("Erreur")
+                    with col_s2:
+                        if st.button("J+3", key=f"j3_{lead['id']}"):
+                            from shared.emails_site import envoyer_j3
+                            ok = envoyer_j3(lead["nom"], lead["email"], lead.get("secteur",""))
+                            st.success("✅ J+3 envoyé") if ok else st.error("Erreur")
+                    with col_s3:
+                        if st.button("J+7", key=f"j7_{lead['id']}"):
+                            from shared.emails_site import envoyer_j7
+                            ok = envoyer_j7(lead["nom"], lead["email"], lead.get("secteur",""))
+                            st.success("✅ J+7 envoyé") if ok else st.error("Erreur")
+                    with col_s4:
+                        if st.button("Démo", key=f"demo_{lead['id']}"):
+                            st.session_state[f"show_demo_{lead['id']}"] = True
+
+                    if st.session_state.get(f"show_demo_{lead['id']}"):
+                        with st.form(f"f_demo_{lead['id']}"):
+                            date_d = st.text_input("Date & heure", placeholder="Jeudi 3 avril à 14h30")
+                            lien_d = st.text_input("Lien visio (optionnel)")
+                            if st.form_submit_button("Confirmer la démo →"):
+                                from shared.emails_site import confirmer_demo
+                                ok = confirmer_demo(lead["nom"], lead["email"],
+                                                    date_d, lien_d, lead.get("secteur",""))
+                                if ok:
+                                    st.success("✅ Confirmation envoyée")
+                                    st.session_state.pop(f"show_demo_{lead['id']}", None)
+                                    crm_db.update_lead_statut(lead["id"], "contacté")
+                                    st.rerun()
+        else:
+            st.info("Aucun lead. Ils apparaissent ici quand quelqu'un remplit le formulaire du site.")
+
+    # KPIs
+    with crm_tabs[4]:
         opps_all = st.session_state.crm_opportunites
         acts_all  = st.session_state.crm_activites
         contacts_all = st.session_state.crm_contacts
