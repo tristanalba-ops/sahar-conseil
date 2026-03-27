@@ -1,0 +1,90 @@
+name: Content Factory — Pipeline hebdomadaire
+
+on:
+  schedule:
+    # Chaque lundi à 6h00 UTC (8h Paris)
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+    # Déclenchement manuel possible depuis GitHub Actions
+    inputs:
+      keyword:
+        description: 'Mot-clé unique (optionnel)'
+        required: false
+        default: ''
+      from_step:
+        description: 'Reprendre depuis étape (1-7)'
+        required: false
+        default: '1'
+      dry_run:
+        description: 'Dry run (true/false)'
+        required: false
+        default: 'false'
+      script_only:
+        description: 'Script podcast sans audio (true/false)'
+        required: false
+        default: 'false'
+      max_articles:
+        description: 'Nombre max d articles'
+        required: false
+        default: '3'
+
+jobs:
+  content-pipeline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Installer les dépendances
+        run: |
+          pip install --upgrade pip
+          pip install \
+            requests \
+            pytrends \
+            anthropic \
+            pydub \
+            beautifulsoup4 \
+            lxml
+
+      - name: Lancer le pipeline content factory
+        working-directory: sahar-conseil/content_factory
+        env:
+          VALUESERP_KEY:       ${{ secrets.VALUESERP_KEY }}
+          ANTHROPIC_API_KEY:   ${{ secrets.ANTHROPIC_API_KEY }}
+          ELEVENLABS_API_KEY:  ${{ secrets.ELEVENLABS_API_KEY }}
+          GITHUB_TOKEN:        ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPO:         ${{ github.repository }}
+          GITHUB_BRANCH:       main
+          GA4_MEASUREMENT_ID:  ${{ secrets.GA4_MEASUREMENT_ID }}
+          GA4_API_SECRET:      ${{ secrets.GA4_API_SECRET }}
+        run: |
+          python run_pipeline.py \
+            ${{ github.event.inputs.keyword != '' && format('--keyword "{0}"', github.event.inputs.keyword) || '' }} \
+            --from-step ${{ github.event.inputs.from_step || '1' }} \
+            --max ${{ github.event.inputs.max_articles || '3' }} \
+            ${{ github.event.inputs.dry_run == 'true' && '--dry-run' || '' }} \
+            ${{ github.event.inputs.script_only == 'true' && '--script-only' || '' }}
+
+      - name: Commit et push les articles publiés
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "SAHAR Content Bot"
+          git add sahar-conseil/docs/blog/ sahar-conseil/docs/sitemap.xml || true
+          git diff --staged --quiet || git commit -m "🤖 Content Factory — $(date +'%Y-%m-%d') — articles publiés"
+          git push || echo "Rien à pousser"
+
+      - name: Résumé du pipeline
+        if: always()
+        working-directory: sahar-conseil/content_factory
+        run: |
+          python run_pipeline.py --report || echo "Rapport non disponible"
