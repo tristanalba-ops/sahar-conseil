@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Automatiser sa prospection commerciale avec l'open data — SAHAR Conseil</title>
+  <meta name="description" content="Comment automatiser la détection de prospects, le scoring et les relances avec les données publiques françaises. Workflows, outils, intégrations CRM. Guide pratique." />
+  <meta name="robots" content="index, follow" />
+  <meta name="googlebot" content="index, follow" />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="SAHAR Conseil" />
+  <meta property="og:title" content="Automatiser la prospection avec l'open data — SAHAR Conseil" />
+  <meta property="og:description" content="Comment automatiser la détection de prospects, le scoring et les relances avec les données publiques françaises. Workflows, outils, intégrations CRM. Guide pratique." />
+  <meta property="og:url" content="https://tristanalba-ops.github.io/sahar-conseil/automatisation-prospection.html" />
+  <link rel="canonical" href="https://tristanalba-ops.github.io/sahar-conseil/automatisation-prospection.html" />
+  <script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Article",
+  "headline":"Automatiser sa prospection avec les données publiques : ce qui est possible, ce qui ne l'est pas.",
+  "description":"Comment automatiser la détection de prospects, le scoring et les relances avec les données publiques françaises. Workflows, outils, intégrations CRM. Guide pratique.",
+  "keywords":"automatisation prospection, workflow commercial, open data automatique, scoring automatique, relances CRM, prospection data-driven",
+  "url":"https://tristanalba-ops.github.io/sahar-conseil/automatisation-prospection.html",
+  "inLanguage":"fr-FR",
+  "author":{"@type":"Organization","name":"SAHAR Conseil","url":"https://tristanalba-ops.github.io/sahar-conseil/"},
+  "publisher":{"@type":"Organization","name":"SAHAR Conseil","url":"https://tristanalba-ops.github.io/sahar-conseil/"}
+}
+</script>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:16px;line-height:1.7;color:#1a1a1a;background:#fff}
+    a{color:#1a1a1a}
+    nav{border-bottom:1px solid #e5e5e5;padding:0 5%;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff;z-index:100}
+    .logo{font-weight:600;font-size:1rem;text-decoration:none;color:#1a1a1a}
+    .nav-links{display:flex;gap:1.5rem;list-style:none}
+    .nav-links a{text-decoration:none;font-size:.85rem;color:#555}
+    .nav-links a:hover{color:#1a1a1a}
+    .nav-cta{font-size:.875rem;font-weight:500;text-decoration:none;background:#1a1a1a;color:#fff;padding:.5rem 1.1rem;border-radius:6px}
+    .container{max-width:740px;margin:0 auto;padding:0 5%}
+    article{padding:4rem 0}
+    .breadcrumb{font-size:.78rem;color:#888;margin-bottom:2rem}
+    .breadcrumb a{color:#888;text-decoration:none}
+    h1{font-size:clamp(1.8rem,3.5vw,2.5rem);font-weight:600;letter-spacing:-.03em;line-height:1.15;margin-bottom:1.5rem}
+    h2{font-size:1.3rem;font-weight:600;letter-spacing:-.02em;margin:2.5rem 0 .9rem}
+    h3{font-size:1rem;font-weight:600;margin:1.5rem 0 .4rem}
+    .lead{font-size:1.05rem;color:#444;margin-bottom:2rem;padding-bottom:2rem;border-bottom:1px solid #e5e5e5}
+    p{color:#333;margin-bottom:1rem}
+    p:last-child{margin-bottom:0}
+    .btn{display:inline-block;padding:.65rem 1.4rem;border-radius:6px;font-size:.9rem;font-weight:500;text-decoration:none}
+    .btn-dark{background:#1a1a1a;color:#fff}
+    .btn-outline{border:1px solid #ccc;color:#1a1a1a}
+    .highlight{background:#f5f5f5;border-left:3px solid #1a1a1a;padding:1rem 1.25rem;border-radius:0 6px 6px 0;margin:1.5rem 0;font-size:.93rem;color:#333}
+    ul,ol{padding-left:1.4rem;margin-bottom:1rem}
+    li{color:#333;margin-bottom:.45rem}
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1.5rem}
+    .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-top:1.5rem}
+    .card{border:1px solid #e5e5e5;border-radius:8px;padding:1.25rem}
+    .card h3{margin:0 0 .4rem;font-size:.9rem}
+    .card p{font-size:.84rem;color:#555;margin:.3rem 0 0}
+    .cta-block{background:#f5f5f5;border-radius:8px;padding:1.75rem;text-align:center;margin:2rem 0}
+    .cta-block p{color:#555;font-size:.95rem;margin-bottom:1.25rem}
+    .related{border-top:1px solid #e5e5e5;margin-top:3rem;padding-top:2rem}
+    .related h3{font-size:.9rem;font-weight:600;margin-bottom:.75rem}
+    .related-links{display:flex;flex-direction:column;gap:.4rem}
+    .related-links a{font-size:.88rem;color:#1a1a1a;text-decoration:none;padding:.4rem 0;border-bottom:1px solid #f0f0f0}
+    @media(max-width:640px){.grid-2,.grid-3{grid-template-columns:1fr}.nav-links{display:none}}
+  </style>
+</head>
+<body>
+<nav>
+  <a href="index.html" class="logo">SAHAR Conseil</a>
+  <ul class="nav-links">
+    <li><a href="index.html#services">Services</a></li>
+    <li><a href="immobilier.html">Immobilier</a></li>
+    <li><a href="energie-renovation.html">Énergie</a></li>
+    <li><a href="crm.html">CRM</a></li>
+    <li><a href="index.html#tarifs">Tarifs</a></li>
+    <li><a href="index.html#contact">Contact</a></li>
+  </ul>
+  <a href="index.html#contact" class="nav-cta">Demander une démo</a>
+</nav>
+<div class="container">
+<article>
+  <div class="breadcrumb"><a href="index.html">Accueil</a> → <a href="crm.html">CRM & Pipeline</a> → Automatisation</div>
+  <h1>Automatiser sa prospection avec les données publiques : ce qui est possible, ce qui ne l'est pas.</h1>
+  <p class="lead">L'automatisation n'est pas une baguette magique. Mal utilisée, elle envoie des emails génériques à des gens qui ne vous connaissent pas. Bien utilisée, elle libère vos SDR des tâches répétitives pour qu'ils se concentrent sur ce que seul l'humain peut faire : convaincre.</p>
+  <h2>Ce qu'on peut automatiser vs ce qu'on ne peut pas</h2>
+  <div class="grid-2">
+    <div class="card"><h3>✓ À automatiser</h3><p>Détection de prospects via données publiques, scoring initial, enrichissement de fiches, rappels de relance, génération de rapports PDF, export vers CRM, alertes sur nouveaux signaux.</p></div>
+    <div class="card"><h3>✗ À ne pas automatiser</h3><p>Le premier appel à froid, la construction de la relation, la qualification des besoins, la négociation, le closing. L'humain reste indispensable là où la nuance compte.</p></div>
+  </div>
+  <div class="highlight">L'automatisation idéale : votre SDR arrive au bureau le matin avec une liste de 10 prospects priorisés, enrichis, et contextualisés. Il n'a plus qu'à décrocher. Tout ce qui précède a été fait par le système.</div>
+
+  <h2>Le workflow automatisé SAHAR</h2>
+  <ol>
+    <li><strong>Scan automatique</strong> — SAHAR interroge quotidiennement les APIs DVF, DPE, SIRENE sur vos zones cibles. Chaque nouvelle opportunité est détectée automatiquement.</li>
+    <li><strong>Scoring automatique</strong> — Chaque prospect reçoit un score 0–100 en quelques secondes, sans intervention humaine.</li>
+    <li><strong>Filtrage par seuil</strong> — Seuls les prospects avec score &gt; votre seuil entrent dans le pipeline. Vous définissez le seuil selon votre capacité SDR.</li>
+    <li><strong>Enrichissement fiche</strong> — La fiche prospect est pré-remplie avec les données open data : adresse, contexte marché, signal déclencheur.</li>
+    <li><strong>Notification SDR</strong> — Votre équipe reçoit une alerte (email ou Slack) avec la liste des nouveaux prospects à appeler aujourd'hui.</li>
+    <li><strong>Rappels relance</strong> — Si un prospect contacté n'a pas répondu après J+3, une tâche de relance est créée automatiquement dans le CRM.</li>
+  </ol>
+
+  <h2>Automatisations par secteur</h2>
+  <div class="grid-3">
+    <div class="card"><h3>Immobilier</h3><p>Alerte automatique dès qu'une nouvelle transaction DVF passe en dessous du seuil de médiane que vous définissez. Chaque jour, les nouvelles opportunités de votre secteur.</p></div>
+    <div class="card"><h3>Rénovation</h3><p>Scan des nouveaux DPE F/G déposés dans vos codes postaux cibles. Dès qu'un propriétaire fait diagnostiquer son bien énergivore, vous le savez.</p></div>
+    <div class="card"><h3>Retail</h3><p>Surveillance des nouvelles créations d'entreprises SIRENE dans votre secteur cible. Un nouveau concurrent ou un nouveau client potentiel : vous êtes alerté.</p></div>
+  </div>
+
+  <h2>Intégrations avec votre stack existant</h2>
+  <p>SAHAR s'intègre avec les outils que vous utilisez déjà :</p>
+  <ul>
+    <li><strong>HubSpot / Pipedrive / Salesforce</strong> — Export CSV automatique ou intégration API des nouveaux prospects scorés</li>
+    <li><strong>Google Sheets</strong> — Synchronisation des données pour les équipes qui travaillent encore sur tableur</li>
+    <li><strong>Slack / Teams</strong> — Notifications quotidiennes sur les nouvelles opportunités détectées</li>
+    <li><strong>Zapier / Make</strong> — Connexion à n'importe quel outil via webhook pour les workflows personnalisés</li>
+  </ul>
+
+  <h2>Le risque de la sur-automatisation</h2>
+  <p>Automatiser la détection et le scoring est toujours bon. Automatiser le contact (email automatique, séquence cold outreach) est risqué si ce n'est pas fait correctement. Un email générique envoyé à des milliers de personnes détruit la réputation de votre domaine et votre deliverability.</p>
+  <p>La règle SAHAR : automatiser l'intelligence (qui appeler, pourquoi, quand), pas l'interaction (le message lui-même doit être personnalisé par le commercial).</p>
+
+  <div class="cta-block">
+    <p>Voir comment l'automatisation SAHAR fonctionne sur votre secteur.</p>
+    <a href="index.html#contact" class="btn btn-dark">Demander une démonstration →</a>
+  </div>
+
+  <div class="related">
+    <h3>Sur le même sujet</h3>
+    <div class="related-links">
+      <a href="scoring-prospects.html">Scoring prospects — la base de l'automatisation →</a>
+      <a href="crm.html">CRM SAHAR avec automatisations intégrées →</a>
+      <a href="kpis-commerciaux.html">Mesurer l'impact de l'automatisation sur vos KPIs →</a>
+      <a href="prospecter-donnees-publiques.html">Open data : la source de vos automatisations →</a>
+    </div>
+  </div>
+</article>
+</div>
+<footer style="border-top:1px solid #e5e5e5;margin-top:4rem">
+  <div class="container">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:2rem;padding:2.5rem 0;border-bottom:1px solid #e5e5e5">
+      <div>
+        <p style="font-weight:600;font-size:.88rem;margin-bottom:.6rem">Secteurs</p>
+        <ul style="list-style:none;padding:0;display:flex;flex-direction:column;gap:.35rem">
+          <li><a href="immobilier.html" style="font-size:.82rem;color:#777;text-decoration:none">Immobilier DVF</a></li>
+          <li><a href="energie-renovation.html" style="font-size:.82rem;color:#777;text-decoration:none">Énergie DPE</a></li>
+          <li><a href="retail-franchise.html" style="font-size:.82rem;color:#777;text-decoration:none">Retail &amp; Franchise</a></li>
+          <li><a href="rh-recrutement.html" style="font-size:.82rem;color:#777;text-decoration:none">RH &amp; Recrutement</a></li>
+        </ul>
+      </div>
+      <div>
+        <p style="font-weight:600;font-size:.88rem;margin-bottom:.6rem">Outils</p>
+        <ul style="list-style:none;padding:0;display:flex;flex-direction:column;gap:.35rem">
+          <li><a href="crm.html" style="font-size:.82rem;color:#777;text-decoration:none">CRM Pipeline</a></li>
+          <li><a href="scoring-prospects.html" style="font-size:.82rem;color:#777;text-decoration:none">Scoring Prospects</a></li>
+          <li><a href="automatisation-prospection.html" style="font-size:.82rem;color:#777;text-decoration:none">Automatisation</a></li>
+          <li><a href="conversion-pipeline.html" style="font-size:.82rem;color:#777;text-decoration:none">Optimiser le Pipeline</a></li>
+        </ul>
+      </div>
+      <div>
+        <p style="font-weight:600;font-size:.88rem;margin-bottom:.6rem">Ressources</p>
+        <ul style="list-style:none;padding:0;display:flex;flex-direction:column;gap:.35rem">
+          <li><a href="trouver-prospects-immobiliers.html" style="font-size:.82rem;color:#777;text-decoration:none">Prospects immobiliers</a></li>
+          <li><a href="passoires-thermiques-interdites.html" style="font-size:.82rem;color:#777;text-decoration:none">Passoires thermiques</a></li>
+          <li><a href="prospecter-donnees-publiques.html" style="font-size:.82rem;color:#777;text-decoration:none">Open data</a></li>
+          <li><a href="kpis-commerciaux.html" style="font-size:.82rem;color:#777;text-decoration:none">KPIs commerciaux</a></li>
+          <li><a href="lead-magnet-immobilier.html" style="font-size:.82rem;color:#777;text-decoration:none">Lead magnets</a></li>
+        </ul>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:space-between;padding:1.5rem 0;flex-wrap:wrap;gap:.5rem">
+      <p style="font-size:.77rem;color:#aaa">© 2024 SAHAR Conseil — Bordeaux, France</p>
+      <p style="font-size:.77rem;color:#aaa"><a href="index.html#contact" style="color:#aaa;text-decoration:none">Contact</a></p>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

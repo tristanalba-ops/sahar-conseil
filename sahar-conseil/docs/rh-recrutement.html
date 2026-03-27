@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RH Tension Map — Analyser les tensions de recrutement par bassin d'emploi — SAHAR Conseil</title>
+  <meta name="description" content="Identifiez les métiers en tension dans chaque bassin d'emploi français. Données DARES, Pôle Emploi, INSEE. Outil pour DRH, cabinets de recrutement et ESN." />
+  <meta name="robots" content="index, follow" />
+  <meta name="googlebot" content="index, follow" />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="SAHAR Conseil" />
+  <meta property="og:title" content="RH Tension Map — prospection recrutement par données publiques — SAHAR Conseil" />
+  <meta property="og:description" content="Identifiez les métiers en tension dans chaque bassin d'emploi français. Données DARES, Pôle Emploi, INSEE. Outil pour DRH, cabinets de recrutement et ESN." />
+  <meta property="og:url" content="https://tristanalba-ops.github.io/sahar-conseil/rh-recrutement.html" />
+  <link rel="canonical" href="https://tristanalba-ops.github.io/sahar-conseil/rh-recrutement.html" />
+  <script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Article",
+  "headline":"Savoir où recruter, quoi promettre, et qui cibler — avant de lancer une annonce.",
+  "description":"Identifiez les métiers en tension dans chaque bassin d'emploi français. Données DARES, Pôle Emploi, INSEE. Outil pour DRH, cabinets de recrutement et ESN.",
+  "keywords":"tensions recrutement, bassin emploi, DARES, difficultés recrutement, cartographie RH, prospection cabinets recrutement",
+  "url":"https://tristanalba-ops.github.io/sahar-conseil/rh-recrutement.html",
+  "inLanguage":"fr-FR",
+  "author":{"@type":"Organization","name":"SAHAR Conseil","url":"https://tristanalba-ops.github.io/sahar-conseil/"},
+  "publisher":{"@type":"Organization","name":"SAHAR Conseil","url":"https://tristanalba-ops.github.io/sahar-conseil/"}
+}
+</script>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:16px;line-height:1.7;color:#1a1a1a;background:#fff}
+    a{color:#1a1a1a}
+    nav{border-bottom:1px solid #e5e5e5;padding:0 5%;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff;z-index:100}
+    .logo{font-weight:600;font-size:1rem;text-decoration:none;color:#1a1a1a}
+    .nav-links{display:flex;gap:1.5rem;list-style:none}
+    .nav-links a{text-decoration:none;font-size:.85rem;color:#555}
+    .nav-links a:hover{color:#1a1a1a}
+    .nav-cta{font-size:.875rem;font-weight:500;text-decoration:none;background:#1a1a1a;color:#fff;padding:.5rem 1.1rem;border-radius:6px}
+    .container{max-width:740px;margin:0 auto;padding:0 5%}
+    article{padding:4rem 0}
+    .breadcrumb{font-size:.78rem;color:#888;margin-bottom:2rem}
+    .breadcrumb a{color:#888;text-decoration:none}
+    h1{font-size:clamp(1.8rem,3.5vw,2.5rem);font-weight:600;letter-spacing:-.03em;line-height:1.15;margin-bottom:1.5rem}
+    h2{font-size:1.3rem;font-weight:600;letter-spacing:-.02em;margin:2.5rem 0 .9rem}
+    h3{font-size:1rem;font-weight:600;margin:1.5rem 0 .4rem}
+    .lead{font-size:1.05rem;color:#444;margin-bottom:2rem;padding-bottom:2rem;border-bottom:1px solid #e5e5e5}
+    p{color:#333;margin-bottom:1rem}
+    p:last-child{margin-bottom:0}
+    .btn{display:inline-block;padding:.65rem 1.4rem;border-radius:6px;font-size:.9rem;font-weight:500;text-decoration:none}
+    .btn-dark{background:#1a1a1a;color:#fff}
+    .btn-outline{border:1px solid #ccc;color:#1a1a1a}
+    .highlight{background:#f5f5f5;border-left:3px solid #1a1a1a;padding:1rem 1.25rem;border-radius:0 6px 6px 0;margin:1.5rem 0;font-size:.93rem;color:#333}
+    ul,ol{padding-left:1.4rem;margin-bottom:1rem}
+    li{color:#333;margin-bottom:.45rem}
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1.5rem}
+    .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-top:1.5rem}
+    .card{border:1px solid #e5e5e5;border-radius:8px;padding:1.25rem}
+    .card h3{margin:0 0 .4rem;font-size:.9rem}
+    .card p{font-size:.84rem;color:#555;margin:.3rem 0 0}
+    .cta-block{background:#f5f5f5;border-radius:8px;padding:1.75rem;text-align:center;margin:2rem 0}
+    .cta-block p{color:#555;font-size:.95rem;margin-bottom:1.25rem}
+    .related{border-top:1px solid #e5e5e5;margin-top:3rem;padding-top:2rem}
+    .related h3{font-size:.9rem;font-weight:600;margin-bottom:.75rem}
+    .related-links{display:flex;flex-direction:column;gap:.4rem}
+    .related-links a{font-size:.88rem;color:#1a1a1a;text-decoration:none;padding:.4rem 0;border-bottom:1px solid #f0f0f0}
+    @media(max-width:640px){.grid-2,.grid-3{grid-template-columns:1fr}.nav-links{display:none}}
+  </style>
+</head>
+<body>
+<nav>
+  <a href="index.html" class="logo">SAHAR Conseil</a>
+  <ul class="nav-links">
+    <li><a href="index.html#services">Services</a></li>
+    <li><a href="immobilier.html">Immobilier</a></li>
+    <li><a href="energie-renovation.html">Énergie</a></li>
+    <li><a href="crm.html">CRM</a></li>
+    <li><a href="index.html#tarifs">Tarifs</a></li>
+    <li><a href="index.html#contact">Contact</a></li>
+  </ul>
+  <a href="index.html#contact" class="nav-cta">Demander une démo</a>
+</nav>
+<div class="container">
+<article>
+  <div class="breadcrumb"><a href="index.html">Accueil</a> → RH & Recrutement</div>
+  <h1>Savoir où recruter, quoi promettre, et qui cibler — avant de lancer une annonce.</h1>
+  <p class="lead">Le marché du recrutement est asymétrique : les candidats savent exactement ce qu'ils valent, les entreprises et les cabinets naviguent souvent à vue. Les données DARES changent ça.</p>
+  <h2>Ce que les données DARES révèlent que vous ne savez pas encore</h2>
+  <p>La DARES (Direction de l'Animation de la Recherche, des Études et des Statistiques) publie chaque trimestre les indicateurs de tension pour plus de 200 familles de métiers, par bassin d'emploi. Ces données sont publiques. Elles vous disent :</p>
+  <ul>
+    <li>Quels métiers sont en tension dans votre zone (plus d'offres que de candidats)</li>
+    <li>Quels bassins ont un chômage résiduel mais des difficultés de recrutement (problème de compétences, pas de volume)</li>
+    <li>Où les entreprises galèrent à recruter — et payent donc plus pour y arriver</li>
+  </ul>
+  <div class="highlight">Un cabinet de recrutement qui arrive chez un client en disant "votre métier est en tension à 87/100 dans votre bassin, voici les leviers" convert 3x mieux qu'un cabinet qui dit "on a un bon réseau". La donnée crée la confiance.</div>
+
+  <h2>Applications métier</h2>
+  <div class="grid-2">
+    <div class="card"><h3>Cabinet de recrutement</h3><p>Prospectez les entreprises dans les secteurs en tension avant qu'elles n'ouvrent le poste. Arrivez avec le contexte marché — pas juste votre catalogue.</p></div>
+    <div class="card"><h3>DRH / Direction RH</h3><p>Benchmarkez vos difficultés de recrutement par rapport au marché. Justifiez les hausses de rémunération avec des données objectives.</p></div>
+    <div class="card"><h3>ESN / SSII</h3><p>Identifiez les bassins où vos profils tech sont en tension pour adapter vos argumentaires commerciaux et vos stratégies de sourcing.</p></div>
+    <div class="card"><h3>Portail d'emploi régional</h3><p>Alertez les employeurs sur les tensions de leur secteur. Créez de la valeur ajoutée au-delà du simple dépôt d'annonce.</p></div>
+  </div>
+
+  <h2>Le score de tension RH — comment il est calculé</h2>
+  <p>Le score 0–100 combine :</p>
+  <ul>
+    <li><strong>70%</strong> — Indicateur de tension DARES (ratio offres/demandes par métier et bassin)</li>
+    <li><strong>30%</strong> — Taux de chômage inversé (faible chômage = forte tension)</li>
+  </ul>
+  <p>Score &gt; 70 : recrutement très difficile → fort besoin de cabinet ou d'approche directe. Score 40–70 : tension modérée. Score &lt; 40 : marché de l'emploi équilibré ou en faveur des employeurs.</p>
+
+  <h2>Intégration dans votre pipeline commercial</h2>
+  <p>Chaque entreprise identifiée dans une zone de forte tension devient un prospect dans votre CRM SAHAR. La fiche prospect inclut le score de tension, le secteur, le bassin d'emploi, et l'historique de contact. Vos SDR savent exactement quel argument utiliser à l'appel.</p>
+
+  <div class="cta-block">
+    <p>Carte des tensions de recrutement sur votre territoire.</p>
+    <a href="index.html#contact" class="btn btn-dark">Accéder à RH Tension Map →</a>
+  </div>
+
+  <div class="related">
+    <h3>Sur le même sujet</h3>
+    <div class="related-links">
+      <a href="kpis-commerciaux.html">KPIs pour piloter une équipe commerciale RH →</a>
+      <a href="crm.html">CRM pipeline pour cabinets de recrutement →</a>
+      <a href="prospecter-donnees-publiques.html">Prospecter avec les données publiques →</a>
+      <a href="scoring-prospects.html">Scorer vos prospects avant de les appeler →</a>
+      <a href="index.html#outils">Tous les outils SAHAR →</a>
+    </div>
+  </div>
+</article>
+</div>
+<footer style="border-top:1px solid #e5e5e5;margin-top:4rem">
+  <div class="container">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:2rem;padding:2.5rem 0;border-bottom:1px solid #e5e5e5">
+      <div>
+        <p style="font-weight:600;font-size:.88rem;margin-bottom:.6rem">Secteurs</p>
+        <ul style="list-style:none;padding:0;display:flex;flex-direction:column;gap:.35rem">
+          <li><a href="immobilier.html" style="font-size:.82rem;color:#777;text-decoration:none">Immobilier DVF</a></li>
+          <li><a href="energie-renovation.html" style="font-size:.82rem;color:#777;text-decoration:none">Énergie DPE</a></li>
+          <li><a href="retail-franchise.html" style="font-size:.82rem;color:#777;text-decoration:none">Retail &amp; Franchise</a></li>
+          <li><a href="rh-recrutement.html" style="font-size:.82rem;color:#777;text-decoration:none">RH &amp; Recrutement</a></li>
+        </ul>
+      </div>
+      <div>
+        <p style="font-weight:600;font-size:.88rem;margin-bottom:.6rem">Outils</p>
+        <ul style="list-style:none;padding:0;display:flex;flex-direction:column;gap:.35rem">
+          <li><a href="crm.html" style="font-size:.82rem;color:#777;text-decoration:none">CRM Pipeline</a></li>
+          <li><a href="scoring-prospects.html" style="font-size:.82rem;color:#777;text-decoration:none">Scoring Prospects</a></li>
+          <li><a href="automatisation-prospection.html" style="font-size:.82rem;color:#777;text-decoration:none">Automatisation</a></li>
+          <li><a href="conversion-pipeline.html" style="font-size:.82rem;color:#777;text-decoration:none">Optimiser le Pipeline</a></li>
+        </ul>
+      </div>
+      <div>
+        <p style="font-weight:600;font-size:.88rem;margin-bottom:.6rem">Ressources</p>
+        <ul style="list-style:none;padding:0;display:flex;flex-direction:column;gap:.35rem">
+          <li><a href="trouver-prospects-immobiliers.html" style="font-size:.82rem;color:#777;text-decoration:none">Prospects immobiliers</a></li>
+          <li><a href="passoires-thermiques-interdites.html" style="font-size:.82rem;color:#777;text-decoration:none">Passoires thermiques</a></li>
+          <li><a href="prospecter-donnees-publiques.html" style="font-size:.82rem;color:#777;text-decoration:none">Open data</a></li>
+          <li><a href="kpis-commerciaux.html" style="font-size:.82rem;color:#777;text-decoration:none">KPIs commerciaux</a></li>
+          <li><a href="lead-magnet-immobilier.html" style="font-size:.82rem;color:#777;text-decoration:none">Lead magnets</a></li>
+        </ul>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:space-between;padding:1.5rem 0;flex-wrap:wrap;gap:.5rem">
+      <p style="font-size:.77rem;color:#aaa">© 2024 SAHAR Conseil — Bordeaux, France</p>
+      <p style="font-size:.77rem;color:#aaa"><a href="index.html#contact" style="color:#aaa;text-decoration:none">Contact</a></p>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

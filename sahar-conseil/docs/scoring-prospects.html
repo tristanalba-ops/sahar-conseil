@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Scoring prospects B2B — Méthode, formules et outils — SAHAR Conseil</title>
+  <meta name="description" content="Comment scorer vos prospects pour que vos SDR appellent les bons en premier. Modèles de scoring, critères, pondération. Scoring automatique par données publiques avec SAHAR." />
+  <meta name="robots" content="index, follow" />
+  <meta name="googlebot" content="index, follow" />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="SAHAR Conseil" />
+  <meta property="og:title" content="Scoring prospects B2B — méthode et automatisation — SAHAR Conseil" />
+  <meta property="og:description" content="Comment scorer vos prospects pour que vos SDR appellent les bons en premier. Modèles de scoring, critères, pondération. Scoring automatique par données publiques avec SAHAR." />
+  <meta property="og:url" content="https://tristanalba-ops.github.io/sahar-conseil/scoring-prospects.html" />
+  <link rel="canonical" href="https://tristanalba-ops.github.io/sahar-conseil/scoring-prospects.html" />
+  <script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Article",
+  "headline":"Le scoring prospects : la méthode qui fait appeler les bons leads en premier.",
+  "description":"Comment scorer vos prospects pour que vos SDR appellent les bons en premier. Modèles de scoring, critères, pondération. Scoring automatique par données publiques avec SAHAR.",
+  "keywords":"scoring prospects, lead scoring BtoB, priorisation pipeline, score qualification, SDR priorité, scoring automatique",
+  "url":"https://tristanalba-ops.github.io/sahar-conseil/scoring-prospects.html",
+  "inLanguage":"fr-FR",
+  "author":{"@type":"Organization","name":"SAHAR Conseil","url":"https://tristanalba-ops.github.io/sahar-conseil/"},
+  "publisher":{"@type":"Organization","name":"SAHAR Conseil","url":"https://tristanalba-ops.github.io/sahar-conseil/"}
+}
+</script>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:16px;line-height:1.7;color:#1a1a1a;background:#fff}
+    a{color:#1a1a1a}
+    nav{border-bottom:1px solid #e5e5e5;padding:0 5%;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff;z-index:100}
+    .logo{font-weight:600;font-size:1rem;text-decoration:none;color:#1a1a1a}
+    .nav-links{display:flex;gap:1.5rem;list-style:none}
+    .nav-links a{text-decoration:none;font-size:.85rem;color:#555}
+    .nav-links a:hover{color:#1a1a1a}
+    .nav-cta{font-size:.875rem;font-weight:500;text-decoration:none;background:#1a1a1a;color:#fff;padding:.5rem 1.1rem;border-radius:6px}
+    .container{max-width:740px;margin:0 auto;padding:0 5%}
+    article{padding:4rem 0}
+    .breadcrumb{font-size:.78rem;color:#888;margin-bottom:2rem}
+    .breadcrumb a{color:#888;text-decoration:none}
+    h1{font-size:clamp(1.8rem,3.5vw,2.5rem);font-weight:600;letter-spacing:-.03em;line-height:1.15;margin-bottom:1.5rem}
+    h2{font-size:1.3rem;font-weight:600;letter-spacing:-.02em;margin:2.5rem 0 .9rem}
+    h3{font-size:1rem;font-weight:600;margin:1.5rem 0 .4rem}
+    .lead{font-size:1.05rem;color:#444;margin-bottom:2rem;padding-bottom:2rem;border-bottom:1px solid #e5e5e5}
+    p{color:#333;margin-bottom:1rem}
+    p:last-child{margin-bottom:0}
+    .btn{display:inline-block;padding:.65rem 1.4rem;border-radius:6px;font-size:.9rem;font-weight:500;text-decoration:none}
+    .btn-dark{background:#1a1a1a;color:#fff}
+    .btn-outline{border:1px solid #ccc;color:#1a1a1a}
+    .highlight{background:#f5f5f5;border-left:3px solid #1a1a1a;padding:1rem 1.25rem;border-radius:0 6px 6px 0;margin:1.5rem 0;font-size:.93rem;color:#333}
+    ul,ol{padding-left:1.4rem;margin-bottom:1rem}
+    li{color:#333;margin-bottom:.45rem}
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1.5rem}
+    .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-top:1.5rem}
+    .card{border:1px solid #e5e5e5;border-radius:8px;padding:1.25rem}
+    .card h3{margin:0 0 .4rem;font-size:.9rem}
+    .card p{font-size:.84rem;color:#555;margin:.3rem 0 0}
+    .cta-block{background:#f5f5f5;border-radius:8px;padding:1.75rem;text-align:center;margin:2rem 0}
+    .cta-block p{color:#555;font-size:.95rem;margin-bottom:1.25rem}
+    .related{border-top:1px solid #e5e5e5;margin-top:3rem;padding-top:2rem}
+    .related h3{font-size:.9rem;font-weight:600;margin-bottom:.75rem}
+    .related-links{display:flex;flex-direction:column;gap:.4rem}
+    .related-links a{font-size:.88rem;color:#1a1a1a;text-decoration:none;padding:.4rem 0;border-bottom:1px solid #f0f0f0}
+    @media(max-width:640px){.grid-2,.grid-3{grid-template-columns:1fr}.nav-links{display:none}}
+  </style>
+</head>
+<body>
+<nav>
+  <a href="index.html" class="logo">SAHAR Conseil</a>
+  <ul class="nav-links">
+    <li><a href="index.html#services">Services</a></li>
+    <li><a href="immobilier.html">Immobilier</a></li>
+    <li><a href="energie-renovation.html">Énergie</a></li>
+    <li><a href="crm.html">CRM</a></li>
+    <li><a href="index.html#tarifs">Tarifs</a></li>
+    <li><a href="index.html#contact">Contact</a></li>
+  </ul>
+  <a href="index.html#contact" class="nav-cta">Demander une démo</a>
+</nav>
+<div class="container">
+<article>
+  <div class="breadcrumb"><a href="index.html">Accueil</a> → <a href="crm.html">CRM & Pipeline</a> → Scoring prospects</div>
+  <h1>Le scoring prospects : la méthode qui fait appeler les bons leads en premier.</h1>
+  <p class="lead">Sans scoring, vos SDR passent autant de temps sur un prospect froid que sur une opportunité chaude. Avec un bon modèle de scoring, 20% de vos prospects génèrent 80% de vos deals. Voici comment construire ce modèle.</p>
+  <h2>Pourquoi scorer ses prospects ?</h2>
+  <p>Un SDR a en moyenne 4 heures d'appels par jour. Sans priorisation, ces 4 heures se répartissent aléatoirement sur une liste. Avec un scoring, les 2 premières heures vont sur les 20% de prospects qui vont réellement convertir.</p>
+  <div class="highlight">D'après HubSpot, les équipes commerciales qui utilisent un modèle de scoring génèrent en moyenne 33% de chiffre d'affaires supplémentaire. La variable n'est pas le volume d'appels — c'est la qualité de la priorisation.</div>
+
+  <h2>Les deux familles de scoring</h2>
+  <div class="grid-2">
+    <div class="card"><h3>Scoring démographique</h3><p>Qui est ce prospect ? Secteur, taille d'entreprise, zone géographique, poste. Est-ce que ce profil correspond à votre ICP (Ideal Customer Profile) ?</p></div>
+    <div class="card"><h3>Scoring comportemental</h3><p>Qu'a-t-il fait ? Ouverture d'email, visite du site, téléchargement d'un lead magnet, participation à un webinar. Signal d'intérêt actif.</p></div>
+    <div class="card"><h3>Scoring signal marché</h3><p>Qu'est-ce qui se passe autour de lui ? Contrainte réglementaire (DPE), opportunité de marché (DVF), tension sectorielle (DARES). C'est le scoring SAHAR.</p></div>
+    <div class="card"><h3>Scoring engagement CRM</h3><p>Où en est-on dans la relation ? Premier contact, deuxième relance, devis envoyé. Le scoring doit refléter la maturité de la relation.</p></div>
+  </div>
+
+  <h2>Construire son modèle de scoring — étape par étape</h2>
+  <ol>
+    <li><strong>Définir les critères</strong> — Lister tous les attributs qui, dans votre expérience, distinguent un bon prospect d'un mauvais. Pas plus de 8–10 critères.</li>
+    <li><strong>Peser chaque critère</strong> — Attribuer un poids en % à chaque critère. La somme doit faire 100%. Les critères les plus discriminants méritent les poids les plus élevés.</li>
+    <li><strong>Normaliser les valeurs</strong> — Chaque critère doit donner un sous-score entre 0 et 100 pour être additionnable. Une zone géographique "conforme" = 100, "hors cible" = 0.</li>
+    <li><strong>Calculer le score composite</strong> — Score final = Σ (sous-score × poids). Résultat entre 0 et 100.</li>
+    <li><strong>Calibrer sur vos données historiques</strong> — Appliquer le modèle sur vos deals closés et perdus. Le scoring doit discriminer : les deals gagnés doivent avoir un score moyen nettement plus élevé.</li>
+  </ol>
+
+  <h2>Le scoring par données publiques — l'avantage SAHAR</h2>
+  <p>La plupart des modèles de scoring dépendent de données internes (comportement CRM, données firmographiques). SAHAR ajoute une troisième dimension : les signaux de marché issus des données publiques.</p>
+  <p>Exemples de signaux :</p>
+  <ul>
+    <li>Logement classé F/G → signal d'urgence réglementaire → score élevé pour artisan RGE</li>
+    <li>Transaction DVF à -15% de la médiane → signal d'opportunité → score élevé pour agent immo</li>
+    <li>Zone sans concurrent dans un secteur en croissance → signal stratégique → score élevé pour franchiseur</li>
+    <li>Bassin d'emploi avec tension 80/100 sur votre métier cible → signal commercial → score élevé pour cabinet recrutement</li>
+  </ul>
+  <div class="highlight">Ces signaux sont objectifs, récents, et incontestables. "Votre logement est classé G selon l'ADEME" est plus fort que "nous pensons que vous avez besoin de rénover".</div>
+
+  <h2>Scoring BDD clients — enrichir votre base existante</h2>
+  <p>Le scoring ne s'applique pas qu'aux nouveaux prospects. Votre base clients actuelle contient des opportunités dormantes :</p>
+  <ul>
+    <li>Clients qui ont acheté il y a 2 ans et dont la situation a changé (nouveau DPE F, nouveau logement acheté)</li>
+    <li>Contacts qui n'ont jamais signé mais qui correspondent maintenant à votre ICP</li>
+    <li>Anciens prospects refroidis dont le signal de marché vient de s'activer</li>
+  </ul>
+  <p>SAHAR peut importer votre base existante et l'enrichir avec les données publiques correspondantes. Chaque contact reçoit un score actualisé.</p>
+
+  <div class="cta-block">
+    <p>Scorer votre base prospects avec les données publiques.</p>
+    <a href="index.html#contact" class="btn btn-dark">Voir comment ça marche →</a>
+  </div>
+
+  <div class="related">
+    <h3>Sur le même sujet</h3>
+    <div class="related-links">
+      <a href="crm.html">CRM avec scoring intégré →</a>
+      <a href="kpis-commerciaux.html">KPIs pour mesurer l'efficacité du scoring →</a>
+      <a href="automatisation-prospection.html">Automatiser le scoring et la prospection →</a>
+      <a href="prospecter-donnees-publiques.html">Données publiques pour enrichir vos scores →</a>
+      <a href="conversion-pipeline.html">Optimiser votre taux de conversion →</a>
+    </div>
+  </div>
+</article>
+</div>
+<footer style="border-top:1px solid #e5e5e5;margin-top:4rem">
+  <div class="container">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:2rem;padding:2.5rem 0;border-bottom:1px solid #e5e5e5">
+      <div>
+        <p style="font-weight:600;font-size:.88rem;margin-bottom:.6rem">Secteurs</p>
+        <ul style="list-style:none;padding:0;display:flex;flex-direction:column;gap:.35rem">
+          <li><a href="immobilier.html" style="font-size:.82rem;color:#777;text-decoration:none">Immobilier DVF</a></li>
+          <li><a href="energie-renovation.html" style="font-size:.82rem;color:#777;text-decoration:none">Énergie DPE</a></li>
+          <li><a href="retail-franchise.html" style="font-size:.82rem;color:#777;text-decoration:none">Retail &amp; Franchise</a></li>
+          <li><a href="rh-recrutement.html" style="font-size:.82rem;color:#777;text-decoration:none">RH &amp; Recrutement</a></li>
+        </ul>
+      </div>
+      <div>
+        <p style="font-weight:600;font-size:.88rem;margin-bottom:.6rem">Outils</p>
+        <ul style="list-style:none;padding:0;display:flex;flex-direction:column;gap:.35rem">
+          <li><a href="crm.html" style="font-size:.82rem;color:#777;text-decoration:none">CRM Pipeline</a></li>
+          <li><a href="scoring-prospects.html" style="font-size:.82rem;color:#777;text-decoration:none">Scoring Prospects</a></li>
+          <li><a href="automatisation-prospection.html" style="font-size:.82rem;color:#777;text-decoration:none">Automatisation</a></li>
+          <li><a href="conversion-pipeline.html" style="font-size:.82rem;color:#777;text-decoration:none">Optimiser le Pipeline</a></li>
+        </ul>
+      </div>
+      <div>
+        <p style="font-weight:600;font-size:.88rem;margin-bottom:.6rem">Ressources</p>
+        <ul style="list-style:none;padding:0;display:flex;flex-direction:column;gap:.35rem">
+          <li><a href="trouver-prospects-immobiliers.html" style="font-size:.82rem;color:#777;text-decoration:none">Prospects immobiliers</a></li>
+          <li><a href="passoires-thermiques-interdites.html" style="font-size:.82rem;color:#777;text-decoration:none">Passoires thermiques</a></li>
+          <li><a href="prospecter-donnees-publiques.html" style="font-size:.82rem;color:#777;text-decoration:none">Open data</a></li>
+          <li><a href="kpis-commerciaux.html" style="font-size:.82rem;color:#777;text-decoration:none">KPIs commerciaux</a></li>
+          <li><a href="lead-magnet-immobilier.html" style="font-size:.82rem;color:#777;text-decoration:none">Lead magnets</a></li>
+        </ul>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:space-between;padding:1.5rem 0;flex-wrap:wrap;gap:.5rem">
+      <p style="font-size:.77rem;color:#aaa">© 2024 SAHAR Conseil — Bordeaux, France</p>
+      <p style="font-size:.77rem;color:#aaa"><a href="index.html#contact" style="color:#aaa;text-decoration:none">Contact</a></p>
+    </div>
+  </div>
+</footer>
+</body>
+</html>
