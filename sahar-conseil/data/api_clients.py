@@ -12,12 +12,13 @@ Sources couvertes :
 
 Usage :
     from data.api_clients import DVFClient, DPEClient, SIRENEClient, BANClient, GeoClient
+    from data.api_clients import IRVEClient, GeorisquesClient, CadastreClient
 
     dvf = DVFClient()
     df = dvf.get_transactions(code_commune="33063", annee_min=2022)
 
-    sirene = SIRENEClient(token="votre_token_insee")
-    df = sirene.search(activite="6820A", departement="33")
+    geo_r = GeorisquesClient()
+    score = geo_r.score_risque_commune("33063")  # score synthétique Bordeaux
 """
 
 import requests
@@ -733,15 +734,14 @@ class DataGouvClient:
 class IRVEClient:
     """
     Données IRVE (Infrastructures de Recharge Véhicules Électriques).
-    Source : data.gouv.fr — consolidation transport.data.gouv.fr
+    Source : data.gouv.fr — base nationale consolidée
+    Mise à jour : quotidienne
     """
 
     DATASET_ID = "64fb1c23bc1e4a7e24c50033"
 
     def get_bornes(self, departement: str = None) -> pd.DataFrame:
-        """
-        Récupère les bornes IRVE, optionnellement filtrées par département.
-        """
+        """Récupère les bornes IRVE, optionnellement filtrées par département."""
         cache_key = f"irve_{departement or 'all'}"
         cached = _cache_get("irve", cache_key, ttl_hours=168)
         if cached is not None:
@@ -759,11 +759,151 @@ class IRVEClient:
             print(f"[IRVE] Erreur : {e}")
             return pd.DataFrame()
 
-        # Filtrage département
         if departement and "code_commune_INSEE" in df.columns:
             df = df[df["code_commune_INSEE"].astype(str).str.startswith(departement)].copy()
 
         _cache_set("irve", cache_key, df)
+        return df
+
+    def stats_departement(self, departement: str) -> dict:
+        """Stats rapides IRVE pour un département."""
+        df = self.get_bornes(departement)
+        if df.empty:
+            return {}
+        return {
+            "nb_stations": df["id_station_itinerance"].nunique() if "id_station_itinerance" in df.columns else len(df),
+            "nb_points_charge": len(df),
+            "puissance_max": df["puissance_nominale"].max() if "puissance_nominale" in df.columns else None,
+            "operateurs": df["nom_operateur"].nunique() if "nom_operateur" in df.columns else None,
+        }
+
+
+class GeorisquesClient:
+    """
+    API Géorisques — risques naturels et technologiques.
+    Source : georisques.gouv.fr/api/v1
+    Données : risques GASPAR, catnat, radon, ICPE, sols pollués
+    """
+
+    BASE = "https://georisques.gouv.fr/api/v1"
+
+    def _get(self, endpoint: str, params: dict) -> dict:
+        try:
+            r = requests.get(f"{self.BASE}/{endpoint}", params=params, timeout=15)
+            r.raise_for_status()
+            return r.json()
+        except Exception as e:
+            print(f"[Géorisques] Erreur {endpoint}: {e}")
+            return {}
+
+    def risques_commune(self, code_insee: str) -> pd.DataFrame:
+        """Liste les risques identifiés pour une commune."""
+        cache_key = f"risques_{code_insee}"
+        cached = _cache_get("georisques", cache_key, ttl_hours=720)
+        if cached is not None:
+            return cached
+
+        data = self._get("gaspar/risques", {"code_insee": code_insee, "page": 1, "page_size": 50})
+        rows = data.get("data", [])
+        if not rows:
+            return pd.DataFrame()
+
+        df = pd.DataFrame(rows)
+        _cache_set("georisques", cache_key, df)
+        return df
+
+    def catnat_commune(self, code_insee: str) -> pd.DataFrame:
+        """Historique des catastrophes naturelles pour une commune."""
+        cache_key = f"catnat_{code_insee}"
+        cached = _cache_get("georisques", cache_key, ttl_hours=720)
+        if cached is not None:
+            return cached
+
+        data = self._get("gaspar/catnat", {"code_insee": code_insee, "page": 1, "page_size": 100})
+        rows = data.get("data", [])
+        if not rows:
+            return pd.DataFrame()
+
+        df = pd.DataFrame(rows)
+        _cache_set("georisques", cache_key, df)
+        return df
+
+    def radon_commune(self, code_insee: str) -> dict:
+        """Potentiel radon pour une commune (classe 1, 2 ou 3)."""
+        data = self._get("radon", {"code_insee": code_insee})
+        if isinstance(data, list) and data:
+            return data[0]
+        return data if isinstance(data, dict) else {}
+
+    def icpe_commune(self, code_insee: str) -> pd.DataFrame:
+        """Installations classées (ICPE) dans une commune."""
+        cache_key = f"icpe_{code_insee}"
+        cached = _cache_get("georisques", cache_key, ttl_hours=720)
+        if cached is not None:
+            return cached
+
+        data = self._get("installations_classees", {"code_insee": code_insee, "page": 1, "page_size": 100})
+        rows = data.get("data", [])
+        if not rows:
+            return pd.DataFrame()
+
+        df = pd.DataFrame(rows)
+        _cache_set("georisques", cache_key, df)
+        return df
+
+    def score_risque_commune(self, code_insee: str) -> dict:
+        """Score de risque synthétique pour une commune (0-100)."""
+        risques = self.risques_commune(code_insee)
+        catnat = self.catnat_commune(code_insee)
+        radon = self.radon_commune(code_insee)
+
+        nb_risques = len(risques) if not risques.empty else 0
+        nb_catnat = len(catnat) if not catnat.empty else 0
+        classe_radon = radon.get("classe_potentiel", 1) if radon else 1
+
+        # Score : pondération risques identifiés + historique catnat + radon
+        score = min(100, nb_risques * 8 + nb_catnat * 3 + (classe_radon - 1) * 15)
+
+        return {
+            "score_risque": score,
+            "nb_risques": nb_risques,
+            "nb_catnat": nb_catnat,
+            "classe_radon": classe_radon,
+        }
+
+
+class CadastreClient:
+    """
+    API Carto — module Cadastre (IGN).
+    Source : apicarto.ign.fr/api/cadastre
+    """
+
+    BASE = "https://apicarto.ign.fr/api/cadastre"
+
+    def parcelles_commune(self, code_insee: str) -> pd.DataFrame:
+        """Récupère les parcelles cadastrales d'une commune."""
+        cache_key = f"parcelles_{code_insee}"
+        cached = _cache_get("cadastre", cache_key, ttl_hours=720)
+        if cached is not None:
+            return cached
+
+        try:
+            r = requests.get(f"{self.BASE}/parcelle",
+                             params={"code_insee": code_insee},
+                             timeout=30)
+            r.raise_for_status()
+            data = r.json()
+        except Exception as e:
+            print(f"[Cadastre] Erreur : {e}")
+            return pd.DataFrame()
+
+        features = data.get("features", [])
+        if not features:
+            return pd.DataFrame()
+
+        rows = [f.get("properties", {}) for f in features]
+        df = pd.DataFrame(rows)
+        _cache_set("cadastre", cache_key, df)
         return df
 
 
@@ -821,6 +961,22 @@ def liste_sources() -> dict:
             "token_requis": False,
             "client": "IRVEClient",
             "secteurs": ["auto", "énergie"],
+        },
+        "georisques": {
+            "nom": "Géorisques — Risques naturels et technologiques",
+            "source": "georisques.gouv.fr",
+            "description": "Risques GASPAR, catnat, radon, ICPE par commune",
+            "token_requis": False,
+            "client": "GeorisquesClient",
+            "secteurs": ["immobilier", "énergie"],
+        },
+        "cadastre": {
+            "nom": "Cadastre — Parcelles (API Carto IGN)",
+            "source": "apicarto.ign.fr",
+            "description": "Parcelles cadastrales avec géométrie par commune",
+            "token_requis": False,
+            "client": "CadastreClient",
+            "secteurs": ["immobilier"],
         },
         "data_gouv": {
             "nom": "data.gouv.fr — Datasets génériques",

@@ -47,6 +47,7 @@ class DataCatalog:
             from data.api_clients import (
                 DVFClient, DPEClient, SIRENEClient,
                 BANClient, GeoClient, IRVEClient, DataGouvClient,
+                GeorisquesClient, CadastreClient,
             )
             mapping = {
                 "dvf": DVFClient,
@@ -55,6 +56,8 @@ class DataCatalog:
                 "ban": BANClient,
                 "geo": GeoClient,
                 "irve": IRVEClient,
+                "georisques": GeorisquesClient,
+                "cadastre": CadastreClient,
                 "data_gouv": DataGouvClient,
             }
             cls = mapping.get(source)
@@ -89,6 +92,8 @@ class DataCatalog:
             "sirene": self._load_sirene,
             "geo_communes": self._load_communes,
             "irve": self._load_irve,
+            "georisques": self._load_georisques,
+            "cadastre": self._load_cadastre,
         }
 
         loader = loaders.get(source)
@@ -208,6 +213,40 @@ class DataCatalog:
         if client:
             return client.get_bornes(departement)
         return pd.DataFrame()
+
+    def _load_georisques(self, departement: str = None, code_insee: str = None, **kwargs) -> pd.DataFrame:
+        """Charge les risques via Géorisques API."""
+        client = self._get_client("georisques")
+        if not client:
+            return pd.DataFrame()
+
+        # Si code_insee fourni → risques pour une commune
+        if code_insee:
+            return client.risques_commune(code_insee)
+
+        # Si département → toutes les communes du département
+        if departement:
+            geo = self._get_client("geo")
+            if geo:
+                communes = geo.get_communes(departement)
+                if not communes.empty and "code" in communes.columns:
+                    all_scores = []
+                    for _, row in communes.head(kwargs.get("limit", 50)).iterrows():
+                        score = client.score_risque_commune(row["code"])
+                        score["code_insee"] = row["code"]
+                        score["commune"] = row.get("nom", "")
+                        all_scores.append(score)
+                    return pd.DataFrame(all_scores)
+
+        return pd.DataFrame()
+
+    def _load_cadastre(self, departement: str = None, code_insee: str = None, **kwargs) -> pd.DataFrame:
+        """Charge les parcelles cadastrales."""
+        client = self._get_client("cadastre")
+        if not client or not code_insee:
+            print("[Cadastre] code_insee requis")
+            return pd.DataFrame()
+        return client.parcelles_commune(code_insee)
 
     # ── INVENTAIRE ───────────────────────────────────────────────────────
 
