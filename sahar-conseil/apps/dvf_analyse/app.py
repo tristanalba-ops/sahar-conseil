@@ -232,6 +232,11 @@ with st.sidebar:
             format_func=lambda d: f"{d} — {DEPT_NOMS.get(d, d)}",
             help="101 départements couverts (DVF + DPE)",
         )
+        # Filtre ville — rempli dynamiquement après chargement DVF
+        ville_filter = st.text_input(
+            "Filtrer par ville", "", key="ville_filter",
+            help="Tapez le début du nom de ville pour filtrer (ex: Bordeaux)",
+        )
 
     # ── Période ──
     with st.expander("📅 Période", expanded=True):
@@ -305,7 +310,22 @@ mask = (
 )
 if nb_pieces_min > 0 and 'nombre_pieces_principales' in df_raw.columns:
     mask = mask & (df_raw['nombre_pieces_principales'] >= nb_pieces_min)
+# Filtre ville
+if ville_filter:
+    mask = mask & (df_raw['nom_commune'].str.contains(ville_filter, case=False, na=False))
 df = df_raw[mask].copy()
+
+# Selectbox commune (dynamique basée sur les données filtrées)
+_communes_dispo = sorted(df_raw[df_raw['date_mutation'] >= cutoff]['nom_commune'].dropna().unique())
+with st.sidebar:
+    with st.expander("📍 Localisation", expanded=False):
+        if _communes_dispo:
+            _commune_choisie = st.selectbox(
+                "Ou choisir une commune", ["Toutes"] + _communes_dispo,
+                key="commune_select",
+            )
+            if _commune_choisie != "Toutes":
+                df = df[df['nom_commune'] == _commune_choisie].copy()
 
 # Période de comparaison (N-1)
 if compare_label == "N-1 (même durée)":
@@ -429,11 +449,13 @@ st.markdown("")
 
 # ─── ONGLETS PRINCIPAUX ───────────────────────────────────────────────────────
 
-tab_data, tab_carte, tab_stats, tab_marche, tab_dpe, tab_crm, tab_pilotage, tab_export = st.tabs([
+tab_data, tab_carte, tab_quartiers, tab_stats, tab_marche, tab_valo, tab_dpe, tab_crm, tab_pilotage, tab_export = st.tabs([
     "📋 Transactions",
     "🗺️ Carte",
+    "🏘️ Quartiers",
     "📊 Statistiques",
     "🏙️ Marché par commune",
+    "💰 Valorisation",
     "🔥 DPE × DVF",
     "💼 CRM Pipeline",
     "🎯 Pilotage",
@@ -500,6 +522,118 @@ with tab_data:
             }
         )
         st.caption(f"{len(df_affich):,} transactions • Affichage des {nb_lignes} premières")
+
+        # ── CARD ANALYSE & RECOMMANDATION PAR BIEN ────────────────────
+        st.markdown("---")
+        st.markdown("**🔍 Analyse détaillée d'un bien**")
+        if len(df_affich) > 0:
+            bien_idx = st.selectbox(
+                "Sélectionner un bien à analyser",
+                range(min(nb_lignes, len(df_affich))),
+                format_func=lambda i: (
+                    f"{df_affich.iloc[i]['adresse']} — {df_affich.iloc[i]['nom_commune']} "
+                    f"({df_affich.iloc[i]['prix_m2']:.0f} €/m²)"
+                ) if i < len(df_affich) else "",
+                key="analyse_bien_select"
+            )
+            bien = df_affich.iloc[bien_idx]
+
+            # Calcul des indicateurs pour la recommandation
+            _prix_commune_med = df[df['nom_commune'] == bien['nom_commune']]['prix_m2'].median()
+            _ecart_prix = ((bien['prix_m2'] - _prix_commune_med) / _prix_commune_med * 100) if _prix_commune_med > 0 else 0
+            _nb_tx_commune = len(df[df['nom_commune'] == bien['nom_commune']])
+            _prix_dept_med = df['prix_m2'].median()
+            _ecart_dept = ((bien['prix_m2'] - _prix_dept_med) / _prix_dept_med * 100) if _prix_dept_med > 0 else 0
+
+            # Transactions récentes sur la même voie
+            _voie_tx = df[df['adresse'].str.contains(
+                bien.get('adresse_nom_voie', bien['adresse'].split()[-1]) if isinstance(bien.get('adresse_nom_voie', ''), str) else '',
+                case=False, na=False
+            )] if bien.get('adresse_nom_voie', '') else pd.DataFrame()
+            _rotation_voie = len(_voie_tx)
+
+            # Score et recommandation
+            reco_points = []
+            reco_score = bien['score']
+
+            if _ecart_prix < -15:
+                reco_points.append(("SOUS-ÉVALUÉ", f"{abs(_ecart_prix):.0f}% sous le prix médian commune", "#1D9E75"))
+            elif _ecart_prix > 15:
+                reco_points.append(("SURÉVALUÉ", f"{_ecart_prix:.0f}% au-dessus du prix médian commune", "#E24B4A"))
+            else:
+                reco_points.append(("PRIX MARCHÉ", f"Dans la fourchette commune (±{abs(_ecart_prix):.0f}%)", "#BA7517"))
+
+            if _nb_tx_commune >= 20:
+                reco_points.append(("MARCHÉ LIQUIDE", f"{_nb_tx_commune} transactions dans la commune", "#1D9E75"))
+            elif _nb_tx_commune >= 5:
+                reco_points.append(("MARCHÉ MODÉRÉ", f"{_nb_tx_commune} transactions", "#BA7517"))
+            else:
+                reco_points.append(("MARCHÉ PEU LIQUIDE", f"Seulement {_nb_tx_commune} transactions", "#E24B4A"))
+
+            if bien['score'] >= 70:
+                reco_points.append(("OPPORTUNITÉ FORTE", f"Score {bien['score']}/100", "#1D9E75"))
+            elif bien['score'] >= 40:
+                reco_points.append(("À SURVEILLER", f"Score {bien['score']}/100", "#BA7517"))
+
+            # Générer la recommandation
+            if bien['score'] >= 70 and _ecart_prix < -10:
+                reco_text = "Bien sous-évalué dans un marché dynamique. Potentiel d'achat-revente ou de mise en location intéressant."
+                reco_action = "ACHETER / INVESTIR"
+                reco_color = "#1D9E75"
+            elif bien['score'] >= 50 and _ecart_prix < 5:
+                reco_text = "Bien à prix correct dans un marché actif. Bon potentiel si rénovation ou optimisation possible."
+                reco_action = "ÉTUDIER"
+                reco_color = "#BA7517"
+            elif _ecart_prix > 20:
+                reco_text = "Bien au-dessus du marché. Marge de négociation probable ou repositionnement nécessaire."
+                reco_action = "NÉGOCIER"
+                reco_color = "#E24B4A"
+            else:
+                reco_text = "Bien dans la moyenne du marché. Analyser le potentiel de valorisation spécifique."
+                reco_action = "ANALYSER"
+                reco_color = "#555"
+
+            # Affichage Card
+            badges_html = " ".join(
+                f'<span style="background:{c};color:white;padding:2px 8px;border-radius:12px;font-size:.7rem;font-weight:600">{label}</span>'
+                for label, detail, c in reco_points
+            )
+            details_html = "<br>".join(
+                f'<span style="color:{c};font-weight:600">{label}</span> — {detail}'
+                for label, detail, c in reco_points
+            )
+
+            _sv_url = ""
+            if pd.notna(bien.get('latitude')) and pd.notna(bien.get('longitude')):
+                _sv_url = f"https://www.google.com/maps/@?api=1&map_action=pano&viewpoint={bien['latitude']},{bien['longitude']}"
+                _gm_url = f"https://www.google.com/maps/search/?api=1&query={bien['latitude']},{bien['longitude']}"
+
+            st.markdown(f"""
+            <div style="border:2px solid {reco_color};border-radius:12px;padding:16px 20px;background:#fafafa;margin:8px 0">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+                <div>
+                  <div style="font-size:1.1rem;font-weight:700">{bien['type_local']} — {bien['adresse']}</div>
+                  <div style="font-size:.85rem;color:#666">{bien['nom_commune']} {bien['code_postal']}</div>
+                </div>
+                <div style="background:{reco_color};color:white;padding:6px 16px;border-radius:20px;font-weight:700;font-size:.85rem">
+                  {reco_action}
+                </div>
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:12px 0">
+                <div style="text-align:center"><div style="font-size:1.3rem;font-weight:700">{bien['valeur_fonciere']:,.0f} €</div><div style="font-size:.7rem;color:#888">Prix vente</div></div>
+                <div style="text-align:center"><div style="font-size:1.3rem;font-weight:700">{bien['prix_m2']:,.0f} €/m²</div><div style="font-size:.7rem;color:#888">Prix au m²</div></div>
+                <div style="text-align:center"><div style="font-size:1.3rem;font-weight:700">{bien['surface_utile']:.0f} m²</div><div style="font-size:.7rem;color:#888">Surface</div></div>
+                <div style="text-align:center"><div style="font-size:1.3rem;font-weight:700;color:{reco_color}">{bien['score']}/100</div><div style="font-size:.7rem;color:#888">Score</div></div>
+              </div>
+              <div style="margin:10px 0">{badges_html}</div>
+              <div style="font-size:.82rem;margin:8px 0;line-height:1.6">{details_html}</div>
+              <div style="background:{'#e8f5e9' if reco_color=='#1D9E75' else '#fff3e0' if reco_color=='#BA7517' else '#fce4ec'};padding:10px 14px;border-radius:8px;margin:8px 0">
+                <div style="font-size:.85rem;font-weight:600;color:{reco_color}">💡 Recommandation</div>
+                <div style="font-size:.82rem;color:#333">{reco_text}</div>
+              </div>
+              {'<div style="margin-top:8px;font-size:.8rem"><a href="' + _sv_url + '" target="_blank" style="color:#1a73e8;text-decoration:none">📍 Voir en Street View</a> &nbsp;·&nbsp; <a href="' + _gm_url + '" target="_blank" style="color:#1a73e8;text-decoration:none">🗺️ Google Maps</a></div>' if _sv_url else ''}
+            </div>
+            """, unsafe_allow_html=True)
 
         # ── AJOUT CRM : unitaire ou batch ─────────────────────────────
         st.markdown("---")
@@ -615,69 +749,240 @@ with tab_data:
                 st.info("Aucune opportunité avec ce score minimum.")
 
 
-# ── TAB 2 : CARTE ─────────────────────────────────────────────────────────────
+# ── TAB 2 : CARTE (améliorée — heatmap, couches, Street View) ────────────────
 
 with tab_carte:
     df_carte = df.dropna(subset=['latitude','longitude']).copy()
 
     if df_carte.empty:
-        st.info("Les coordonnées GPS ne sont pas disponibles dans ce fichier DVF. Fonctionnalité disponible avec les fichiers geo-dvf complets.")
+        st.info("Coordonnées GPS non disponibles. Utilisez les fichiers geo-dvf complets.")
     else:
         try:
             import folium
+            from folium.plugins import HeatMap, MarkerCluster
             from streamlit_folium import st_folium
 
-            max_points = st.slider("Nombre de points sur la carte", 100, 5000, 1000, 100)
+            # ── Contrôles carte ──
+            col_c1, col_c2, col_c3 = st.columns(3)
+            with col_c1:
+                mode_carte = st.radio("Mode", ["Points", "Heatmap prix/m²", "Heatmap volume", "Clusters"], horizontal=True)
+            with col_c2:
+                max_points = st.slider("Nb points", 200, 5000, 1500, 100, key="map_pts")
+            with col_c3:
+                fond_carte = st.selectbox("Fond de carte", ["CartoDB positron", "OpenStreetMap", "CartoDB dark_matter"])
+
             df_map = df_carte.nlargest(max_points, 'score')
+            lat_c, lon_c = df_map['latitude'].median(), df_map['longitude'].median()
+            m = folium.Map(location=[lat_c, lon_c], zoom_start=12, tiles=fond_carte)
 
-            lat_c = df_map['latitude'].median()
-            lon_c = df_map['longitude'].median()
-            m = folium.Map(location=[lat_c, lon_c], zoom_start=11, tiles="CartoDB positron")
+            def couleur_prix(prix):
+                if prix >= 5000: return "#8B0000"
+                if prix >= 3500: return "#E24B4A"
+                if prix >= 2500: return "#BA7517"
+                if prix >= 1500: return "#1D9E75"
+                return "#0066CC"
 
-            def couleur(score):
+            def couleur_score(score):
                 if score >= 70: return "#1D9E75"
                 if score >= 40: return "#BA7517"
                 return "#E24B4A"
 
-            for _, row in df_map.iterrows():
-                terrain = f" | Terrain {row['surface_terrain']:.0f} m²" if row.get('surface_terrain', 0) > 0 else ""
-                pieces = f" | {int(row['nombre_pieces_principales'])} pièces" if row.get('nombre_pieces_principales', 0) > 0 else ""
-                popup = f"""
-                <div style='font-family:sans-serif;font-size:12px;min-width:200px'>
-                  <b>{row['type_local']} — {row['adresse']}</b><br>
-                  {row['nom_commune']} {row['code_postal']}<br>
-                  <b>Prix :</b> {row['valeur_fonciere']:,.0f} €<br>
-                  <b>Surface :</b> {row['surface_utile']:.0f} m²{terrain}{pieces}<br>
-                  <b>Prix/m² :</b> {row['prix_m2']:.0f} €<br>
-                  <b>Date :</b> {row['date_mutation'].strftime('%d/%m/%Y') if pd.notna(row['date_mutation']) else '—'}<br>
-                  <b>Parcelle :</b> {row.get('id_parcelle','—')}<br>
-                  <b style='color:{couleur(row["score"])}'>Score : {row["score"]}/100</b>
-                </div>"""
-                folium.CircleMarker(
-                    location=[row['latitude'], row['longitude']],
-                    radius=5,
-                    color=couleur(row['score']),
-                    fill=True,
-                    fill_color=couleur(row['score']),
-                    fill_opacity=0.75,
-                    popup=folium.Popup(popup, max_width=260),
-                    tooltip=f"{row['type_local']} — {row['prix_m2']:.0f} €/m² — Score {row['score']}"
-                ).add_to(m)
+            if mode_carte == "Heatmap prix/m²":
+                heat_data = [[r['latitude'], r['longitude'], r['prix_m2']] for _, r in df_map.iterrows()]
+                HeatMap(heat_data, radius=18, blur=15, gradient={0.2:'blue',0.4:'lime',0.6:'yellow',0.8:'orange',1:'red'}).add_to(m)
+                st.caption("Heatmap basée sur le prix au m² — rouge = plus cher, bleu = moins cher")
 
-            col_leg = st.columns(3)
-            with col_leg[0]: st.markdown("🟢 Score ≥ 70 (opportunité forte)")
-            with col_leg[1]: st.markdown("🟡 Score 40–70 (à surveiller)")
-            with col_leg[2]: st.markdown("🔴 Score < 40 (marché tendu)")
+            elif mode_carte == "Heatmap volume":
+                heat_data = [[r['latitude'], r['longitude']] for _, r in df_map.iterrows()]
+                HeatMap(heat_data, radius=15, blur=12).add_to(m)
+                st.caption("Heatmap basée sur la densité de transactions")
 
-            st_folium(m, height=520, use_container_width=True)
-            st.caption(f"{len(df_map):,} points affichés")
+            elif mode_carte == "Clusters":
+                mc = MarkerCluster()
+                for _, row in df_map.iterrows():
+                    sv_url = f"https://www.google.com/maps/@?api=1&map_action=pano&viewpoint={row['latitude']},{row['longitude']}"
+                    popup = f"""
+                    <div style='font-family:sans-serif;font-size:11px;min-width:220px'>
+                      <b>{row['type_local']} — {row['adresse']}</b><br>
+                      {row['nom_commune']} {row['code_postal']}<br>
+                      <b>Prix :</b> {row['valeur_fonciere']:,.0f} € &nbsp; <b>Surface :</b> {row['surface_utile']:.0f} m²<br>
+                      <b>Prix/m² :</b> {row['prix_m2']:.0f} € &nbsp;
+                      <b style='color:{couleur_score(row["score"])}'>Score {row["score"]}</b><br>
+                      <b>Date :</b> {row['date_mutation'].strftime('%d/%m/%Y') if pd.notna(row['date_mutation']) else '—'}<br>
+                      <a href="{sv_url}" target="_blank" style="color:#1a73e8">📍 Street View</a>
+                      &nbsp;·&nbsp;
+                      <a href="https://www.google.com/maps/search/?api=1&query={row['latitude']},{row['longitude']}" target="_blank" style="color:#1a73e8">🗺️ Google Maps</a>
+                    </div>"""
+                    folium.Marker(
+                        [row['latitude'], row['longitude']],
+                        popup=folium.Popup(popup, max_width=280),
+                        tooltip=f"{row['prix_m2']:.0f} €/m²",
+                        icon=folium.Icon(color='green' if row['score']>=70 else 'orange' if row['score']>=40 else 'red', icon='home', prefix='fa')
+                    ).add_to(mc)
+                mc.add_to(m)
+
+            else:  # Points (par défaut)
+                for _, row in df_map.iterrows():
+                    sv_url = f"https://www.google.com/maps/@?api=1&map_action=pano&viewpoint={row['latitude']},{row['longitude']}"
+                    terrain = f" | Terrain {row['surface_terrain']:.0f}m²" if row.get('surface_terrain', 0) > 0 else ""
+                    pieces = f" | {int(row['nombre_pieces_principales'])}p" if row.get('nombre_pieces_principales', 0) > 0 else ""
+                    popup = f"""
+                    <div style='font-family:sans-serif;font-size:11px;min-width:220px'>
+                      <b>{row['type_local']} — {row['adresse']}</b><br>
+                      {row['nom_commune']} {row['code_postal']}<br>
+                      <b>Prix :</b> {row['valeur_fonciere']:,.0f} € &nbsp; <b>Surface :</b> {row['surface_utile']:.0f}m²{terrain}{pieces}<br>
+                      <b>Prix/m² :</b> {row['prix_m2']:.0f} € &nbsp;
+                      <b style='color:{couleur_score(row["score"])}'>Score {row["score"]}</b><br>
+                      <b>Date :</b> {row['date_mutation'].strftime('%d/%m/%Y') if pd.notna(row['date_mutation']) else '—'}<br>
+                      <a href="{sv_url}" target="_blank" style="color:#1a73e8">📍 Street View</a>
+                      &nbsp;·&nbsp;
+                      <a href="https://www.google.com/maps/search/?api=1&query={row['latitude']},{row['longitude']}" target="_blank" style="color:#1a73e8">🗺️ Google Maps</a>
+                    </div>"""
+                    folium.CircleMarker(
+                        location=[row['latitude'], row['longitude']],
+                        radius=6,
+                        color=couleur_prix(row['prix_m2']),
+                        fill=True, fill_color=couleur_prix(row['prix_m2']),
+                        fill_opacity=0.8,
+                        popup=folium.Popup(popup, max_width=280),
+                        tooltip=f"{row['type_local']} — {row['prix_m2']:.0f} €/m² — Score {row['score']}"
+                    ).add_to(m)
+
+                # Légende prix
+                col_leg = st.columns(5)
+                with col_leg[0]: st.markdown('<span style="color:#0066CC">● < 1 500</span>', unsafe_allow_html=True)
+                with col_leg[1]: st.markdown('<span style="color:#1D9E75">● 1 500–2 500</span>', unsafe_allow_html=True)
+                with col_leg[2]: st.markdown('<span style="color:#BA7517">● 2 500–3 500</span>', unsafe_allow_html=True)
+                with col_leg[3]: st.markdown('<span style="color:#E24B4A">● 3 500–5 000</span>', unsafe_allow_html=True)
+                with col_leg[4]: st.markdown('<span style="color:#8B0000">● > 5 000 €/m²</span>', unsafe_allow_html=True)
+
+            st_folium(m, height=560, use_container_width=True)
+            st.caption(f"{len(df_map):,} points affichés — cliquez sur un point pour détails + Street View")
 
         except ImportError:
             st.warning("Installer folium et streamlit-folium pour activer la carte.")
             st.code("pip install folium streamlit-folium")
 
 
-# ── TAB 3 : STATISTIQUES ──────────────────────────────────────────────────────
+# ── TAB 3 : QUARTIERS (rotation IRIS, prix/m² par zone) ─────────────────────
+
+with tab_quartiers:
+    st.subheader("🏘️ Analyse par quartier — Rotation et prix")
+    st.caption("Segmentation par micro-zone (voie/quartier), rotation immobilière et valorisation par îlot")
+
+    df_q = df.dropna(subset=['latitude', 'longitude']).copy()
+
+    if df_q.empty:
+        st.info("Pas de données géolocalisées pour l'analyse quartier.")
+    else:
+        # Créer des micro-zones en arrondissant les coordonnées (≈ 100m)
+        precision = 3  # 3 décimales ≈ 100m de résolution
+        df_q['zone_lat'] = df_q['latitude'].round(precision)
+        df_q['zone_lon'] = df_q['longitude'].round(precision)
+        df_q['zone_id'] = df_q['zone_lat'].astype(str) + "," + df_q['zone_lon'].astype(str)
+
+        # Agréger par zone
+        zone_stats = df_q.groupby('zone_id').agg(
+            nb_transactions=('valeur_fonciere', 'count'),
+            prix_m2_median=('prix_m2', 'median'),
+            prix_m2_moy=('prix_m2', 'mean'),
+            prix_m2_min=('prix_m2', 'min'),
+            prix_m2_max=('prix_m2', 'max'),
+            volume_total=('valeur_fonciere', 'sum'),
+            surface_moy=('surface_utile', 'mean'),
+            score_moy=('score', 'mean'),
+            lat=('latitude', 'median'),
+            lon=('longitude', 'median'),
+            commune=('nom_commune', 'first'),
+        ).reset_index()
+
+        # Calculer la rotation (nb transactions / an normalisé)
+        nb_mois_periode = max(mois_periode, 1)
+        zone_stats['rotation_an'] = (zone_stats['nb_transactions'] / nb_mois_periode * 12).round(1)
+        zone_stats['ecart_prix'] = ((zone_stats['prix_m2_max'] - zone_stats['prix_m2_min']) / zone_stats['prix_m2_median'].replace(0, np.nan) * 100).round(1).fillna(0)
+
+        # Filtrer zones avec assez de données
+        min_tx = st.slider("Minimum transactions par zone", 2, 20, 3, 1, key="zone_min_tx")
+        zone_filtre = zone_stats[zone_stats['nb_transactions'] >= min_tx].sort_values('rotation_an', ascending=False).copy()
+
+        if zone_filtre.empty:
+            st.info("Pas assez de données pour cette granularité. Baissez le minimum de transactions.")
+        else:
+            # KPIs
+            zk1, zk2, zk3, zk4 = st.columns(4)
+            zk1.metric("Zones actives", len(zone_filtre))
+            zk2.metric("Rotation moy./an", f"{zone_filtre['rotation_an'].mean():.1f}")
+            zk3.metric("Prix médian zone", f"{zone_filtre['prix_m2_median'].median():,.0f} €/m²")
+            zk4.metric("Écart prix moyen", f"{zone_filtre['ecart_prix'].mean():.0f}%")
+
+            st.markdown("---")
+
+            col_map_q, col_table_q = st.columns([1, 1])
+
+            with col_map_q:
+                st.markdown("##### Carte des zones — couleur = prix/m²")
+                try:
+                    import folium
+                    from streamlit_folium import st_folium
+
+                    m_q = folium.Map(location=[zone_filtre['lat'].median(), zone_filtre['lon'].median()],
+                                     zoom_start=12, tiles="CartoDB positron")
+                    for _, z in zone_filtre.iterrows():
+                        radius = max(4, min(15, z['nb_transactions'] * 1.5))
+                        folium.CircleMarker(
+                            [z['lat'], z['lon']], radius=radius,
+                            color=couleur_prix(z['prix_m2_median']),
+                            fill=True, fill_color=couleur_prix(z['prix_m2_median']),
+                            fill_opacity=0.7,
+                            tooltip=f"{z['commune']} — {z['prix_m2_median']:,.0f} €/m² — {z['nb_transactions']} tx — Rotation {z['rotation_an']}/an",
+                            popup=folium.Popup(
+                                f"<div style='font-size:11px'>"
+                                f"<b>{z['commune']}</b><br>"
+                                f"Prix médian: {z['prix_m2_median']:,.0f} €/m²<br>"
+                                f"Transactions: {z['nb_transactions']}<br>"
+                                f"Rotation: {z['rotation_an']}/an<br>"
+                                f"Volume: {z['volume_total']:,.0f} €<br>"
+                                f"<a href='https://www.google.com/maps/@?api=1&map_action=pano&viewpoint={z['lat']},{z['lon']}' target='_blank'>📍 Street View</a>"
+                                f"</div>", max_width=250
+                            ),
+                        ).add_to(m_q)
+                    st_folium(m_q, height=450, use_container_width=True)
+                except ImportError:
+                    st.warning("folium requis pour la carte quartiers")
+
+            with col_table_q:
+                st.markdown("##### Top zones par rotation")
+                display_z = zone_filtre.head(30)[['commune', 'nb_transactions', 'rotation_an',
+                                                    'prix_m2_median', 'prix_m2_min', 'prix_m2_max',
+                                                    'ecart_prix', 'volume_total', 'score_moy']].copy()
+                display_z.columns = ['Commune', 'Transactions', 'Rotation/an', 'Prix médian €/m²',
+                                     'Prix min', 'Prix max', 'Écart %', 'Volume €', 'Score moy']
+                st.dataframe(display_z, use_container_width=True, height=450,
+                             column_config={
+                                 "Score moy": st.column_config.ProgressColumn(min_value=0, max_value=100, format="%.0f"),
+                             })
+
+            # ── Graphique rotation vs prix ──
+            st.markdown("---")
+            st.markdown("##### Rotation vs Prix par zone")
+            try:
+                import plotly.express as px
+                fig_rp = px.scatter(
+                    zone_filtre, x='prix_m2_median', y='rotation_an',
+                    size='nb_transactions', color='score_moy',
+                    color_continuous_scale='RdYlGn', hover_name='commune',
+                    hover_data={'volume_total': ':,.0f', 'ecart_prix': ':.1f'},
+                    labels={'prix_m2_median': 'Prix médian €/m²', 'rotation_an': 'Rotation annuelle',
+                            'nb_transactions': 'Volume', 'score_moy': 'Score'},
+                    title="Zones à forte rotation + prix attractif = opportunités"
+                )
+                fig_rp.update_layout(height=400)
+                st.plotly_chart(fig_rp, use_container_width=True)
+            except ImportError:
+                pass
+
+
+# ── TAB 4 : STATISTIQUES ──────────────────────────────────────────────────────
 
 with tab_stats:
     try:
@@ -916,7 +1221,153 @@ with tab_marche:
                             st.error(f"Erreur génération PDF : {e}")
 
 
-# ── TAB 5 : DPE × DVF — Croisement passoires thermiques / transactions ───────
+# ── TAB 6 : VALORISATION — Estimation prix par adresse (comparables DVF) ─────
+
+with tab_valo:
+    st.subheader("💰 Valorisation marché par adresse")
+    st.caption("Estimation fiable basée sur les transactions DVF comparables — méthode des comparables ajustée")
+
+    df_valo = df.dropna(subset=['latitude', 'longitude']).copy()
+
+    if df_valo.empty:
+        st.info("Pas de données géolocalisées pour la valorisation.")
+    else:
+        col_v1, col_v2 = st.columns([1, 1])
+
+        with col_v1:
+            st.markdown("##### Rechercher une adresse")
+            adresse_recherche = st.text_input("Adresse ou nom de voie", "", key="valo_addr",
+                                               help="Ex: Avenue des Champs Elysées, Rue de Rivoli...")
+            type_recherche = st.radio("Type de bien", ["Appartement", "Maison", "Tous"], horizontal=True, key="valo_type")
+            rayon_m = st.slider("Rayon de recherche (m)", 100, 2000, 500, 50, key="valo_rayon")
+
+        with col_v2:
+            st.markdown("##### Paramètres")
+            surface_cible = st.number_input("Surface estimée (m²)", 10, 500, 70, 5, key="valo_surface")
+            nb_comparables = st.slider("Nb comparables min", 3, 30, 5, 1, key="valo_nb_comp")
+            ponderer_date = st.checkbox("Pondérer par ancienneté", value=True, key="valo_pond_date")
+
+        if adresse_recherche:
+            # Rechercher les transactions correspondantes
+            mask_addr = df_valo['adresse'].str.contains(adresse_recherche, case=False, na=False)
+            if type_recherche != "Tous":
+                mask_addr = mask_addr & (df_valo['type_local'] == type_recherche)
+            df_match = df_valo[mask_addr].copy()
+
+            if df_match.empty:
+                st.warning(f"Aucune transaction trouvée pour '{adresse_recherche}'")
+
+                # Tenter une recherche par proximité GPS si on a une adresse avec des résultats proches
+                df_voie = df_valo[df_valo['adresse'].str.contains(adresse_recherche.split()[0], case=False, na=False)]
+                if not df_voie.empty:
+                    st.info(f"Transactions proches trouvées : {len(df_voie)} sur la même voie/zone")
+                    df_match = df_voie.head(50)
+            if not df_match.empty:
+                # Point de référence = centroïde des transactions trouvées
+                ref_lat = df_match['latitude'].median()
+                ref_lon = df_match['longitude'].median()
+
+                # Trouver les comparables dans le rayon
+                from math import radians, cos, sin, asin, sqrt
+                def haversine(lat1, lon1, lat2, lon2):
+                    lat1, lon1, lat2, lon2 = map(radians, [lat1, lon1, lat2, lon2])
+                    dlat, dlon = lat2-lat1, lon2-lon1
+                    a = sin(dlat/2)**2 + cos(lat1)*cos(lat2)*sin(dlon/2)**2
+                    return 2 * asin(sqrt(a)) * 6371000
+
+                df_valo['distance_m'] = df_valo.apply(
+                    lambda r: haversine(ref_lat, ref_lon, r['latitude'], r['longitude']), axis=1
+                )
+                df_comp_valo = df_valo[df_valo['distance_m'] <= rayon_m].copy()
+                if type_recherche != "Tous":
+                    df_comp_valo = df_comp_valo[df_comp_valo['type_local'] == type_recherche]
+
+                df_comp_valo = df_comp_valo.sort_values('distance_m')
+
+                if len(df_comp_valo) < nb_comparables:
+                    st.warning(f"Seulement {len(df_comp_valo)} comparables dans {rayon_m}m (min: {nb_comparables})")
+
+                if not df_comp_valo.empty:
+                    # Calcul pondéré
+                    if ponderer_date:
+                        jours = (pd.Timestamp.now() - df_comp_valo['date_mutation']).dt.days.clip(1)
+                        df_comp_valo['poids'] = (1 / jours) * (1 / df_comp_valo['distance_m'].clip(10))
+                    else:
+                        df_comp_valo['poids'] = 1 / df_comp_valo['distance_m'].clip(10)
+
+                    poids_total = df_comp_valo['poids'].sum()
+                    prix_estime_m2 = (df_comp_valo['prix_m2'] * df_comp_valo['poids']).sum() / poids_total if poids_total > 0 else df_comp_valo['prix_m2'].median()
+                    prix_estime_total = prix_estime_m2 * surface_cible
+
+                    # Intervalles de confiance
+                    q10 = df_comp_valo['prix_m2'].quantile(0.1)
+                    q90 = df_comp_valo['prix_m2'].quantile(0.9)
+
+                    st.markdown("---")
+                    st.markdown("##### Estimation de valeur")
+
+                    vc1, vc2, vc3, vc4 = st.columns(4)
+                    vc1.metric("Prix estimé/m²", f"{prix_estime_m2:,.0f} €")
+                    vc2.metric("Valeur totale", f"{prix_estime_total:,.0f} €")
+                    vc3.metric("Fourchette basse", f"{q10 * surface_cible:,.0f} €")
+                    vc4.metric("Fourchette haute", f"{q90 * surface_cible:,.0f} €")
+
+                    vc5, vc6, vc7, vc8 = st.columns(4)
+                    vc5.metric("Comparables", len(df_comp_valo))
+                    vc6.metric("Rayon effectif", f"{df_comp_valo['distance_m'].max():.0f} m")
+                    vc7.metric("Prix min/m²", f"{df_comp_valo['prix_m2'].min():,.0f} €")
+                    vc8.metric("Prix max/m²", f"{df_comp_valo['prix_m2'].max():,.0f} €")
+
+                    # Carte des comparables
+                    st.markdown("##### Carte des comparables")
+                    try:
+                        import folium
+                        from streamlit_folium import st_folium
+
+                        m_v = folium.Map(location=[ref_lat, ref_lon], zoom_start=15, tiles="CartoDB positron")
+
+                        # Point de référence
+                        folium.Marker([ref_lat, ref_lon],
+                                      icon=folium.Icon(color='red', icon='star', prefix='fa'),
+                                      tooltip="Adresse recherchée").add_to(m_v)
+
+                        # Cercle rayon
+                        folium.Circle([ref_lat, ref_lon], radius=rayon_m,
+                                      color='blue', fill=False, opacity=0.3).add_to(m_v)
+
+                        for _, r in df_comp_valo.head(50).iterrows():
+                            sv_url = f"https://www.google.com/maps/@?api=1&map_action=pano&viewpoint={r['latitude']},{r['longitude']}"
+                            folium.CircleMarker(
+                                [r['latitude'], r['longitude']], radius=5,
+                                color=couleur_prix(r['prix_m2']),
+                                fill=True, fill_color=couleur_prix(r['prix_m2']), fill_opacity=0.8,
+                                tooltip=f"{r['prix_m2']:,.0f} €/m² — {r['distance_m']:.0f}m",
+                                popup=folium.Popup(
+                                    f"<div style='font-size:11px'>"
+                                    f"<b>{r['adresse']}</b><br>"
+                                    f"Prix: {r['valeur_fonciere']:,.0f} € — {r['surface_utile']:.0f}m²<br>"
+                                    f"Prix/m²: {r['prix_m2']:,.0f} €<br>"
+                                    f"Date: {r['date_mutation'].strftime('%d/%m/%Y') if pd.notna(r['date_mutation']) else '—'}<br>"
+                                    f"Distance: {r['distance_m']:.0f}m<br>"
+                                    f"<a href='{sv_url}' target='_blank'>📍 Street View</a>"
+                                    f"</div>", max_width=250
+                                ),
+                            ).add_to(m_v)
+                        st_folium(m_v, height=400, use_container_width=True)
+                    except ImportError:
+                        pass
+
+                    # Tableau comparables
+                    st.markdown("##### Détail des comparables")
+                    show_comp = df_comp_valo.head(20)[['adresse', 'nom_commune', 'type_local',
+                                                        'valeur_fonciere', 'surface_utile', 'prix_m2',
+                                                        'date_mutation', 'distance_m']].copy()
+                    show_comp.columns = ['Adresse', 'Commune', 'Type', 'Prix €', 'Surface m²',
+                                         'Prix/m²', 'Date', 'Distance m']
+                    st.dataframe(show_comp, use_container_width=True, height=350)
+
+
+# ── TAB 7 : DPE × DVF — Croisement passoires thermiques / transactions ───────
 
 with tab_dpe:
     st.subheader("🔥 Croisement DPE × DVF — Opportunités rénovation")
@@ -933,7 +1384,7 @@ with tab_dpe:
 
     if not has_dpe:
         st.warning(f"Pas de données DPE disponibles pour le département {dept}. "
-                   f"Départements couverts : 06, 13, 31, 33, 59, 69, 75.")
+                   f"Vérifiez que les données DPE ont été collectées pour ce département.")
     else:
         # ── KPIs DPE header ──
         stats_dpe = get_dpe_stats(dept)
