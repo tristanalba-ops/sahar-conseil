@@ -13,6 +13,8 @@ import numpy as np
 import json
 from datetime import datetime, date
 
+from shared import crm_db
+
 # ─── CONFIG ──────────────────────────────────────────────────────────────────
 
 st.set_page_config(
