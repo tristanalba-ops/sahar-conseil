@@ -22,16 +22,17 @@ PROCESSED = HERE / "processed"
 PROCESSED.mkdir(parents=True, exist_ok=True)
 
 ADEME_URLS = [
-    "https://data.ademe.fr/data-fair/api/v1/datasets/dpe03existant/lines",
-    "https://data.ademe.fr/data-fair/api/v1/datasets/dpe-v2-logements-existants/lines",
+    "https://data.ademe.fr/data-fair/api/v1/datasets/meg-83tjwtg8dyz4vv7h1dqe/lines",
+    "https://data.ademe.fr/data-fair/api/v1/datasets/dpe-france/lines",
 ]
 
 SELECT = (
     "numero_dpe,date_etablissement_dpe,etiquette_dpe,etiquette_ges,"
-    "conso_5_usages_e_finale,emission_ges_5_usages,"
-    "adresse_ban,code_postal_ban,nom_commune_ban,"
-    "latitude,longitude,type_batiment,annee_construction,"
-    "surface_habitable_logement,type_energie_principale_chauffage"
+    "conso_5_usages_ef,conso_5_usages_par_m2_ef,emission_ges_5_usages,"
+    "adresse_ban,code_postal_ban,nom_commune_ban,code_insee_ban,code_departement_ban,"
+    "coordonnee_cartographique_x_ban,coordonnee_cartographique_y_ban,"
+    "type_batiment,periode_construction,"
+    "surface_habitable_immeuble,type_energie_principale_chauffage"
 )
 
 DEPTS = [str(i).zfill(2) for i in range(1, 96) if i != 20] + ["2A", "2B"]
@@ -49,8 +50,8 @@ def download_dept(dept: str, max_results: int = 50000) -> pd.DataFrame:
         try:
             while True:
                 params = {
-                    "q": dept,
-                    "q_fields": "code_departement_insee",
+                    "code_departement_ban_eq": dept,
+                    "etiquette_dpe_in": "E,F,G",
                     "size": 1000,
                     "select": SELECT,
                 }
@@ -102,17 +103,22 @@ def clean_and_save(dept: str, df: pd.DataFrame) -> Path:
     df["date_etablissement_dpe"] = pd.to_datetime(
         df.get("date_etablissement_dpe", pd.Series(dtype=str)), errors="coerce"
     )
-    for col in ["conso_5_usages_e_finale", "emission_ges_5_usages",
-                "surface_habitable_logement", "latitude", "longitude"]:
+    # Renommage colonnes pour compat interne SAHAR
+    renames = {
+        "coordonnee_cartographique_x_ban": "longitude",
+        "coordonnee_cartographique_y_ban": "latitude",
+        "conso_5_usages_ef": "conso_5_usages_e_finale",
+        "surface_habitable_immeuble": "surface_habitable_logement",
+    }
+    df = df.rename(columns={k: v for k, v in renames.items() if k in df.columns})
+
+    for col in ["conso_5_usages_e_finale", "conso_5_usages_par_m2_ef",
+                "emission_ges_5_usages", "surface_habitable_logement",
+                "latitude", "longitude"]:
         if col in df.columns:
             df[col] = pd.to_numeric(df[col], errors="coerce")
 
-    if "annee_construction" in df.columns:
-        df["annee_construction"] = pd.to_numeric(
-            df["annee_construction"], errors="coerce"
-        ).astype("Int64")
-
-    # Garder seulement F et G + E pour anticipation
+    # Données déjà filtrées E/F/G par l'API
     if "etiquette_dpe" in df.columns:
         df_fg = df[df["etiquette_dpe"].isin(["F", "G", "E"])].copy()
         print(f"[{dept}] Filtre F/G/E : {len(df_fg):,} logements sur {len(df):,}")
@@ -130,9 +136,9 @@ def clean_and_save(dept: str, df: pd.DataFrame) -> Path:
         if conso > 450: s += 30
         elif conso > 330: s += 20
         elif conso > 250: s += 10
-        annee = row.get("annee_construction", 0) or 0
-        if annee and annee < 1975: s += 20
-        elif annee and annee < 1990: s += 10
+        periode = str(row.get("periode_construction", "") or "").lower()
+        if "avant" in periode or "1948" in periode or "1974" in periode: s += 20
+        elif "1975" in periode or "1988" in periode or "1990" in periode: s += 10
         return min(100, s)
 
     df_fg["score_urgence"] = df_fg.apply(score, axis=1)
