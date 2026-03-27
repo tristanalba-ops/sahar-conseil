@@ -246,6 +246,7 @@ if df.empty:
 st.title("🏠 DVF Analyse Pro")
 st.caption(f"Département {dept} — {len(df):,} transactions filtrées")
 
+# ── ROW 1 : KPIs principaux ─────────────────────────────────────────────
 c1, c2, c3, c4, c5 = st.columns(5)
 with c1: st.metric("Transactions", f"{len(df):,}")
 with c2: st.metric("Prix médian €/m²", f"{df['prix_m2'].median():,.0f} €")
@@ -254,6 +255,69 @@ with c4: st.metric("Prix médian total", f"{df['valeur_fonciere'].median()/1000:
 with c5:
     nb_opps = (df['score'] >= 70).sum()
     st.metric("Opportunités score ≥70", nb_opps)
+
+# ── ROW 2 : KPIs avancés ────────────────────────────────────────────────
+_cutoff_12m = pd.Timestamp.now() - pd.DateOffset(months=12)
+_cutoff_24m = pd.Timestamp.now() - pd.DateOffset(months=24)
+_df_12m = df[df['date_mutation'] >= _cutoff_12m]
+_df_prev = df[(df['date_mutation'] >= _cutoff_24m) & (df['date_mutation'] < _cutoff_12m)]
+
+# Variation prix 12 mois
+_med_now = _df_12m['prix_m2'].median() if len(_df_12m) > 0 else 0
+_med_prev = _df_prev['prix_m2'].median() if len(_df_prev) > 0 else 0
+_var_12m = round((_med_now - _med_prev) / _med_prev * 100, 1) if _med_prev > 0 else None
+
+# Volume mensuel moyen
+_nb_mois = max(df['date_mutation'].dt.to_period('M').nunique(), 1)
+_vol_mensuel = round(len(df) / _nb_mois)
+
+# Nb communes actives
+_nb_communes = df['nom_commune'].nunique()
+
+# Taux d'opportunités
+_taux_opps = round(nb_opps / len(df) * 100, 1) if len(df) > 0 else 0
+
+# Indice de liquidité (transactions par commune)
+_liquidite = round(len(df) / max(_nb_communes, 1), 1)
+
+# Prix Q1 / Q3 (quartiles)
+_q1 = df['prix_m2'].quantile(0.25)
+_q3 = df['prix_m2'].quantile(0.75)
+
+k1, k2, k3, k4, k5, k6 = st.columns(6)
+with k1:
+    _delta_str = f"{_var_12m:+.1f}%" if _var_12m is not None else None
+    st.metric("Variation 12 mois", f"{_med_now:,.0f} €/m²", delta=_delta_str)
+with k2:
+    st.metric("Volume mensuel moy.", f"{_vol_mensuel:,}/mois")
+with k3:
+    st.metric("Communes actives", _nb_communes)
+with k4:
+    st.metric("Taux opportunités", f"{_taux_opps}%",
+              help="% de biens avec score ≥ 70")
+with k5:
+    st.metric("Liquidité", f"{_liquidite} tx/commune",
+              help="Transactions moyennes par commune")
+with k6:
+    st.metric("Fourchette €/m²", f"{_q1:,.0f} – {_q3:,.0f}",
+              help="Q1 – Q3 (interquartile)")
+
+# ── ROW 3 : Résumé CRM rapide ───────────────────────────────────────────
+_crm_opps = len(st.session_state.crm_opportunites)
+_crm_contacts = len(st.session_state.crm_contacts)
+_crm_closing = len([o for o in st.session_state.crm_opportunites if o.get("stage") == "Closing"])
+_crm_val = sum(o.get("prix", 0) for o in st.session_state.crm_opportunites)
+
+if _crm_opps > 0:
+    st.markdown(
+        f'<div style="display:flex;gap:1.5rem;padding:.6rem 1rem;background:#f8f9fa;'
+        f'border-radius:8px;font-size:.82rem;color:#555;margin:.5rem 0">'
+        f'<span>💼 CRM : <b>{_crm_contacts}</b> contacts</span>'
+        f'<span>🎯 <b>{_crm_opps}</b> opportunités</span>'
+        f'<span>✅ <b>{_crm_closing}</b> en closing</span>'
+        f'<span>💶 Pipeline : <b>{_crm_val/1000:.0f}k€</b></span>'
+        f'</div>', unsafe_allow_html=True
+    )
 
 st.markdown("---")
 
@@ -331,8 +395,14 @@ with tab_data:
         )
         st.caption(f"{len(df_affich):,} transactions • Affichage des {nb_lignes} premières")
 
-        # Ajouter au CRM depuis le tableau
-        with st.expander("➕ Ajouter une opportunité au CRM"):
+        # ── AJOUT CRM : unitaire ou batch ─────────────────────────────
+        st.markdown("---")
+        st.markdown("**➕ Ajouter au CRM**")
+
+        _crm_mode = st.radio("Mode", ["Ajout unitaire", "Ajout batch (top opportunités)"],
+                              horizontal=True, label_visibility="collapsed")
+
+        if _crm_mode == "Ajout unitaire":
             idx_sel = st.selectbox("Sélectionner une ligne",
                                    range(min(nb_lignes, len(df_affich))),
                                    format_func=lambda i: f"{df_affich.iloc[i]['adresse']} — {df_affich.iloc[i]['nom_commune']} ({df_affich.iloc[i]['prix_m2']:.0f} €/m²)" if i < len(df_affich) else "")
@@ -370,6 +440,73 @@ with tab_data:
                         )
                         st.success("Opportunité ajoutée au CRM !")
                         st.rerun()
+
+        else:  # BATCH MODE
+            _batch_score_min = st.slider("Score minimum pour batch", 40, 100, 70, 5, key="batch_score")
+            _batch_max = st.slider("Nombre max à ajouter", 5, 50, 10, 5, key="batch_max")
+            _batch_df = df_affich[df_affich['score'] >= _batch_score_min].nlargest(_batch_max, 'score')
+
+            st.caption(f"{len(_batch_df)} opportunités score ≥ {_batch_score_min} prêtes à être ajoutées")
+
+            if not _batch_df.empty:
+                # Aperçu
+                _batch_preview = _batch_df[['score','nom_commune','adresse','type_local','surface_utile','prix_m2','valeur_fonciere']].copy()
+                _batch_preview = _batch_preview.rename(columns={
+                    'score':'Score','nom_commune':'Commune','adresse':'Adresse',
+                    'type_local':'Type','surface_utile':'m²','prix_m2':'€/m²','valeur_fonciere':'Prix'
+                })
+                st.dataframe(_batch_preview, use_container_width=True, hide_index=True,
+                             column_config={
+                                 "Score": st.column_config.ProgressColumn("Score",min_value=0,max_value=100,format="%d"),
+                                 "Prix": st.column_config.NumberColumn(format="%d €"),
+                                 "€/m²": st.column_config.NumberColumn(format="%d €"),
+                             })
+
+                # Contact batch
+                _batch_contact = st.selectbox("Contact pour toutes les opportunités",
+                    ["Auto (créer par commune)"] + [f"{c['id']} — {c['nom']}" for c in st.session_state.crm_contacts],
+                    key="batch_contact")
+
+                if st.button(f"🚀 Ajouter {len(_batch_df)} opportunités au CRM", type="primary", use_container_width=True):
+                    _added = 0
+                    for _, _row in _batch_df.iterrows():
+                        # Vérifier doublon
+                        _already = any(
+                            o.get("adresse","").startswith(str(_row['adresse'])[:20])
+                            for o in st.session_state.crm_opportunites
+                        )
+                        if _already:
+                            continue
+
+                        if _batch_contact == "Auto (créer par commune)":
+                            _commune_name = str(_row['nom_commune'])
+                            _existing = next((c for c in st.session_state.crm_contacts
+                                              if _commune_name.lower() in c['nom'].lower()), None)
+                            if _existing:
+                                _cid = _existing['id']
+                            else:
+                                add_contact(f"Prospect {_commune_name}", type_contact="Vendeur")
+                                _cid = st.session_state.crm_contacts[-1]['id']
+                        else:
+                            _cid = _batch_contact.split(" — ")[0]
+
+                        add_opportunite(
+                            _cid,
+                            titre=f"{_row['type_local']} {_row['adresse']}, {_row['nom_commune']}",
+                            adresse=f"{_row['adresse']}, {_row['nom_commune']} {_row.get('code_postal','')}",
+                            type_bien=str(_row['type_local']),
+                            surface=float(_row['surface_utile']),
+                            prix=float(_row['valeur_fonciere']),
+                            prix_m2=float(_row['prix_m2']),
+                            score=int(_row['score'])
+                        )
+                        _added += 1
+
+                    st.success(f"✅ {_added} opportunités ajoutées au CRM !")
+                    if _added > 0:
+                        st.rerun()
+            else:
+                st.info("Aucune opportunité avec ce score minimum.")
 
 
 # ── TAB 2 : CARTE ─────────────────────────────────────────────────────────────
@@ -983,9 +1120,93 @@ with tab_crm:
         else:
             st.info("Aucune activité.")
 
-    # LEADS & SÉQUENCES
+    # LEADS & SÉQUENCES + CAMPAGNES
     with crm_tabs[3]:
-        st.subheader("Leads entrants & séquences")
+        st.subheader("Leads, séquences & campagnes")
+
+        # ── SECTION CAMPAGNE BATCH EMAIL ─────────────────────────────────
+        with st.expander("📨 Campagne email batch — Prospection automatique", expanded=False):
+            st.caption("Envoyez un email commercial à tous les contacts de votre CRM ayant un email.")
+
+            _contacts_with_email = [c for c in st.session_state.crm_contacts if c.get("email")]
+            st.markdown(f"**{len(_contacts_with_email)} contacts** avec email dans le CRM")
+
+            if _contacts_with_email:
+                _camp_type = st.selectbox("Type de campagne", [
+                    "Analyse marché DVF (personnalisée)",
+                    "Email libre (même message pour tous)",
+                ], key="camp_type")
+
+                if _camp_type == "Analyse marché DVF (personnalisée)":
+                    st.caption(
+                        "Chaque contact recevra un email avec les données DVF de son opportunité "
+                        "(prix, surface, médiane secteur, score). Seuls les contacts liés à au moins une opportunité seront ciblés."
+                    )
+                    _camp_eligible = []
+                    for c in _contacts_with_email:
+                        _c_opps = [o for o in st.session_state.crm_opportunites if o.get("contact_id") == c["id"]]
+                        if _c_opps:
+                            _camp_eligible.append((c, _c_opps[0]))  # première opp
+                    st.markdown(f"**{len(_camp_eligible)} contacts éligibles** (avec opportunité + email)")
+
+                    if _camp_eligible and st.button(f"🚀 Lancer la campagne DVF ({len(_camp_eligible)} emails)", type="primary", key="camp_dvf_go"):
+                        _sent = 0
+                        _errors = 0
+                        _progress = st.progress(0)
+                        for idx, (contact, opp) in enumerate(_camp_eligible):
+                            try:
+                                from shared.automation import email_prospect_dvf
+                                _commune = opp.get("adresse", "").split(",")[-1].strip() if "," in opp.get("adresse","") else ""
+                                _mediane = df[df["nom_commune"] == _commune]["prix_m2"].median() if _commune and not df.empty else opp.get("prix_m2", 0)
+                                _mediane = float(_mediane) if pd.notna(_mediane) else float(opp.get("prix_m2", 0))
+                                ok = email_prospect_dvf(
+                                    contact["email"], contact["nom"],
+                                    opp.get("adresse",""), _commune,
+                                    opp.get("prix",0), opp.get("surface",0),
+                                    opp.get("prix_m2",0), _mediane, opp.get("score",0)
+                                )
+                                if ok:
+                                    crm_db.add_activite(opp["id"], "Email", "Campagne DVF batch", statut="Fait")
+                                    _sent += 1
+                                else:
+                                    _errors += 1
+                            except Exception as e:
+                                _errors += 1
+                            _progress.progress((idx + 1) / len(_camp_eligible))
+                        st.success(f"✅ Campagne terminée : {_sent} envoyés, {_errors} erreurs")
+
+                else:  # Email libre batch
+                    _camp_sujet = st.text_input("Objet de l'email", key="camp_sujet")
+                    _camp_msg = st.text_area("Message (le prénom sera inséré automatiquement)", height=120, key="camp_msg")
+
+                    if _camp_sujet and _camp_msg and st.button(f"🚀 Envoyer à {len(_contacts_with_email)} contacts", type="primary", key="camp_libre_go"):
+                        _sent = 0
+                        _errors = 0
+                        _progress = st.progress(0)
+                        for idx, c in enumerate(_contacts_with_email):
+                            try:
+                                from shared.automation import email_prospect_generique
+                                ok = email_prospect_generique(
+                                    c["email"], c["nom"],
+                                    _camp_sujet, _camp_msg
+                                )
+                                if ok:
+                                    _sent += 1
+                                    # Logger l'activité si opportunité liée
+                                    _c_opp = next((o for o in st.session_state.crm_opportunites
+                                                   if o.get("contact_id") == c["id"]), None)
+                                    if _c_opp:
+                                        crm_db.add_activite(_c_opp["id"], "Email", f"Campagne : {_camp_sujet[:30]}", statut="Fait")
+                                else:
+                                    _errors += 1
+                            except Exception:
+                                _errors += 1
+                            _progress.progress((idx + 1) / len(_contacts_with_email))
+                        st.success(f"✅ Campagne terminée : {_sent} envoyés, {_errors} erreurs")
+            else:
+                st.info("Aucun contact avec email. Ajoutez des contacts avec email depuis les transactions.")
+
+        st.markdown("---")
 
         leads = st.session_state.get("crm_leads", [])
 
@@ -1071,37 +1292,84 @@ with tab_crm:
         opps_all = st.session_state.crm_opportunites
         acts_all  = st.session_state.crm_activites
         contacts_all = st.session_state.crm_contacts
+        leads_all = st.session_state.get("crm_leads", [])
 
-        k1,k2,k3,k4 = st.columns(2), st.columns(2), None, None
-        c1,c2 = st.columns(2)
-        with c1:
-            st.metric("Contacts", len(contacts_all))
-            st.metric("Opportunités", len(opps_all))
-            st.metric("Activités", len(acts_all))
-        with c2:
-            val = sum(o["prix"] for o in opps_all)
-            st.metric("Valeur pipeline", f"{val/1000:.0f}k€" if val else "0€")
-            closing = len([o for o in opps_all if o["stage"]=="Closing"])
-            st.metric("En closing", closing)
-            sc_moy = sum(o["score"] for o in opps_all)/len(opps_all) if opps_all else 0
-            st.metric("Score moyen", f"{sc_moy:.0f}/100")
+        # ROW 1 : Métriques principales
+        _k1, _k2, _k3, _k4, _k5, _k6 = st.columns(6)
+        with _k1: st.metric("Contacts", len(contacts_all))
+        with _k2: st.metric("Opportunités", len(opps_all))
+        with _k3: st.metric("Activités", len(acts_all))
+        _val = sum(o["prix"] for o in opps_all)
+        with _k4: st.metric("Pipeline", f"{_val/1000:.0f}k€" if _val else "0€")
+        _closing_n = len([o for o in opps_all if o["stage"]=="Closing"])
+        with _k5: st.metric("En closing", _closing_n)
+        _sc_moy = sum(o["score"] for o in opps_all)/len(opps_all) if opps_all else 0
+        with _k6: st.metric("Score moyen", f"{_sc_moy:.0f}/100")
 
+        # ROW 2 : Conversion & Performance
+        st.markdown("---")
+        st.markdown("**📈 Indicateurs de conversion**")
+
+        _detecte_n = len([o for o in opps_all if o["stage"]=="Détecté"])
+        _contacte_n = len([o for o in opps_all if o["stage"]=="Contacté"])
+        _qualifie_n = len([o for o in opps_all if o["stage"]=="Qualifié"])
+        _proposition_n = len([o for o in opps_all if o["stage"]=="Proposition"])
+
+        _taux_contact_kpi = round((_contacte_n + _qualifie_n + _proposition_n + _closing_n) / max(len(opps_all), 1) * 100)
+        _taux_closing_kpi = round(_closing_n / max(len(opps_all), 1) * 100)
+        _acts_par_opp = round(len(acts_all) / max(len(opps_all), 1), 1)
+        _val_moy = round(_val / max(len(opps_all), 1) / 1000, 1) if opps_all else 0
+        _leads_nouveaux = len([l for l in leads_all if l.get("statut") == "nouveau"])
+        _leads_conv = len([l for l in leads_all if l.get("statut") in ["contacté", "qualifié"]])
+
+        _c1, _c2, _c3, _c4, _c5, _c6 = st.columns(6)
+        with _c1: st.metric("Taux prise contact", f"{_taux_contact_kpi}%")
+        with _c2: st.metric("Taux closing", f"{_taux_closing_kpi}%")
+        with _c3: st.metric("Activités/opp", f"{_acts_par_opp}")
+        with _c4: st.metric("Valeur moy./opp", f"{_val_moy}k€")
+        with _c5: st.metric("Leads à traiter", _leads_nouveaux)
+        with _c6: st.metric("Leads convertis", _leads_conv)
+
+        # Répartition pipeline
         if opps_all:
             st.markdown("---")
             st.markdown("**Répartition pipeline**")
             for stage in STAGES:
                 nb = len([o for o in opps_all if o["stage"]==stage])
                 pct = nb/len(opps_all)*100 if opps_all else 0
+                _stage_val = sum(o["prix"] for o in opps_all if o["stage"]==stage)
                 st.markdown(
                     f'''<div style="display:flex;align-items:center;gap:.75rem;margin:.3rem 0;font-size:.85rem">
                     <span style="min-width:90px">{stage}</span>
                     <div style="flex:1;height:8px;background:#e5e5e5;border-radius:4px;overflow:hidden">
-                      <div style="width:{pct:.0f}%;height:100%;background:{STAGE_COLORS[stage].replace("e5e5e5","888")};
-                      background:#185FA5"></div>
+                      <div style="width:{pct:.0f}%;height:100%;background:#185FA5"></div>
                     </div>
-                    <span style="color:#888">{nb}</span>
+                    <span style="color:#888;min-width:120px;text-align:right">{nb} opp · {_stage_val/1000:.0f}k€</span>
                     </div>''', unsafe_allow_html=True
                 )
+
+            # Top 5 opportunités à traiter en priorité
+            st.markdown("---")
+            st.markdown("**🎯 Priorités d'action**")
+            _priority_opps = sorted(
+                [o for o in opps_all if o["stage"] in ["Détecté", "Contacté"]],
+                key=lambda o: o.get("score", 0), reverse=True
+            )[:5]
+            if _priority_opps:
+                for _po in _priority_opps:
+                    _po_acts = len([a for a in acts_all if a.get("opp_id") == _po["id"]])
+                    _po_sc_col = "#1D9E75" if _po["score"]>=70 else "#BA7517" if _po["score"]>=40 else "#E24B4A"
+                    _po_contact = next((c for c in contacts_all if c["id"] == _po.get("contact_id")), {})
+                    st.markdown(
+                        f'<div style="border:1px solid #e5e5e5;border-radius:6px;padding:.6rem .9rem;margin:.3rem 0;font-size:.83rem">'
+                        f'<b>{_po["titre"][:40]}</b> — '
+                        f'<span style="color:{_po_sc_col};font-weight:600">Score {_po["score"]}</span> — '
+                        f'{_po["stage"]} — {_po_acts} activités — '
+                        f'Contact : {_po_contact.get("nom","—")} {_po_contact.get("tel","")}'
+                        f'</div>', unsafe_allow_html=True
+                    )
+            else:
+                st.caption("Toutes les opportunités sont en phase avancée.")
 
 
 # ── TAB 5 : EXPORT ────────────────────────────────────────────────────────────
@@ -1216,16 +1484,65 @@ with tab_pilotage:
 
     val_pipeline = sum(o["prix"] for o in opps_p) if opps_p else 0
     val_closing  = sum(o["prix"] for o in opps_p if o["stage"]=="Closing") if opps_p else 0
-    nb_acts_semaine = sum(1 for a in acts_p
-                          if a.get("date_creation","").endswith(str(datetime.now().year))) if acts_p else 0
+    nb_acts_total = len(acts_p)
     win_rate = round(len([o for o in opps_p if o["stage"]=="Closing"]) / len(opps_p) * 100) if opps_p else 0
 
+    # KPIs avancés conversion
+    _detecte = len([o for o in opps_p if o["stage"]=="Détecté"])
+    _contacte = len([o for o in opps_p if o["stage"]=="Contacté"])
+    _qualifie = len([o for o in opps_p if o["stage"]=="Qualifié"])
+    _proposition = len([o for o in opps_p if o["stage"]=="Proposition"])
+    _closing = len([o for o in opps_p if o["stage"]=="Closing"])
+    _taux_contact = round(_contacte / max(_detecte + _contacte, 1) * 100) if opps_p else 0
+    _taux_qualif = round((_qualifie + _proposition + _closing) / max(len(opps_p), 1) * 100) if opps_p else 0
+    _score_moy_pipeline = round(sum(o["score"] for o in opps_p) / len(opps_p)) if opps_p else 0
+    _val_moy_opp = round(val_pipeline / max(len(opps_p), 1))
+
+    # ROW 1 : KPIs principaux
     k1,k2,k3,k4,k5 = st.columns(5)
-    with k1: st.metric("Contacts", len(contacts_p), delta=None)
+    with k1: st.metric("Contacts", len(contacts_p))
     with k2: st.metric("Opportunités", len(opps_p))
     with k3: st.metric("Pipeline", f"{val_pipeline/1000:.0f}k€")
     with k4: st.metric("En closing", f"{val_closing/1000:.0f}k€")
     with k5: st.metric("Win rate", f"{win_rate}%")
+
+    # ROW 2 : KPIs conversion
+    k6,k7,k8,k9,k10 = st.columns(5)
+    with k6: st.metric("Taux contact", f"{_taux_contact}%",
+                         help="% d'opportunités qui passent de Détecté à Contacté")
+    with k7: st.metric("Taux qualification", f"{_taux_qualif}%",
+                         help="% d'opps passées au moins en Qualifié")
+    with k8: st.metric("Score moyen pipeline", f"{_score_moy_pipeline}/100")
+    with k9: st.metric("Valeur moy./opp", f"{_val_moy_opp/1000:.0f}k€")
+    with k10: st.metric("Activités totales", nb_acts_total)
+
+    # ── ALERTES AUTOMATIQUES ─────────────────────────────────────────────
+    _alertes = []
+    # Opportunités stagnantes (Détecté depuis > 7 jours sans activité)
+    for o in opps_p:
+        if o["stage"] == "Détecté":
+            _o_acts = [a for a in acts_p if a.get("opp_id") == o["id"]]
+            if not _o_acts:
+                _alertes.append(f"⚠️ **{o['titre'][:35]}** — Détecté sans activité, à contacter")
+    # Pipeline vide
+    if not opps_p:
+        _alertes.append("📭 Pipeline vide — ajoutez des opportunités depuis l'onglet Transactions")
+    # Pas d'activités récentes
+    if nb_acts_total == 0 and opps_p:
+        _alertes.append("📞 Aucune activité enregistrée — commencez à contacter vos prospects")
+    # Opportunités haute valeur en Détecté
+    _high_val_detecte = [o for o in opps_p if o["stage"] == "Détecté" and o.get("score", 0) >= 70]
+    if _high_val_detecte:
+        _alertes.append(f"🎯 **{len(_high_val_detecte)}** opportunités score ≥ 70 encore en Détecté — action prioritaire")
+
+    if _alertes:
+        st.markdown(
+            '<div style="background:#fff8e1;border:1px solid #ffe082;border-radius:8px;'
+            'padding:.75rem 1rem;margin:.5rem 0">'
+            '<div style="font-weight:600;font-size:.85rem;margin-bottom:.4rem">🔔 Alertes commerciales</div>'
+            + "<br>".join(f'<span style="font-size:.82rem">{a}</span>' for a in _alertes[:5])
+            + '</div>', unsafe_allow_html=True
+        )
 
     st.markdown("---")
 
