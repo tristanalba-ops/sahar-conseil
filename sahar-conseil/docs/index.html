@@ -1,6 +1,13 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-5WSR4DK5');</script>
+  <!-- End Google Tag Manager -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SAHAR Conseil — Open Data & CRM pour les professionnels</title>
@@ -187,8 +194,101 @@
       h1{font-size:1.75rem}
     }
   </style>
+  <!-- GA4 via GTM fallback direct -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XV2P0YPJK0"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-XV2P0YPJK0', {
+      page_title: document.title,
+      page_location: window.location.href
+    });
+
+    // ── Événements de conversion SAHAR ──────────────────────────────────────
+
+    // 1. Soumission formulaire contact
+    document.addEventListener('DOMContentLoaded', function() {
+      var forms = document.querySelectorAll('form');
+      forms.forEach(function(form) {
+        form.addEventListener('submit', function() {
+          gtag('event', 'form_submit', {
+            event_category: 'conversion',
+            event_label: 'contact_form',
+            value: 1
+          });
+          dataLayer.push({event: 'sahar_form_submit', form_id: form.action});
+        });
+      });
+
+      // 2. Clics CTA principaux
+      var ctas = document.querySelectorAll('a.btn, a.nav-cta, a.service-link, a.tool-link');
+      ctas.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          gtag('event', 'cta_click', {
+            event_category: 'engagement',
+            event_label: btn.textContent.trim().substring(0, 50),
+            cta_url: btn.href
+          });
+        });
+      });
+
+      // 3. Tool view — pages secteurs
+      var path = window.location.pathname;
+      var toolMap = {
+        'immobilier': 'dvf_analyse',
+        'energie-renovation': 'dpe_scanner',
+        'retail-franchise': 'zone_score',
+        'rh-recrutement': 'rh_tension',
+        'crm': 'crm_pipeline',
+        'scoring-prospects': 'scoring',
+        'automatisation': 'automation'
+      };
+      Object.keys(toolMap).forEach(function(key) {
+        if (path.indexOf(key) !== -1) {
+          gtag('event', 'tool_view', {
+            event_category: 'product',
+            tool_name: toolMap[key],
+            page_path: path
+          });
+        }
+      });
+
+      // 4. Scroll depth 50% et 90%
+      var scrollFired = {};
+      window.addEventListener('scroll', function() {
+        var pct = Math.round((window.scrollY + window.innerHeight) / document.body.scrollHeight * 100);
+        if (pct >= 50 && !scrollFired[50]) {
+          scrollFired[50] = true;
+          gtag('event', 'scroll', {event_category: 'engagement', percent_scrolled: 50});
+        }
+        if (pct >= 90 && !scrollFired[90]) {
+          scrollFired[90] = true;
+          gtag('event', 'scroll', {event_category: 'engagement', percent_scrolled: 90});
+        }
+      });
+
+      // 5. Temps passé — engagement 30s et 60s
+      var timeFired = {};
+      [30000, 60000].forEach(function(ms) {
+        setTimeout(function() {
+          if (!timeFired[ms]) {
+            timeFired[ms] = true;
+            gtag('event', 'time_on_page', {
+              event_category: 'engagement',
+              seconds: ms / 1000
+            });
+          }
+        }, ms);
+      });
+    });
+  </script>
 </head>
 <body>
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5WSR4DK5"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
 <a href="#main" class="skip">Aller au contenu</a>
 
 <nav aria-label="Navigation principale">
