@@ -1,13 +1,8 @@
 """
 SAHAR Conseil — automation.py
-Séquences email/SMS automatiques via Brevo (ex Sendinblue).
-Gratuit jusqu'à 300 emails/jour.
-
-Configuration dans secrets.toml :
-  BREVO_API_KEY = "xkeysib-..."
-  BREVO_SENDER_EMAIL = "contact@sahar-conseil.fr"
-  BREVO_SENDER_NAME = "SAHAR Conseil"
-  APP_URL = "https://sahar-conseil.fr"
+Emails et SMS commerciaux sortants vers les prospects.
+Expéditeur : SAHAR Conseil via Brevo
+Cibles : prospects détectés via DVF, DPE, SIRENE
 """
 
 import requests
@@ -16,308 +11,247 @@ from datetime import datetime
 from typing import Optional
 
 
-def _get_brevo_key() -> Optional[str]:
+def _key() -> Optional[str]:
     try:
         return st.secrets.get("BREVO_API_KEY")
     except Exception:
         return None
 
-
-def _get_sender() -> dict:
+def _sender() -> dict:
     try:
         return {
             "email": st.secrets.get("BREVO_SENDER_EMAIL", "contact@sahar-conseil.fr"),
-            "name":  st.secrets.get("BREVO_SENDER_NAME",  "SAHAR Conseil"),
+            "name":  st.secrets.get("BREVO_SENDER_NAME", "SAHAR Conseil"),
         }
     except Exception:
         return {"email": "contact@sahar-conseil.fr", "name": "SAHAR Conseil"}
 
-
-def _app_url() -> str:
+def _url() -> str:
     try:
         return st.secrets.get("APP_URL", "https://sahar-conseil.fr")
     except Exception:
         return "https://sahar-conseil.fr"
 
 
-def _render_template(template: str, variables: dict) -> str:
-    """Remplace les variables {nom}, {lien_app}, etc. dans un template."""
-    variables.setdefault("lien_app", _app_url())
-    variables.setdefault("date", datetime.now().strftime("%d/%m/%Y"))
-    for key, val in variables.items():
-        template = template.replace("{" + key + "}", str(val))
-    return template
+# ─── HTML TEMPLATE ────────────────────────────────────────────────────────────
+
+def _html(accroche: str, corps: str, cta_txt: str = "", cta_url: str = "") -> str:
+    cta = ""
+    if cta_txt:
+        cta = f'<tr><td style="padding:20px 0 4px"><a href="{cta_url}" style="display:inline-block;background:#1a1a1a;color:#fff;text-decoration:none;padding:11px 22px;border-radius:6px;font-size:14px;font-weight:600">{cta_txt}</a></td></tr>'
+    return f"""<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#f5f5f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
+<table width="100%" cellpadding="0" cellspacing="0" style="padding:32px 16px;background:#f5f5f5">
+<tr><td align="center"><table width="100%" style="max-width:540px;background:#fff;border-radius:8px;border:1px solid #e5e5e5">
+  <tr><td style="padding:20px 28px;border-bottom:1px solid #e5e5e5">
+    <span style="font-size:14px;font-weight:700;color:#1a1a1a">SAHAR <span style="color:#185FA5">Conseil</span></span>
+  </td></tr>
+  <tr><td style="padding:28px 28px 8px">
+    <p style="margin:0 0 16px;font-size:20px;font-weight:700;color:#1a1a1a;line-height:1.25;letter-spacing:-.02em">{accroche}</p>
+    <div style="font-size:15px;color:#333;line-height:1.75">{corps}</div>
+  </td></tr>
+  {cta}
+  <tr><td style="padding:20px 28px;border-top:1px solid #f0f0f0">
+    <p style="margin:0;font-size:12px;color:#aaa;line-height:1.6">
+      Vous recevez ce message car votre bien ou votre activité a été identifié dans les données publiques françaises (DVF, ADEME DPE).<br>
+      Pour ne plus recevoir nos messages, répondez "STOP" à cet email.
+    </p>
+  </td></tr>
+</table></td></tr></table>
+</body></html>"""
 
 
-# ─── EMAIL VIA BREVO ──────────────────────────────────────────────────────────
+# ─── ENVOI BREVO ─────────────────────────────────────────────────────────────
 
-def envoyer_email(
-    destinataire_email: str,
-    destinataire_nom: str,
-    sujet: str,
-    contenu: str,
-    variables: dict = None,
-) -> bool:
-    """
-    Envoie un email via l'API Brevo (Sendinblue).
-    Retourne True si succès, False sinon.
-
-    Args:
-        destinataire_email: Email du destinataire
-        destinataire_nom: Nom du destinataire
-        sujet: Objet de l'email
-        contenu: Corps de l'email (texte brut avec variables {nom}, {lien_app})
-        variables: Dict de variables à injecter dans le template
-
-    Exemple:
-        envoyer_email(
-            "jean@exemple.fr", "Jean",
-            "Bienvenue sur SAHAR",
-            "Bonjour {nom}, votre accès est prêt : {lien_app}",
-            variables={"nom": "Jean"}
-        )
-    """
-    api_key = _get_brevo_key()
+def envoyer_email(to_email: str, to_nom: str, sujet: str,
+                  html: str, texte: str = "") -> bool:
+    api_key = _key()
     if not api_key:
-        st.warning("Brevo non configuré — email non envoyé (ajouter BREVO_API_KEY dans secrets)")
+        st.warning("Brevo non configuré (BREVO_API_KEY manquant)")
         return False
 
-    vars_merged = {"nom": destinataire_nom, **(variables or {})}
-    contenu_rendu = _render_template(contenu, vars_merged)
-    sujet_rendu   = _render_template(sujet,   vars_merged)
-
-    # Convertir le texte en HTML simple
-    html = "<br>".join(contenu_rendu.split("\n"))
+    # Nettoyer le nom — pas de majuscules entières
+    to_nom_propre = to_nom.strip().title() if to_nom == to_nom.upper() else to_nom.strip()
 
     payload = {
-        "sender": _get_sender(),
-        "to": [{"email": destinataire_email, "name": destinataire_nom}],
-        "subject": sujet_rendu,
-        "htmlContent": f"<div style='font-family:sans-serif;font-size:15px;line-height:1.6;max-width:600px'>{html}</div>",
-        "textContent": contenu_rendu,
+        "sender": _sender(),
+        "to": [{"email": to_email, "name": to_nom_propre}],
+        "subject": sujet,
+        "htmlContent": html,
+        "textContent": texte or sujet,
     }
-
     try:
         r = requests.post(
             "https://api.brevo.com/v3/smtp/email",
-            json=payload,
-            headers={
-                "api-key": api_key,
-                "Content-Type": "application/json",
-            },
-            timeout=15,
-        )
-        r.raise_for_status()
-        return True
-    except requests.RequestException as e:
-        st.error(f"Erreur envoi email : {e}")
-        return False
-
-
-# ─── SMS VIA BREVO ────────────────────────────────────────────────────────────
-
-def envoyer_sms(
-    tel: str,
-    message: str,
-    nom_destinataire: str = "",
-    variables: dict = None,
-) -> bool:
-    """
-    Envoie un SMS via Brevo.
-    Nécessite un compte Brevo avec crédits SMS.
-
-    Args:
-        tel: Numéro au format international (+33612345678)
-        message: Contenu du SMS (max 160 caractères)
-        variables: Variables à injecter dans le message
-    """
-    api_key = _get_brevo_key()
-    if not api_key:
-        return False
-
-    vars_merged = {"nom": nom_destinataire, **(variables or {})}
-    message_rendu = _render_template(message, vars_merged)[:160]
-
-    # Normaliser le numéro
-    tel_clean = tel.replace(" ", "").replace("-", "").replace(".", "")
-    if tel_clean.startswith("0"):
-        tel_clean = "+33" + tel_clean[1:]
-
-    payload = {
-        "sender": "SAHAR",
-        "recipient": tel_clean,
-        "content": message_rendu,
-        "type": "transactional",
-    }
-
-    try:
-        r = requests.post(
-            "https://api.brevo.com/v3/transactionalSMS/sms",
             json=payload,
             headers={"api-key": api_key, "Content-Type": "application/json"},
             timeout=15,
         )
         r.raise_for_status()
         return True
-    except requests.RequestException as e:
-        st.error(f"Erreur envoi SMS : {e}")
+    except Exception as e:
+        st.error(f"Erreur envoi email : {e}")
         return False
 
 
-# ─── SÉQUENCES ────────────────────────────────────────────────────────────────
-
-def declencher_sequence(
-    contact_email: str,
-    contact_nom: str,
-    contact_tel: str = "",
-    secteur: str = "immobilier",
-    variables: dict = None,
-    crm_db=None,
-) -> int:
-    """
-    Déclenche la séquence d'emails/SMS pour un nouveau contact.
-    Envoie l'email J+0 immédiatement.
-    Les étapes suivantes sont à planifier via un scheduler (cron).
-
-    Args:
-        contact_email: Email du contact
-        contact_nom: Nom du contact
-        contact_tel: Téléphone (pour SMS)
-        secteur: immobilier | energie | retail
-        variables: Variables supplémentaires pour les templates
-        crm_db: Module crm_db pour logger les envois
-
-    Returns:
-        Nombre d'emails/SMS envoyés (J+0 uniquement)
-    """
-    # Mapping secteur → séquence
-    sequence_map = {
-        "immobilier": "SEQ001",
-        "energie":    "SEQ002",
-        "retail":     "SEQ003",
-    }
-    seq_id = sequence_map.get(secteur, "SEQ001")
-
-    # Étapes J+0 à envoyer immédiatement
-    steps_j0 = {
-        "SEQ001": {
-            "email": {
-                "sujet": "Bienvenue sur SAHAR — vos données DVF sont prêtes",
-                "contenu": (
-                    "Bonjour {nom},\n\n"
-                    "Votre accès à DVF Analyse Pro est activé.\n\n"
-                    "Voici ce que vous pouvez faire maintenant :\n"
-                    "- Analyser les transactions de votre secteur\n"
-                    "- Détecter les biens sous-valorisés\n"
-                    "- Exporter vos prospects en Excel\n\n"
-                    "Connectez-vous : {lien_app}\n\n"
-                    "L'équipe SAHAR"
-                )
-            }
-        },
-        "SEQ002": {
-            "email": {
-                "sujet": "Vos prospects DPE F/G sont prêts",
-                "contenu": (
-                    "Bonjour {nom},\n\n"
-                    "Votre accès au DPE Scanner est activé.\n\n"
-                    "Dans votre secteur, nous avons identifié des logements classés F et G "
-                    "— passoires thermiques concernées par les interdictions de location 2025.\n\n"
-                    "Connectez-vous pour voir la liste : {lien_app}\n\n"
-                    "L'équipe SAHAR"
-                )
-            }
-        },
-        "SEQ003": {
-            "email": {
-                "sujet": "Votre score d'attractivité de zone est prêt",
-                "contenu": (
-                    "Bonjour {nom},\n\n"
-                    "Votre analyse Zone Score est disponible.\n\n"
-                    "Nous avons calculé le potentiel commercial de votre zone cible.\n\n"
-                    "Accédez au rapport : {lien_app}\n\n"
-                    "L'équipe SAHAR"
-                )
-            }
-        },
-    }
-
-    vars_merged = {"nom": contact_nom, **(variables or {})}
-    envoyes = 0
-
-    step = steps_j0.get(seq_id, steps_j0["SEQ001"])
-
-    # Email J+0
-    if "email" in step:
-        ok = envoyer_email(
-            contact_email, contact_nom,
-            step["email"]["sujet"],
-            step["email"]["contenu"],
-            variables=vars_merged,
+def envoyer_sms(tel: str, message: str) -> bool:
+    api_key = _key()
+    if not api_key:
+        return False
+    tel_clean = tel.replace(" ", "").replace("-", "").replace(".", "")
+    if tel_clean.startswith("0"):
+        tel_clean = "+33" + tel_clean[1:]
+    try:
+        r = requests.post(
+            "https://api.brevo.com/v3/transactionalSMS/sms",
+            json={"sender": "SAHAR", "recipient": tel_clean,
+                  "content": message[:160], "type": "transactional"},
+            headers={"api-key": api_key, "Content-Type": "application/json"},
+            timeout=15,
         )
-        if ok:
-            envoyes += 1
+        r.raise_for_status()
+        return True
+    except Exception as e:
+        st.error(f"Erreur SMS : {e}")
+        return False
 
-    return envoyes
 
+# ─── TEMPLATES COMMERCIAUX ────────────────────────────────────────────────────
 
-# ─── EMAIL DE BIENVENUE LEAD (depuis formulaire site) ─────────────────────────
-
-def email_bienvenue_lead(nom: str, email: str, secteur: str = "") -> bool:
+def email_prospect_dvf(to_email: str, to_nom: str,
+                       adresse: str, commune: str,
+                       prix: float, surface: float,
+                       prix_m2: float, mediane_m2: float,
+                       score: int) -> bool:
     """
-    Envoie l'email de bienvenue automatique quand un lead remplit le formulaire.
-    À appeler depuis le webhook Formspree ou manuellement depuis le CRM.
+    Email vers un vendeur/propriétaire détecté via DVF.
+    Contexte : bien vendu sous la médiane ou marché actif.
     """
-    sujets = {
-        "Immobilier":        "Votre démo DVF Analyse Pro — réponse sous 24h",
-        "Énergie / Rénovation": "Votre démo DPE Scanner — réponse sous 24h",
-        "Retail / Franchise": "Votre démo Zone Score — réponse sous 24h",
-    }
-    sujet = sujets.get(secteur, "Votre demande SAHAR Conseil — réponse sous 24h")
+    ecart = round((mediane_m2 - prix_m2) / mediane_m2 * 100) if mediane_m2 > 0 else 0
+    prenom = to_nom.strip().title() if to_nom == to_nom.upper() else to_nom.split()[0]
 
-    contenu = (
-        "Bonjour {nom},\n\n"
-        "Nous avons bien reçu votre demande.\n\n"
-        "Nous vous recontactons sous 24h ouvrées avec une démonstration "
-        "sur vos données réelles — pas une présentation générique.\n\n"
-        "En attendant, vous pouvez explorer nos ressources :\n"
-        "- Comment trouver des prospects qualifiés\n"
-        "- Prospecter avec les données publiques\n"
-        "- KPIs commerciaux pour votre pipeline\n\n"
-        "{lien_app}\n\n"
-        "L'équipe SAHAR Conseil\n"
-        "contact@sahar-conseil.fr"
-    )
+    accroche = f"Votre bien à {commune} — analyse de marché gratuite"
 
-    return envoyer_email(email, nom, sujet, contenu, variables={"nom": nom})
+    corps = f"""
+Bonjour {prenom},<br><br>
+Nous avons analysé les transactions récentes à <strong>{commune}</strong> et votre bien 
+au <strong>{adresse}</strong> a retenu notre attention.<br><br>
+<table style="border-collapse:collapse;width:100%;font-size:14px">
+  <tr style="background:#f5f5f5">
+    <td style="padding:8px 12px;font-weight:600">Prix de vente</td>
+    <td style="padding:8px 12px">{prix:,.0f} €</td>
+  </tr>
+  <tr>
+    <td style="padding:8px 12px;font-weight:600">Surface</td>
+    <td style="padding:8px 12px">{surface:.0f} m²</td>
+  </tr>
+  <tr style="background:#f5f5f5">
+    <td style="padding:8px 12px;font-weight:600">Prix au m²</td>
+    <td style="padding:8px 12px">{prix_m2:.0f} €/m²</td>
+  </tr>
+  <tr>
+    <td style="padding:8px 12px;font-weight:600">Médiane du secteur</td>
+    <td style="padding:8px 12px">{mediane_m2:.0f} €/m²</td>
+  </tr>
+  {"<tr style='background:#fff3cd'><td style='padding:8px 12px;font-weight:600'>Écart</td><td style='padding:8px 12px;color:#e65100;font-weight:700'>−" + str(ecart) + "% sous la médiane</td></tr>" if ecart > 5 else ""}
+</table><br>
+Nous pouvons vous fournir une analyse complète du marché dans votre secteur — 
+prix signés, délais de vente, opportunités actuelles — en 24h.<br><br>
+Êtes-vous disponible pour un échange rapide cette semaine ?
+"""
+    html = _html(accroche, corps, "Voir l'analyse complète", _url())
+    texte = f"Bonjour {prenom}, analyse marché {commune} disponible. Votre bien : {prix_m2:.0f}€/m² vs médiane {mediane_m2:.0f}€/m². Réponse : {_url()}"
+    return envoyer_email(to_email, to_nom, accroche, html, texte)
+
+
+def email_prospect_dpe(to_email: str, to_nom: str,
+                       adresse: str, commune: str,
+                       etiquette: str, surface: float,
+                       annee_construction: int = 0) -> bool:
+    """
+    Email vers un propriétaire avec logement classé F ou G.
+    Contexte réglementaire : interdiction de location.
+    """
+    prenom = to_nom.strip().title() if to_nom == to_nom.upper() else to_nom.split()[0]
+    annee_str = f", construit en {annee_construction}" if annee_construction else ""
+    urgence = "depuis janvier 2023" if etiquette == "G" else "depuis janvier 2025"
+
+    accroche = f"Logement classé {etiquette} — interdiction de location en vigueur"
+
+    corps = f"""
+Bonjour {prenom},<br><br>
+Selon la base de diagnostics énergétiques de l'ADEME, votre logement au 
+<strong>{adresse}, {commune}</strong> ({surface:.0f} m²{annee_str}) 
+est classé <strong style="color:{'#c62828' if etiquette=='G' else '#e64a19'}">DPE {etiquette}</strong>.<br><br>
+<div style="background:#fff3cd;border-left:3px solid #e65100;padding:12px 16px;border-radius:0 6px 6px 0;margin:16px 0;font-size:14px">
+  <strong>Ce que ça implique :</strong> ce logement ne peut plus être mis en location {urgence}. 
+  En cas de nouveau bail ou renouvellement, vous êtes en infraction.
+</div>
+<strong>Les travaux éligibles aux aides :</strong>
+<ul style="margin:8px 0;padding-left:20px">
+  <li>Isolation des murs et combles</li>
+  <li>Remplacement du système de chauffage</li>
+  <li>Ventilation et menuiseries</li>
+</ul>
+Selon votre situation, les aides MaPrimeRénov' peuvent couvrir jusqu'à 70% des travaux.<br><br>
+Nous pouvons vous mettre en contact avec des artisans RGE qualifiés dans votre secteur 
+et vous accompagner dans le montage du dossier d'aide.<br><br>
+Souhaitez-vous un devis gratuit cette semaine ?
+"""
+    html = _html(accroche, corps, "Obtenir un devis gratuit", _url())
+    texte = f"Bonjour {prenom}, votre logement {adresse} est classé DPE {etiquette} et ne peut plus être loué {urgence}. Devis travaux gratuit : {_url()}"
+    return envoyer_email(to_email, to_nom, accroche, html, texte)
+
+
+def email_prospect_generique(to_email: str, to_nom: str,
+                              sujet: str, message_perso: str,
+                              cta_txt: str = "Répondre",
+                              cta_url: str = "") -> bool:
+    """
+    Email libre vers n'importe quel prospect depuis le CRM.
+    Pour les relances, qualifications, propositions commerciales.
+    """
+    prenom = to_nom.strip().title() if to_nom == to_nom.upper() else to_nom.split()[0]
+    corps = message_perso.replace("\n", "<br>")
+    html = _html(f"Message pour {prenom}", corps,
+                 cta_txt, cta_url or _url())
+    return envoyer_email(to_email, to_nom, sujet, html, message_perso)
+
+
+def sms_prospect(tel: str, prenom: str, message: str) -> bool:
+    """SMS court vers un prospect — 160 caractères max."""
+    prenom_propre = prenom.strip().title() if prenom == prenom.upper() else prenom.split()[0]
+    msg = f"{prenom_propre}, {message}"[:160]
+    return envoyer_sms(tel, msg)
 
 
 # ─── NOTIFICATION INTERNE ─────────────────────────────────────────────────────
 
-def notifier_nouveau_lead(nom: str, email: str, secteur: str, message: str) -> bool:
-    """
-    Envoie une notification interne quand un nouveau lead arrive.
-    """
-    api_key = _get_brevo_key()
-    if not api_key:
-        return False
-
+def notifier_nouveau_lead(nom: str, email: str,
+                          secteur: str, message: str) -> bool:
+    """Alerte interne quand un lead arrive depuis le site."""
     try:
-        notif_email = st.secrets.get("NOTIF_EMAIL", "contact@sahar-conseil.fr")
+        notif = st.secrets.get("NOTIF_EMAIL", "contact@sahar-conseil.fr")
     except Exception:
-        notif_email = "contact@sahar-conseil.fr"
+        notif = "contact@sahar-conseil.fr"
 
-    contenu = (
-        f"Nouveau lead SAHAR\n\n"
-        f"Nom : {nom}\n"
-        f"Email : {email}\n"
-        f"Secteur : {secteur}\n"
-        f"Message : {message}\n\n"
-        f"Date : {datetime.now().strftime('%d/%m/%Y %H:%M')}"
-    )
+    corps = f"""
+<strong>Nouveau lead SAHAR</strong><br><br>
+<table style="font-size:14px;border-collapse:collapse">
+  <tr><td style="padding:6px 12px 6px 0;color:#888;font-weight:600">Nom</td><td>{nom}</td></tr>
+  <tr><td style="padding:6px 12px 6px 0;color:#888;font-weight:600">Email</td><td>{email}</td></tr>
+  <tr><td style="padding:6px 12px 6px 0;color:#888;font-weight:600">Secteur</td><td>{secteur}</td></tr>
+  <tr><td style="padding:6px 12px 6px 0;color:#888;font-weight:600">Message</td><td>{message}</td></tr>
+  <tr><td style="padding:6px 12px 6px 0;color:#888;font-weight:600">Date</td><td>{datetime.now().strftime('%d/%m/%Y %H:%M')}</td></tr>
+</table>
+"""
+    html = _html(f"🔔 Nouveau lead — {nom}", corps)
+    return envoyer_email(notif, "SAHAR Admin",
+                         f"Nouveau lead : {nom} ({secteur})", html)
 
-    return envoyer_email(
-        notif_email, "SAHAR Admin",
-        f"🔔 Nouveau lead — {nom} ({secteur})",
-        contenu,
-    )
+
+# ─── COMPAT (ancienne API) ────────────────────────────────────────────────────
+
+def email_bienvenue_lead(nom: str, email: str, secteur: str = "") -> bool:
+    """Redirige vers notifier_nouveau_lead pour compat."""
+    return notifier_nouveau_lead(nom, email, secteur, "—")

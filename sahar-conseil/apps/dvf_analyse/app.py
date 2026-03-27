@@ -631,6 +631,64 @@ with tab_crm:
                         if contact:
                             action_buttons(contact, opp["id"])
 
+                        # Email commercial depuis la fiche
+                        with st.expander("✉️ Envoyer un email"):
+                            email_type = st.selectbox(
+                                "Type d'email",
+                                ["Email libre (relance, proposition…)",
+                                 "Analyse marché DVF",
+                                 "Alerte DPE — logement interdit location"],
+                                key=f"etype_{opp['id']}"
+                            )
+                            if email_type == "Email libre (relance, proposition…)":
+                                sujet_e = st.text_input("Objet", key=f"esujet_{opp['id']}")
+                                msg_e = st.text_area("Message", height=100, key=f"emsg_{opp['id']}")
+                                if st.button("Envoyer", key=f"esend_{opp['id']}", type="primary"):
+                                    if contact.get("email") and sujet_e and msg_e:
+                                        from shared.automation import email_prospect_generique
+                                        ok = email_prospect_generique(
+                                            contact["email"], contact["nom"],
+                                            sujet_e, msg_e
+                                        )
+                                        if ok:
+                                            crm_db.add_activite(opp["id"], "Email", sujet_e, statut="Fait")
+                                            st.success("✅ Email envoyé")
+                                            st.rerun()
+                                    else:
+                                        st.warning("Email, objet et message requis")
+
+                            elif email_type == "Analyse marché DVF":
+                                mediane = df[df["nom_commune"]==opp.get("adresse","").split(",")[-1].strip()]["prix_m2"].median() if not df.empty else opp["prix_m2"]
+                                st.caption(f"Médiane secteur estimée : {mediane:.0f} €/m²")
+                                if st.button("Envoyer analyse DVF", key=f"edvf_{opp['id']}", type="primary"):
+                                    if contact.get("email"):
+                                        from shared.automation import email_prospect_dvf
+                                        ok = email_prospect_dvf(
+                                            contact["email"], contact["nom"],
+                                            opp["adresse"], opp["adresse"].split(",")[-1].strip(),
+                                            opp["prix"], opp["surface"],
+                                            opp["prix_m2"], float(mediane), opp["score"]
+                                        )
+                                        if ok:
+                                            crm_db.add_activite(opp["id"], "Email", "Analyse marché DVF envoyée", statut="Fait")
+                                            st.success("✅ Email envoyé")
+                                            st.rerun()
+
+                            elif email_type == "Alerte DPE — logement interdit location":
+                                etiq = st.selectbox("Étiquette DPE", ["G","F","E"], key=f"edpe_etiq_{opp['id']}")
+                                if st.button("Envoyer alerte DPE", key=f"edpe_{opp['id']}", type="primary"):
+                                    if contact.get("email"):
+                                        from shared.automation import email_prospect_dpe
+                                        ok = email_prospect_dpe(
+                                            contact["email"], contact["nom"],
+                                            opp["adresse"], opp["adresse"].split(",")[-1].strip(),
+                                            etiq, opp["surface"]
+                                        )
+                                        if ok:
+                                            crm_db.add_activite(opp["id"], "Email", f"Alerte DPE {etiq} envoyée", statut="Fait")
+                                            st.success("✅ Email envoyé")
+                                            st.rerun()
+
                         # Changer étape
                         cur_idx = STAGES.index(opp["stage"])
                         new_stage = st.selectbox("Étape", STAGES, index=cur_idx,
