@@ -146,49 +146,16 @@ def score_opportunite(df: pd.DataFrame, w_prix=0.4, w_vol=0.3, w_dyn=0.3) -> pd.
 
 # ─── CRM (session state) ──────────────────────────────────────────────────────
 
-def init_crm():
-    if "crm_contacts" not in st.session_state:
-        st.session_state.crm_contacts = []
-    if "crm_opportunites" not in st.session_state:
-        st.session_state.crm_opportunites = []
-    if "crm_activites" not in st.session_state:
-        st.session_state.crm_activites = []
-
-init_crm()
+crm_db.init_crm()
 
 STAGES = ["Détecté", "Contacté", "Qualifié", "Proposition", "Closing"]
 STAGE_COLORS = {"Détecté":"#e5e5e5","Contacté":"#fff3cd","Qualifié":"#cfe2ff",
                 "Proposition":"#d1ecf1","Closing":"#d4edda"}
 
-def add_contact(nom, email, tel, type_contact, notes=""):
-    st.session_state.crm_contacts.append({
-        "id": f"C{len(st.session_state.crm_contacts)+1:04d}",
-        "nom": nom, "email": email, "tel": tel,
-        "type": type_contact, "notes": notes,
-        "date_creation": datetime.now().strftime("%d/%m/%Y"),
-    })
-
-def add_opportunite(contact_id, titre, adresse, type_bien, surface, prix,
-                    prix_m2, score, source="DVF"):
-    st.session_state.crm_opportunites.append({
-        "id": f"O{len(st.session_state.crm_opportunites)+1:04d}",
-        "contact_id": contact_id,
-        "titre": titre, "adresse": adresse,
-        "type_bien": type_bien, "surface": surface,
-        "prix": prix, "prix_m2": prix_m2, "score": score,
-        "source": source, "stage": "Détecté",
-        "date_creation": datetime.now().strftime("%d/%m/%Y"),
-        "date_update": datetime.now().strftime("%d/%m/%Y"),
-    })
-
-def add_activite(opp_id, type_activite, notes, date_str=None, statut="À faire"):
-    st.session_state.crm_activites.append({
-        "id": f"A{len(st.session_state.crm_activites)+1:04d}",
-        "opp_id": opp_id, "type": type_activite,
-        "notes": notes, "statut": statut,
-        "date": date_str or datetime.now().strftime("%d/%m/%Y"),
-        "date_creation": datetime.now().strftime("%d/%m/%Y"),
-    })
+# CRM functions delegated to crm_db module
+add_contact     = crm_db.add_contact
+add_opportunite = crm_db.add_opportunite
+add_activite    = crm_db.add_activite
 
 
 # ─── SIDEBAR ──────────────────────────────────────────────────────────────────
@@ -549,8 +516,7 @@ with tab_crm:
                                                       index=current_idx,
                                                       key=f"stage_{opp['id']}")
                             if new_stage != opp['stage']:
-                                opp['stage'] = new_stage
-                                opp['date_update'] = datetime.now().strftime("%d/%m/%Y")
+                                crm_db.update_stage(opp['id'], new_stage)
                                 st.rerun()
 
                             # Ajouter activité rapide
