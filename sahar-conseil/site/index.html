@@ -3,8 +3,65 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Security -->
+  <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+  <meta http-equiv="X-Frame-Options" content="SAMEORIGIN" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
   <title>SAHAR Conseil — Open Data au service des professionnels</title>
   <meta name="description" content="SAHAR Conseil transforme les données publiques en outils d'aide à la décision pour les professionnels : immobilier, énergie, retail, RH." />
+  <link rel="canonical" href="https://sahar-conseil.fr/" />
+  <meta name="robots" content="index, follow, max-image-preview:large" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="SAHAR Conseil — Open Data au service des professionnels" />
+  <meta property="og:description" content="Transformez les données publiques en outils d'aide à la décision : immobilier, énergie, retail, RH." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://sahar-conseil.fr/" />
+  <meta property="og:locale" content="fr_FR" />
+  <meta property="og:site_name" content="SAHAR Conseil" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="SAHAR Conseil — Open Data au service des professionnels" />
+  <meta name="twitter:description" content="Transformez les données publiques en outils d'aide à la décision pour les professionnels." />
+
+  <!-- JSON-LD Organization -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "SAHAR Conseil",
+    "url": "https://sahar-conseil.fr",
+    "description": "SAHAR Conseil transforme les données publiques en outils SaaS d'aide à la décision pour les professionnels.",
+    "foundingDate": "2025",
+    "founder": { "@type": "Person", "name": "Tristan Alba" },
+    "sameAs": [],
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "email": "contact@sahar-conseil.fr",
+      "contactType": "sales"
+    }
+  }
+  </script>
+
+  <!-- JSON-LD WebSite (for sitelinks search) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "SAHAR Conseil",
+    "url": "https://sahar-conseil.fr",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://sahar-conseil.fr/?q={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  }
+  </script>
+
+  <!-- GA4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XV2P0YPJK0"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-XV2P0YPJK0');</script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@400;500&display=swap" rel="stylesheet" />
   <style>
@@ -628,6 +685,54 @@
   </ul>
   <p>© 2025 SAHAR Conseil</p>
 </footer>
+
+<!-- GA4 Event Tracking -->
+<script>
+(function(){
+  // Track CTA clicks
+  document.querySelectorAll('.btn-primary, .btn-secondary, .nav-cta').forEach(function(el){
+    el.addEventListener('click', function(){
+      gtag('event', 'cta_click', {
+        event_category: 'engagement',
+        event_label: this.textContent.trim().substring(0,50),
+        link_url: this.href || ''
+      });
+    });
+  });
+
+  // Track form submissions
+  var forms = document.querySelectorAll('form');
+  forms.forEach(function(f){
+    f.addEventListener('submit', function(){
+      gtag('event', 'generate_lead', {
+        event_category: 'conversion',
+        event_label: 'contact_form'
+      });
+    });
+  });
+
+  // Track scroll depth
+  var s25=false,s50=false,s75=false;
+  window.addEventListener('scroll', function(){
+    var pct = Math.round(100 * window.scrollY / (document.body.scrollHeight - window.innerHeight));
+    if(!s25&&pct>=25){s25=true;gtag('event','scroll',{percent_scrolled:25})}
+    if(!s50&&pct>=50){s50=true;gtag('event','scroll',{percent_scrolled:50})}
+    if(!s75&&pct>=75){s75=true;gtag('event','scroll',{percent_scrolled:75})}
+  });
+
+  // Track external link clicks
+  document.querySelectorAll('a[href^="http"]').forEach(function(el){
+    if(!el.href.includes(window.location.hostname)){
+      el.addEventListener('click', function(){
+        gtag('event', 'click', {
+          event_category: 'outbound',
+          event_label: this.href
+        });
+      });
+    }
+  });
+})();
+</script>
 
 </body>
 </html>

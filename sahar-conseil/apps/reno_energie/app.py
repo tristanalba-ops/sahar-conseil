@@ -17,6 +17,46 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 from datetime import datetime
+import hashlib
+import hmac
+import time
+import re
+from collections import defaultdict
+
+# ─── SECURITY ────────────────────────────────────────────────────────────────
+
+# Rate limiting per session
+if "rate_limiter" not in st.session_state:
+    st.session_state["rate_limiter"] = {"requests": [], "blocked_until": 0}
+
+def rate_limit(max_requests: int = 30, window_seconds: int = 60) -> bool:
+    """Returns True if rate limit exceeded."""
+    now = time.time()
+    rl = st.session_state["rate_limiter"]
+    if now < rl["blocked_until"]:
+        return True
+    rl["requests"] = [t for t in rl["requests"] if now - t < window_seconds]
+    if len(rl["requests"]) >= max_requests:
+        rl["blocked_until"] = now + 120
+        return True
+    rl["requests"].append(now)
+    return False
+
+def sanitize_input(text: str, max_length: int = 200) -> str:
+    """Sanitize user text input."""
+    if not isinstance(text, str):
+        return ""
+    text = text.strip()[:max_length]
+    text = re.sub(r'[<>"\';(){}]', '', text)
+    text = re.sub(r'(javascript|on\w+)\s*[:=]', '', text, flags=re.IGNORECASE)
+    return text
+
+def secure_password_check(input_pwd: str, expected_pwd: str) -> bool:
+    """Timing-safe password comparison."""
+    return hmac.compare_digest(
+        hashlib.sha256(input_pwd.encode()).digest(),
+        hashlib.sha256(expected_pwd.encode()).digest()
+    )
 
 # ─── CONFIG ──────────────────────────────────────────────────────────────────
 
@@ -52,7 +92,7 @@ def check_auth():
         st.markdown("### 🔐 Accès RénoÉnergie")
         pwd = st.text_input("Mot de passe", type="password", label_visibility="collapsed")
         if pwd:
-            if pwd == pwd_attendu:
+            if secure_password_check(pwd, pwd_attendu):
                 st.session_state["auth_ok"] = True
                 st.rerun()
             else:
