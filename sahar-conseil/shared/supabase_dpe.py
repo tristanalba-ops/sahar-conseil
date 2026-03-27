@@ -2,12 +2,12 @@
 SAHAR Conseil — supabase_dpe.py
 Accès aux données DPE depuis Supabase.
 
-Les données DPE (125 000+ logements E/F/G sur 7 départements) sont
+Les données DPE (logements E/F/G sur tous les départements français) sont
 stockées dans Supabase. Ce module fournit un accès simple et cacheable.
 
 Tables utilisées :
-  - dpe_logements : données individuelles (140k lignes)
-  - dpe_communes  : agrégation par commune (2346 lignes)
+  - dpe_logements : données individuelles (500k+ lignes, tous départements)
+  - dpe_communes  : agrégation par commune
 
 Usage :
     from shared.supabase_dpe import get_dpe_communes, get_dpe_logements, get_passoires
