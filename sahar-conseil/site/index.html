@@ -1016,6 +1016,97 @@
     }
 
     /* CTA */
+    /* BLOG + PODCAST */
+    .blog-podcast-section {
+      background: #1A1A2E; padding: 5rem 5%; position: relative;
+    }
+    .blog-podcast-grid {
+      display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 3rem;
+      max-width: 1100px; margin: 0 auto;
+    }
+    .blog-cards { display: flex; flex-direction: column; gap: 1.2rem; }
+    .blog-card {
+      display: flex; gap: 1.2rem; align-items: center;
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px; padding: 1.2rem; text-decoration: none; color: #fff;
+      transition: all 0.3s ease;
+    }
+    .blog-card:hover {
+      background: rgba(0,220,130,0.06); border-color: rgba(0,220,130,0.2);
+      transform: translateX(4px);
+    }
+    .blog-card-emoji {
+      width: 56px; height: 56px; border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.6rem; flex-shrink: 0;
+    }
+    .blog-card-content { flex: 1; min-width: 0; }
+    .blog-card-tag {
+      font-size: 0.7rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.08em; color: #00DC82; margin-bottom: 0.3rem;
+    }
+    .blog-card-title {
+      font-family: 'Space Grotesk', sans-serif; font-size: 1rem; font-weight: 600;
+      line-height: 1.3; margin-bottom: 0.25rem;
+    }
+    .blog-card-excerpt { font-size: 0.8rem; color: rgba(255,255,255,0.5); line-height: 1.4; }
+    .blog-card-arrow { color: rgba(255,255,255,0.3); font-size: 1.2rem; flex-shrink: 0; transition: color 0.3s; }
+    .blog-card:hover .blog-card-arrow { color: #00DC82; }
+    .blog-view-all {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      color: #00DC82; text-decoration: none; font-weight: 600; font-size: 0.9rem;
+      margin-top: 0.5rem; transition: gap 0.3s;
+    }
+    .blog-view-all:hover { gap: 0.8rem; }
+
+    .podcast-box {
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 20px; padding: 2rem; height: 100%;
+      display: flex; flex-direction: column;
+    }
+    .podcast-header {
+      display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;
+    }
+    .podcast-icon {
+      width: 52px; height: 52px; border-radius: 14px;
+      background: linear-gradient(135deg, #7B61FF, #00DC82);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem;
+    }
+    .podcast-title {
+      font-family: 'Space Grotesk', sans-serif; font-size: 1.1rem; font-weight: 700;
+    }
+    .podcast-sub { font-size: 0.8rem; color: rgba(255,255,255,0.5); }
+    .podcast-episodes { flex: 1; display: flex; flex-direction: column; gap: 0.8rem; margin-bottom: 1.5rem; }
+    .podcast-ep {
+      display: flex; align-items: center; gap: 0.8rem;
+      padding: 0.8rem; border-radius: 12px;
+      background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+      cursor: pointer; transition: all 0.2s;
+    }
+    .podcast-ep:hover { background: rgba(123,97,255,0.08); border-color: rgba(123,97,255,0.2); }
+    .podcast-ep-play {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: #7B61FF; display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; transition: transform 0.2s;
+    }
+    .podcast-ep:hover .podcast-ep-play { transform: scale(1.1); }
+    .podcast-ep-play::after {
+      content: ''; width: 0; height: 0;
+      border-left: 8px solid #fff; border-top: 5px solid transparent; border-bottom: 5px solid transparent;
+      margin-left: 2px;
+    }
+    .podcast-ep-info { flex: 1; min-width: 0; }
+    .podcast-ep-title { font-size: 0.85rem; font-weight: 600; }
+    .podcast-ep-meta { font-size: 0.7rem; color: rgba(255,255,255,0.4); }
+    .podcast-spotify-embed {
+      border-radius: 12px; overflow: hidden; margin-top: auto;
+    }
+
+    @media (max-width: 768px) {
+      .blog-podcast-grid { grid-template-columns: 1fr; }
+    }
+
     .cta-section {
       background: var(--accent-green);
       color: #000;
@@ -1215,7 +1306,7 @@
     <li><a href="#rapport">Rapport Pro</a></li>
     <li><a href="#secteurs">Secteurs</a></li>
     <li><a href="#tarifs">Tarifs</a></li>
-    <li><a href="blog/">Blog</a></li>
+    <li><a href="#blog">Blog & Podcast</a></li>
     <li><a href="#contact">Contact</a></li>
   </ul>
   <a href="#contact" class="nav-cta">Demander une démo</a>
@@ -1595,6 +1686,85 @@
         <li class="off">API (v3)</li>
       </ul>
       <a href="#contact" class="btn-secondary" style="display:block;text-align:center">Nous contacter</a>
+    </div>
+  </div>
+</section>
+
+<!-- BLOG + PODCAST -->
+<section id="blog" class="blog-podcast-section">
+  <div class="section-header">
+    <div class="section-label">Contenus</div>
+    <h2 class="section-title">Blog & Podcast</h2>
+    <p class="section-sub">Analyses de marché, guides pratiques et interviews — le meilleur de l'open data décrypté.</p>
+  </div>
+  <div class="blog-podcast-grid">
+    <div>
+      <div class="blog-cards">
+        <a href="blog/" class="blog-card">
+          <div class="blog-card-emoji" style="background:rgba(0,220,130,0.1)">📊</div>
+          <div class="blog-card-content">
+            <div class="blog-card-tag">Tendances</div>
+            <div class="blog-card-title">Prix immobilier 2026 : les villes qui montent</div>
+            <div class="blog-card-excerpt">Analyse DVF des 10 métropoles avec la plus forte progression sur 24 mois.</div>
+          </div>
+          <span class="blog-card-arrow">→</span>
+        </a>
+        <a href="blog/" class="blog-card">
+          <div class="blog-card-emoji" style="background:rgba(123,97,255,0.1)">⚡</div>
+          <div class="blog-card-content">
+            <div class="blog-card-tag">Énergie</div>
+            <div class="blog-card-title">Passoires thermiques : le guide artisan RGE</div>
+            <div class="blog-card-excerpt">Comment cibler les logements F/G avec le DPE Scanner et MaPrimeRénov'.</div>
+          </div>
+          <span class="blog-card-arrow">→</span>
+        </a>
+        <a href="blog/" class="blog-card">
+          <div class="blog-card-emoji" style="background:rgba(255,107,107,0.1)">🏪</div>
+          <div class="blog-card-content">
+            <div class="blog-card-tag">Retail</div>
+            <div class="blog-card-title">Ouvrir une franchise : le score zone à connaître</div>
+            <div class="blog-card-excerpt">Comment exploiter les données INSEE et SIRENE pour choisir votre emplacement.</div>
+          </div>
+          <span class="blog-card-arrow">→</span>
+        </a>
+      </div>
+      <a href="blog/" class="blog-view-all">Voir tous les articles <span>→</span></a>
+    </div>
+    <div class="podcast-box">
+      <div class="podcast-header">
+        <div class="podcast-icon">🎙️</div>
+        <div>
+          <div class="podcast-title">Data & Terrain</div>
+          <div class="podcast-sub">Le podcast SAHAR Conseil</div>
+        </div>
+      </div>
+      <div class="podcast-episodes">
+        <div class="podcast-ep">
+          <div class="podcast-ep-play"></div>
+          <div class="podcast-ep-info">
+            <div class="podcast-ep-title">Ep.1 — DVF : la mine d'or ignorée</div>
+            <div class="podcast-ep-meta">12 min • Immobilier</div>
+          </div>
+        </div>
+        <div class="podcast-ep">
+          <div class="podcast-ep-play"></div>
+          <div class="podcast-ep-info">
+            <div class="podcast-ep-title">Ep.2 — DPE et rénovation : le business caché</div>
+            <div class="podcast-ep-meta">15 min • Énergie</div>
+          </div>
+        </div>
+        <div class="podcast-ep">
+          <div class="podcast-ep-play"></div>
+          <div class="podcast-ep-info">
+            <div class="podcast-ep-title">Ep.3 — Open data : concurrencer les gros</div>
+            <div class="podcast-ep-meta">18 min • Stratégie</div>
+          </div>
+        </div>
+      </div>
+      <!-- Spotify embed — remplacer SHOW_ID par ton vrai ID -->
+      <div class="podcast-spotify-embed">
+        <iframe style="border-radius:12px" src="https://open.spotify.com/embed/show/VOTRE_SHOW_ID?utm_source=generator&theme=0" width="100%" height="152" frameborder="0" allowfullscreen allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+      </div>
     </div>
   </div>
 </section>
