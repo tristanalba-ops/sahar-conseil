@@ -324,11 +324,12 @@ st.markdown("---")
 
 # ─── ONGLETS PRINCIPAUX ───────────────────────────────────────────────────────
 
-tab_data, tab_carte, tab_stats, tab_marche, tab_crm, tab_pilotage, tab_export = st.tabs([
+tab_data, tab_carte, tab_stats, tab_marche, tab_dpe, tab_crm, tab_pilotage, tab_export = st.tabs([
     "📋 Transactions",
     "🗺️ Carte",
     "📊 Statistiques",
     "🏙️ Marché par commune",
+    "🔥 DPE × DVF",
     "💼 CRM Pipeline",
     "🎯 Pilotage",
     "📥 Export",
@@ -810,7 +811,185 @@ with tab_marche:
                             st.error(f"Erreur génération PDF : {e}")
 
 
-# ── TAB 5 : CRM PIPELINE (Mobile-first) ──────────────────────────────────────
+# ── TAB 5 : DPE × DVF — Croisement passoires thermiques / transactions ───────
+
+with tab_dpe:
+    st.subheader("🔥 Croisement DPE × DVF — Opportunités rénovation")
+    st.caption("Identifie les communes avec forte activité immobilière ET forte concentration de passoires thermiques")
+
+    # Charger les données DPE
+    try:
+        from shared.supabase_dpe import get_dpe_communes, get_dpe_logements, get_dpe_stats
+        dpe_communes = get_dpe_communes(departement=dept)
+        has_dpe = not dpe_communes.empty
+    except Exception as e:
+        has_dpe = False
+        dpe_communes = pd.DataFrame()
+
+    if not has_dpe:
+        st.warning(f"Pas de données DPE disponibles pour le département {dept}. "
+                   f"Départements couverts : 06, 13, 31, 33, 59, 69, 75.")
+    else:
+        # ── KPIs DPE header ──
+        stats_dpe = get_dpe_stats(dept)
+        kc1, kc2, kc3, kc4, kc5 = st.columns(5)
+        kc1.metric("Communes couvertes", f"{stats_dpe.get('nb_communes', 0)}")
+        kc2.metric("DPE E/F/G", f"{stats_dpe.get('nb_dpe_total', 0):,}")
+        kc3.metric("Passoires F+G", f"{stats_dpe.get('nb_fg', 0):,}")
+        kc4.metric("% F+G moyen", f"{stats_dpe.get('pct_fg_moyen', 0):.0f}%")
+        nb_tx_dept = len(df)
+        kc5.metric("Transactions DVF", f"{nb_tx_dept:,}")
+
+        st.markdown("---")
+
+        # ── Croisement DVF × DPE par commune ──
+        # Agréger DVF par commune
+        dvf_communes = df.groupby("nom_commune").agg(
+            nb_transactions=("valeur_fonciere", "count"),
+            prix_m2_median=("prix_m2", "median"),
+            prix_m2_moy=("prix_m2", "mean"),
+            volume_total=("valeur_fonciere", "sum"),
+            surface_moy=("surface_utile", "mean"),
+            score_dvf_moy=("score", "mean"),
+        ).reset_index()
+        dvf_communes.columns = ["commune", "nb_transactions", "prix_m2_median",
+                                 "prix_m2_moy", "volume_total", "surface_moy", "score_dvf_moy"]
+
+        # Jointure DVF × DPE
+        merged = dvf_communes.merge(
+            dpe_communes[["commune", "nb_dpe_efg", "nb_f", "nb_g", "pct_fg", "conso_moy", "ges_moy", "periode_dominante"]],
+            on="commune", how="inner"
+        )
+
+        if merged.empty:
+            st.info("Aucune commune en commun entre DVF et DPE. Vérifiez les noms de communes.")
+        else:
+            # Score croisé : combine score DVF (opportunité immo) + concentration passoires
+            merged["score_dvf"] = merged["score_dvf_moy"].round(0).astype(int)
+            merged["score_dpe"] = (merged["pct_fg"] * 100 / merged["pct_fg"].max()).clip(0, 100).round(0).astype(int)
+            merged["score_croise"] = ((merged["score_dvf"] * 0.5 + merged["score_dpe"] * 0.5)
+                                      .round(0).astype(int))
+            merged = merged.sort_values("score_croise", ascending=False)
+
+            st.markdown(f"**{len(merged)} communes croisées DVF × DPE** — triées par score d'opportunité combiné")
+
+            # ── Top opportunités croisées ──
+            col_chart, col_table = st.columns([1, 1])
+
+            with col_chart:
+                st.markdown("##### Score croisé par commune")
+                import plotly.express as px
+                top20 = merged.head(20).copy()
+                fig = px.bar(
+                    top20, x="score_croise", y="commune",
+                    orientation="h",
+                    color="pct_fg",
+                    color_continuous_scale="YlOrRd",
+                    labels={"score_croise": "Score combiné", "commune": "", "pct_fg": "% F+G"},
+                    title=f"Top 20 communes — Dept {dept}",
+                )
+                fig.update_layout(height=500, yaxis=dict(autorange="reversed"))
+                st.plotly_chart(fig, use_container_width=True)
+
+            with col_table:
+                st.markdown("##### Détail chiffré")
+                display_cols = ["commune", "score_croise", "nb_transactions", "prix_m2_median",
+                                "nb_dpe_efg", "nb_f", "nb_g", "pct_fg", "conso_moy"]
+                st.dataframe(
+                    merged[display_cols].head(30).style.background_gradient(
+                        subset=["score_croise", "pct_fg"], cmap="YlOrRd"
+                    ),
+                    use_container_width=True, height=500,
+                )
+
+            st.markdown("---")
+
+            # ── Scatter plot : prix × passoires ──
+            st.markdown("##### Prix vs Passoires thermiques")
+            fig2 = px.scatter(
+                merged, x="prix_m2_median", y="pct_fg",
+                size="nb_transactions", color="score_croise",
+                color_continuous_scale="RdYlGn_r",
+                hover_name="commune",
+                hover_data={"nb_dpe_efg": True, "nb_f": True, "nb_g": True,
+                            "conso_moy": True, "score_croise": True},
+                labels={"prix_m2_median": "Prix médian €/m²", "pct_fg": "% passoires F+G",
+                         "nb_transactions": "Volume transactions", "score_croise": "Score"},
+                title="Opportunités : prix bas + forte concentration passoires = haut potentiel rénovation",
+            )
+            fig2.update_layout(height=450)
+            st.plotly_chart(fig2, use_container_width=True)
+
+            st.markdown("---")
+
+            # ── Drill-down commune ──
+            st.markdown("##### Détail par commune")
+            communes_list = merged["commune"].tolist()
+            selected_commune = st.selectbox("Sélectionner une commune", communes_list, key="dpe_commune_select")
+
+            if selected_commune:
+                row = merged[merged["commune"] == selected_commune].iloc[0]
+                dc1, dc2, dc3, dc4, dc5, dc6 = st.columns(6)
+                dc1.metric("Score combiné", f"{row['score_croise']}/100")
+                dc2.metric("Transactions DVF", f"{row['nb_transactions']}")
+                dc3.metric("Prix médian €/m²", f"{row['prix_m2_median']:,.0f}")
+                dc4.metric("DPE E/F/G", f"{row['nb_dpe_efg']}")
+                dc5.metric("Passoires F+G", f"{row['nb_f'] + row['nb_g']}")
+                dc6.metric("% F+G", f"{row['pct_fg']}%")
+
+                # Charger les logements DPE individuels de cette commune
+                with st.expander(f"📍 Logements F+G à {selected_commune}", expanded=False):
+                    try:
+                        dpe_details = get_dpe_logements(
+                            departement=dept,
+                            etiquettes=["F", "G"],
+                            commune=selected_commune,
+                            limit=200
+                        )
+                        if not dpe_details.empty:
+                            st.caption(f"{len(dpe_details)} passoires thermiques trouvées")
+                            show_cols = [c for c in ["adresse", "etiquette_dpe", "score_urgence",
+                                                      "conso_ef", "emission_ges", "periode_construction",
+                                                      "energie_principale", "type_batiment"] if c in dpe_details.columns]
+                            st.dataframe(
+                                dpe_details[show_cols].sort_values("score_urgence", ascending=False),
+                                use_container_width=True, height=350,
+                            )
+
+                            # Bouton ajout CRM batch
+                            if st.button(f"➕ Ajouter {selected_commune} au CRM", key="dpe_crm_add"):
+                                contact = add_contact(
+                                    f"Prospect DPE — {selected_commune}",
+                                    type_contact="DPE",
+                                    notes=f"{row['nb_f']+row['nb_g']} passoires F/G, score {row['score_croise']}"
+                                )
+                                if contact:
+                                    add_opportunite(
+                                        contact.get("id", ""),
+                                        f"Rénovation {selected_commune} ({row['nb_f']+row['nb_g']} F/G)",
+                                        selected_commune, "DPE Zone",
+                                        0, 0, row["prix_m2_median"],
+                                        row["score_croise"], source="DPE×DVF"
+                                    )
+                                    st.success(f"✅ {selected_commune} ajouté au CRM")
+                        else:
+                            st.info("Aucun logement F/G trouvé pour cette commune.")
+                    except Exception as e:
+                        st.warning(f"Impossible de charger les détails DPE : {e}")
+
+            # ── Export croisement ──
+            st.markdown("---")
+            csv_cross = merged.to_csv(index=False).encode("utf-8")
+            st.download_button(
+                "📥 Exporter le croisement DVF × DPE",
+                csv_cross,
+                f"dvf_dpe_croise_{dept}.csv",
+                "text/csv",
+                key="dl_dpe_cross"
+            )
+
+
+# ── TAB 6 : CRM PIPELINE (Mobile-first) ──────────────────────────────────────
 
 with tab_crm:
 
