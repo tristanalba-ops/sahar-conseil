@@ -44,11 +44,11 @@ DPE_API = "https://data.ademe.fr/data-fair/api/v1/datasets/dpe-v2-logements-exis
 def fetch_dpe(code_postal: str, nb: int = 1000) -> pd.DataFrame:
     import requests
 
-    # URLs ADEME à essayer dans l'ordre
+    # URLs ADEME — dataset renommé "dpe03existant" en 2024
     ADEME_URLS = [
-        "https://data.ademe.fr/data-fair/api/v1/datasets/dpe-v2-logements-existants-2/lines",
+        "https://data.ademe.fr/data-fair/api/v1/datasets/dpe03existant/lines",
         "https://data.ademe.fr/data-fair/api/v1/datasets/dpe-v2-logements-existants/lines",
-        "https://koumoul.com/data-fair/api/v1/datasets/dpe-v2-logements-existants/lines",
+        "https://data.ademe.fr/data-fair/api/v1/datasets/dpe-v2-logements-existants-2/lines",
     ]
 
     SELECT = (
