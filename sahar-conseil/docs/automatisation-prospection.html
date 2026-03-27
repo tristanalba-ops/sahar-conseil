@@ -1,38 +1,14 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <!-- Google Tag Manager -->
-  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-  })(window,document,'script','dataLayer','GTM-5WSR4DK5');</script>
-  <!-- End Google Tag Manager -->
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Automatiser sa prospection commerciale avec l'open data — SAHAR Conseil</title>
-  <meta name="description" content="Comment automatiser la détection de prospects, le scoring et les relances avec les données publiques françaises. Workflows, outils, intégrations CRM. Guide pratique." />
-  <meta name="robots" content="index, follow" />
-  <meta name="googlebot" content="index, follow" />
-  <meta property="og:type" content="article" />
-  <meta property="og:site_name" content="SAHAR Conseil" />
-  <meta property="og:title" content="Automatiser la prospection avec l'open data — SAHAR Conseil" />
-  <meta property="og:description" content="Comment automatiser la détection de prospects, le scoring et les relances avec les données publiques françaises. Workflows, outils, intégrations CRM. Guide pratique." />
-  <meta property="og:url" content="https://tristanalba-ops.github.io/sahar-conseil/automatisation-prospection.html" />
-  <link rel="canonical" href="https://tristanalba-ops.github.io/sahar-conseil/automatisation-prospection.html" />
-  <script type="application/ld+json">
-{
-  "@context":"https://schema.org",
-  "@type":"Article",
-  "headline":"Automatiser sa prospection avec les données publiques : ce qui est possible, ce qui ne l'est pas.",
-  "description":"Comment automatiser la détection de prospects, le scoring et les relances avec les données publiques françaises. Workflows, outils, intégrations CRM. Guide pratique.",
-  "keywords":"automatisation prospection, workflow commercial, open data automatique, scoring automatique, relances CRM, prospection data-driven",
-  "url":"https://tristanalba-ops.github.io/sahar-conseil/automatisation-prospection.html",
-  "inLanguage":"fr-FR",
-  "author":{"@type":"Organization","name":"SAHAR Conseil","url":"https://tristanalba-ops.github.io/sahar-conseil/"},
-  "publisher":{"@type":"Organization","name":"SAHAR Conseil","url":"https://tristanalba-ops.github.io/sahar-conseil/"}
-}
-</script>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Automatiser sa Prospection avec les Données | SAHAR Conseil</title>
+  <meta name="description" content="Séquences emails, relances automatiques, score-based triggers. Comment automatiser sa prospection sans perdre en personnalisation.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://tristanalba-ops.github.io/sahar-conseil/automatisation-prospection.html">
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-5WSR4DK5');</script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XV2P0YPJK0"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-XV2P0YPJK0');</script>
   <style>*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
 body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;font-size:16px;line-height:1.65;color:#1a1a1a;background:#fff;-webkit-font-smoothing:antialiased}
@@ -128,265 +104,86 @@ ul,ol{padding-left:1.4rem;margin-bottom:1rem}li{color:var(--ink2);margin-bottom:
   .cta-strip{flex-direction:column;text-align:center}
   .section{padding:3.5rem 0}
 }</style>
-  <meta name="author" content="SAHAR Conseil" />
-  <!-- GA4 via GTM fallback direct -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XV2P0YPJK0"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-XV2P0YPJK0', {
-      page_title: document.title,
-      page_location: window.location.href
-    });
-
-    // ── Événements de conversion SAHAR ──────────────────────────────────────
-
-    // 1. Soumission formulaire contact
-    document.addEventListener('DOMContentLoaded', function() {
-      var forms = document.querySelectorAll('form');
-      forms.forEach(function(form) {
-        form.addEventListener('submit', function() {
-          gtag('event', 'form_submit', {
-            event_category: 'conversion',
-            event_label: 'contact_form',
-            value: 1
-          });
-          dataLayer.push({event: 'sahar_form_submit', form_id: form.action});
-        });
-      });
-
-      // 2. Clics CTA principaux
-      var ctas = document.querySelectorAll('a.btn, a.nav-cta, a.service-link, a.tool-link');
-      ctas.forEach(function(btn) {
-        btn.addEventListener('click', function() {
-          gtag('event', 'cta_click', {
-            event_category: 'engagement',
-            event_label: btn.textContent.trim().substring(0, 50),
-            cta_url: btn.href
-          });
-        });
-      });
-
-      // 3. Tool view — pages secteurs
-      var path = window.location.pathname;
-      var toolMap = {
-        'immobilier': 'dvf_analyse',
-        'energie-renovation': 'dpe_scanner',
-        'retail-franchise': 'zone_score',
-        'rh-recrutement': 'rh_tension',
-        'crm': 'crm_pipeline',
-        'scoring-prospects': 'scoring',
-        'automatisation': 'automation'
-      };
-      Object.keys(toolMap).forEach(function(key) {
-        if (path.indexOf(key) !== -1) {
-          gtag('event', 'tool_view', {
-            event_category: 'product',
-            tool_name: toolMap[key],
-            page_path: path
-          });
-        }
-      });
-
-      // 4. Scroll depth 50% et 90%
-      var scrollFired = {};
-      window.addEventListener('scroll', function() {
-        var pct = Math.round((window.scrollY + window.innerHeight) / document.body.scrollHeight * 100);
-        if (pct >= 50 && !scrollFired[50]) {
-          scrollFired[50] = true;
-          gtag('event', 'scroll', {event_category: 'engagement', percent_scrolled: 50});
-        }
-        if (pct >= 90 && !scrollFired[90]) {
-          scrollFired[90] = true;
-          gtag('event', 'scroll', {event_category: 'engagement', percent_scrolled: 90});
-        }
-      });
-
-      // 5. Temps passé — engagement 30s et 60s
-      var timeFired = {};
-      [30000, 60000].forEach(function(ms) {
-        setTimeout(function() {
-          if (!timeFired[ms]) {
-            timeFired[ms] = true;
-            gtag('event', 'time_on_page', {
-              event_category: 'engagement',
-              seconds: ms / 1000
-            });
-          }
-        }, ms);
-      });
-    });
-  </script>
-
-  <!-- UTM Capture & DataLayer Push -->
-  <script>
-  (function() {
-    // 1. Capturer les UTM depuis l'URL
-    var params = new URLSearchParams(window.location.search);
-    var utmKeys = ['utm_source','utm_medium','utm_campaign','utm_content','utm_term'];
-    var utms = {};
-    var hasUtm = false;
-
-    utmKeys.forEach(function(key) {
-      var val = params.get(key);
-      if (val) { utms[key] = val; hasUtm = true; }
-    });
-
-    // 2. Persister en sessionStorage (survit aux navigations)
-    if (hasUtm) {
-      sessionStorage.setItem('sahar_utms', JSON.stringify(utms));
-      sessionStorage.setItem('sahar_landing', window.location.pathname);
-      sessionStorage.setItem('sahar_referrer', document.referrer || 'direct');
-    }
-
-    // 3. Récupérer les UTM stockés (même sans paramètres dans l'URL courante)
-    var storedUtms = {};
-    try { storedUtms = JSON.parse(sessionStorage.getItem('sahar_utms') || '{}'); } catch(e) {}
-    var allUtms = Object.assign({}, storedUtms, utms);
-
-    // 4. Push vers dataLayer GTM
-    window.dataLayer = window.dataLayer || [];
-    if (Object.keys(allUtms).length > 0) {
-      dataLayer.push({
-        event: 'utm_captured',
-        utm_source:   allUtms.utm_source   || '(none)',
-        utm_medium:   allUtms.utm_medium   || '(none)',
-        utm_campaign: allUtms.utm_campaign || '(none)',
-        utm_content:  allUtms.utm_content  || '(none)',
-        utm_term:     allUtms.utm_term     || '(none)',
-        landing_page: sessionStorage.getItem('sahar_landing') || window.location.pathname,
-        referrer:     sessionStorage.getItem('sahar_referrer') || document.referrer || 'direct'
-      });
-    }
-
-    // 5. Enrichir les soumissions formulaire avec les UTMs
-    document.addEventListener('DOMContentLoaded', function() {
-      var forms = document.querySelectorAll('form');
-      forms.forEach(function(form) {
-        form.addEventListener('submit', function() {
-          // Push GA4 enrichi
-          dataLayer.push({
-            event: 'sahar_lead_submit',
-            utm_source:   allUtms.utm_source   || '(none)',
-            utm_medium:   allUtms.utm_medium   || '(none)',
-            utm_campaign: allUtms.utm_campaign || '(none)',
-            landing_page: sessionStorage.getItem('sahar_landing') || window.location.pathname,
-            form_url:     form.action
-          });
-        });
-
-        // Injecter les UTMs comme champs cachés dans le formulaire Formspree
-        if (form.action && form.action.indexOf('formspree') !== -1) {
-          Object.keys(allUtms).forEach(function(key) {
-            var input = document.createElement('input');
-            input.type = 'hidden';
-            input.name = key;
-            input.value = allUtms[key];
-            form.appendChild(input);
-          });
-          // Ajouter landing page et referrer
-          ['sahar_landing','sahar_referrer'].forEach(function(key) {
-            var val = sessionStorage.getItem(key);
-            if (val) {
-              var input = document.createElement('input');
-              input.type = 'hidden';
-              input.name = key;
-              input.value = val;
-              form.appendChild(input);
-            }
-          });
-        }
-      });
-    });
-  })();
-  </script>
 </head>
 <body>
-<!-- Google Tag Manager (noscript) -->
-<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5WSR4DK5"
-height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-<!-- End Google Tag Manager (noscript) -->
-<a href="#main" class="skip-link">Aller au contenu</a>
 <a href="#main" class="skip">Aller au contenu</a>
-<nav class="nav"><a href="index.html" class="nav-logo"><span class="nav-logo-dot"></span>SAHAR Conseil</a>
-<ul class="nav-menu"><li><a href="immobilier.html">Immobilier</a></li><li><a href="energie-renovation.html">Énergie</a></li><li><a href="retail-franchise.html">Retail</a></li><li><a href="rh-recrutement.html">RH</a></li><li><a href="crm.html">CRM</a></li><li><a href="index.html#tarifs">Tarifs</a></li></ul>
-<div class="nav-actions"><a href="index.html#contact" class="btn btn-primary btn-sm">Démo gratuite</a></div></nav>
-<div class="container">
-<article id="main">
-  <div class="breadcrumb"><a href="index.html">Accueil</a> → <a href="crm.html">CRM & Pipeline</a> → Automatisation</div>
-  <h1>Automatiser sa prospection avec les données publiques : ce qui est possible, ce qui ne l'est pas.</h1>
-  <p class="lead">L'automatisation n'est pas une baguette magique. Mal utilisée, elle envoie des emails génériques à des gens qui ne vous connaissent pas. Bien utilisée, elle libère vos SDR des tâches répétitives pour qu'ils se concentrent sur ce que seul l'humain peut faire : convaincre.</p>
-  <h2>Ce qu'on peut automatiser vs ce qu'on ne peut pas</h2>
-  <div class="grid-2">
-    <div class="card"><h3>✓ À automatiser</h3><p>Détection de prospects via données publiques, scoring initial, enrichissement de fiches, rappels de relance, génération de rapports PDF, export vers CRM, alertes sur nouveaux signaux.</p></div>
-    <div class="card"><h3>✗ À ne pas automatiser</h3><p>Le premier appel à froid, la construction de la relation, la qualification des besoins, la négociation, le closing. L'humain reste indispensable là où la nuance compte.</p></div>
-  </div>
-  <div class="highlight">L'automatisation idéale : votre SDR arrive au bureau le matin avec une liste de 10 prospects priorisés, enrichis, et contextualisés. Il n'a plus qu'à décrocher. Tout ce qui précède a été fait par le système.</div>
-
-  <h2>Le workflow automatisé SAHAR</h2>
-  <ol>
-    <li><strong>Scan automatique</strong> — SAHAR interroge quotidiennement les APIs DVF, DPE, SIRENE sur vos zones cibles. Chaque nouvelle opportunité est détectée automatiquement.</li>
-    <li><strong>Scoring automatique</strong> — Chaque prospect reçoit un score 0–100 en quelques secondes, sans intervention humaine.</li>
-    <li><strong>Filtrage par seuil</strong> — Seuls les prospects avec score &gt; votre seuil entrent dans le pipeline. Vous définissez le seuil selon votre capacité SDR.</li>
-    <li><strong>Enrichissement fiche</strong> — La fiche prospect est pré-remplie avec les données open data : adresse, contexte marché, signal déclencheur.</li>
-    <li><strong>Notification SDR</strong> — Votre équipe reçoit une alerte (email ou Slack) avec la liste des nouveaux prospects à appeler aujourd'hui.</li>
-    <li><strong>Rappels relance</strong> — Si un prospect contacté n'a pas répondu après J+3, une tâche de relance est créée automatiquement dans le CRM.</li>
-  </ol>
-
-  <h2>Automatisations par secteur</h2>
-  <div class="grid-3">
-    <div class="card"><h3>Immobilier</h3><p>Alerte automatique dès qu'une nouvelle transaction DVF passe en dessous du seuil de médiane que vous définissez. Chaque jour, les nouvelles opportunités de votre secteur.</p></div>
-    <div class="card"><h3>Rénovation</h3><p>Scan des nouveaux DPE F/G déposés dans vos codes postaux cibles. Dès qu'un propriétaire fait diagnostiquer son bien énergivore, vous le savez.</p></div>
-    <div class="card"><h3>Retail</h3><p>Surveillance des nouvelles créations d'entreprises SIRENE dans votre secteur cible. Un nouveau concurrent ou un nouveau client potentiel : vous êtes alerté.</p></div>
-  </div>
-
-  <h2>Intégrations avec votre stack existant</h2>
-  <p>SAHAR s'intègre avec les outils que vous utilisez déjà :</p>
-  <ul>
-    <li><strong>HubSpot / Pipedrive / Salesforce</strong> — Export CSV automatique ou intégration API des nouveaux prospects scorés</li>
-    <li><strong>Google Sheets</strong> — Synchronisation des données pour les équipes qui travaillent encore sur tableur</li>
-    <li><strong>Slack / Teams</strong> — Notifications quotidiennes sur les nouvelles opportunités détectées</li>
-    <li><strong>Zapier / Make</strong> — Connexion à n'importe quel outil via webhook pour les workflows personnalisés</li>
+<nav class="nav" aria-label="Navigation principale">
+  <a href="index.html" class="nav-logo"><span class="nav-logo-dot"></span>SAHAR Conseil</a>
+  <ul class="nav-menu">
+    <li><a href="immobilier.html">Immobilier</a></li>
+    <li><a href="energie-renovation.html">Énergie</a></li>
+    <li><a href="retail-franchise.html">Retail</a></li>
+    <li><a href="rh-recrutement.html">RH</a></li>
+    <li><a href="crm.html">CRM</a></li>
+    <li><a href="index.html#tarifs">Tarifs</a></li>
   </ul>
+  <div class="nav-actions"><a href="index.html#contact" class="btn btn-primary btn-sm">Démo gratuite</a></div>
+</nav>
+<main id="main">
 
-  <h2>Le risque de la sur-automatisation</h2>
-  <p>Automatiser la détection et le scoring est toujours bon. Automatiser le contact (email automatique, séquence cold outreach) est risqué si ce n'est pas fait correctement. Un email générique envoyé à des milliers de personnes détruit la réputation de votre domaine et votre deliverability.</p>
-  <p>La règle SAHAR : automatiser l'intelligence (qui appeler, pourquoi, quand), pas l'interaction (le message lui-même doit être personnalisé par le commercial).</p>
-
-  <div class="cta-block">
-    <p>Voir comment l'automatisation SAHAR fonctionne sur votre secteur.</p>
-    <a href="index.html#contact" class="btn btn-dark">Demander une démonstration →</a>
+<section class="section" style="padding-top:4.5rem;padding-bottom:3.5rem;background:var(--bg2)">
+  <div class="container-text" style="max-width:720px;margin:0 auto;padding:0 5%">
+    <div class="breadcrumb">
+      <a href="index.html">Accueil</a><span class="breadcrumb-sep">→</span>
+      <a href="prospecter-donnees-publiques.html">Ressources</a><span class="breadcrumb-sep">→</span>
+      <span>Guide automation</span>
+    </div>
+    <span class="overline">Guide automation</span>
+    <h1 style="margin-bottom:1rem">Automatiser sa <strong>prospection commerciale</strong> avec les données</h1>
+    <p class="lead">Séquences emails, relances automatiques, score-based triggers. Comment automatiser sa prospection sans perdre en personnalisation.</p>
   </div>
+</section>
 
-  <div class="related">
-    <h3>Sur le même sujet</h3>
-    <div class="related-links">
-      <a href="scoring-prospects.html">Scoring prospects — la base de l'automatisation →</a>
-      <a href="crm.html">CRM SAHAR avec automatisations intégrées →</a>
-      <a href="kpis-commerciaux.html">Mesurer l'impact de l'automatisation sur vos KPIs →</a>
-      <a href="prospecter-donnees-publiques.html">Open data : la source de vos automatisations →</a>
+
+<section class="section">
+  <div class="container-text" style="max-width:720px;margin:0 auto;padding:0 5%">
+    <h2 style="margin-bottom:.75rem">Ce qui peut être automatisé (et ce qui ne doit pas l'être)</h2>
+    <p>L'automation commerciale fonctionne quand elle <strong>personnalise avec des données</strong> — pas quand elle envoie le même message à tout le monde. Un email à un propriétaire qui dit "Votre logement au 12 rue X classé G est interdit à la location depuis 2025" convertit. Un email qui dit "Bonjour, je fais de la rénovation énergétique" ne convertit pas.</p><p>Ce qui se prête à l'automation : <strong>séquences de nurturing post-contact</strong>, relances après devis envoyé, alertes internes quand un prospect dépasse un seuil de stagnation. Ce qui ne doit pas être automatisé : le premier contact (toujours personnalisé), la négociation, le closing.</p>
+  </div>
+</section>
+<section class="section">
+  <div class="container-text" style="max-width:720px;margin:0 auto;padding:0 5%">
+    <h2 style="margin-bottom:.75rem">Séquence J+0 / J+3 / J+7</h2>
+    <p><strong>J+0 — Confirmation immédiate</strong> : accusé de réception avec une donnée sur leur secteur. Montre que vous avez fait vos devoirs. "Nous avons analysé les 23 dernières transactions dans votre zone — voici ce que nous voyons."</p><p><strong>J+3 — Contenu valeur</strong> : partagez un insight utile sans pitch. Un graphique de tendance marché, un fait sur la réglementation DPE. Pas d'appel à l'action forcé — juste de la valeur.</p><p><strong>J+7 — Relance directe</strong> : question directe, courte. "Avez-vous eu le temps de regarder les données ? Un créneau de 20 minutes cette semaine ?" La brièveté est délibérée — les longues relances ne se lisent pas.</p>
+  </div>
+</section>
+<section class="section">
+  <div class="container-text" style="max-width:720px;margin:0 auto;padding:0 5%">
+    <h2 style="margin-bottom:.75rem">Triggers basés sur le score</h2>
+    <p>Le scoring ouvre une automation puissante : déclencher des actions quand un prospect <strong>dépasse un seuil de score</strong>. Exemple immobilier : dès qu'un bien score >75, alerte interne + email automatique personnalisé au propriétaire. Exemple DPE : dès qu'un logement score urgence >80, ajouter à une liste de prospection prioritaire.</p><p>Ces automatisations sont disponibles dans le CRM SAHAR. <strong>Zéro code</strong>, configuration par critères métier.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container-text" style="max-width:720px;margin:0 auto;padding:0 5%">
+    <div style="background:var(--bg2);border:1px solid var(--bd);border-radius:12px;padding:2rem;text-align:center">
+      <h3 style="margin-bottom:.5rem">Tester sur vos données réelles</h3>
+      <p style="color:var(--ink3);margin-bottom:1.25rem">Démonstration en 20 minutes sur votre secteur et votre zone.</p>
+      <a href="index.html#contact" class="btn btn-primary">Demander une démo gratuite →</a>
     </div>
   </div>
-</article>
-</div>
-<footer class="footer"><div class="container">
-<div class="footer-grid">
-<div class="footer-brand"><strong style="font-size:.95rem;font-weight:700">SAHAR Conseil</strong>
-<p>Open data au service des professionnels. DVF, DPE, INSEE, SIRENE transformés en pipeline commercial.</p></div>
-<div class="footer-col"><h4>Secteurs</h4><ul>
-<li><a href="immobilier.html">Immobilier DVF</a></li><li><a href="energie-renovation.html">Énergie &amp; DPE</a></li>
-<li><a href="retail-franchise.html">Retail &amp; Franchise</a></li><li><a href="rh-recrutement.html">RH &amp; Recrutement</a></li></ul></div>
-<div class="footer-col"><h4>Outils</h4><ul>
-<li><a href="crm.html">CRM Pipeline</a></li><li><a href="scoring-prospects.html">Scoring Prospects</a></li>
-<li><a href="automatisation-prospection.html">Automatisation</a></li><li><a href="conversion-pipeline.html">Conversion Pipeline</a></li></ul></div>
-<div class="footer-col"><h4>Ressources</h4><ul>
-<li><a href="trouver-prospects-immobiliers.html">Prospects immobiliers</a></li>
-<li><a href="passoires-thermiques-interdites.html">Passoires thermiques</a></li>
-<li><a href="prospecter-donnees-publiques.html">Open data</a></li>
-<li><a href="kpis-commerciaux.html">KPIs commerciaux</a></li></ul></div></div>
-<div class="footer-bottom"><p>© 2024 SAHAR Conseil — Données DVF DGFiP, ADEME, INSEE</p>
-<div class="footer-legal"><a href="index.html#contact">Contact</a><a href="sitemap.xml">Sitemap</a></div></div>
-</div></footer>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="related">
+      <span class="related-label">Sur le même sujet</span>
+      <div class="related-grid"><a href="crm.html" class="related-card"><span class="tag">Outil</span><h4>CRM Pipeline</h4><p>Automatisation intégrée</p></a><a href="kpis-commerciaux.html" class="related-card"><span class="tag">Guide</span><h4>KPIs commerciaux</h4><p>Mesurer l'efficacité de l'automation</p></a><a href="scoring-prospects.html" class="related-card"><span class="tag">Guide</span><h4>Scoring prospects</h4><p>Base de tous les triggers</p></a></div>
+    </div>
+  </div>
+</section>
+
+</main>
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand"><strong style="font-size:.95rem;font-weight:700">SAHAR Conseil</strong><p>Open data au service des professionnels. DVF, DPE, INSEE, SIRENE transformés en pipeline commercial.</p></div>
+      <div class="footer-col"><h4>Secteurs</h4><ul><li><a href="immobilier.html">Immobilier DVF</a></li><li><a href="energie-renovation.html">Énergie &amp; DPE</a></li><li><a href="retail-franchise.html">Retail &amp; Franchise</a></li><li><a href="rh-recrutement.html">RH &amp; Recrutement</a></li></ul></div>
+      <div class="footer-col"><h4>Outils</h4><ul><li><a href="crm.html">CRM Pipeline</a></li><li><a href="scoring-prospects.html">Scoring Prospects</a></li><li><a href="automatisation-prospection.html">Automatisation</a></li></ul></div>
+      <div class="footer-col"><h4>Ressources</h4><ul><li><a href="trouver-prospects-immobiliers.html">Prospects immobiliers</a></li><li><a href="passoires-thermiques-interdites.html">Passoires thermiques</a></li><li><a href="prospecter-donnees-publiques.html">Open data</a></li><li><a href="kpis-commerciaux.html">KPIs</a></li></ul></div>
+    </div>
+    <div class="footer-bottom"><p>© 2024 SAHAR Conseil — Données DVF DGFiP, ADEME, INSEE</p><div class="footer-legal"><a href="index.html#contact">Contact</a><a href="sitemap.xml">Sitemap</a></div></div>
+  </div>
+</footer>
 </body>
 </html>

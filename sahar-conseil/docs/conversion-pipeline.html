@@ -1,38 +1,14 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <!-- Google Tag Manager -->
-  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-  })(window,document,'script','dataLayer','GTM-5WSR4DK5');</script>
-  <!-- End Google Tag Manager -->
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Optimiser son pipeline commercial — Taux de conversion et CRO sales — SAHAR Conseil</title>
-  <meta name="description" content="Comment améliorer le taux de conversion à chaque étape de votre pipeline. Identifier les goulots, qualifier mieux, closer plus vite. Méthodes CRO appliquées au sales." />
-  <meta name="robots" content="index, follow" />
-  <meta name="googlebot" content="index, follow" />
-  <meta property="og:type" content="article" />
-  <meta property="og:site_name" content="SAHAR Conseil" />
-  <meta property="og:title" content="Optimiser son pipeline commercial — CRO sales — SAHAR Conseil" />
-  <meta property="og:description" content="Comment améliorer le taux de conversion à chaque étape de votre pipeline. Identifier les goulots, qualifier mieux, closer plus vite. Méthodes CRO appliquées au sales." />
-  <meta property="og:url" content="https://tristanalba-ops.github.io/sahar-conseil/conversion-pipeline.html" />
-  <link rel="canonical" href="https://tristanalba-ops.github.io/sahar-conseil/conversion-pipeline.html" />
-  <script type="application/ld+json">
-{
-  "@context":"https://schema.org",
-  "@type":"Article",
-  "headline":"Votre pipeline perd des deals à chaque étape. Voici où, pourquoi, et comment y remédier.",
-  "description":"Comment améliorer le taux de conversion à chaque étape de votre pipeline. Identifier les goulots, qualifier mieux, closer plus vite. Méthodes CRO appliquées au sales.",
-  "keywords":"optimiser pipeline commercial, taux de conversion sales, CRO pipeline, améliorer closing, goulot étranglement pipeline",
-  "url":"https://tristanalba-ops.github.io/sahar-conseil/conversion-pipeline.html",
-  "inLanguage":"fr-FR",
-  "author":{"@type":"Organization","name":"SAHAR Conseil","url":"https://tristanalba-ops.github.io/sahar-conseil/"},
-  "publisher":{"@type":"Organization","name":"SAHAR Conseil","url":"https://tristanalba-ops.github.io/sahar-conseil/"}
-}
-</script>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Convertir son Pipeline Commercial — Méthodes & Outils | SAHAR Conseil</title>
+  <meta name="description" content="Améliorer son taux de conversion à chaque étape du pipeline. Qualification BANT, objections, closing. Méthodes pour commerciaux terrain.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://tristanalba-ops.github.io/sahar-conseil/conversion-pipeline.html">
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-5WSR4DK5');</script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XV2P0YPJK0"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-XV2P0YPJK0');</script>
   <style>*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
 body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;font-size:16px;line-height:1.65;color:#1a1a1a;background:#fff;-webkit-font-smoothing:antialiased}
@@ -128,275 +104,86 @@ ul,ol{padding-left:1.4rem;margin-bottom:1rem}li{color:var(--ink2);margin-bottom:
   .cta-strip{flex-direction:column;text-align:center}
   .section{padding:3.5rem 0}
 }</style>
-  <meta name="author" content="SAHAR Conseil" />
-  <!-- GA4 via GTM fallback direct -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XV2P0YPJK0"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-XV2P0YPJK0', {
-      page_title: document.title,
-      page_location: window.location.href
-    });
-
-    // ── Événements de conversion SAHAR ──────────────────────────────────────
-
-    // 1. Soumission formulaire contact
-    document.addEventListener('DOMContentLoaded', function() {
-      var forms = document.querySelectorAll('form');
-      forms.forEach(function(form) {
-        form.addEventListener('submit', function() {
-          gtag('event', 'form_submit', {
-            event_category: 'conversion',
-            event_label: 'contact_form',
-            value: 1
-          });
-          dataLayer.push({event: 'sahar_form_submit', form_id: form.action});
-        });
-      });
-
-      // 2. Clics CTA principaux
-      var ctas = document.querySelectorAll('a.btn, a.nav-cta, a.service-link, a.tool-link');
-      ctas.forEach(function(btn) {
-        btn.addEventListener('click', function() {
-          gtag('event', 'cta_click', {
-            event_category: 'engagement',
-            event_label: btn.textContent.trim().substring(0, 50),
-            cta_url: btn.href
-          });
-        });
-      });
-
-      // 3. Tool view — pages secteurs
-      var path = window.location.pathname;
-      var toolMap = {
-        'immobilier': 'dvf_analyse',
-        'energie-renovation': 'dpe_scanner',
-        'retail-franchise': 'zone_score',
-        'rh-recrutement': 'rh_tension',
-        'crm': 'crm_pipeline',
-        'scoring-prospects': 'scoring',
-        'automatisation': 'automation'
-      };
-      Object.keys(toolMap).forEach(function(key) {
-        if (path.indexOf(key) !== -1) {
-          gtag('event', 'tool_view', {
-            event_category: 'product',
-            tool_name: toolMap[key],
-            page_path: path
-          });
-        }
-      });
-
-      // 4. Scroll depth 50% et 90%
-      var scrollFired = {};
-      window.addEventListener('scroll', function() {
-        var pct = Math.round((window.scrollY + window.innerHeight) / document.body.scrollHeight * 100);
-        if (pct >= 50 && !scrollFired[50]) {
-          scrollFired[50] = true;
-          gtag('event', 'scroll', {event_category: 'engagement', percent_scrolled: 50});
-        }
-        if (pct >= 90 && !scrollFired[90]) {
-          scrollFired[90] = true;
-          gtag('event', 'scroll', {event_category: 'engagement', percent_scrolled: 90});
-        }
-      });
-
-      // 5. Temps passé — engagement 30s et 60s
-      var timeFired = {};
-      [30000, 60000].forEach(function(ms) {
-        setTimeout(function() {
-          if (!timeFired[ms]) {
-            timeFired[ms] = true;
-            gtag('event', 'time_on_page', {
-              event_category: 'engagement',
-              seconds: ms / 1000
-            });
-          }
-        }, ms);
-      });
-    });
-  </script>
-
-  <!-- UTM Capture & DataLayer Push -->
-  <script>
-  (function() {
-    // 1. Capturer les UTM depuis l'URL
-    var params = new URLSearchParams(window.location.search);
-    var utmKeys = ['utm_source','utm_medium','utm_campaign','utm_content','utm_term'];
-    var utms = {};
-    var hasUtm = false;
-
-    utmKeys.forEach(function(key) {
-      var val = params.get(key);
-      if (val) { utms[key] = val; hasUtm = true; }
-    });
-
-    // 2. Persister en sessionStorage (survit aux navigations)
-    if (hasUtm) {
-      sessionStorage.setItem('sahar_utms', JSON.stringify(utms));
-      sessionStorage.setItem('sahar_landing', window.location.pathname);
-      sessionStorage.setItem('sahar_referrer', document.referrer || 'direct');
-    }
-
-    // 3. Récupérer les UTM stockés (même sans paramètres dans l'URL courante)
-    var storedUtms = {};
-    try { storedUtms = JSON.parse(sessionStorage.getItem('sahar_utms') || '{}'); } catch(e) {}
-    var allUtms = Object.assign({}, storedUtms, utms);
-
-    // 4. Push vers dataLayer GTM
-    window.dataLayer = window.dataLayer || [];
-    if (Object.keys(allUtms).length > 0) {
-      dataLayer.push({
-        event: 'utm_captured',
-        utm_source:   allUtms.utm_source   || '(none)',
-        utm_medium:   allUtms.utm_medium   || '(none)',
-        utm_campaign: allUtms.utm_campaign || '(none)',
-        utm_content:  allUtms.utm_content  || '(none)',
-        utm_term:     allUtms.utm_term     || '(none)',
-        landing_page: sessionStorage.getItem('sahar_landing') || window.location.pathname,
-        referrer:     sessionStorage.getItem('sahar_referrer') || document.referrer || 'direct'
-      });
-    }
-
-    // 5. Enrichir les soumissions formulaire avec les UTMs
-    document.addEventListener('DOMContentLoaded', function() {
-      var forms = document.querySelectorAll('form');
-      forms.forEach(function(form) {
-        form.addEventListener('submit', function() {
-          // Push GA4 enrichi
-          dataLayer.push({
-            event: 'sahar_lead_submit',
-            utm_source:   allUtms.utm_source   || '(none)',
-            utm_medium:   allUtms.utm_medium   || '(none)',
-            utm_campaign: allUtms.utm_campaign || '(none)',
-            landing_page: sessionStorage.getItem('sahar_landing') || window.location.pathname,
-            form_url:     form.action
-          });
-        });
-
-        // Injecter les UTMs comme champs cachés dans le formulaire Formspree
-        if (form.action && form.action.indexOf('formspree') !== -1) {
-          Object.keys(allUtms).forEach(function(key) {
-            var input = document.createElement('input');
-            input.type = 'hidden';
-            input.name = key;
-            input.value = allUtms[key];
-            form.appendChild(input);
-          });
-          // Ajouter landing page et referrer
-          ['sahar_landing','sahar_referrer'].forEach(function(key) {
-            var val = sessionStorage.getItem(key);
-            if (val) {
-              var input = document.createElement('input');
-              input.type = 'hidden';
-              input.name = key;
-              input.value = val;
-              form.appendChild(input);
-            }
-          });
-        }
-      });
-    });
-  })();
-  </script>
 </head>
 <body>
-<!-- Google Tag Manager (noscript) -->
-<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5WSR4DK5"
-height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-<!-- End Google Tag Manager (noscript) -->
-<a href="#main" class="skip-link">Aller au contenu</a>
 <a href="#main" class="skip">Aller au contenu</a>
-<nav class="nav"><a href="index.html" class="nav-logo"><span class="nav-logo-dot"></span>SAHAR Conseil</a>
-<ul class="nav-menu"><li><a href="immobilier.html">Immobilier</a></li><li><a href="energie-renovation.html">Énergie</a></li><li><a href="retail-franchise.html">Retail</a></li><li><a href="rh-recrutement.html">RH</a></li><li><a href="crm.html">CRM</a></li><li><a href="index.html#tarifs">Tarifs</a></li></ul>
-<div class="nav-actions"><a href="index.html#contact" class="btn btn-primary btn-sm">Démo gratuite</a></div></nav>
-<div class="container">
-<article id="main">
-  <div class="breadcrumb"><a href="index.html">Accueil</a> → <a href="crm.html">CRM & Pipeline</a> → Optimiser le pipeline</div>
-  <h1>Votre pipeline perd des deals à chaque étape. Voici où, pourquoi, et comment y remédier.</h1>
-  <p class="lead">Le CRO (Conversion Rate Optimization) s'applique aux sites web. La même logique s'applique au pipeline commercial. Vous avez des étapes, des taux de passage, des goulots. Les identifier et les traiter, c'est la différence entre un pipeline qui souffre et un qui performe.</p>
-  <h2>La méthode d'audit pipeline en 4 questions</h2>
-  <ol>
-    <li><strong>Où perdez-vous le plus de prospects ?</strong> — Calculez le taux de conversion entre chaque étape. L'étape avec le taux le plus bas est votre goulot prioritaire.</li>
-    <li><strong>Pourquoi perdez-vous là ?</strong> — Interviewez les prospects perdus à cette étape. Les raisons sont souvent différentes de ce que vous croyez.</li>
-    <li><strong>Qu'ont de commun vos deals gagnés ?</strong> — Regardez votre historique de closing. Secteur, taille, signal déclencheur, délai de contact initial. Il y a un pattern.</li>
-    <li><strong>Qu'avez-vous en pipeline qui ne correspond pas à ce pattern ?</strong> — Ces prospects sont probablement mal qualifiés. Les sortir du pipeline améliore vos KPIs et libère du temps SDR.</li>
-  </ol>
+<nav class="nav" aria-label="Navigation principale">
+  <a href="index.html" class="nav-logo"><span class="nav-logo-dot"></span>SAHAR Conseil</a>
+  <ul class="nav-menu">
+    <li><a href="immobilier.html">Immobilier</a></li>
+    <li><a href="energie-renovation.html">Énergie</a></li>
+    <li><a href="retail-franchise.html">Retail</a></li>
+    <li><a href="rh-recrutement.html">RH</a></li>
+    <li><a href="crm.html">CRM</a></li>
+    <li><a href="index.html#tarifs">Tarifs</a></li>
+  </ul>
+  <div class="nav-actions"><a href="index.html#contact" class="btn btn-primary btn-sm">Démo gratuite</a></div>
+</nav>
+<main id="main">
 
-  <h2>Les goulots les plus courants et leurs causes réelles</h2>
-  <div class="grid-2">
-    <div class="card"><h3>Faible Détecté → Contacté</h3><p>Cause : liste de mauvaise qualité ou signal trop faible. Solution : améliorer le scoring à l'entrée. Ne mettre en pipeline que les prospects avec score &gt; seuil.</p></div>
-    <div class="card"><h3>Faible Contacté → Qualifié</h3><p>Cause : script d'appel générique, pas de contexte, mauvais timing. Solution : personnaliser le pitch avec les données de la fiche. "J'ai vu que votre logement est classé G" ouvre mieux que "je vous propose nos services".</p></div>
-    <div class="card"><h3>Faible Qualifié → Proposition</h3><p>Cause : découverte des besoins incomplète, pas de BANT (Budget, Authority, Need, Timeline) établi. Solution : checklist de qualification avant de passer en proposition.</p></div>
-    <div class="card"><h3>Faible Proposition → Closing</h3><p>Cause : objections non traitées, proposition mal adaptée, concurrent entré dans le process. Solution : raccourcir le délai proposition-closing, gérer les objections proactivement.</p></div>
+<section class="section" style="padding-top:4.5rem;padding-bottom:3.5rem;background:var(--bg2)">
+  <div class="container-text" style="max-width:720px;margin:0 auto;padding:0 5%">
+    <div class="breadcrumb">
+      <a href="index.html">Accueil</a><span class="breadcrumb-sep">→</span>
+      <a href="prospecter-donnees-publiques.html">Ressources</a><span class="breadcrumb-sep">→</span>
+      <span>Guide conversion</span>
+    </div>
+    <span class="overline">Guide conversion</span>
+    <h1 style="margin-bottom:1rem">Convertir son <strong>pipeline commercial</strong> : méthodes et outils</h1>
+    <p class="lead">Améliorer son taux de conversion à chaque étape du pipeline. Qualification BANT, objections, closing. Méthodes pour commerciaux terrain.</p>
   </div>
+</section>
 
-  <h2>L'impact du scoring sur les taux de conversion</h2>
-  <p>La variable qui améliore le plus les taux de conversion n'est pas le script ni la formation. C'est la qualité de l'entrée dans le pipeline.</p>
-  <div class="highlight">Un SDR qui appelle 50 prospects avec score &gt; 70 convertira 3x mieux qu'un SDR qui appelle 150 prospects sans scoring. Ce n'est pas une question de volume — c'est une question de signal.</div>
-  <p>Dans les secteurs où SAHAR est utilisé, le scoring data change la conversation :</p>
-  <ul>
-    <li><strong>Immobilier</strong> : arriver avec les données DVF réelles de la zone convertit le premier appel en rendez-vous dans 40% des cas vs 12% sans données.</li>
-    <li><strong>Rénovation</strong> : citer l'étiquette DPE exacte du logement en début d'appel crée une crédibilité immédiate. Le prospect comprend que vous avez fait vos devoirs.</li>
-    <li><strong>Retail</strong> : arriver avec le score de zone et les données de concurrence positionne le consultant comme expert, pas comme vendeur.</li>
-  </ul>
 
-  <h2>Optimiser la cadence de relance</h2>
-  <p>La majorité des ventes B2B se concluent après la 5ème relance. La majorité des SDR abandonnent après la 2ème. La relance est le outil de conversion le plus simple à améliorer — pas besoin de changer le pitch, juste de persister plus longtemps et de manière plus structurée.</p>
-  <p>Cadence recommandée :</p>
-  <ul>
-    <li>J+0 — Premier contact</li>
-    <li>J+3 — Relance courte avec ajout de contexte</li>
-    <li>J+7 — Relance avec nouvel angle (donnée marché actualisée)</li>
-    <li>J+14 — Relance "dernière tentative" + proposition de valeur simplifiée</li>
-    <li>J+30 — Nurturing passif (newsletter, contenu utile)</li>
-  </ul>
-  <p>SAHAR génère automatiquement ces rappels dans le CRM. Votre SDR voit chaque matin exactement qui relancer et avec quel argument.</p>
-
-  <h2>CRO appliqué à votre page de démonstration</h2>
-  <p>Si vous avez une page de démo ou un formulaire de contact, les principes CRO s'appliquent :</p>
-  <ul>
-    <li><strong>Réduire la friction</strong> — Chaque champ supplémentaire réduit la conversion. Ne demandez que ce qui est indispensable pour la qualification initiale.</li>
-    <li><strong>Preuve sociale</strong> — Un chiffre concret ("421 000 transactions analysées") convertit mieux qu'une promesse vague.</li>
-    <li><strong>CTA spécifique</strong> — "Voir les opportunités sur mon secteur" convertit mieux que "Demander une démo".</li>
-    <li><strong>Urgence contextuelle</strong> — Pour la rénovation : "Votre logement F ne peut plus être loué depuis janvier 2025" crée une urgence légitime.</li>
-  </ul>
-
-  <div class="cta-block">
-    <p>Auditer votre pipeline avec les métriques SAHAR.</p>
-    <a href="index.html#contact" class="btn btn-dark">Optimiser mon pipeline →</a>
+<section class="section">
+  <div class="container-text" style="max-width:720px;margin:0 auto;padding:0 5%">
+    <h2 style="margin-bottom:.75rem">Qualifier avant de pitcher</h2>
+    <p>La première règle de conversion est de <strong>ne pas pitcher à des prospects non qualifiés</strong>. Chaque pitch non qualifié coûte du temps et dilue votre message. La qualification BANT reste la plus efficace : <strong>Budget</strong> (peuvent-ils payer ?), <strong>Autorité</strong> (est-ce que vous parlez au décideur ?), <strong>Need</strong> (ont-ils vraiment le problème ?), <strong>Timeline</strong> (quand ?)</p><p>Avec le scoring SAHAR, la partie Need est pré-qualifiée par les données. Un logement G construit en 1965 a le problème par définition. Votre travail de qualification porte sur les 3 autres critères.</p>
   </div>
+</section>
+<section class="section">
+  <div class="container-text" style="max-width:720px;margin:0 auto;padding:0 5%">
+    <h2 style="margin-bottom:.75rem">Gérer les 3 objections les plus fréquentes</h2>
+    <p><strong>"Je vais réfléchir"</strong> : toujours demander "Qu'est-ce qui vous ferait avancer ? Qu'est-ce qui vous retient ?" Cette question transforme un non différé en information utile. Dans 40% des cas, la réponse révèle une objection réelle que vous pouvez traiter.</p><p><strong>"C'est trop cher"</strong> : recadrez sur la valeur, pas sur le prix. "Sur 12 mois de loyers perdus parce que votre logement ne peut plus être loué, le coût de l'inaction est de X€. Les travaux sont couverts à 70% — le reste à charge est de Y€." <strong>Chiffrez l'inaction.</strong></p><p><strong>"Je travaille déjà avec quelqu'un"</strong> : "Parfait. Qu'est-ce qui manque dans votre solution actuelle ?" Vous cherchez à créer un doute utile, pas à démolir le concurrent.</p>
+  </div>
+</section>
+<section class="section">
+  <div class="container-text" style="max-width:720px;margin:0 auto;padding:0 5%">
+    <h2 style="margin-bottom:.75rem">Accélérer le closing avec les données</h2>
+    <p>Les données créent une urgence objective. "Ce secteur a vu 18 transactions en 60 jours — le marché est actif en ce moment." "Votre logement est en infraction depuis 3 mois — chaque nouveau mois coûte X€ en loyers perdus."</p><p>La donnée fait ce que l'argument commercial ne peut pas faire : elle <strong>transforme une opinion en fait</strong>. Et un fait ne se discute pas — il se prend en compte.</p>
+  </div>
+</section>
 
-  <div class="related">
-    <h3>Sur le même sujet</h3>
-    <div class="related-links">
-      <a href="kpis-commerciaux.html">KPIs commerciaux pour mesurer votre pipeline →</a>
-      <a href="scoring-prospects.html">Scoring — améliorer la qualité à l'entrée →</a>
-      <a href="crm.html">CRM avec pipeline Kanban intégré →</a>
-      <a href="automatisation-prospection.html">Automatiser les relances dans le pipeline →</a>
+<section class="section">
+  <div class="container-text" style="max-width:720px;margin:0 auto;padding:0 5%">
+    <div style="background:var(--bg2);border:1px solid var(--bd);border-radius:12px;padding:2rem;text-align:center">
+      <h3 style="margin-bottom:.5rem">Tester sur vos données réelles</h3>
+      <p style="color:var(--ink3);margin-bottom:1.25rem">Démonstration en 20 minutes sur votre secteur et votre zone.</p>
+      <a href="index.html#contact" class="btn btn-primary">Demander une démo gratuite →</a>
     </div>
   </div>
-</article>
-</div>
-<footer class="footer"><div class="container">
-<div class="footer-grid">
-<div class="footer-brand"><strong style="font-size:.95rem;font-weight:700">SAHAR Conseil</strong>
-<p>Open data au service des professionnels. DVF, DPE, INSEE, SIRENE transformés en pipeline commercial.</p></div>
-<div class="footer-col"><h4>Secteurs</h4><ul>
-<li><a href="immobilier.html">Immobilier DVF</a></li><li><a href="energie-renovation.html">Énergie &amp; DPE</a></li>
-<li><a href="retail-franchise.html">Retail &amp; Franchise</a></li><li><a href="rh-recrutement.html">RH &amp; Recrutement</a></li></ul></div>
-<div class="footer-col"><h4>Outils</h4><ul>
-<li><a href="crm.html">CRM Pipeline</a></li><li><a href="scoring-prospects.html">Scoring Prospects</a></li>
-<li><a href="automatisation-prospection.html">Automatisation</a></li><li><a href="conversion-pipeline.html">Conversion Pipeline</a></li></ul></div>
-<div class="footer-col"><h4>Ressources</h4><ul>
-<li><a href="trouver-prospects-immobiliers.html">Prospects immobiliers</a></li>
-<li><a href="passoires-thermiques-interdites.html">Passoires thermiques</a></li>
-<li><a href="prospecter-donnees-publiques.html">Open data</a></li>
-<li><a href="kpis-commerciaux.html">KPIs commerciaux</a></li></ul></div></div>
-<div class="footer-bottom"><p>© 2024 SAHAR Conseil — Données DVF DGFiP, ADEME, INSEE</p>
-<div class="footer-legal"><a href="index.html#contact">Contact</a><a href="sitemap.xml">Sitemap</a></div></div>
-</div></footer>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="related">
+      <span class="related-label">Sur le même sujet</span>
+      <div class="related-grid"><a href="crm.html" class="related-card"><span class="tag">Outil</span><h4>CRM Pipeline</h4><p>Suivre chaque étape de conversion</p></a><a href="kpis-commerciaux.html" class="related-card"><span class="tag">Guide</span><h4>KPIs commerciaux</h4><p>Mesurer vos taux de conversion</p></a><a href="automatisation-prospection.html" class="related-card"><span class="tag">Guide</span><h4>Automatisation</h4><p>Séquences de relance post-proposition</p></a></div>
+    </div>
+  </div>
+</section>
+
+</main>
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand"><strong style="font-size:.95rem;font-weight:700">SAHAR Conseil</strong><p>Open data au service des professionnels. DVF, DPE, INSEE, SIRENE transformés en pipeline commercial.</p></div>
+      <div class="footer-col"><h4>Secteurs</h4><ul><li><a href="immobilier.html">Immobilier DVF</a></li><li><a href="energie-renovation.html">Énergie &amp; DPE</a></li><li><a href="retail-franchise.html">Retail &amp; Franchise</a></li><li><a href="rh-recrutement.html">RH &amp; Recrutement</a></li></ul></div>
+      <div class="footer-col"><h4>Outils</h4><ul><li><a href="crm.html">CRM Pipeline</a></li><li><a href="scoring-prospects.html">Scoring Prospects</a></li><li><a href="automatisation-prospection.html">Automatisation</a></li></ul></div>
+      <div class="footer-col"><h4>Ressources</h4><ul><li><a href="trouver-prospects-immobiliers.html">Prospects immobiliers</a></li><li><a href="passoires-thermiques-interdites.html">Passoires thermiques</a></li><li><a href="prospecter-donnees-publiques.html">Open data</a></li><li><a href="kpis-commerciaux.html">KPIs</a></li></ul></div>
+    </div>
+    <div class="footer-bottom"><p>© 2024 SAHAR Conseil — Données DVF DGFiP, ADEME, INSEE</p><div class="footer-legal"><a href="index.html#contact">Contact</a><a href="sitemap.xml">Sitemap</a></div></div>
+  </div>
+</footer>
 </body>
 </html>

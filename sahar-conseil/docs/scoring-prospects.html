@@ -1,38 +1,14 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <!-- Google Tag Manager -->
-  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-  })(window,document,'script','dataLayer','GTM-5WSR4DK5');</script>
-  <!-- End Google Tag Manager -->
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Scoring prospects B2B — Méthode, formules et outils — SAHAR Conseil</title>
-  <meta name="description" content="Comment scorer vos prospects pour que vos SDR appellent les bons en premier. Modèles de scoring, critères, pondération. Scoring automatique par données publiques avec SAHAR." />
-  <meta name="robots" content="index, follow" />
-  <meta name="googlebot" content="index, follow" />
-  <meta property="og:type" content="article" />
-  <meta property="og:site_name" content="SAHAR Conseil" />
-  <meta property="og:title" content="Scoring prospects B2B — méthode et automatisation — SAHAR Conseil" />
-  <meta property="og:description" content="Comment scorer vos prospects pour que vos SDR appellent les bons en premier. Modèles de scoring, critères, pondération. Scoring automatique par données publiques avec SAHAR." />
-  <meta property="og:url" content="https://tristanalba-ops.github.io/sahar-conseil/scoring-prospects.html" />
-  <link rel="canonical" href="https://tristanalba-ops.github.io/sahar-conseil/scoring-prospects.html" />
-  <script type="application/ld+json">
-{
-  "@context":"https://schema.org",
-  "@type":"Article",
-  "headline":"Le scoring prospects : la méthode qui fait appeler les bons leads en premier.",
-  "description":"Comment scorer vos prospects pour que vos SDR appellent les bons en premier. Modèles de scoring, critères, pondération. Scoring automatique par données publiques avec SAHAR.",
-  "keywords":"scoring prospects, lead scoring BtoB, priorisation pipeline, score qualification, SDR priorité, scoring automatique",
-  "url":"https://tristanalba-ops.github.io/sahar-conseil/scoring-prospects.html",
-  "inLanguage":"fr-FR",
-  "author":{"@type":"Organization","name":"SAHAR Conseil","url":"https://tristanalba-ops.github.io/sahar-conseil/"},
-  "publisher":{"@type":"Organization","name":"SAHAR Conseil","url":"https://tristanalba-ops.github.io/sahar-conseil/"}
-}
-</script>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Scoring Prospects — Algorithme et Méthode | SAHAR Conseil</title>
+  <meta name="description" content="Comment calculer un score prospect 0–100 à partir des données publiques. DVF, DPE, SIRENE. Méthode, critères, mise en pratique.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://tristanalba-ops.github.io/sahar-conseil/scoring-prospects.html">
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-5WSR4DK5');</script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XV2P0YPJK0"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-XV2P0YPJK0');</script>
   <style>*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
 body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;font-size:16px;line-height:1.65;color:#1a1a1a;background:#fff;-webkit-font-smoothing:antialiased}
@@ -128,270 +104,92 @@ ul,ol{padding-left:1.4rem;margin-bottom:1rem}li{color:var(--ink2);margin-bottom:
   .cta-strip{flex-direction:column;text-align:center}
   .section{padding:3.5rem 0}
 }</style>
-  <meta name="author" content="SAHAR Conseil" />
-  <!-- GA4 via GTM fallback direct -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XV2P0YPJK0"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-XV2P0YPJK0', {
-      page_title: document.title,
-      page_location: window.location.href
-    });
-
-    // ── Événements de conversion SAHAR ──────────────────────────────────────
-
-    // 1. Soumission formulaire contact
-    document.addEventListener('DOMContentLoaded', function() {
-      var forms = document.querySelectorAll('form');
-      forms.forEach(function(form) {
-        form.addEventListener('submit', function() {
-          gtag('event', 'form_submit', {
-            event_category: 'conversion',
-            event_label: 'contact_form',
-            value: 1
-          });
-          dataLayer.push({event: 'sahar_form_submit', form_id: form.action});
-        });
-      });
-
-      // 2. Clics CTA principaux
-      var ctas = document.querySelectorAll('a.btn, a.nav-cta, a.service-link, a.tool-link');
-      ctas.forEach(function(btn) {
-        btn.addEventListener('click', function() {
-          gtag('event', 'cta_click', {
-            event_category: 'engagement',
-            event_label: btn.textContent.trim().substring(0, 50),
-            cta_url: btn.href
-          });
-        });
-      });
-
-      // 3. Tool view — pages secteurs
-      var path = window.location.pathname;
-      var toolMap = {
-        'immobilier': 'dvf_analyse',
-        'energie-renovation': 'dpe_scanner',
-        'retail-franchise': 'zone_score',
-        'rh-recrutement': 'rh_tension',
-        'crm': 'crm_pipeline',
-        'scoring-prospects': 'scoring',
-        'automatisation': 'automation'
-      };
-      Object.keys(toolMap).forEach(function(key) {
-        if (path.indexOf(key) !== -1) {
-          gtag('event', 'tool_view', {
-            event_category: 'product',
-            tool_name: toolMap[key],
-            page_path: path
-          });
-        }
-      });
-
-      // 4. Scroll depth 50% et 90%
-      var scrollFired = {};
-      window.addEventListener('scroll', function() {
-        var pct = Math.round((window.scrollY + window.innerHeight) / document.body.scrollHeight * 100);
-        if (pct >= 50 && !scrollFired[50]) {
-          scrollFired[50] = true;
-          gtag('event', 'scroll', {event_category: 'engagement', percent_scrolled: 50});
-        }
-        if (pct >= 90 && !scrollFired[90]) {
-          scrollFired[90] = true;
-          gtag('event', 'scroll', {event_category: 'engagement', percent_scrolled: 90});
-        }
-      });
-
-      // 5. Temps passé — engagement 30s et 60s
-      var timeFired = {};
-      [30000, 60000].forEach(function(ms) {
-        setTimeout(function() {
-          if (!timeFired[ms]) {
-            timeFired[ms] = true;
-            gtag('event', 'time_on_page', {
-              event_category: 'engagement',
-              seconds: ms / 1000
-            });
-          }
-        }, ms);
-      });
-    });
-  </script>
-
-  <!-- UTM Capture & DataLayer Push -->
-  <script>
-  (function() {
-    // 1. Capturer les UTM depuis l'URL
-    var params = new URLSearchParams(window.location.search);
-    var utmKeys = ['utm_source','utm_medium','utm_campaign','utm_content','utm_term'];
-    var utms = {};
-    var hasUtm = false;
-
-    utmKeys.forEach(function(key) {
-      var val = params.get(key);
-      if (val) { utms[key] = val; hasUtm = true; }
-    });
-
-    // 2. Persister en sessionStorage (survit aux navigations)
-    if (hasUtm) {
-      sessionStorage.setItem('sahar_utms', JSON.stringify(utms));
-      sessionStorage.setItem('sahar_landing', window.location.pathname);
-      sessionStorage.setItem('sahar_referrer', document.referrer || 'direct');
-    }
-
-    // 3. Récupérer les UTM stockés (même sans paramètres dans l'URL courante)
-    var storedUtms = {};
-    try { storedUtms = JSON.parse(sessionStorage.getItem('sahar_utms') || '{}'); } catch(e) {}
-    var allUtms = Object.assign({}, storedUtms, utms);
-
-    // 4. Push vers dataLayer GTM
-    window.dataLayer = window.dataLayer || [];
-    if (Object.keys(allUtms).length > 0) {
-      dataLayer.push({
-        event: 'utm_captured',
-        utm_source:   allUtms.utm_source   || '(none)',
-        utm_medium:   allUtms.utm_medium   || '(none)',
-        utm_campaign: allUtms.utm_campaign || '(none)',
-        utm_content:  allUtms.utm_content  || '(none)',
-        utm_term:     allUtms.utm_term     || '(none)',
-        landing_page: sessionStorage.getItem('sahar_landing') || window.location.pathname,
-        referrer:     sessionStorage.getItem('sahar_referrer') || document.referrer || 'direct'
-      });
-    }
-
-    // 5. Enrichir les soumissions formulaire avec les UTMs
-    document.addEventListener('DOMContentLoaded', function() {
-      var forms = document.querySelectorAll('form');
-      forms.forEach(function(form) {
-        form.addEventListener('submit', function() {
-          // Push GA4 enrichi
-          dataLayer.push({
-            event: 'sahar_lead_submit',
-            utm_source:   allUtms.utm_source   || '(none)',
-            utm_medium:   allUtms.utm_medium   || '(none)',
-            utm_campaign: allUtms.utm_campaign || '(none)',
-            landing_page: sessionStorage.getItem('sahar_landing') || window.location.pathname,
-            form_url:     form.action
-          });
-        });
-
-        // Injecter les UTMs comme champs cachés dans le formulaire Formspree
-        if (form.action && form.action.indexOf('formspree') !== -1) {
-          Object.keys(allUtms).forEach(function(key) {
-            var input = document.createElement('input');
-            input.type = 'hidden';
-            input.name = key;
-            input.value = allUtms[key];
-            form.appendChild(input);
-          });
-          // Ajouter landing page et referrer
-          ['sahar_landing','sahar_referrer'].forEach(function(key) {
-            var val = sessionStorage.getItem(key);
-            if (val) {
-              var input = document.createElement('input');
-              input.type = 'hidden';
-              input.name = key;
-              input.value = val;
-              form.appendChild(input);
-            }
-          });
-        }
-      });
-    });
-  })();
-  </script>
 </head>
 <body>
-<!-- Google Tag Manager (noscript) -->
-<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5WSR4DK5"
-height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-<!-- End Google Tag Manager (noscript) -->
-<a href="#main" class="skip-link">Aller au contenu</a>
 <a href="#main" class="skip">Aller au contenu</a>
-<nav class="nav"><a href="index.html" class="nav-logo"><span class="nav-logo-dot"></span>SAHAR Conseil</a>
-<ul class="nav-menu"><li><a href="immobilier.html">Immobilier</a></li><li><a href="energie-renovation.html">Énergie</a></li><li><a href="retail-franchise.html">Retail</a></li><li><a href="rh-recrutement.html">RH</a></li><li><a href="crm.html">CRM</a></li><li><a href="index.html#tarifs">Tarifs</a></li></ul>
-<div class="nav-actions"><a href="index.html#contact" class="btn btn-primary btn-sm">Démo gratuite</a></div></nav>
-<div class="container">
-<article id="main">
-  <div class="breadcrumb"><a href="index.html">Accueil</a> → <a href="crm.html">CRM & Pipeline</a> → Scoring prospects</div>
-  <h1>Le scoring prospects : la méthode qui fait appeler les bons leads en premier.</h1>
-  <p class="lead">Sans scoring, vos SDR passent autant de temps sur un prospect froid que sur une opportunité chaude. Avec un bon modèle de scoring, 20% de vos prospects génèrent 80% de vos deals. Voici comment construire ce modèle.</p>
-  <h2>Pourquoi scorer ses prospects ?</h2>
-  <p>Un SDR a en moyenne 4 heures d'appels par jour. Sans priorisation, ces 4 heures se répartissent aléatoirement sur une liste. Avec un scoring, les 2 premières heures vont sur les 20% de prospects qui vont réellement convertir.</p>
-  <div class="highlight">D'après HubSpot, les équipes commerciales qui utilisent un modèle de scoring génèrent en moyenne 33% de chiffre d'affaires supplémentaire. La variable n'est pas le volume d'appels — c'est la qualité de la priorisation.</div>
-
-  <h2>Les deux familles de scoring</h2>
-  <div class="grid-2">
-    <div class="card"><h3>Scoring démographique</h3><p>Qui est ce prospect ? Secteur, taille d'entreprise, zone géographique, poste. Est-ce que ce profil correspond à votre ICP (Ideal Customer Profile) ?</p></div>
-    <div class="card"><h3>Scoring comportemental</h3><p>Qu'a-t-il fait ? Ouverture d'email, visite du site, téléchargement d'un lead magnet, participation à un webinar. Signal d'intérêt actif.</p></div>
-    <div class="card"><h3>Scoring signal marché</h3><p>Qu'est-ce qui se passe autour de lui ? Contrainte réglementaire (DPE), opportunité de marché (DVF), tension sectorielle (DARES). C'est le scoring SAHAR.</p></div>
-    <div class="card"><h3>Scoring engagement CRM</h3><p>Où en est-on dans la relation ? Premier contact, deuxième relance, devis envoyé. Le scoring doit refléter la maturité de la relation.</p></div>
-  </div>
-
-  <h2>Construire son modèle de scoring — étape par étape</h2>
-  <ol>
-    <li><strong>Définir les critères</strong> — Lister tous les attributs qui, dans votre expérience, distinguent un bon prospect d'un mauvais. Pas plus de 8–10 critères.</li>
-    <li><strong>Peser chaque critère</strong> — Attribuer un poids en % à chaque critère. La somme doit faire 100%. Les critères les plus discriminants méritent les poids les plus élevés.</li>
-    <li><strong>Normaliser les valeurs</strong> — Chaque critère doit donner un sous-score entre 0 et 100 pour être additionnable. Une zone géographique "conforme" = 100, "hors cible" = 0.</li>
-    <li><strong>Calculer le score composite</strong> — Score final = Σ (sous-score × poids). Résultat entre 0 et 100.</li>
-    <li><strong>Calibrer sur vos données historiques</strong> — Appliquer le modèle sur vos deals closés et perdus. Le scoring doit discriminer : les deals gagnés doivent avoir un score moyen nettement plus élevé.</li>
-  </ol>
-
-  <h2>Le scoring par données publiques — l'avantage SAHAR</h2>
-  <p>La plupart des modèles de scoring dépendent de données internes (comportement CRM, données firmographiques). SAHAR ajoute une troisième dimension : les signaux de marché issus des données publiques.</p>
-  <p>Exemples de signaux :</p>
-  <ul>
-    <li>Logement classé F/G → signal d'urgence réglementaire → score élevé pour artisan RGE</li>
-    <li>Transaction DVF à -15% de la médiane → signal d'opportunité → score élevé pour agent immo</li>
-    <li>Zone sans concurrent dans un secteur en croissance → signal stratégique → score élevé pour franchiseur</li>
-    <li>Bassin d'emploi avec tension 80/100 sur votre métier cible → signal commercial → score élevé pour cabinet recrutement</li>
+<nav class="nav" aria-label="Navigation principale">
+  <a href="index.html" class="nav-logo"><span class="nav-logo-dot"></span>SAHAR Conseil</a>
+  <ul class="nav-menu">
+    <li><a href="immobilier.html">Immobilier</a></li>
+    <li><a href="energie-renovation.html">Énergie</a></li>
+    <li><a href="retail-franchise.html">Retail</a></li>
+    <li><a href="rh-recrutement.html">RH</a></li>
+    <li><a href="crm.html">CRM</a></li>
+    <li><a href="index.html#tarifs">Tarifs</a></li>
   </ul>
-  <div class="highlight">Ces signaux sont objectifs, récents, et incontestables. "Votre logement est classé G selon l'ADEME" est plus fort que "nous pensons que vous avez besoin de rénover".</div>
+  <div class="nav-actions"><a href="index.html#contact" class="btn btn-primary btn-sm">Démo gratuite</a></div>
+</nav>
+<main id="main">
 
-  <h2>Scoring BDD clients — enrichir votre base existante</h2>
-  <p>Le scoring ne s'applique pas qu'aux nouveaux prospects. Votre base clients actuelle contient des opportunités dormantes :</p>
-  <ul>
-    <li>Clients qui ont acheté il y a 2 ans et dont la situation a changé (nouveau DPE F, nouveau logement acheté)</li>
-    <li>Contacts qui n'ont jamais signé mais qui correspondent maintenant à votre ICP</li>
-    <li>Anciens prospects refroidis dont le signal de marché vient de s'activer</li>
-  </ul>
-  <p>SAHAR peut importer votre base existante et l'enrichir avec les données publiques correspondantes. Chaque contact reçoit un score actualisé.</p>
-
-  <div class="cta-block">
-    <p>Scorer votre base prospects avec les données publiques.</p>
-    <a href="index.html#contact" class="btn btn-dark">Voir comment ça marche →</a>
+<section class="section" style="padding-top:4.5rem;padding-bottom:3.5rem;background:var(--bg2)">
+  <div class="container-text" style="max-width:720px;margin:0 auto;padding:0 5%">
+    <div class="breadcrumb">
+      <a href="index.html">Accueil</a><span class="breadcrumb-sep">→</span>
+      <a href="prospecter-donnees-publiques.html">Ressources</a><span class="breadcrumb-sep">→</span>
+      <span>Guide scoring</span>
+    </div>
+    <span class="overline">Guide scoring</span>
+    <h1 style="margin-bottom:1rem">Calculer un <strong>score prospect 0–100</strong> à partir des données publiques</h1>
+    <p class="lead">Comment calculer un score prospect 0–100 à partir des données publiques. DVF, DPE, SIRENE. Méthode, critères, mise en pratique.</p>
   </div>
+</section>
 
-  <div class="related">
-    <h3>Sur le même sujet</h3>
-    <div class="related-links">
-      <a href="crm.html">CRM avec scoring intégré →</a>
-      <a href="kpis-commerciaux.html">KPIs pour mesurer l'efficacité du scoring →</a>
-      <a href="automatisation-prospection.html">Automatiser le scoring et la prospection →</a>
-      <a href="prospecter-donnees-publiques.html">Données publiques pour enrichir vos scores →</a>
-      <a href="conversion-pipeline.html">Optimiser votre taux de conversion →</a>
+
+<section class="section">
+  <div class="container-text" style="max-width:720px;margin:0 auto;padding:0 5%">
+    <h2 style="margin-bottom:.75rem">Pourquoi scorer ses prospects</h2>
+    <p>Sans scoring, votre liste de prospects est plate. Tous les contacts ont la même valeur — vous ne savez pas par où commencer. Avec un score 0–100, vous savez exactement <strong>qui appeler en premier, qui relancer, qui mettre en veille</strong>.</p><p>Le scoring ne remplace pas le jugement commercial. Il <strong>libère du temps</strong> pour les vrais appels en éliminant les faux positifs.</p>
+  </div>
+</section>
+<section class="section">
+  <div class="container-text" style="max-width:720px;margin:0 auto;padding:0 5%">
+    <h2 style="margin-bottom:.75rem">Les critères du score DVF</h2>
+    <p>Le score DVF SAHAR combine trois signaux : <strong>l'écart au prix médian IRIS</strong> (40 points max — un bien à −20% de la médiane score fort), <strong>la liquidité du marché</strong> (35 points — nombre de transactions dans la commune sur 12 mois) et <strong>la dynamique sectorielle</strong> (25 points — tendance du prix médian sur 6 mois).</p><div class='callout'><strong>Score ≥ 70 = opportunité qualifiée.</strong> En pratique, 8 à 12% des transactions scorent au-dessus de 70 en Gironde.</div>
+  </div>
+</section>
+<section class="section">
+  <div class="container-text" style="max-width:720px;margin:0 auto;padding:0 5%">
+    <h2 style="margin-bottom:.75rem">Les critères du score DPE</h2>
+    <p>Le score urgence DPE repose sur : l'<strong>étiquette</strong> (G = 50 pts, F = 35 pts, E = 20 pts), la <strong>consommation</strong> en kWh/m²/an (>450 = 30 pts supplémentaires), l'<strong>année de construction</strong> (<1975 = 20 pts). Un logement G de 1965 consommant 500 kWh score 100 — <strong>urgence maximale, rendement chantier optimal</strong>.</p>
+  </div>
+</section>
+<section class="section">
+  <div class="container-text" style="max-width:720px;margin:0 auto;padding:0 5%">
+    <h2 style="margin-bottom:.75rem">Comment utiliser le score dans votre pitch</h2>
+    <p>Le score n'est pas un chiffre interne — c'est un argument commercial. Pour un bien DVF : <em>"Votre logement au [adresse] a été identifié parmi les biens les plus intéressants du secteur selon nos analyses de marché — score 78/100."</em> Pour un prospect DPE : <em>"Votre logement est classé G, construit en 1968. Il fait partie des 5% les plus urgents à rénover selon nos données ADEME."</em></p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container-text" style="max-width:720px;margin:0 auto;padding:0 5%">
+    <div style="background:var(--bg2);border:1px solid var(--bd);border-radius:12px;padding:2rem;text-align:center">
+      <h3 style="margin-bottom:.5rem">Tester sur vos données réelles</h3>
+      <p style="color:var(--ink3);margin-bottom:1.25rem">Démonstration en 20 minutes sur votre secteur et votre zone.</p>
+      <a href="index.html#contact" class="btn btn-primary">Demander une démo gratuite →</a>
     </div>
   </div>
-</article>
-</div>
-<footer class="footer"><div class="container">
-<div class="footer-grid">
-<div class="footer-brand"><strong style="font-size:.95rem;font-weight:700">SAHAR Conseil</strong>
-<p>Open data au service des professionnels. DVF, DPE, INSEE, SIRENE transformés en pipeline commercial.</p></div>
-<div class="footer-col"><h4>Secteurs</h4><ul>
-<li><a href="immobilier.html">Immobilier DVF</a></li><li><a href="energie-renovation.html">Énergie &amp; DPE</a></li>
-<li><a href="retail-franchise.html">Retail &amp; Franchise</a></li><li><a href="rh-recrutement.html">RH &amp; Recrutement</a></li></ul></div>
-<div class="footer-col"><h4>Outils</h4><ul>
-<li><a href="crm.html">CRM Pipeline</a></li><li><a href="scoring-prospects.html">Scoring Prospects</a></li>
-<li><a href="automatisation-prospection.html">Automatisation</a></li><li><a href="conversion-pipeline.html">Conversion Pipeline</a></li></ul></div>
-<div class="footer-col"><h4>Ressources</h4><ul>
-<li><a href="trouver-prospects-immobiliers.html">Prospects immobiliers</a></li>
-<li><a href="passoires-thermiques-interdites.html">Passoires thermiques</a></li>
-<li><a href="prospecter-donnees-publiques.html">Open data</a></li>
-<li><a href="kpis-commerciaux.html">KPIs commerciaux</a></li></ul></div></div>
-<div class="footer-bottom"><p>© 2024 SAHAR Conseil — Données DVF DGFiP, ADEME, INSEE</p>
-<div class="footer-legal"><a href="index.html#contact">Contact</a><a href="sitemap.xml">Sitemap</a></div></div>
-</div></footer>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="related">
+      <span class="related-label">Sur le même sujet</span>
+      <div class="related-grid"><a href="immobilier.html" class="related-card"><span class="tag">Outil</span><h4>DVF Analyse Pro</h4><p>Score opportunité automatique</p></a><a href="energie-renovation.html" class="related-card"><span class="tag">Outil</span><h4>DPE Scanner</h4><p>Score urgence rénovation</p></a><a href="conversion-pipeline.html" class="related-card"><span class="tag">Guide</span><h4>Convertir son pipeline</h4><p>Du prospect qualifié au deal signé</p></a></div>
+    </div>
+  </div>
+</section>
+
+</main>
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand"><strong style="font-size:.95rem;font-weight:700">SAHAR Conseil</strong><p>Open data au service des professionnels. DVF, DPE, INSEE, SIRENE transformés en pipeline commercial.</p></div>
+      <div class="footer-col"><h4>Secteurs</h4><ul><li><a href="immobilier.html">Immobilier DVF</a></li><li><a href="energie-renovation.html">Énergie &amp; DPE</a></li><li><a href="retail-franchise.html">Retail &amp; Franchise</a></li><li><a href="rh-recrutement.html">RH &amp; Recrutement</a></li></ul></div>
+      <div class="footer-col"><h4>Outils</h4><ul><li><a href="crm.html">CRM Pipeline</a></li><li><a href="scoring-prospects.html">Scoring Prospects</a></li><li><a href="automatisation-prospection.html">Automatisation</a></li></ul></div>
+      <div class="footer-col"><h4>Ressources</h4><ul><li><a href="trouver-prospects-immobiliers.html">Prospects immobiliers</a></li><li><a href="passoires-thermiques-interdites.html">Passoires thermiques</a></li><li><a href="prospecter-donnees-publiques.html">Open data</a></li><li><a href="kpis-commerciaux.html">KPIs</a></li></ul></div>
+    </div>
+    <div class="footer-bottom"><p>© 2024 SAHAR Conseil — Données DVF DGFiP, ADEME, INSEE</p><div class="footer-legal"><a href="index.html#contact">Contact</a><a href="sitemap.xml">Sitemap</a></div></div>
+  </div>
+</footer>
 </body>
 </html>

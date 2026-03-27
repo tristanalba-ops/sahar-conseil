@@ -1,23 +1,14 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <!-- Google Tag Manager -->
-  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-  })(window,document,'script','dataLayer','GTM-5WSR4DK5');</script>
-  <!-- End Google Tag Manager -->
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Prospecter avec les données publiques françaises — Guide complet — SAHAR Conseil</title>
-  <meta name="robots" content="index, follow" />
-  <meta name="googlebot" content="index, follow" />
-  <meta name="description" content="DVF, DPE, INSEE, SIRENE : comment utiliser les données ouvertes françaises pour prospecter des clients B2B. Guide pratique pour commerciaux et équipes sales." />
-  <meta property="og:type" content="article" />
-  <meta property="og:site_name" content="SAHAR Conseil" />
-  <meta property="og:title" content="Prospection avec open data français — SAHAR Conseil" />
-  <link rel="canonical" href="https://tristanalba-ops.github.io/sahar-conseil/prospecter-donnees-publiques.html" />
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Prospecter avec les données publiques françaises | SAHAR Conseil</title>
+  <meta name="description" content="DVF, DPE, INSEE, SIRENE : comment transformer les données publiques en pipeline commercial. Méthodes, sources et outils pour les professionnels.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://tristanalba-ops.github.io/sahar-conseil/prospecter-donnees-publiques.html">
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-5WSR4DK5');</script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XV2P0YPJK0"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-XV2P0YPJK0');</script>
   <style>*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
 body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;font-size:16px;line-height:1.65;color:#1a1a1a;background:#fff;-webkit-font-smoothing:antialiased}
@@ -113,358 +104,86 @@ ul,ol{padding-left:1.4rem;margin-bottom:1rem}li{color:var(--ink2);margin-bottom:
   .cta-strip{flex-direction:column;text-align:center}
   .section{padding:3.5rem 0}
 }</style>
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "Article",
-  "headline": "Prospecter avec les données publiques françaises",
-  "description": "DVF DPE INSEE SIRENE : méthode de prospection par open data",
-  "url": "https://tristanalba-ops.github.io/sahar-conseil/prospecter-donnees-publiques.html",
-  "keywords": "open data prospection, données publiques commerciales, DVF DPE SIRENE",
-  "author": {
-    "@type": "Organization",
-    "name": "SAHAR Conseil"
-  },
-  "publisher": {
-    "@type": "Organization",
-    "name": "SAHAR Conseil",
-    "url": "https://tristanalba-ops.github.io/sahar-conseil/"
-  },
-  "inLanguage": "fr-FR"
-}
-</script>
-  <meta name="author" content="SAHAR Conseil" />
-  <!-- GA4 via GTM fallback direct -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XV2P0YPJK0"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-XV2P0YPJK0', {
-      page_title: document.title,
-      page_location: window.location.href
-    });
-
-    // ── Événements de conversion SAHAR ──────────────────────────────────────
-
-    // 1. Soumission formulaire contact
-    document.addEventListener('DOMContentLoaded', function() {
-      var forms = document.querySelectorAll('form');
-      forms.forEach(function(form) {
-        form.addEventListener('submit', function() {
-          gtag('event', 'form_submit', {
-            event_category: 'conversion',
-            event_label: 'contact_form',
-            value: 1
-          });
-          dataLayer.push({event: 'sahar_form_submit', form_id: form.action});
-        });
-      });
-
-      // 2. Clics CTA principaux
-      var ctas = document.querySelectorAll('a.btn, a.nav-cta, a.service-link, a.tool-link');
-      ctas.forEach(function(btn) {
-        btn.addEventListener('click', function() {
-          gtag('event', 'cta_click', {
-            event_category: 'engagement',
-            event_label: btn.textContent.trim().substring(0, 50),
-            cta_url: btn.href
-          });
-        });
-      });
-
-      // 3. Tool view — pages secteurs
-      var path = window.location.pathname;
-      var toolMap = {
-        'immobilier': 'dvf_analyse',
-        'energie-renovation': 'dpe_scanner',
-        'retail-franchise': 'zone_score',
-        'rh-recrutement': 'rh_tension',
-        'crm': 'crm_pipeline',
-        'scoring-prospects': 'scoring',
-        'automatisation': 'automation'
-      };
-      Object.keys(toolMap).forEach(function(key) {
-        if (path.indexOf(key) !== -1) {
-          gtag('event', 'tool_view', {
-            event_category: 'product',
-            tool_name: toolMap[key],
-            page_path: path
-          });
-        }
-      });
-
-      // 4. Scroll depth 50% et 90%
-      var scrollFired = {};
-      window.addEventListener('scroll', function() {
-        var pct = Math.round((window.scrollY + window.innerHeight) / document.body.scrollHeight * 100);
-        if (pct >= 50 && !scrollFired[50]) {
-          scrollFired[50] = true;
-          gtag('event', 'scroll', {event_category: 'engagement', percent_scrolled: 50});
-        }
-        if (pct >= 90 && !scrollFired[90]) {
-          scrollFired[90] = true;
-          gtag('event', 'scroll', {event_category: 'engagement', percent_scrolled: 90});
-        }
-      });
-
-      // 5. Temps passé — engagement 30s et 60s
-      var timeFired = {};
-      [30000, 60000].forEach(function(ms) {
-        setTimeout(function() {
-          if (!timeFired[ms]) {
-            timeFired[ms] = true;
-            gtag('event', 'time_on_page', {
-              event_category: 'engagement',
-              seconds: ms / 1000
-            });
-          }
-        }, ms);
-      });
-    });
-  </script>
-
-  <!-- UTM Capture & DataLayer Push -->
-  <script>
-  (function() {
-    // 1. Capturer les UTM depuis l'URL
-    var params = new URLSearchParams(window.location.search);
-    var utmKeys = ['utm_source','utm_medium','utm_campaign','utm_content','utm_term'];
-    var utms = {};
-    var hasUtm = false;
-
-    utmKeys.forEach(function(key) {
-      var val = params.get(key);
-      if (val) { utms[key] = val; hasUtm = true; }
-    });
-
-    // 2. Persister en sessionStorage (survit aux navigations)
-    if (hasUtm) {
-      sessionStorage.setItem('sahar_utms', JSON.stringify(utms));
-      sessionStorage.setItem('sahar_landing', window.location.pathname);
-      sessionStorage.setItem('sahar_referrer', document.referrer || 'direct');
-    }
-
-    // 3. Récupérer les UTM stockés (même sans paramètres dans l'URL courante)
-    var storedUtms = {};
-    try { storedUtms = JSON.parse(sessionStorage.getItem('sahar_utms') || '{}'); } catch(e) {}
-    var allUtms = Object.assign({}, storedUtms, utms);
-
-    // 4. Push vers dataLayer GTM
-    window.dataLayer = window.dataLayer || [];
-    if (Object.keys(allUtms).length > 0) {
-      dataLayer.push({
-        event: 'utm_captured',
-        utm_source:   allUtms.utm_source   || '(none)',
-        utm_medium:   allUtms.utm_medium   || '(none)',
-        utm_campaign: allUtms.utm_campaign || '(none)',
-        utm_content:  allUtms.utm_content  || '(none)',
-        utm_term:     allUtms.utm_term     || '(none)',
-        landing_page: sessionStorage.getItem('sahar_landing') || window.location.pathname,
-        referrer:     sessionStorage.getItem('sahar_referrer') || document.referrer || 'direct'
-      });
-    }
-
-    // 5. Enrichir les soumissions formulaire avec les UTMs
-    document.addEventListener('DOMContentLoaded', function() {
-      var forms = document.querySelectorAll('form');
-      forms.forEach(function(form) {
-        form.addEventListener('submit', function() {
-          // Push GA4 enrichi
-          dataLayer.push({
-            event: 'sahar_lead_submit',
-            utm_source:   allUtms.utm_source   || '(none)',
-            utm_medium:   allUtms.utm_medium   || '(none)',
-            utm_campaign: allUtms.utm_campaign || '(none)',
-            landing_page: sessionStorage.getItem('sahar_landing') || window.location.pathname,
-            form_url:     form.action
-          });
-        });
-
-        // Injecter les UTMs comme champs cachés dans le formulaire Formspree
-        if (form.action && form.action.indexOf('formspree') !== -1) {
-          Object.keys(allUtms).forEach(function(key) {
-            var input = document.createElement('input');
-            input.type = 'hidden';
-            input.name = key;
-            input.value = allUtms[key];
-            form.appendChild(input);
-          });
-          // Ajouter landing page et referrer
-          ['sahar_landing','sahar_referrer'].forEach(function(key) {
-            var val = sessionStorage.getItem(key);
-            if (val) {
-              var input = document.createElement('input');
-              input.type = 'hidden';
-              input.name = key;
-              input.value = val;
-              form.appendChild(input);
-            }
-          });
-        }
-      });
-    });
-  })();
-  </script>
 </head>
 <body>
-<!-- Google Tag Manager (noscript) -->
-<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5WSR4DK5"
-height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-<!-- End Google Tag Manager (noscript) -->
-<a href="#main" class="skip-link">Aller au contenu</a>
 <a href="#main" class="skip">Aller au contenu</a>
-<nav class="nav"><a href="index.html" class="nav-logo"><span class="nav-logo-dot"></span>SAHAR Conseil</a>
-<ul class="nav-menu"><li><a href="immobilier.html">Immobilier</a></li><li><a href="energie-renovation.html">Énergie</a></li><li><a href="retail-franchise.html">Retail</a></li><li><a href="rh-recrutement.html">RH</a></li><li><a href="crm.html">CRM</a></li><li><a href="index.html#tarifs">Tarifs</a></li></ul>
-<div class="nav-actions"><a href="index.html#contact" class="btn btn-primary btn-sm">Démo gratuite</a></div></nav>
-<div class="container">
-<article id="main">
-  <div class="breadcrumb"><a href="index.html">Accueil</a> → Prospection open data</div>
-
-  <h1>Comment prospecter avec les données publiques françaises</h1>
-
-  <p class="lead">En France, des dizaines de bases de données publiques contiennent des signaux commerciaux exploitables. Transactions immobilières, diagnostics énergétiques, création d'entreprises, équipements par commune. Le tout gratuit, mis à jour régulièrement, et inexploité par la majorité de vos concurrents.</p>
-
-  <h2>Pourquoi l'open data est un avantage concurrentiel sous-exploité</h2>
-  <p>La prospection commerciale classique souffre d'un problème fondamental : le signal. Vous savez qui vous voulez contacter, mais vous ne savez pas pourquoi ils auraient besoin de vous maintenant.</p>
-  <p>Les données publiques changent ça. Elles contiennent des signaux de timing :</p>
-  <ul>
-    <li>Un logement classé F qui expire un bail → urgence réglementaire</li>
-    <li>Une transaction immobilière à -15% de la médiane → opportunité</li>
-    <li>Une entreprise créée il y a 6 mois dans votre secteur → prospect froid à warm</li>
-    <li>Une zone sans borne de recharge VE dans un département riche → opportunité retail</li>
+<nav class="nav" aria-label="Navigation principale">
+  <a href="index.html" class="nav-logo"><span class="nav-logo-dot"></span>SAHAR Conseil</a>
+  <ul class="nav-menu">
+    <li><a href="immobilier.html">Immobilier</a></li>
+    <li><a href="energie-renovation.html">Énergie</a></li>
+    <li><a href="retail-franchise.html">Retail</a></li>
+    <li><a href="rh-recrutement.html">RH</a></li>
+    <li><a href="crm.html">CRM</a></li>
+    <li><a href="index.html#tarifs">Tarifs</a></li>
   </ul>
-  <div class="highlight">
-    La différence entre prospecter à froid et prospecter avec la data : vous arrivez à l'appel avec un argument contextuel. "J'ai vu que votre logement est classé F" ou "J'ai analysé les transactions dans votre secteur" — ça change tout à la conversion.
+  <div class="nav-actions"><a href="index.html#contact" class="btn btn-primary btn-sm">Démo gratuite</a></div>
+</nav>
+<main id="main">
+
+<section class="section" style="padding-top:4.5rem;padding-bottom:3.5rem;background:var(--bg2)">
+  <div class="container-text" style="max-width:720px;margin:0 auto;padding:0 5%">
+    <div class="breadcrumb">
+      <a href="index.html">Accueil</a><span class="breadcrumb-sep">→</span>
+      <a href="prospecter-donnees-publiques.html">Ressources</a><span class="breadcrumb-sep">→</span>
+      <span>Guide open data</span>
+    </div>
+    <span class="overline">Guide open data</span>
+    <h1 style="margin-bottom:1rem">Comment prospecter avec les <strong>données publiques françaises</strong></h1>
+    <p class="lead">DVF, DPE, INSEE, SIRENE : comment transformer les données publiques en pipeline commercial. Méthodes, sources et outils pour les professionnels.</p>
   </div>
+</section>
 
-  <h2>Les 6 sources open data les plus utiles pour prospecter</h2>
 
-  <div class="source-grid">
-    <div class="source">
-      <div class="source-name">DVF — Demandes de Valeurs Foncières</div>
-      <div class="source-url">files.data.gouv.fr/geo-dvf</div>
-      <div class="source-sector">Immobilier · Foncier</div>
-      <p>Toutes les transactions notariées depuis 2019. Prix signé, adresse, surface. Signal : bien sous la médiane = opportunité d'achat ou de mandat.</p>
-    </div>
-    <div class="source">
-      <div class="source-name">DPE — Base ADEME</div>
-      <div class="source-url">data.ademe.fr</div>
-      <div class="source-sector">Énergie · Rénovation</div>
-      <p>10M+ diagnostics de performance énergétique. Signal : logement F/G = propriétaire contraint par la loi. Urgence réglementaire forte.</p>
-    </div>
-    <div class="source">
-      <div class="source-name">SIRENE — Base entreprises INSEE</div>
-      <div class="source-url">api.insee.fr</div>
-      <div class="source-sector">B2B · Tous secteurs</div>
-      <p>Toutes les entreprises françaises avec NAF, effectif, date création, adresse. Signal : création récente = besoins en équipement, services, RH.</p>
-    </div>
-    <div class="source">
-      <div class="source-name">BPE — Base Permanente Équipements</div>
-      <div class="source-url">insee.fr/statistiques</div>
-      <div class="source-sector">Retail · Franchise</div>
-      <p>Tous les équipements par commune : commerces, médecins, écoles, transports. Signal : absence d'un type d'équipement = zone blanche commerciale.</p>
-    </div>
-    <div class="source">
-      <div class="source-name">IRVE — Bornes de recharge VE</div>
-      <div class="source-url">data.gouv.fr</div>
-      <div class="source-sector">Automobile · Énergie</div>
-      <p>Localisation de toutes les bornes de recharge en France. Signal : zone sans borne dans un département à fort potentiel VE = opportunité.</p>
-    </div>
-    <div class="source">
-      <div class="source-name">DARES — Marché du travail</div>
-      <div class="source-url">dares.travail.gouv.fr</div>
-      <div class="source-sector">RH · Recrutement</div>
-      <p>Tensions de recrutement par métier et bassin d'emploi. Signal : tension élevée = entreprises qui cherchent activement et ratent leurs recrutements.</p>
-    </div>
+<section class="section">
+  <div class="container-text" style="max-width:720px;margin:0 auto;padding:0 5%">
+    <h2 style="margin-bottom:.75rem">Pourquoi les données publiques changent la prospection</h2>
+    <p>Les données publiques françaises couvrent <strong>l'intégralité des transactions immobilières</strong>, les diagnostics énergétiques de 10 millions de logements, toutes les entreprises actives et les dynamiques de recrutement par bassin. Ces données sont officielles, gratuites, actualisées régulièrement — et la plupart des commerciaux n'en font rien.</p><p>La raison est simple : <strong>sous leur forme brute, elles sont inexploitables</strong>. Un fichier DVF fait 500 000 lignes. Un export DPE fait plusieurs gigaoctets. Sans traitement automatisé, ces données restent théoriques.</p><div class='callout blue'><strong>Ce que SAHAR change</strong> : les données brutes sont nettoyées, géocodées, scorées et poussées dans un pipeline commercial. Ce qui prenait des jours de traitement prend 30 secondes.</div>
   </div>
+</section>
+<section class="section">
+  <div class="container-text" style="max-width:720px;margin:0 auto;padding:0 5%">
+    <h2 style="margin-bottom:.75rem">Les 4 sources à maîtriser</h2>
+    <p><strong>DVF — Demandes de Valeurs Foncières</strong> : chaque vente notariée depuis 2019. Prix signé, surface, adresse, date. La donnée de marché la plus fiable disponible. Utilisable pour détecter les biens sous-valorisés, les vendeurs potentiels, les zones actives.</p><p><strong>DPE ADEME</strong> : 10 millions de diagnostics énergétiques avec adresse, étiquette (A à G), consommation et année de construction. Les logements F/G sont interdits à la location depuis 2025 — <strong>chaque propriétaire concerné est un prospect rénovation qualifié</strong>.</p><p><strong>SIRENE — INSEE</strong> : toutes les entreprises françaises avec code NAF, effectif, adresse. Pour identifier les entreprises dans votre secteur, les zones de concurrence, les prospects B2B.</p><p><strong>DARES</strong> : indicateurs de tension de recrutement par métier et bassin d'emploi. Mis à jour chaque trimestre. Pour les cabinets de recrutement, c'est l'argument commercial objectif qui manquait.</p>
+  </div>
+</section>
+<section class="section">
+  <div class="container-text" style="max-width:720px;margin:0 auto;padding:0 5%">
+    <h2 style="margin-bottom:.75rem">De la donnée brute au prospect qualifié</h2>
+    <p>La transformation se fait en 4 étapes : <strong>filtrage</strong> (garder les enregistrements pertinents pour votre secteur), <strong>enrichissement</strong> (croiser avec d'autres sources, géocoder), <strong>scoring</strong> (calculer un score de priorité 0–100), <strong>export CRM</strong> (liste prête à prospecter).</p><p>Le scoring est la clé. Sans scoring, vous avez une liste de 10 000 adresses. Avec un scoring calibré sur vos critères métier, vous avez <strong>une liste de 200 prospects prioritaires</strong> que vous pouvez appeler dans la journée.</p>
+  </div>
+</section>
 
-  <h2>La méthode en 5 étapes pour prospecter avec l'open data</h2>
-
-  <div class="steps">
-    <div class="step-item">
-      <span class="step-num">01</span>
-      <div>
-        <div class="step-title">Définir votre signal</div>
-        <div class="step-desc">Quel événement dans les données indique qu'un prospect a besoin de vous maintenant ? Pas "qui est dans ma cible" — "qui a un problème que je résous aujourd'hui".</div>
-      </div>
-    </div>
-    <div class="step-item">
-      <span class="step-num">02</span>
-      <div>
-        <div class="step-title">Identifier la source</div>
-        <div class="step-desc">Quelle base de données publique contient ce signal ? DVF pour l'immo, DPE pour la rénovation, SIRENE pour le B2B généraliste, BPE pour le retail.</div>
-      </div>
-    </div>
-    <div class="step-item">
-      <span class="step-num">03</span>
-      <div>
-        <div class="step-title">Filtrer et scorer</div>
-        <div class="step-desc">Appliquer vos critères géographiques et sectoriels. Attribuer un score de priorité basé sur l'intensité du signal. Appeler les scores les plus élevés en premier.</div>
-      </div>
-    </div>
-    <div class="step-item">
-      <span class="step-num">04</span>
-      <div>
-        <div class="step-title">Contextualiser le pitch</div>
-        <div class="step-desc">Construire un argument d'appel basé sur le signal. "J'ai analysé les données de votre zone" est infiniment plus puissant que "je passe vous présenter nos services".</div>
-      </div>
-    </div>
-    <div class="step-item">
-      <span class="step-num">05</span>
-      <div>
-        <div class="step-title">Pousser dans le CRM</div>
-        <div class="step-desc">Chaque prospect enrichi avec ses données contextuelles. Fiche prospect avec le signal qui a déclenché la prospection. Historique complet jusqu'au closing.</div>
-      </div>
+<section class="section">
+  <div class="container-text" style="max-width:720px;margin:0 auto;padding:0 5%">
+    <div style="background:var(--bg2);border:1px solid var(--bd);border-radius:12px;padding:2rem;text-align:center">
+      <h3 style="margin-bottom:.5rem">Tester sur vos données réelles</h3>
+      <p style="color:var(--ink3);margin-bottom:1.25rem">Démonstration en 20 minutes sur votre secteur et votre zone.</p>
+      <a href="index.html#contact" class="btn btn-primary">Demander une démo gratuite →</a>
     </div>
   </div>
+</section>
 
-  <div class="cta-inline">
-    <p>SAHAR fait les étapes 1 à 3 automatiquement pour votre secteur.</p>
-    <a href="index.html#contact" class="btn">Voir comment →</a>
-  </div>
-
-  <h2>Les limites de l'open data pour la prospection</h2>
-  <p>Soyons honnêtes. L'open data n'est pas magique :</p>
-  <ul>
-    <li><strong>Délai de publication</strong> — DVF a 6 mois de décalage. DPE est plus rapide mais pas temps réel.</li>
-    <li><strong>Pas de contact direct</strong> — Les données donnent l'adresse du bien, pas le numéro de téléphone du propriétaire. Il faut croiser avec d'autres sources pour obtenir les contacts.</li>
-    <li><strong>Volume à traiter</strong> — Des milliers de biens F/G dans un département. Sans scoring automatique, c'est inexploitable manuellement.</li>
-    <li><strong>Qualité variable</strong> — Certains DPE sont mal renseignés. Certaines adresses DVF sont incomplètes. Il faut nettoyer les données avant d'en faire usage.</li>
-  </ul>
-  <p>C'est exactement pourquoi SAHAR existe : pour résoudre ces 4 problèmes et vous livrer une liste de prospects utilisable directement, pas un fichier CSV brut.</p>
-
-  <h2>Open data vs achat de fichiers prospects — que choisir ?</h2>
-  <p>Les fichiers de prospection achetés (type Kompass, Corporama) ont l'avantage d'inclure les contacts. Mais ils ont deux problèmes : ils coûtent cher, et tout le monde les achète.</p>
-  <p>L'open data est gratuit, plus précis sur les signaux d'urgence, et inexploité par vos concurrents. La combinaison idéale : open data pour le signal et la priorisation, fichiers contacts pour l'adresse email et le téléphone.</p>
-
-  <div class="related">
-    <p style="font-weight:600;font-size:.9rem">Sur le même sujet</p>
-    <div class="related-links">
-      <a href="immobilier.html">DVF Analyse Pro — prospection immobilier par les données →</a>
-      <a href="energie-renovation.html">DPE Scanner — prospects rénovation qualifiés →</a>
-      <a href="kpis-commerciaux.html">KPIs pour mesurer l'efficacité de votre prospection data →</a>
+<section class="section">
+  <div class="container">
+    <div class="related">
+      <span class="related-label">Sur le même sujet</span>
+      <div class="related-grid"><a href="immobilier.html" class="related-card"><span class="tag">Outil</span><h4>DVF Analyse Pro</h4><p>Scoring immobilier en temps réel</p></a><a href="energie-renovation.html" class="related-card"><span class="tag">Outil</span><h4>DPE Scanner</h4><p>Passoires thermiques par commune</p></a><a href="scoring-prospects.html" class="related-card"><span class="tag">Guide</span><h4>Algorithme de scoring</h4><p>Comment calculer un score prospect</p></a></div>
     </div>
   </div>
-</article>
-</div>
-<footer class="footer"><div class="container">
-<div class="footer-grid">
-<div class="footer-brand"><strong style="font-size:.95rem;font-weight:700">SAHAR Conseil</strong>
-<p>Open data au service des professionnels. DVF, DPE, INSEE, SIRENE transformés en pipeline commercial.</p></div>
-<div class="footer-col"><h4>Secteurs</h4><ul>
-<li><a href="immobilier.html">Immobilier DVF</a></li><li><a href="energie-renovation.html">Énergie &amp; DPE</a></li>
-<li><a href="retail-franchise.html">Retail &amp; Franchise</a></li><li><a href="rh-recrutement.html">RH &amp; Recrutement</a></li></ul></div>
-<div class="footer-col"><h4>Outils</h4><ul>
-<li><a href="crm.html">CRM Pipeline</a></li><li><a href="scoring-prospects.html">Scoring Prospects</a></li>
-<li><a href="automatisation-prospection.html">Automatisation</a></li><li><a href="conversion-pipeline.html">Conversion Pipeline</a></li></ul></div>
-<div class="footer-col"><h4>Ressources</h4><ul>
-<li><a href="trouver-prospects-immobiliers.html">Prospects immobiliers</a></li>
-<li><a href="passoires-thermiques-interdites.html">Passoires thermiques</a></li>
-<li><a href="prospecter-donnees-publiques.html">Open data</a></li>
-<li><a href="kpis-commerciaux.html">KPIs commerciaux</a></li></ul></div></div>
-<div class="footer-bottom"><p>© 2024 SAHAR Conseil — Données DVF DGFiP, ADEME, INSEE</p>
-<div class="footer-legal"><a href="index.html#contact">Contact</a><a href="sitemap.xml">Sitemap</a></div></div>
-</div></footer>
+</section>
+
+</main>
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand"><strong style="font-size:.95rem;font-weight:700">SAHAR Conseil</strong><p>Open data au service des professionnels. DVF, DPE, INSEE, SIRENE transformés en pipeline commercial.</p></div>
+      <div class="footer-col"><h4>Secteurs</h4><ul><li><a href="immobilier.html">Immobilier DVF</a></li><li><a href="energie-renovation.html">Énergie &amp; DPE</a></li><li><a href="retail-franchise.html">Retail &amp; Franchise</a></li><li><a href="rh-recrutement.html">RH &amp; Recrutement</a></li></ul></div>
+      <div class="footer-col"><h4>Outils</h4><ul><li><a href="crm.html">CRM Pipeline</a></li><li><a href="scoring-prospects.html">Scoring Prospects</a></li><li><a href="automatisation-prospection.html">Automatisation</a></li></ul></div>
+      <div class="footer-col"><h4>Ressources</h4><ul><li><a href="trouver-prospects-immobiliers.html">Prospects immobiliers</a></li><li><a href="passoires-thermiques-interdites.html">Passoires thermiques</a></li><li><a href="prospecter-donnees-publiques.html">Open data</a></li><li><a href="kpis-commerciaux.html">KPIs</a></li></ul></div>
+    </div>
+    <div class="footer-bottom"><p>© 2024 SAHAR Conseil — Données DVF DGFiP, ADEME, INSEE</p><div class="footer-legal"><a href="index.html#contact">Contact</a><a href="sitemap.xml">Sitemap</a></div></div>
+  </div>
+</footer>
 </body>
 </html>

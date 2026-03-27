@@ -1,23 +1,14 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <!-- Google Tag Manager -->
-  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-  })(window,document,'script','dataLayer','GTM-5WSR4DK5');</script>
-  <!-- End Google Tag Manager -->
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>KPIs commerciaux pour SDR et équipes sales — Guide 2024 — SAHAR Conseil</title>
-  <meta name="robots" content="index, follow" />
-  <meta name="googlebot" content="index, follow" />
-  <meta name="description" content="Quels KPIs suivre pour piloter votre pipeline commercial ? Taux de conversion, délai de closing, CAC, MRR pipeline. Guide pratique pour SDR, Account Executives et Sales Managers." />
-  <meta property="og:type" content="article" />
-  <meta property="og:site_name" content="SAHAR Conseil" />
-  <meta property="og:title" content="KPIs commerciaux SDR et closing — SAHAR Conseil" />
-  <link rel="canonical" href="https://tristanalba-ops.github.io/sahar-conseil/kpis-commerciaux.html" />
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>KPIs Commerciaux — Les Métriques qui Prédisent les Deals | SAHAR Conseil</title>
+  <meta name="description" content="Quels KPIs suivre pour piloter efficacement son pipeline commercial ? Taux de conversion, vélocité, MRR. Méthode data-driven.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://tristanalba-ops.github.io/sahar-conseil/kpis-commerciaux.html">
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-5WSR4DK5');</script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XV2P0YPJK0"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-XV2P0YPJK0');</script>
   <style>*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
 body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;font-size:16px;line-height:1.65;color:#1a1a1a;background:#fff;-webkit-font-smoothing:antialiased}
@@ -113,375 +104,86 @@ ul,ol{padding-left:1.4rem;margin-bottom:1rem}li{color:var(--ink2);margin-bottom:
   .cta-strip{flex-direction:column;text-align:center}
   .section{padding:3.5rem 0}
 }</style>
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "Article",
-  "headline": "KPIs commerciaux SDR et pipeline",
-  "description": "Taux de conversion, win rate, CAC, pipeline pondéré : guide complet",
-  "url": "https://tristanalba-ops.github.io/sahar-conseil/kpis-commerciaux.html",
-  "keywords": "KPIs commerciaux, SDR métriques, win rate, taux conversion pipeline, forecast",
-  "author": {
-    "@type": "Organization",
-    "name": "SAHAR Conseil"
-  },
-  "publisher": {
-    "@type": "Organization",
-    "name": "SAHAR Conseil",
-    "url": "https://tristanalba-ops.github.io/sahar-conseil/"
-  },
-  "inLanguage": "fr-FR"
-}
-</script>
-  <meta name="author" content="SAHAR Conseil" />
-  <!-- GA4 via GTM fallback direct -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XV2P0YPJK0"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-XV2P0YPJK0', {
-      page_title: document.title,
-      page_location: window.location.href
-    });
-
-    // ── Événements de conversion SAHAR ──────────────────────────────────────
-
-    // 1. Soumission formulaire contact
-    document.addEventListener('DOMContentLoaded', function() {
-      var forms = document.querySelectorAll('form');
-      forms.forEach(function(form) {
-        form.addEventListener('submit', function() {
-          gtag('event', 'form_submit', {
-            event_category: 'conversion',
-            event_label: 'contact_form',
-            value: 1
-          });
-          dataLayer.push({event: 'sahar_form_submit', form_id: form.action});
-        });
-      });
-
-      // 2. Clics CTA principaux
-      var ctas = document.querySelectorAll('a.btn, a.nav-cta, a.service-link, a.tool-link');
-      ctas.forEach(function(btn) {
-        btn.addEventListener('click', function() {
-          gtag('event', 'cta_click', {
-            event_category: 'engagement',
-            event_label: btn.textContent.trim().substring(0, 50),
-            cta_url: btn.href
-          });
-        });
-      });
-
-      // 3. Tool view — pages secteurs
-      var path = window.location.pathname;
-      var toolMap = {
-        'immobilier': 'dvf_analyse',
-        'energie-renovation': 'dpe_scanner',
-        'retail-franchise': 'zone_score',
-        'rh-recrutement': 'rh_tension',
-        'crm': 'crm_pipeline',
-        'scoring-prospects': 'scoring',
-        'automatisation': 'automation'
-      };
-      Object.keys(toolMap).forEach(function(key) {
-        if (path.indexOf(key) !== -1) {
-          gtag('event', 'tool_view', {
-            event_category: 'product',
-            tool_name: toolMap[key],
-            page_path: path
-          });
-        }
-      });
-
-      // 4. Scroll depth 50% et 90%
-      var scrollFired = {};
-      window.addEventListener('scroll', function() {
-        var pct = Math.round((window.scrollY + window.innerHeight) / document.body.scrollHeight * 100);
-        if (pct >= 50 && !scrollFired[50]) {
-          scrollFired[50] = true;
-          gtag('event', 'scroll', {event_category: 'engagement', percent_scrolled: 50});
-        }
-        if (pct >= 90 && !scrollFired[90]) {
-          scrollFired[90] = true;
-          gtag('event', 'scroll', {event_category: 'engagement', percent_scrolled: 90});
-        }
-      });
-
-      // 5. Temps passé — engagement 30s et 60s
-      var timeFired = {};
-      [30000, 60000].forEach(function(ms) {
-        setTimeout(function() {
-          if (!timeFired[ms]) {
-            timeFired[ms] = true;
-            gtag('event', 'time_on_page', {
-              event_category: 'engagement',
-              seconds: ms / 1000
-            });
-          }
-        }, ms);
-      });
-    });
-  </script>
-
-  <!-- UTM Capture & DataLayer Push -->
-  <script>
-  (function() {
-    // 1. Capturer les UTM depuis l'URL
-    var params = new URLSearchParams(window.location.search);
-    var utmKeys = ['utm_source','utm_medium','utm_campaign','utm_content','utm_term'];
-    var utms = {};
-    var hasUtm = false;
-
-    utmKeys.forEach(function(key) {
-      var val = params.get(key);
-      if (val) { utms[key] = val; hasUtm = true; }
-    });
-
-    // 2. Persister en sessionStorage (survit aux navigations)
-    if (hasUtm) {
-      sessionStorage.setItem('sahar_utms', JSON.stringify(utms));
-      sessionStorage.setItem('sahar_landing', window.location.pathname);
-      sessionStorage.setItem('sahar_referrer', document.referrer || 'direct');
-    }
-
-    // 3. Récupérer les UTM stockés (même sans paramètres dans l'URL courante)
-    var storedUtms = {};
-    try { storedUtms = JSON.parse(sessionStorage.getItem('sahar_utms') || '{}'); } catch(e) {}
-    var allUtms = Object.assign({}, storedUtms, utms);
-
-    // 4. Push vers dataLayer GTM
-    window.dataLayer = window.dataLayer || [];
-    if (Object.keys(allUtms).length > 0) {
-      dataLayer.push({
-        event: 'utm_captured',
-        utm_source:   allUtms.utm_source   || '(none)',
-        utm_medium:   allUtms.utm_medium   || '(none)',
-        utm_campaign: allUtms.utm_campaign || '(none)',
-        utm_content:  allUtms.utm_content  || '(none)',
-        utm_term:     allUtms.utm_term     || '(none)',
-        landing_page: sessionStorage.getItem('sahar_landing') || window.location.pathname,
-        referrer:     sessionStorage.getItem('sahar_referrer') || document.referrer || 'direct'
-      });
-    }
-
-    // 5. Enrichir les soumissions formulaire avec les UTMs
-    document.addEventListener('DOMContentLoaded', function() {
-      var forms = document.querySelectorAll('form');
-      forms.forEach(function(form) {
-        form.addEventListener('submit', function() {
-          // Push GA4 enrichi
-          dataLayer.push({
-            event: 'sahar_lead_submit',
-            utm_source:   allUtms.utm_source   || '(none)',
-            utm_medium:   allUtms.utm_medium   || '(none)',
-            utm_campaign: allUtms.utm_campaign || '(none)',
-            landing_page: sessionStorage.getItem('sahar_landing') || window.location.pathname,
-            form_url:     form.action
-          });
-        });
-
-        // Injecter les UTMs comme champs cachés dans le formulaire Formspree
-        if (form.action && form.action.indexOf('formspree') !== -1) {
-          Object.keys(allUtms).forEach(function(key) {
-            var input = document.createElement('input');
-            input.type = 'hidden';
-            input.name = key;
-            input.value = allUtms[key];
-            form.appendChild(input);
-          });
-          // Ajouter landing page et referrer
-          ['sahar_landing','sahar_referrer'].forEach(function(key) {
-            var val = sessionStorage.getItem(key);
-            if (val) {
-              var input = document.createElement('input');
-              input.type = 'hidden';
-              input.name = key;
-              input.value = val;
-              form.appendChild(input);
-            }
-          });
-        }
-      });
-    });
-  })();
-  </script>
 </head>
 <body>
-<!-- Google Tag Manager (noscript) -->
-<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5WSR4DK5"
-height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-<!-- End Google Tag Manager (noscript) -->
-<a href="#main" class="skip-link">Aller au contenu</a>
 <a href="#main" class="skip">Aller au contenu</a>
-<nav class="nav"><a href="index.html" class="nav-logo"><span class="nav-logo-dot"></span>SAHAR Conseil</a>
-<ul class="nav-menu"><li><a href="immobilier.html">Immobilier</a></li><li><a href="energie-renovation.html">Énergie</a></li><li><a href="retail-franchise.html">Retail</a></li><li><a href="rh-recrutement.html">RH</a></li><li><a href="crm.html">CRM</a></li><li><a href="index.html#tarifs">Tarifs</a></li></ul>
-<div class="nav-actions"><a href="index.html#contact" class="btn btn-primary btn-sm">Démo gratuite</a></div></nav>
-<div class="container">
-<article id="main">
-  <div class="breadcrumb"><a href="index.html">Accueil</a> → <a href="crm.html">CRM</a> → KPIs commerciaux</div>
+<nav class="nav" aria-label="Navigation principale">
+  <a href="index.html" class="nav-logo"><span class="nav-logo-dot"></span>SAHAR Conseil</a>
+  <ul class="nav-menu">
+    <li><a href="immobilier.html">Immobilier</a></li>
+    <li><a href="energie-renovation.html">Énergie</a></li>
+    <li><a href="retail-franchise.html">Retail</a></li>
+    <li><a href="rh-recrutement.html">RH</a></li>
+    <li><a href="crm.html">CRM</a></li>
+    <li><a href="index.html#tarifs">Tarifs</a></li>
+  </ul>
+  <div class="nav-actions"><a href="index.html#contact" class="btn btn-primary btn-sm">Démo gratuite</a></div>
+</nav>
+<main id="main">
 
-  <h1>KPIs commerciaux : lesquels suivre, comment les calculer, comment les améliorer</h1>
+<section class="section" style="padding-top:4.5rem;padding-bottom:3.5rem;background:var(--bg2)">
+  <div class="container-text" style="max-width:720px;margin:0 auto;padding:0 5%">
+    <div class="breadcrumb">
+      <a href="index.html">Accueil</a><span class="breadcrumb-sep">→</span>
+      <a href="prospecter-donnees-publiques.html">Ressources</a><span class="breadcrumb-sep">→</span>
+      <span>Guide pilotage commercial</span>
+    </div>
+    <span class="overline">Guide pilotage commercial</span>
+    <h1 style="margin-bottom:1rem">Les <strong>KPIs commerciaux</strong> qui prédisent vos deals à venir</h1>
+    <p class="lead">Quels KPIs suivre pour piloter efficacement son pipeline commercial ? Taux de conversion, vélocité, MRR. Méthode data-driven.</p>
+  </div>
+</section>
 
-  <p class="lead">Un pipeline sans KPIs c'est une voiture sans tableau de bord. Vous avancez, mais vous ne savez pas si vous allez dans le bon sens, à quelle vitesse, et quand vous allez tomber en panne. Voici les métriques qui comptent vraiment — pas les vanity metrics.</p>
 
-  <h2>Les 8 KPIs commerciaux essentiels</h2>
+<section class="section">
+  <div class="container-text" style="max-width:720px;margin:0 auto;padding:0 5%">
+    <h2 style="margin-bottom:.75rem">Les 4 métriques fondamentales</h2>
+    <p><strong>Taux de conversion par étape</strong> : c'est le seul KPI qui vous dit où se perdent vos deals. Si vous passez 80% des prospects de Détection à Contact mais seulement 20% de Contact à Qualification — le problème est dans votre message de qualification, pas dans la détection.</p><p><strong>Vélocité pipeline</strong> : nombre de jours moyen par étape. Un deal qui stagne plus de 14 jours en Proposition sans réponse a 70% de chances d'être perdu. <strong>Agir à J+7 double votre taux de closing.</strong></p><p><strong>Valeur pondérée du pipeline</strong> : somme des valeurs × probabilité par étape. Le seul indicateur de revenus futurs fiable. Si votre pipeline pondéré est de 15 000€ et votre taux de closing historique est 40%, vous avez 6 000€ de revenus probables à 90 jours.</p><p><strong>Coût par prospect qualifié</strong> : temps passé × valeur horaire / nombre de prospects qualifiés. Si vous passez 2h à chercher des prospects manuellement pour en qualifier 3 et que votre taux de closing est 30%, votre CPQ est élevé. Avec du scoring automatisé, <strong>1h de travail génère 15 à 20 prospects qualifiés</strong>.</p>
+  </div>
+</section>
+<section class="section">
+  <div class="container-text" style="max-width:720px;margin:0 auto;padding:0 5%">
+    <h2 style="margin-bottom:.75rem">KPIs spécifiques par secteur</h2>
+    <p><strong>Immobilier</strong> : mandats signés / contacts qualifiés, délai moyen détection → mandat, taux de renouvellement mandats. Signal avancé : nombre de transactions DVF dans votre zone les 30 derniers jours — prédit le volume de mandats potentiels à 60 jours.</p><p><strong>Rénovation énergétique</strong> : devis envoyés / prospects contactés, taux d'acceptation devis, délai moyen contact → devis signé. Signal avancé : score urgence moyen de votre pipeline — prédit la facilité à closer.</p><p><strong>Retail / Franchise</strong> : zones analysées / décisions d'ouverture, délai analyse → décision, taux d'ouverture effective.</p>
+  </div>
+</section>
+<section class="section">
+  <div class="container-text" style="max-width:720px;margin:0 auto;padding:0 5%">
+    <h2 style="margin-bottom:.75rem">Construire un tableau de bord actionnable</h2>
+    <p>Un tableau de bord commercial doit répondre à 3 questions : <strong>Où en est mon pipeline aujourd'hui ?</strong> (valeur pondérée par étape), <strong>Quels deals risquent de se perdre ?</strong> (deals en stagnation >14j), <strong>Que dois-je faire demain ?</strong> (prochaines actions planifiées par priorité).</p><p>Tout le reste — graphiques de tendance, heatmaps, comparaisons historiques — est utile mais secondaire. <strong>Si votre CRM ne répond pas à ces 3 questions en moins de 30 secondes, il est trop complexe.</strong></p>
+  </div>
+</section>
 
-  <div class="kpi-grid">
-    <div class="kpi-card">
-      <div class="kpi-name">Taux de conversion par étape</div>
-      <div class="kpi-formula">Leads passés → étape suivante / leads entrants</div>
-      <p>Identifie exactement où vous perdez des prospects dans le pipeline. Si vous convertissez bien de Détecté à Contacté mais mal de Contacté à Qualifié — c'est votre script d'appel qui est en cause, pas votre sourcing.</p>
-      <span class="kpi-bench">Benchmark B2B : 30–40% Détecté→Contacté, 20–30% Contacté→Qualifié</span>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-name">Délai moyen de closing</div>
-      <div class="kpi-formula">Date closing − Date premier contact</div>
-      <p>Mesure la vélocité de votre cycle de vente. Un délai qui s'allonge indique soit des prospects moins qualifiés en entrée, soit un problème de relance dans le pipeline.</p>
-      <span class="kpi-bench">Objectif : réduire de 15% par trimestre</span>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-name">Taux de contact (SDR)</div>
-      <div class="kpi-formula">Prospects contactés / prospects tentés × 100</div>
-      <p>KPI opérationnel SDR. Mesure la qualité de la liste de prospection. Un taux de contact faible (< 20%) indique des données de mauvaise qualité ou un mauvais timing d'approche.</p>
-      <span class="kpi-bench">Bon taux : > 25% sur cold, > 40% sur warm</span>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-name">Win Rate</div>
-      <div class="kpi-formula">Deals closés / opportunités qualifiées × 100</div>
-      <p>Le ratio deals signés sur opportunités qui sont entrées en phase de proposition. C'est le KPI de closing par excellence. Un win rate faible pointe vers un problème de positionnement ou de gestion des objections.</p>
-      <span class="kpi-bench">Benchmark SaaS : 20–30%</span>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-name">CAC — Coût d'acquisition client</div>
-      <div class="kpi-formula">Coût total sales + marketing / nouveaux clients</div>
-      <p>Combien vous coûte l'acquisition d'un client. À rapporter à la valeur vie client (LTV). Règle : LTV > 3 × CAC pour un business viable. La prospection data réduit le CAC en améliorant la qualification amont.</p>
-      <span class="kpi-bench">Ratio LTV/CAC cible : > 3:1</span>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-name">Pipeline pondéré</div>
-      <div class="kpi-formula">Σ (valeur opportunité × probabilité de closing)</div>
-      <p>La vraie valeur de votre pipeline — pas la valeur brute qui compte toutes les opportunités à 100%. Pondérer par probabilité de closing selon l'étape donne une vision réaliste de votre forecast mensuel.</p>
-      <span class="kpi-bench">À réviser hebdomadairement avec le sales manager</span>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-name">Score de priorité prospect</div>
-      <div class="kpi-formula">Scoring automatique 0–100 selon signal data</div>
-      <p>Spécifique à la prospection data. Chaque prospect entrant dans le pipeline reçoit un score basé sur l'intensité du signal open data qui l'a déclenché. Permet aux SDR de prioriser sans réunion de priorisation.</p>
-      <span class="kpi-bench">SAHAR calcule ce score automatiquement</span>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-name">Vitesse pipeline (Velocity)</div>
-      <div class="kpi-formula">Nbre opps × Win Rate × Valeur moy / Cycle de vente</div>
-      <p>La métrique ultime qui combine volume, qualité et vitesse. Montre combien de revenu votre pipeline génère par jour. Améliorer n'importe laquelle des 4 composantes améliore la velocity.</p>
-      <span class="kpi-bench">À suivre mensuellement pour le forecast</span>
+<section class="section">
+  <div class="container-text" style="max-width:720px;margin:0 auto;padding:0 5%">
+    <div style="background:var(--bg2);border:1px solid var(--bd);border-radius:12px;padding:2rem;text-align:center">
+      <h3 style="margin-bottom:.5rem">Tester sur vos données réelles</h3>
+      <p style="color:var(--ink3);margin-bottom:1.25rem">Démonstration en 20 minutes sur votre secteur et votre zone.</p>
+      <a href="index.html#contact" class="btn btn-primary">Demander une démo gratuite →</a>
     </div>
   </div>
+</section>
 
-  <h2>KPIs par rôle — ce que chacun doit suivre</h2>
-
-  <div class="role-tabs">
-    <div class="role">
-      <div class="role-title">SDR / BDR</div>
-      <ul>
-        <li>Taux de contact</li>
-        <li>Rendez-vous obtenus / jours</li>
-        <li>Taux de qualification</li>
-        <li>Score moyen des prospects</li>
-        <li>Relances effectuées</li>
-      </ul>
-    </div>
-    <div class="role">
-      <div class="role-title">Account Executive</div>
-      <ul>
-        <li>Win Rate</li>
-        <li>Délai moyen closing</li>
-        <li>Valeur moyenne deal</li>
-        <li>Taux no-show RDV</li>
-        <li>Pipeline pondéré perso</li>
-      </ul>
-    </div>
-    <div class="role">
-      <div class="role-title">Sales Manager</div>
-      <ul>
-        <li>Pipeline pondéré équipe</li>
-        <li>Forecast vs réalisé</li>
-        <li>CAC mensuel</li>
-        <li>Velocity pipeline</li>
-        <li>Churn prospects</li>
-      </ul>
+<section class="section">
+  <div class="container">
+    <div class="related">
+      <span class="related-label">Sur le même sujet</span>
+      <div class="related-grid"><a href="crm.html" class="related-card"><span class="tag">Outil</span><h4>CRM Pipeline SAHAR</h4><p>Tableau de bord intégré</p></a><a href="conversion-pipeline.html" class="related-card"><span class="tag">Guide</span><h4>Optimiser son taux de conversion</h4><p>Méthodes terrain</p></a><a href="automatisation-prospection.html" class="related-card"><span class="tag">Guide</span><h4>Automatiser sa prospection</h4><p>Séquences et relances</p></a></div>
     </div>
   </div>
+</section>
 
-  <h2>Les 5 erreurs de pilotage les plus courantes</h2>
-
-  <div class="error-grid">
-    <div class="error">
-      <h3>Suivre le volume, pas la qualité</h3>
-      <p>100 appels par semaine ne servent à rien si le taux de contact est de 5%. Mieux vaut 40 appels sur une liste data-qualifiée.</p>
+</main>
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand"><strong style="font-size:.95rem;font-weight:700">SAHAR Conseil</strong><p>Open data au service des professionnels. DVF, DPE, INSEE, SIRENE transformés en pipeline commercial.</p></div>
+      <div class="footer-col"><h4>Secteurs</h4><ul><li><a href="immobilier.html">Immobilier DVF</a></li><li><a href="energie-renovation.html">Énergie &amp; DPE</a></li><li><a href="retail-franchise.html">Retail &amp; Franchise</a></li><li><a href="rh-recrutement.html">RH &amp; Recrutement</a></li></ul></div>
+      <div class="footer-col"><h4>Outils</h4><ul><li><a href="crm.html">CRM Pipeline</a></li><li><a href="scoring-prospects.html">Scoring Prospects</a></li><li><a href="automatisation-prospection.html">Automatisation</a></li></ul></div>
+      <div class="footer-col"><h4>Ressources</h4><ul><li><a href="trouver-prospects-immobiliers.html">Prospects immobiliers</a></li><li><a href="passoires-thermiques-interdites.html">Passoires thermiques</a></li><li><a href="prospecter-donnees-publiques.html">Open data</a></li><li><a href="kpis-commerciaux.html">KPIs</a></li></ul></div>
     </div>
-    <div class="error">
-      <h3>Pipeline non nettoyé</h3>
-      <p>Des opportunités "stagnantes" depuis 90 jours faussent tous vos ratios. Un pipeline sain se nettoie chaque semaine.</p>
-    </div>
-    <div class="error">
-      <h3>KPIs sans benchmark</h3>
-      <p>Un win rate de 15% est bon ou mauvais ? Sans référence sectorielle, impossible de savoir si vous devez vous alarmer.</p>
-    </div>
-    <div class="error">
-      <h3>Forecast basé sur le pipeline brut</h3>
-      <p>Additionner toutes les opportunités sans pondérer par probabilité donne un forecast systématiquement trop optimiste.</p>
-    </div>
-    <div class="error">
-      <h3>Revue pipeline mensuelle seulement</h3>
-      <p>En B2B, une semaine sans relance peut faire perdre un deal. La revue pipeline doit être hebdomadaire minimum.</p>
-    </div>
-    <div class="error">
-      <h3>Pas de score d'entrée</h3>
-      <p>Sans scoring à l'entrée du pipeline, les SDR passent autant de temps sur les prospects chauds que sur les froids. Gaspillage.</p>
-    </div>
+    <div class="footer-bottom"><p>© 2024 SAHAR Conseil — Données DVF DGFiP, ADEME, INSEE</p><div class="footer-legal"><a href="index.html#contact">Contact</a><a href="sitemap.xml">Sitemap</a></div></div>
   </div>
-
-  <div class="cta-inline">
-    <p>SAHAR calcule vos KPIs en temps réel — sans Excel.</p>
-    <a href="index.html#contact" class="btn">Voir le tableau de bord →</a>
-  </div>
-
-  <h2>Comment améliorer rapidement ses KPIs avec la donnée</h2>
-  <p>La prospection basée sur les données publiques améliore mécaniquement 3 KPIs :</p>
-  <ol>
-    <li><strong>Taux de contact</strong> — vous appelez des gens qui ont un problème avéré, pas une liste aléatoire. Le taux de contact monte parce que vous êtes pertinent.</li>
-    <li><strong>Taux de qualification</strong> — le score d'entrée préfiltre les prospects. Vous consacrez votre temps aux 20% de leads qui génèrent 80% des deals.</li>
-    <li><strong>Win rate</strong> — votre argument est basé sur des données officielles. "Votre logement est classé G selon l'ADEME" est plus convaincant que "je pense que vous avez besoin de rénover".</li>
-  </ol>
-
-  <div class="related">
-    <p style="font-weight:600;font-size:.9rem">Sur le même sujet</p>
-    <div class="related-links">
-      <a href="crm.html">CRM SAHAR — pipeline et KPIs natifs →</a>
-      <a href="prospecter-donnees-publiques.html">Prospecter avec les données publiques françaises →</a>
-      <a href="trouver-prospects-immobiliers.html">Trouver des prospects immobiliers qualifiés →</a>
-    </div>
-  </div>
-</article>
-</div>
-<footer class="footer"><div class="container">
-<div class="footer-grid">
-<div class="footer-brand"><strong style="font-size:.95rem;font-weight:700">SAHAR Conseil</strong>
-<p>Open data au service des professionnels. DVF, DPE, INSEE, SIRENE transformés en pipeline commercial.</p></div>
-<div class="footer-col"><h4>Secteurs</h4><ul>
-<li><a href="immobilier.html">Immobilier DVF</a></li><li><a href="energie-renovation.html">Énergie &amp; DPE</a></li>
-<li><a href="retail-franchise.html">Retail &amp; Franchise</a></li><li><a href="rh-recrutement.html">RH &amp; Recrutement</a></li></ul></div>
-<div class="footer-col"><h4>Outils</h4><ul>
-<li><a href="crm.html">CRM Pipeline</a></li><li><a href="scoring-prospects.html">Scoring Prospects</a></li>
-<li><a href="automatisation-prospection.html">Automatisation</a></li><li><a href="conversion-pipeline.html">Conversion Pipeline</a></li></ul></div>
-<div class="footer-col"><h4>Ressources</h4><ul>
-<li><a href="trouver-prospects-immobiliers.html">Prospects immobiliers</a></li>
-<li><a href="passoires-thermiques-interdites.html">Passoires thermiques</a></li>
-<li><a href="prospecter-donnees-publiques.html">Open data</a></li>
-<li><a href="kpis-commerciaux.html">KPIs commerciaux</a></li></ul></div></div>
-<div class="footer-bottom"><p>© 2024 SAHAR Conseil — Données DVF DGFiP, ADEME, INSEE</p>
-<div class="footer-legal"><a href="index.html#contact">Contact</a><a href="sitemap.xml">Sitemap</a></div></div>
-</div></footer>
+</footer>
 </body>
 </html>
