@@ -43,38 +43,51 @@ DPE_API = "https://data.ademe.fr/data-fair/api/v1/datasets/dpe-v2-logements-exis
 @st.cache_data(ttl=3600, show_spinner="Interrogation ADEME...")
 def fetch_dpe(code_postal: str, nb: int = 1000) -> pd.DataFrame:
     import requests
+
+    # URLs ADEME à essayer dans l'ordre
+    ADEME_URLS = [
+        "https://data.ademe.fr/data-fair/api/v1/datasets/dpe-v2-logements-existants-2/lines",
+        "https://data.ademe.fr/data-fair/api/v1/datasets/dpe-v2-logements-existants/lines",
+        "https://koumoul.com/data-fair/api/v1/datasets/dpe-v2-logements-existants/lines",
+    ]
+
+    SELECT = (
+        "numero_dpe,date_etablissement_dpe,etiquette_dpe,etiquette_ges,"
+        "conso_5_usages_e_finale,emission_ges_5_usages,"
+        "adresse_ban,code_postal_ban,nom_commune_ban,"
+        "latitude,longitude,type_batiment,annee_construction,"
+        "surface_habitable_logement,type_energie_principale_chauffage"
+    )
+
     params = {
         "q": code_postal,
         "q_fields": "code_postal_ban",
         "size": nb,
-        "select": (
-            "numero_dpe,date_etablissement_dpe,etiquette_dpe,etiquette_ges,"
-            "conso_5_usages_e_finale,emission_ges_5_usages,"
-            "adresse_ban,code_postal_ban,nom_commune_ban,"
-            "latitude,longitude,type_batiment,"
-            "annee_construction,surface_habitable_logement,"
-            "type_energie_principale_chauffage"
-        )
+        "select": SELECT,
     }
-    try:
-        r = requests.get(DPE_API, params=params, timeout=30)
-        r.raise_for_status()
-        df = pd.DataFrame(r.json().get("results", []))
-        if df.empty:
-            return pd.DataFrame()
-        df = df.rename(columns={"latitude": "lat", "longitude": "lon"})
-        df["date_etablissement_dpe"] = pd.to_datetime(
-            df["date_etablissement_dpe"], errors="coerce"
-        )
-        df["annee_construction"] = pd.to_numeric(df["annee_construction"], errors="coerce")
-        df["surface_habitable_logement"] = pd.to_numeric(df["surface_habitable_logement"], errors="coerce")
-        df["conso_5_usages_e_finale"] = pd.to_numeric(df["conso_5_usages_e_finale"], errors="coerce")
-        df["lat"] = pd.to_numeric(df["lat"], errors="coerce")
-        df["lon"] = pd.to_numeric(df["lon"], errors="coerce")
-        return df
-    except Exception as e:
-        st.error(f"Erreur API ADEME : {e}")
-        return pd.DataFrame()
+
+    for url in ADEME_URLS:
+        try:
+            r = requests.get(url, params=params, timeout=30)
+            if r.status_code == 200:
+                data = r.json().get("results", [])
+                if data:
+                    df = pd.DataFrame(data)
+                    df["date_etablissement_dpe"] = pd.to_datetime(
+                        df.get("date_etablissement_dpe", pd.Series(dtype=str)), errors="coerce"
+                    )
+                    for col in ["conso_5_usages_e_finale", "emission_ges_5_usages",
+                                "surface_habitable_logement", "latitude", "longitude"]:
+                        if col in df.columns:
+                            df[col] = pd.to_numeric(df[col], errors="coerce")
+                    if "annee_construction" in df.columns:
+                        df["annee_construction"] = pd.to_numeric(df["annee_construction"], errors="coerce").astype("Int64")
+                    return df
+        except Exception as e:
+            continue
+
+    st.error(f"API ADEME indisponible — réessayez dans quelques minutes.")
+    return pd.DataFrame()
 
 
 def score_urgence(df: pd.DataFrame) -> pd.Series:
