@@ -4,13 +4,13 @@
     <loc>https://tristanalba-ops.github.io/sahar-conseil/automatisation-prospection.html</loc>
     <lastmod>2026-03-27</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.7</priority>
   </url>
   <url>
     <loc>https://tristanalba-ops.github.io/sahar-conseil/conversion-pipeline.html</loc>
     <lastmod>2026-03-27</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.7</priority>
   </url>
   <url>
     <loc>https://tristanalba-ops.github.io/sahar-conseil/crm.html</loc>
@@ -46,13 +46,127 @@
     <loc>https://tristanalba-ops.github.io/sahar-conseil/lead-magnet-immobilier.html</loc>
     <lastmod>2026-03-27</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.7</priority>
   </url>
   <url>
     <loc>https://tristanalba-ops.github.io/sahar-conseil/passoires-thermiques-interdites.html</loc>
     <lastmod>2026-03-27</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://tristanalba-ops.github.io/sahar-conseil/prix-immobilier-begles.html</loc>
+    <lastmod>2026-03-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://tristanalba-ops.github.io/sahar-conseil/prix-immobilier-bordeaux.html</loc>
+    <lastmod>2026-03-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://tristanalba-ops.github.io/sahar-conseil/prix-immobilier-bruges.html</loc>
+    <lastmod>2026-03-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://tristanalba-ops.github.io/sahar-conseil/prix-immobilier-le-bouscat.html</loc>
+    <lastmod>2026-03-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://tristanalba-ops.github.io/sahar-conseil/prix-immobilier-libourne.html</loc>
+    <lastmod>2026-03-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://tristanalba-ops.github.io/sahar-conseil/prix-immobilier-lille.html</loc>
+    <lastmod>2026-03-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://tristanalba-ops.github.io/sahar-conseil/prix-immobilier-lyon.html</loc>
+    <lastmod>2026-03-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://tristanalba-ops.github.io/sahar-conseil/prix-immobilier-marseille.html</loc>
+    <lastmod>2026-03-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://tristanalba-ops.github.io/sahar-conseil/prix-immobilier-merignac.html</loc>
+    <lastmod>2026-03-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://tristanalba-ops.github.io/sahar-conseil/prix-immobilier-montpellier.html</loc>
+    <lastmod>2026-03-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://tristanalba-ops.github.io/sahar-conseil/prix-immobilier-nantes.html</loc>
+    <lastmod>2026-03-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://tristanalba-ops.github.io/sahar-conseil/prix-immobilier-nice.html</loc>
+    <lastmod>2026-03-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://tristanalba-ops.github.io/sahar-conseil/prix-immobilier-paris.html</loc>
+    <lastmod>2026-03-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://tristanalba-ops.github.io/sahar-conseil/prix-immobilier-pessac.html</loc>
+    <lastmod>2026-03-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://tristanalba-ops.github.io/sahar-conseil/prix-immobilier-rennes.html</loc>
+    <lastmod>2026-03-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://tristanalba-ops.github.io/sahar-conseil/prix-immobilier-strasbourg.html</loc>
+    <lastmod>2026-03-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://tristanalba-ops.github.io/sahar-conseil/prix-immobilier-talence.html</loc>
+    <lastmod>2026-03-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://tristanalba-ops.github.io/sahar-conseil/prix-immobilier-toulouse.html</loc>
+    <lastmod>2026-03-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://tristanalba-ops.github.io/sahar-conseil/prix-immobilier-villenave-ornon.html</loc>
+    <lastmod>2026-03-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
   </url>
   <url>
     <loc>https://tristanalba-ops.github.io/sahar-conseil/prospecter-donnees-publiques.html</loc>
@@ -64,19 +178,19 @@
     <loc>https://tristanalba-ops.github.io/sahar-conseil/retail-franchise.html</loc>
     <lastmod>2026-03-27</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.7</priority>
   </url>
   <url>
     <loc>https://tristanalba-ops.github.io/sahar-conseil/rh-recrutement.html</loc>
     <lastmod>2026-03-27</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.7</priority>
   </url>
   <url>
     <loc>https://tristanalba-ops.github.io/sahar-conseil/scoring-prospects.html</loc>
     <lastmod>2026-03-27</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.7</priority>
   </url>
   <url>
     <loc>https://tristanalba-ops.github.io/sahar-conseil/trouver-prospects-immobiliers.html</loc>
