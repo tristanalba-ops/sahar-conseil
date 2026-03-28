@@ -15,7 +15,11 @@
       "type": "image/svg+xml"
     }
   ],
-  "categories": ["business", "finance", "productivity"],
+  "categories": [
+    "business",
+    "finance",
+    "productivity"
+  ],
   "screenshots": [],
   "shortcuts": [
     {
@@ -28,5 +32,6 @@
       "url": "/compte.html",
       "description": "Accéder à mon espace personnel"
     }
-  ]
+  ],
+  "generated": "2026-03-28"
 }
