@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SAHAR â€” Content Factory</title>
+  <title>SAHAR â€” Content Factory v2</title>
   <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%2300DC82'/><text y='.9em' font-size='75' x='12'>S</text></svg>" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
@@ -14,8 +14,8 @@
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
     body{font-family:'Inter',sans-serif;background:#0f1117;color:#e2e8f0;min-height:100vh}
-    :root{--green:#00DC82;--green-dim:#00b86a;--bg:#0f1117;--bg2:#1a1f2e;--bg3:#252b3b;--border:#2d3748;--text:#e2e8f0;--muted:#64748b}
-    .hide{display:none!important}
+    :root{--green:#00DC82;--green-dim:#00b86a;--bg:#0f1117;--bg2:#1a1f2e;--bg3:#252b3b;--border:#2d3748;--text:#e2e8f0;--muted:#64748b;--blue:#60a5fa;--yellow:#eab308;--red:#f87171;--purple:#a78bfa;--blog-green:#4A7C59}
+
     /* LOGIN */
     .login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0f1117 0%,#1a1f2e 100%)}
     .login-card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:2.5rem;width:100%;max-width:420px}
@@ -31,35 +31,43 @@
     .btn-primary:hover{background:var(--green-dim)}
     .btn-primary:disabled{opacity:.5;cursor:not-allowed}
     .alert-err{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:#f87171;border-radius:8px;padding:.75rem 1rem;font-size:.875rem;margin-bottom:1rem}
+
     /* ADMIN LAYOUT */
     .admin-nav{background:#070b14;border-bottom:1px solid var(--border);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:60px;position:sticky;top:0;z-index:100}
     .nav-brand{display:flex;align-items:center;gap:.75rem}
     .nav-badge{width:36px;height:36px;background:linear-gradient(135deg,var(--green),var(--green-dim));border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:1rem}
-    .nav-title{font-weight:700;font-size:1rem;color:#fff}
+    .nav-title{font-weight:700;font-size:1rem;color:#fff;font-family:'Space Grotesk',sans-serif}
     .nav-sub{font-size:.75rem;color:var(--muted)}
     .nav-user{display:flex;align-items:center;gap:1rem}
     .nav-email{font-size:.8rem;color:var(--muted)}
     .btn-logout{background:transparent;border:1px solid var(--border);color:var(--muted);padding:.4rem .9rem;border-radius:6px;cursor:pointer;font-size:.8rem;transition:.2s}
     .btn-logout:hover{border-color:var(--green);color:var(--green)}
-    .admin-body{max-width:1200px;margin:0 auto;padding:2rem}
+    .admin-body{max-width:1280px;margin:0 auto;padding:2rem}
+
     /* TABS */
     .tabs{display:flex;gap:.25rem;border-bottom:1px solid var(--border);margin-bottom:2rem}
     .tab{display:flex;align-items:center;gap:.5rem;padding:.75rem 1.25rem;font-size:.9rem;font-weight:500;color:var(--muted);border:none;background:transparent;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:.2s}
     .tab:hover{color:var(--text)}
     .tab.active{color:var(--green);border-bottom-color:var(--green)}
+
     /* CARDS */
     .card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:1.5rem}
     .card-title{font-size:1rem;font-weight:600;color:#fff;margin-bottom:1.25rem;display:flex;align-items:center;gap:.5rem}
+
     /* GRID */
     .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
     .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
     .grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem}
-    /* SELECT */
+
+    /* FORM CONTROLS */
     select,textarea{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:.65rem .9rem;color:var(--text);font-size:.9rem;width:100%;font-family:'Inter',sans-serif}
     select:focus,textarea:focus{outline:none;border-color:var(--green)}
     textarea{resize:vertical;min-height:80px}
-    .field-label{font-size:.8rem;font-weight:500;color:var(--muted);margin-bottom:.4rem;display:block}
+    input[type=text]{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:.55rem .9rem;color:var(--text);font-size:.875rem;font-family:'Inter',sans-serif;width:100%}
+    input[type=text]:focus{outline:none;border-color:var(--green)}
+    .field-label{font-size:.8rem;font-weight:500;color:var(--muted);margin-bottom:.4rem;display:block;text-transform:uppercase;letter-spacing:.04em}
     .field-group{margin-bottom:1rem}
+
     /* BUTTONS */
     .btn{padding:.65rem 1.25rem;border-radius:8px;font-size:.875rem;font-weight:600;cursor:pointer;border:none;transition:.2s;display:inline-flex;align-items:center;gap:.4rem}
     .btn-green{background:var(--green);color:#000}
@@ -67,328 +75,365 @@
     .btn-green:disabled{opacity:.5;cursor:not-allowed}
     .btn-outline{background:transparent;border:1px solid var(--border);color:var(--text)}
     .btn-outline:hover{border-color:var(--green);color:var(--green)}
+    .btn-ghost{background:transparent;border:none;color:var(--muted);padding:.3rem .6rem;font-size:.8rem;cursor:pointer}
+    .btn-ghost:hover{color:var(--text)}
     .btn-sm{padding:.4rem .8rem;font-size:.8rem}
+
     /* BADGES */
     .badge-status{display:inline-flex;align-items:center;gap:.3rem;padding:.2rem .65rem;border-radius:99px;font-size:.75rem;font-weight:500}
     .badge-green{background:rgba(0,220,130,.15);color:var(--green)}
     .badge-yellow{background:rgba(234,179,8,.15);color:#eab308}
     .badge-red{background:rgba(239,68,68,.15);color:#f87171}
     .badge-blue{background:rgba(59,130,246,.15);color:#60a5fa}
+    .badge-purple{background:rgba(167,139,250,.15);color:#a78bfa}
+
     /* KPI */
-    .kpi-val{font-size:2rem;font-weight:700;color:#fff}
+    .kpi-val{font-size:2rem;font-weight:700;color:#fff;font-family:'Space Grotesk',sans-serif}
     .kpi-label{font-size:.8rem;color:var(--muted);margin-top:.25rem}
     .kpi-trend{font-size:.8rem;margin-top:.4rem}
     .trend-up{color:var(--green)}
-    .trend-down{color:#f87171}
+
     /* GENERATOR */
-    .gen-layout{display:grid;grid-template-columns:340px 1fr;gap:1.5rem;align-items:start}
-    .preview-box{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:1.25rem;min-height:400px}
-    .preview-title{font-size:.8rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.75rem}
-    .preview-content{font-size:.85rem;line-height:1.7;color:var(--text)}
-    .preview-content h1,.preview-content h2,.preview-content h3{color:#fff;margin:.75rem 0 .4rem}
-    .preview-content p{margin-bottom:.75rem}
-    .preview-content ul{margin:.5rem 0 .75rem 1.25rem}
-    .seo-bar{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:1rem;margin-bottom:1rem}
-    .seo-score{display:flex;align-items:center;gap:1rem}
-    .seo-number{font-size:2.5rem;font-weight:700}
-    .seo-good{color:var(--green)}
-    .seo-mid{color:#eab308}
-    .seo-bad{color:#f87171}
-    .seo-bar-track{flex:1;background:var(--border);border-radius:99px;height:8px}
-    .seo-bar-fill{height:8px;border-radius:99px;transition:width .5s}
-    .seo-items{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-top:.75rem}
-    .seo-item{font-size:.78rem;color:var(--muted);display:flex;align-items:center;gap:.3rem}
-    .seo-item.ok::before{content:'âœ“';color:var(--green)}
-    .seo-item.warn::before{content:'âš ';color:#eab308}
+    .gen-layout{display:grid;grid-template-columns:360px 1fr;gap:1.5rem;align-items:start}
+
+    /* â”€â”€â”€â”€â”€ BLOG PREVIEW STYLES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+       Simule fidÃ¨lement sahar-conseil.fr/blog
+       Police: DM Serif Display (titres), Inter (corps)
+       Palette: fond crÃ¨me #FAFAF8, texte #2D2D2D, accent #4A7C59
+    â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+    .preview-wrap{position:relative}
+    .preview-badge{position:absolute;top:-10px;left:16px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:.2rem .7rem;font-size:.68rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;z-index:2;display:flex;align-items:center;gap:.4rem}
+    .preview-badge .dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+    .blog-preview{background:#FAFAF8;border:1px solid #E8E5DF;border-radius:12px;overflow:hidden;min-height:420px}
+    .blog-preview-header{background:linear-gradient(135deg,#0D0D0D 0%,#1A1A2E 100%);padding:2rem 2.5rem;position:relative;overflow:hidden}
+    .blog-preview-header::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at top right,rgba(0,220,130,.08),transparent 60%)}
+    .blog-preview-header .cat-badge{display:inline-flex;align-items:center;gap:.4rem;background:rgba(0,220,130,.12);border:1px solid rgba(0,220,130,.25);color:#00DC82;padding:.25rem .75rem;border-radius:99px;font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:1rem}
+    .blog-preview-header h1{font-family:'DM Serif Display',serif;font-size:1.8rem;line-height:1.2;color:#fff;font-weight:400;max-width:620px;margin-bottom:.9rem}
+    .blog-preview-header .meta{display:flex;align-items:center;gap:1.2rem;font-size:.78rem;color:rgba(255,255,255,.5)}
+    .blog-preview-header .meta span{display:flex;align-items:center;gap:.3rem}
+    .blog-preview-body{padding:2rem 2.5rem;color:#2D2D2D}
+    .blog-preview-body .lead{font-size:1.05rem;line-height:1.75;color:#4A4A4A;font-weight:400;margin-bottom:1.75rem;padding-bottom:1.5rem;border-bottom:1px solid #E8E5DF}
+    .blog-preview-body h2{font-family:'DM Serif Display',serif;font-size:1.45rem;font-weight:400;color:#1A1A1A;margin:1.75rem 0 .8rem;padding-bottom:.4rem;border-bottom:2px solid #E8E5DF;position:relative}
+    .blog-preview-body h2::before{content:'';position:absolute;bottom:-2px;left:0;width:40px;height:2px;background:#4A7C59}
+    .blog-preview-body h3{font-family:'DM Serif Display',serif;font-size:1.1rem;font-weight:400;color:#2D2D2D;margin:1.2rem 0 .6rem;font-style:italic}
+    .blog-preview-body p{font-size:.925rem;line-height:1.8;color:#3D3D3D;margin-bottom:1rem}
+    .blog-preview-body strong{color:#1A1A1A;font-weight:600}
+    .blog-preview-body em{color:#4A7C59;font-style:italic}
+    .blog-preview-body ul,.blog-preview-body ol{margin:.5rem 0 1.1rem 1.4rem}
+    .blog-preview-body li{font-size:.925rem;line-height:1.8;color:#3D3D3D;margin-bottom:.35rem}
+    .blog-preview-body li::marker{color:#4A7C59}
+    .blog-preview-body blockquote{margin:1.5rem 0;padding:1rem 1.5rem;background:#f0f4f2;border-left:3px solid #4A7C59;border-radius:0 8px 8px 0;color:#2D4A38;font-family:'DM Serif Display',serif;font-size:1rem;font-style:italic;line-height:1.6}
+    .blog-preview-body table{width:100%;border-collapse:collapse;margin:1.2rem 0;font-size:.875rem}
+    .blog-preview-body th{background:#1A1A2E;color:#fff;padding:.6rem .9rem;text-align:left;font-weight:600;font-size:.78rem;text-transform:uppercase;letter-spacing:.04em}
+    .blog-preview-body td{padding:.65rem .9rem;border-bottom:1px solid #E8E5DF;color:#2D2D2D}
+    .blog-preview-body tr:nth-child(even) td{background:#F4F2EF}
+    .blog-preview-body .data-stat{display:inline-block;background:#0D0D0D;color:#00DC82;padding:.25rem .75rem;border-radius:6px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:.9rem;margin:.1rem}
+    .blog-preview-body .cta-box{background:linear-gradient(135deg,#0D0D0D,#1A1A2E);border:1px solid #2A2A3E;border-radius:10px;padding:1.25rem 1.5rem;margin-top:1.75rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+    .blog-preview-body .cta-box p{color:#E2E8F0;font-size:.875rem;margin:0}
+    .blog-preview-body .cta-box .cta-btn{background:#00DC82;color:#000;font-weight:700;font-size:.85rem;padding:.55rem 1.25rem;border-radius:8px;border:none;cursor:default;white-space:nowrap;font-family:'Space Grotesk',sans-serif}
+    .blog-preview-body .podcast-seg{background:#F4F2EF;border:1px solid #E8E5DF;border-radius:8px;padding:.9rem 1.1rem;margin:.75rem 0}
+    .blog-preview-body .podcast-seg-label{font-family:'Space Grotesk',sans-serif;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#4A7C59;margin-bottom:.4rem}
+    .blog-preview-body .infog-stat{text-align:center;background:#0D0D0D;border-radius:10px;padding:1.2rem;margin:.4rem;display:inline-block;min-width:120px}
+    .blog-preview-body .infog-stat .num{font-family:'Space Grotesk',sans-serif;font-size:1.8rem;font-weight:700;color:#00DC82;display:block}
+    .blog-preview-body .infog-stat .lbl{font-size:.72rem;color:rgba(255,255,255,.6);margin-top:.2rem;display:block}
+    .blog-tags{padding:.9rem 2.5rem;border-top:1px solid #E8E5DF;display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;background:#F4F2EF}
+    .blog-tag{background:#fff;border:1px solid #D8D4CE;color:#4A4A4A;border-radius:99px;padding:.15rem .65rem;font-size:.72rem;font-weight:500}
+    .blog-tag.primary-tag{background:#4A7C59;color:#fff;border-color:#4A7C59}
+    .blog-stats-bar{padding:.7rem 2.5rem;border-top:1px solid #E8E5DF;background:#FAFAF8;display:flex;gap:1.5rem;font-size:.75rem;color:#888}
+
+    /* SCORES PANEL */
+    .scores-panel{display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem;margin-bottom:1rem}
+    .score-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:1rem 1.1rem}
+    .score-card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem}
+    .score-card-label{font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}
+    .score-number{font-size:2rem;font-weight:700;line-height:1;font-family:'Space Grotesk',sans-serif}
+    .score-suffix{font-size:.8rem;font-weight:500;color:var(--muted);margin-left:.1rem}
+    .score-bar-track{width:100%;background:rgba(255,255,255,.06);border-radius:99px;height:4px;margin:.5rem 0 .4rem}
+    .score-bar-fill{height:4px;border-radius:99px;transition:width .7s ease}
+    .score-checks{margin-top:.65rem;display:flex;flex-direction:column;gap:.28rem}
+    .score-check{font-size:.71rem;color:var(--muted);display:flex;align-items:center;gap:.3rem}
+    .score-check.ok{color:rgba(180,220,200,.85)}
+    .score-check.ok::before{content:'âœ“';color:var(--green);font-size:.65rem}
+    .score-check.warn::before{content:'âš ';color:#eab308;font-size:.65rem}
+
+    /* PROMPT PREVIEW */
+    .prompt-preview{background:#070b14;border:1px solid var(--border);border-radius:8px;padding:.8rem;font-size:.72rem;color:#506070;font-family:'Courier New',monospace;line-height:1.55;max-height:108px;overflow-y:auto;white-space:pre-wrap;word-break:break-all;margin-top:.5rem}
+    .prompt-toggle{font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:.4rem;user-select:none;margin-top:.75rem;padding:.3rem 0}
+    .prompt-toggle:hover{color:var(--text)}
+
+    /* GENERATING OVERLAY */
+    .generating-overlay{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:320px;gap:1rem;color:var(--muted);background:#FAFAF8}
+    .generating-overlay .spinner{width:36px;height:36px;border-width:3px;border-color:rgba(74,124,89,.2);border-top-color:#4A7C59}
+
     /* TABLE */
     table{width:100%;border-collapse:collapse}
     th{font-size:.75rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;padding:.65rem .75rem;border-bottom:1px solid var(--border);text-align:left}
     td{padding:.75rem;font-size:.875rem;border-bottom:1px solid rgba(45,55,72,.5)}
     tr:hover td{background:rgba(255,255,255,.02)}
+
     /* LOADER */
-    .spinner{display:inline-block;width:18px;height:18px;border:2px solid rgba(0,220,130,.3);border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite}
+    .spinner{display:inline-block;width:18px;height:18px;border:2px solid rgba(0,220,130,.2);border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite}
     @keyframes spin{to{transform:rotate(360deg)}}
-    .generating-overlay{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:200px;gap:1rem;color:var(--muted)}
-    .generating-overlay .spinner{width:36px;height:36px;border-width:3px}
+
     /* TAGS */
     .tag{display:inline-block;background:rgba(0,220,130,.1);color:var(--green);border-radius:4px;padding:.1rem .5rem;font-size:.75rem;margin:.1rem}
+
     /* PROGRESS */
     .progress-row{display:flex;align-items:center;gap:.75rem;padding:.65rem 0;border-bottom:1px solid rgba(45,55,72,.3)}
     .progress-label{flex:1;font-size:.85rem}
     .progress-track{width:120px;background:var(--border);border-radius:99px;height:6px}
     .progress-fill{height:6px;background:var(--green);border-radius:99px}
-    @media(max-width:900px){.gen-layout{grid-template-columns:1fr}.grid-3{grid-template-columns:1fr 1fr}.grid-4{grid-template-columns:1fr 1fr}}
-    @media(max-width:600px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}.admin-body{padding:1rem}}
+
+    /* KEYWORDS */
+    .kw-chip{display:inline-flex;align-items:center;gap:.25rem;padding:.15rem .55rem;border-radius:5px;font-size:.74rem;margin:.1rem;white-space:nowrap}
+    .kw-primary{background:rgba(0,220,130,.12);border:1px solid rgba(0,220,130,.25);color:var(--green);font-weight:600}
+    .kw-secondary{background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--text)}
+    .kw-lsi{background:rgba(96,165,250,.08);border:1px solid rgba(96,165,250,.18);color:#60a5fa}
+
+    @media(max-width:960px){.gen-layout{grid-template-columns:1fr}.scores-panel{grid-template-columns:1fr 1fr}.grid-4{grid-template-columns:1fr 1fr}}
+    @media(max-width:600px){.gen-layout,.grid-2,.grid-3,.grid-4,.scores-panel{grid-template-columns:1fr}.admin-body{padding:1rem}.blog-preview-header,.blog-preview-body,.blog-tags,.blog-stats-bar{padding-left:1.25rem;padding-right:1.25rem}}
   </style>
 </head>
 <body>
 <div id="root"></div>
 
 <script type="text/babel">
-const { useState, useEffect, useRef } = React;
+const { useState, useEffect, useMemo } = React;
 
 /* â”€â”€â”€ CONFIG â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 const SUPA_URL  = 'https://ylrrcbklufshebcizgus.supabase.co';
 const SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlscnJjYmtsdWZzaGViY2l6Z3VzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1NjQzNTEsImV4cCI6MjA5MDE0MDM1MX0.KQjvB5aePbmCcrAu9yYKoIblDG0ui90LXa-DcL7HAEA';
 const sb = supabase.createClient(SUPA_URL, SUPA_ANON);
-
 const ADMIN_EMAILS = ['tristan.alba@yahoo.fr'];
 
-/* â”€â”€â”€ DONNÃ‰ES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* â”€â”€â”€ THÃ‰MATIQUES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 const THEMATIQUES = [
-  { id: 'dpe-obligatoire', label: 'DPE obligatoire 2025', priority: 'P0', icon: 'ğŸ ' },
-  { id: 'dvf-prix-m2', label: 'DVF â€” Analyser les prix au mÂ²', priority: 'P0', icon: 'ğŸ“Š' },
-  { id: 'guide-dpe-ademe', label: 'Guide complet DPE ADEME', priority: 'P1', icon: 'âš¡' },
-  { id: 'guide-dvf', label: 'Guide DVF pour estimer un bien', priority: 'P1', icon: 'ğŸ”' },
-  { id: 'local-commercial', label: 'Estimer un local commercial', priority: 'P1', icon: 'ğŸª' },
-  { id: 'zone-chalandise', label: 'Implantation retail : zone de chalandise', priority: 'P1', icon: 'ğŸ“' },
-  { id: 'open-data-sources', label: 'Open data immobilier : toutes les sources', priority: 'P1', icon: 'ğŸ—‚ï¸' },
-  { id: 'passoires-thermiques', label: 'Investir dans les passoires thermiques post-2025', priority: 'P2', icon: 'ğŸŒ¡ï¸' },
-  { id: 'scoring-energetique', label: 'Scoring Ã©nergÃ©tique d\'un immeuble', priority: 'P2', icon: 'âš¡' },
-  { id: 'tension-locative', label: 'Identifier les zones de tension locative', priority: 'P2', icon: 'ğŸ“ˆ' },
-  { id: 'loyers-commerciaux', label: 'Benchmark loyers commerciaux', priority: 'P2', icon: 'ğŸ’¼' },
-  { id: 'liquidite-marche', label: 'LiquiditÃ© du marchÃ© immobilier local', priority: 'P2', icon: 'ğŸ’§' },
-  { id: 'insee-retail', label: 'DonnÃ©es INSEE pour market sizing retail', priority: 'P2', icon: 'ğŸ™ï¸' },
-  { id: 'flux-pietons', label: 'Flux piÃ©tons via open data', priority: 'P2', icon: 'ğŸš¶' },
-  { id: 'due-diligence', label: 'Due diligence data immobilier', priority: 'P2', icon: 'âœ…' },
-];
+  { id:'dpe-obligatoire',    label:'DPE obligatoire 2025',                          priority:'P0', icon:'ğŸ ', cat:'RÃ©glementaire' },
+  { id:'dvf-prix-m2',        label:'DVF â€” Analyser les prix au mÂ²',                 priority:'P0', icon:'ğŸ“Š', cat:'Data fonciÃ¨re' },
+  { id:'guide-dpe-ademe',    label:'Guide complet DPE ADEME',                       priority:'P1', icon:'âš¡', cat:'DPE & Ã‰nergie' },
+  { id:'guide-dvf',          label:'Guide DVF pour estimer un bien',                priority:'P1', icon:'ğŸ”', cat:'Data fonciÃ¨re' },
+  { id:'local-commercial',   label:'Estimer un local commercial',                   priority:'P1', icon:'ğŸª', cat:'Retail' },
+  { id:'Î‰ŞÚ[Û‹XÚ[[™\ÙIËX™[‰Ò[\[][Ûˆ™]Z[ˆ›Û™HHÚ[[™\ÙIËš[Üš]N‰ÔIËXÛÛ‰ü'äãIËØ]‰Ô™]Z[	ÈKˆÈY‰ÛÜ[‹Y]K\Ûİ\˜Ù\ÉËX™[‰ÓÜ[ˆ]H[[[Øš[Y\ˆˆİ]\È\ÈÛİ\˜Ù\ÉËš[Üš]N‰ÔIËXÛÛ‰ü'åà»î#ÉËØ]‰Ñ]H›Û˜Úpê™IÈKˆÈY‰Ü\ÜÛÚ\™\Ë]\›Z\]Y\ÉËX™[‰Ò[™\İ\ˆ[œÈ\È\ÜÛÚ\™\È\›Z\]Y\ÈÜİLŒIËš[Üš]N‰Ô‰ËXÛÛ‰ü'ã({î#ÉËØ]‰Ò[™\İ\ÜÙ[Y[	ÈKˆÈY‰ÜØÛÜš[™ËY[™\™Ù]\]YIËX™[‰ÔØÛÜš[™È0ê[™\™ğê]\]YH	İ[ˆ[[Y]X›IËš[Üš]N‰Ô‰ËXÛÛ‰ø¦¨IËØ]‰ÑH	ˆ0â[™\™ÚYIÈKˆÈY‰İ[œÚ[Û‹[ØØ]]™IËX™[‰ÒY[YšY\ˆ\È›Û™\ÈH[œÚ[ÛˆØØ]]™IËš[Üš]N‰Ô‰ËXÛÛ‰ü'äâ	ËØ]‰ÓX\˜Ú0êIÈKˆÈY‰ÛŞY\œËXÛÛ[Y\˜ÚX]^	ËX™[‰Ğ™[˜ÚX\šÈŞY\œÈÛÛ[Y\˜ÚX]^	Ëš[Üš]N‰Ô‰ËXÛÛ‰ü'ä¯	ËØ]‰Ô™]Z[	ÈKˆÈY‰Û\]ZY]K[X\˜ÚIËX™[‰Ó\]ZY]0êHHX\˜Ú0êH[[[Øš[Y\ˆØØ[	Ëš[Üš]N‰Ô‰ËXÛÛ‰ü'ä©ÉËØ]‰ÓX\˜Ú0êIÈKˆÈY‰Ú[œÙYK\™]Z[	ËX™[‰ÑÛ›°êY\ÈS”ÑQHİ\ˆX\šÙ]Ú^š[™È™]Z[	Ëš[Üš]N‰Ô‰ËXÛÛ‰ü'ãæ{î#ÉËØ]‰Ô™]Z[	ÈKˆÈY‰Ù›^\Y]ÛœÉËX™[‰Ñ›^pê]ÛœÈšXHÜ[ˆ]IËš[Üš]N‰Ô‰ËXÛÛ‰ü'æ­‰ËØ]‰Ô™]Z[	ÈKˆÈY‰ÙYKY[YÙ[˜ÙIËX™[‰ÑYH[YÙ[˜ÙH]H[[[Øš[Y\‰Ëš[Üš]N‰Ô‰ËXÛÛ‰ø§!IËØ]‰Ò[™\İ\ÜÙ[Y[	ÈK—NÂ‚˜ÛÛœİTT×ĞÓÓ•S•HHÂˆÈY‰Ø›ÙÉËX™[‰Ğ\XÛH›ÙÉË\ØÎ‰ÎLLŒ[İÉËXÛÛ‰ø§#{î#ÉÈKˆÈY‰ÙİZYIËX™[‰ÑİZYH˜]\]YIË\ØÎ‰ÌŒLÌ[İÉËXÛÛ‰ü'äå‰ÈKˆÈY‰ØØ\Ë\˜]\]YIËX™[‰ĞØ\È˜]\]YIË\ØÎ‰ÌLLML[İÉËXÛÛ‰ü'å+	ÈKˆÈY‰ÜÙØ\İ	ËX™[‰ÔØÜš\ÙØ\İ	Ë\ØÎ‰ÌMLLL[İÉËXÛÛ‰ü'ã¦{î#ÉÈKˆÈY‰Ú[™›ÙÜ˜\YIËX™[‰Ò[™›ÙÜ˜\YH]IË\ØÎ‰ÔİXİ\™H
+ÈÙ^H˜XİÉËXÛÛ‰ü'äâ‰ÈK—NÂ‚˜ÛÛœİ’SÔ’UWĞÓÓÔ”ÈHÈ‰Ø˜YÙK\™Y	ËN‰Ø˜YÙK^Y[İÉË‰Ø˜YÙKX›YIÈNÂ‚‹Êˆ8¥ 8¥ 8¥ ÑVUÓÔ‘ÈUH8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 
+‹Â˜ÛÛœİÕÈHÂˆ	ÙK[Ø›YØ]Ú\™IÎˆÈš[X\N‰ÑHØ›YØ]Ú\™HŒIËÙXÛÛ™\N–ÉÙXYÛ›ÜİXÈ\™›Ü›X[˜ÙH0ê[™\™ğê]\]YIË	ÑH™[HØØ][Û‰Ë	ØÛ\ÜÙ[Y[0ê[™\™ÚYHÙÙ[Y[	×KÚN–Éğê]\]Y]H0ê[™\™ÚYIË	Ü°ê[›İ˜][ÛˆØ›YØ]Ú\™IË	ÙÙ[ŞY\œÈ\ÜÛÚ\™\ÉË	ĞQSQHI×K›ÛY™‰Ó[ŞY[›™IÈKˆ	Ù™‹\š^[L‰ÎˆÈš[X\N‰Üš^]Hp¬ˆ‘‰ËÙXÛÛ™\N–ÉÙ[X[™H˜[]\ˆ›Û˜Úpê™IË	Üš^[[[Øš[Y\ˆÛÛ[][™IË	ÙÛ›°êY\È˜[œØXİ[ÛœÈ[[[Øš[pê™\É×KÚN–ÉÛÜ[ˆ]H›Û˜ÚY\‰Ë	Û]]][ÛˆØY\İ˜[IË	Üš^X\˜Ú0êH[[[Øš[Y\‰×K›ÛŒÌŒY™‰Ñ˜ZX›IÈKˆ	ÙİZYKYKXY[YIÎˆÈš[X\N‰ÙİZYHHQSQIËÙXÛÛ™\N–ÉØ˜\ÙHHQSQIË	ÙÛ›°êY\ÈHÜ[ˆ]IË	Ù^Ú]\ˆ˜\ÙHQSQI×KÚN–ÉĞTHIË	ÙXYÛ›ÜİXÈ0ê[™\™ğê]\]YHX\ÜÙIË	Ø]Y]0ë™\™ğê]\]YI×K›ÛŒNLY™‰Ñ˜ZX›IÈKˆ	ÙİZYKY™‰ÎˆÈš[X\N‰Ù\İ[Y\ˆšY[ˆ[[[Øš[Y\ˆ‘‰ËÙXÛÛ™\N–Éİ][\Ù\ˆ‘ˆ\İ[X][Û‰Ë	ÙİZYH‘ˆÜ[ˆ]IË	İ˜[]\ˆ›Û˜Úpê™HšY[‰×KÚN–ÉØÛÛ\\˜Z\ÛÛˆ˜[œØXİ[ÛœÉË	Üš^°êY°ê\™[˜ÙHØY\İ™IË	Ù\İ[X][ÛˆX\˜Ú0êI×K›ÛŒŒY™‰Ñ˜ZX›IÈKˆ	ÛØØ[XÛÛ[Y\˜ÚX[	ÎˆÈš[X\N‰Ù\İ[Y\ˆØØ[ÛÛ[Y\˜ÚX[	ËÙXÛÛ™\N–ÉÜš^ØØ[ÛÛ[Y\˜ÚX[p¬‰Ë	İ˜[]\ˆ›Û˜Úpê™HÛÛ[Y\˜ÙIË	ğê]˜[X][ÛˆØØ[ÛÛ[Y\˜ÚX[	×KÚN–ÉÜ™[™[Y[ØØ]YˆÛÛ[Y\˜ÚX[	Ë	ØØ\][\Ø][ÛˆŞY\‰Ë	ÔĞÔH™[™[Y[	×K›ÛŒMY™‰Ó[ŞY[›™IÈKˆ	Ş›Û™KXÚ[[™\ÙIÎˆÈš[X\N‰Ş›Û™HHÚ[[™\ÙH™]Z[	ËÙXÛÛ™\N–ÉÚ[\[][ÛˆÛÛ[Y\˜ÙH›Û™IË	Ø[˜[\ÙH›Û™HÚ[[™\ÙIË	Üİ[Y[ÛÛ[Y\˜ÚX[›Û™I×KÚN–ÉÚ\ÛØÚ›Û™HÛY[0êIË	ØÛÛ˜İ\œ™[˜ÙHÛÛ[Y\˜ÚX[IË	Ù[œÚ]0êHÜ[][Ûˆ˜YH\™XI×K›ÛY™‰Ñ›ÜIÈKˆ	ÛÜ[‹Y]K\Ûİ\˜Ù\ÉÎˆÈš[X\N‰ÛÜ[ˆ]H[[[Øš[Y\ˆœ˜[˜ÙIËÙXÛÛ™\N–ÉÜÛİ\˜Ù\ÈÛ›°êY\È[[[Øš[pê™\ÉË	Ù]HX›\]YH[[[Øš[Y\‰Ë	Ø˜\ÙHÛ›°êY\È›Û˜Úpê™\ÈÜ˜]Z]\É×KÚN–ÉÙ]K™Ûİ]‹™œˆ[[[Øš[Y\‰Ë	ĞTHX›\]YH›Û˜ÚY\‰Ë	Ùğê[ÜÜZ[\˜˜[š\ÛYI×K›ÛÌŒY™‰Ñ˜ZX›IÈKˆ	Ü\ÜÛÚ\™\Ë]\›Z\]Y\ÉÎÈš[X\N‰Ú[™\İ\ˆ\ÜÛÚ\™H\›Z\]YHŒIËÙXÛÛ™\N–ÉÜ\ÜÛÚ\™H0ê[™\™ğê]\]YH[™\İ\ÜÙ[Y[	Ë	ÑHˆÈ[\™Xİ[Û‰Ë	Ü°ê[›İ˜][Ûˆ\ÜÛÚ\™H\›Z\]YI×KÚN–ÉÙ0êXÛİH\ÜÛÚ\™H\›Z\]YIË	ÓXTš[YT°ê[›İˆ\ÜÛÚ\™IË	ÛÛ\™Xİ[ÛˆØØ][ÛˆŒI×K›ÛŒÌLY™‰Ñ›ÜIÈKˆ	ÜØÛÜš[™ËY[™\™Ù]\]YIÎˆÈš[X\N‰ÜØÛÜš[™È0ê[™\™ğê]\]YH[[Y]X›IËÙXÛÛ™\N–ÉÜØÛÜ™H0ê[™\™ÚYH°è[Y[	Ë	ğê]˜[X][ÛˆH[[Y]X›IË	Ü\™›Ü›X[˜ÙH0ë™\™ğê]\]YHÛÜ›Üšpê]0êI×KÚN–ÉØ]Y]0ë™\™ğê]\]YHÛÜ›Üšpê]0êIË	ÑÈ[[Y]X›IË	Ü[ˆ\šX[›Y[˜]˜]^	×K›ÛŒY™‰Ñ˜ZX›IÈKˆ	İ[œÚ[Û‹[ØØ]]™IÎˆÈš[X\N‰Ş›Û™H[œÚ[ÛˆØØ]]™IËÙXÛÛ™\N–ÉÚY[YšY\ˆ[œÚ[ÛˆØØ]]™IË	ØØ\H›Û™\È[™Y\Èœ˜[˜ÙIË	Ù[˜ØY™[Y[ŞY\œÈ›Û™H[™YI×KÚN–ÉÒT“[™XÙH°êY°ê\™[˜ÙHŞY\‰Ë	ÛX\˜Ú0êHØØ]Yˆ[™IË	İ˜XØ[˜ÙHØØ]]™I×K›ÛŒNLY™‰Ó[ŞY[›™IÈKˆ	ÛŞY\œËXÛÛ[Y\˜ÚX]^	ÎˆÈš[X\N‰Ø™[˜ÚX\šÈŞY\œÈÛÛ[Y\˜ÚX]^	ËÙXÛÛ™\N–ÉÛŞY\ˆÛÛ[Y\˜ÚX[p¬ˆÙXİ]\‰Ë	İ˜[]\ˆØØ]]™HÛÛ[Y\˜ÚX[IË	ÛŞY\ˆX\˜Ú0êHÛÛ[Y\˜ÙI×KÚN–ÉÚ[™XÙHSÈŞY\ˆÛÛ[Y\˜ÚX[	Ë	Ø˜Z[ÛÛ[Y\˜ÚX[ŞY\‰Ë	ÒSUŞY\ˆ\XZ\™I×K›ÛLY™‰Ó[ŞY[›™IÈKˆ	Û\]ZY]K[X\˜ÚIÎˆÈš[X\N‰Û\]ZY]0êHX\˜Ú0êH[[[Øš[Y\‰ËÙXÛÛ™\N–Éİ™[™™H˜\Y[Y[[[[Øš[Y\‰Ë	Ù0ê[ZH™[H[[[Øš[Y\ˆÛÛ[][™IË	Ù›ZY]0êHX\˜Ú0êH[[[É×KÚN–Éİ›Û[YH˜[œØXİ[ÛœÈ[[[Øš[pê™\ÉË	Ù0ê[ZH[ŞY[ˆ™[HšY[‰Ë	Ü›İ][Ûˆ\˜È[[[Øš[Y\‰×K›ÛŒÎLY™‰Ñ˜ZX›IÈKˆ	Ú[œÙYK\™]Z[	ÎˆÈš[X\N‰ÙÛ›°êY\ÈS”ÑQH™]Z[	ËÙXÛÛ™\N–ÉÒS”ÑQHX\šÙ]Ú^š[™ÈÛÛ[Y\˜ÙIË	Üİ]\İ\]Y\ÈÛÛœÛÛ[X][ÛˆS”ÑQIË	Üİ[Y[X\˜Ú0êH™]Z[	×KÚN–ÉÜ™]™[\È\ÜÛšX›\ÈÛÛ[][™HS”ÑQIË	Ù›^ÛÛ[Y\˜ÚX]^S”ÑQIË	Ğ”H0ê\]Z\[Y[É×K›ÛY™‰Ñ˜ZX›IÈKˆ	Ù›^\Y]ÛœÉÎˆÈš[X\N‰Ù›^pê]ÛœÈÜ[ˆ]IËÙXÛÛ™\N–ÉØÛÛ\YÙHpê]ÛœÈÛ›°êY\ÉË	Ùœ°ê\]Y[][ÛˆYHÛÛ[Y\˜ÙIË	Ù]H›^pê]ÛœÈš[I×KÚN–ÉØØ\]\œÈÛÛ\YÙHpê]ÛœÉË	ÛÜ[ˆ]H[Øš[]0êH\˜˜Z[™IË	Ø]˜Xİ]š]0êHÛÛ[Y\˜ÚX[HYI×K›ÛŒÌŒY™‰Ñ˜ZX›IÈKˆ	ÙYKY[YÙ[˜ÙIÎˆÈš[X\N‰ÙYH[YÙ[˜ÙH]H[[[Øš[Y\‰ËÙXÛÛ™\N–ÉØ]Y]]H[[[Øš[Y\‰Ë	Ø[˜[\ÙHÛ›°êY\È]˜[XÜ]Z\Ú][Û‰Ë	İ°ê\šYšXØ][Ûˆ]HšY[‰×KÚN–ÉÜØÛÜš[™ÈXÜ]Z\Ú][Ûˆ[[[Øš[Y\‰Ë	Üš\ÚÈ\ÜÙ\ÜÛY[›Û˜ÚY\‰Ë	Ù]\›ÛÛH[[[É×K›ÛNY™‰Ñ›ÜIÈKŸNÂ‚‹Êˆ8¥ 8¥ 8¥ “ÓT•RSTˆ
+Y™°ê\™[\ˆ\JH8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 
+‹Â™[˜İ[ÛˆZ[›Û\
+\Kİ
+HÂˆÛÛœİİÈHÕÖİšYHßNÂˆÛÛœİHİËœš[X\H›X™[ÂˆÛÛœİÙXÈH
+İËœÙXÛÛ™\H×JKš›Ú[Š	Ë	ÊNÂˆÛÛœİÚHH
+İË›ÚH×JKš›Ú[Š	Ë	ÊNÂˆÛÛœİ^˜HHİÈÓÓ•VNˆ	ØİXˆ	ÉÎÂ‚ˆÛÛœİXYHPT”UQNˆĞRTˆÛÛœÙZ[8 %^\]H[[[Øš[Y\ˆ	ˆ™]Z[
+‘ˆ0­ÈQSQH0­ÈS”ÑQH0­ÈÜ[”İ™Y]X\
+B•0âQNˆ	İ›X™[HÔš[Üš]0êH	İœš[Üš]_H0­ÈØ]0êYÛÜšYH	İ˜Ø]WB“SÕPÓ0âH’SÒTSˆ	ÜB”ÑPÓÓ‘RT‘TÎˆ	ÜÙXßB“ÒNˆ	ÛÚ_IÙ^˜_XÂ‚ˆÛÛœİÜXÜÈHÂˆ›ÙÎ‚˜“Ô“PUˆ\XÛH›ÙÈ[™ØYÙX[0­ÈLLLL[İÈ0­ÈÛˆ0êYYÛÙÚ\]YH	ˆ\™Xİ”Õ•PÕT‘Nˆ[›ÈXØÜ›ØÚH
+Hİ]
+KÈÙXİ[ÛœÈˆX^H\İH0èXÙ\ËÕHš[˜[ĞRT‚”ÑSÎˆ[İXÛ0êH[œÈH][›È0­ÈY]HMMHÚ\œÈ0­ÈˆY[œÈ[\›™\ÈİYÙğê\°ê\Â”ÕSNˆ˜\Ù\ÈÛİ\\È0­ÈÛ›°êY\ÈÚY™œ°êY\È‘‹ĞQSQH0­È^[\\È\š\ËÒQˆ0­È›İ]›ÚY[Y[’S•T‘Uˆ˜\™ÛÛˆÜ™]^0­È[™ÛXÚ\ÛY\È[][\È0­È˜[œÚ][ÛœÈğê[°ê\š\]Y\È
+‘[ˆÛÛ˜Û\Ú[ÛˆŠXˆİZYN‚˜“Ô“PUˆİZYH^]\İYˆ0­ÈLLÌ[İÈ0­ÈİXİ\™H0ê]\\È[pê\›İ0êY\Â”ÑPÕSÓ”Îˆ[›Èİ\œ][ÚKMH0ê]\\È0ê]Z[0êY\ËX›X]H°êXØ\THH]Y\İ[ÛœËÛİ\˜Ù\Â”ÑSÎˆØÚ[XHİÕÈ™XÛÛ[X[™0êH0­È[İXÛ0êH[œÈHˆ[›ÈÛÛ˜Û\Ú[Ûˆ0­ÈY[œÈ[\›™\ÈÂ”ÕSNˆ]]Üš]0êH^\H0­ÈÚXÚÛ\İÈXİ[Û›˜X›\È0­ÈÚY™œ™\ÈÙ™šXÚY[ÈÛİ\˜ğê\È0­È›İ]›ÚY[Y[ˆ	ØØ\Ë\˜]\]YIÎ‚˜“Ô“PUˆØ\È˜]\]YH0­ÈLLLM[İÈ0­ÈİÜ][[™È]KYš]™[‚”Õ•PÕT‘Nˆ›Ùš[ÛY[šXİYˆ8¡¤ˆ›Ø›0êYH8¡¤ˆpê]ÙHĞRTˆİ\XK\İ\8¡¤ˆX›X]HÚY™œ™\È8¡¤ˆ“ÒH0­ÈÛÛ˜Û\Ú[Û‚‘Ó“°âQTÎˆ‘ˆš^°êY[È0­ÈHÛ\ÜÙ\È°êY[\È0­È	H°êYÛØÚX][ÛˆÚY™œ°ê\È0­È›Û\ÈH]X\Y\œÂ”ÕSNˆÛÛ˜Ü™]0­È“HÛY[H0êXÛÛ›ÛZ\ğêH8 «ˆ0­È]˜[Ø\°êÈ0­È›İ]›ÚY[Y[›Ù™\ÜÚ[Û›™[ˆÙØ\İ‚˜“Ô“PUˆØÜš\ÙØ\İL‹LMZ[ˆ0­ÈÛÛÈÈ[Û›ÛÙİYH^\”ÑPÕSÓ”ÎˆÒS•“ÈL×HĞÓÓ•VHÛZ[—HÓpâUÑH[Z[—HÑVSTHÓÓÔ‘UZ[—HÓÕU“ÈL×B”ÕSNˆÜ˜[˜]\™[0­È]Y\İ[ÛœÈ°ê]Üš\]Y\È0­È˜[œÚ][ÛœÈ™\˜˜[\È
+[ÜœËÛÛ˜Ü°ê[Y[8 )ˆŠH0­ÈÔUTÑWH™\]pê\Â““ÕNˆ\ÈHX\šÙİÛ‹^H\›0êH[š\]Y[Y[ˆ[™›ÙÜ˜\YN‚˜“Ô“PUˆİXİ\™H[™›ÙÜ˜\YH]H0­ÈÛÛ[HZ[š[X[]\˜İ][°âS0âSQS•ÎˆHİ]Û0êHÚØÈ[ˆÜ›ÜÈ0­ÈÈİ]\İ\]Y\ÈÛİ\˜Ù\È‘‹ĞQSQKÒS”ÑQH0­ÈH[]Èš\İY[È0­ÈHZ[šKXØ\È0­ÈÛİ\˜Ù\È0­ÈÕ@ôÕ–SNˆÚY™œ™\È›ÜÈ0­Èpê\˜\˜ÚYHš\İY[H0­ÈÛ›°êY\È°ê\šYšXX›\È0­È]Xİ[ˆ™[\\ÜØYÙXˆNÂ‚ˆ™]\›ˆ	ÚXYW‰ÜÜXÜÖİ\KšYHÜXÜË˜›ÙßXÂŸB‚‹Êˆ8¥ 8¥ 8¥ SĞÒÈSTˆTH
+İ[HØZ\‹XÛÛœÙZ[™œŠH8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 
+‹Â™[˜İ[ÛˆZ[[ØÚÒ[
+\Kİ
+HÂˆÛÛœİİÈHÕÖİšYHßNÂˆÛÛœİHİËœš[X\H›X™[ÂˆÛÛœİ\ˆH™]È]J
+K™Ù][YX\Š
+NÂ‚ˆYˆ
+\KšYOOH	Ø›ÙÉÊH™]\›ˆ]ˆÛ\ÜÏH˜›ÙË\™]šY]ËZXY\ˆ‚ˆ]ˆÛ\ÜÏH˜Ø]X˜YÙH‰İšXÛÛŸH	İ˜Ø]OÙ]‚ˆO‰İ›X™[HˆÙH]YH\ÈÛ›°êY\È°ê]°ê[[ˆ	Ş\ŸOÚO‚ˆ]ˆÛ\ÜÏH›Y]H‚ˆÜ[¼'äáH	Û™]È]J
+KÓØØ[Q]Tİš[™Ê	Ùœ‹Q”‰ËÙ^N‰Û[Y\šXÉË[Û‰ÛÛ™ÉËYX\‰Û[Y\šXÉßJ_OÜÜ[‚ˆÜ[¸£ìHHZ[ˆHXİ\™OÜÜ[‚ˆÜ[¼'å%ˆ	ÚİËœÙXÛÛ™\OË–ÌHOÜÜ[‚ˆÙ]‚Ù]‚]ˆÛ\ÜÏH˜›ÙË\™]šY]ËX›ÙH‚ˆÛ\ÜÏH›XY‘[ˆÜ›Ú\Ø[‘‹QSQH]S”ÑQKĞRTˆÛÛœÙZ[H[˜[\ğêH\ÈHİ›Û™ÏŒLHXYÛ›ÜİXÜÏÜİ›Û™Ïˆ]İ›Û™ÏŒ‹ÈZ[[ÛœÈH˜[œØXİ[ÛœÏÜİ›Û™Ï‹ˆÙH]YH\ÈÚY™œ™\È\Ù[İ\ˆ[O‰ÜÓİÙ\Ø\ÙJ
+_OÙ[Oˆ0ê\\ÜÙH\™Ù[Y[\ÈY0êY\È™péİY\ËÜ‚‚ˆ”İ\œ][ÚH	İ›X™[ÓİÙ\Ø\ÙJ
+_HÚ[™ÙHHÛ›™OÚ‚ˆ‘\Z\ÈŒ\È›Ù™\ÜÚ[Û›™[È]ZHÉØ\ZY[İ\ˆ\ÈÛ›°êY\ÈX›\]Y\Èœ˜[°éØZ\Ù\È™[›™[\È0êXÚ\Ú[ÛœÈİ›Û™ÏŒLˆ0èN	H\È°êXÚ\Ù\ÏÜİ›Û™Ïˆ]YHÙ]^]ZHÉÙ[ˆY[›™[]^š^Y™šXÚ0ê\ËˆÙH‰Ù\İ\È[ˆ\Ø\™ˆ‘ˆÛİ]œ™HÜ[ˆÛ\ÜÏH™]K\İ]MIJÏÜÜ[ˆ\È˜[œØXİ[ÛœÈ›İ\špêY\È\Z\ÈŒNÜ‚ˆ”İ\ˆÛÛ\™[™™Hİ›Û™Ï‰ÜOÜİ›Û™Ï‹[˜]]Û˜È[\ˆ]KY[0è\ÈÛÛ\\˜]YœÈ	ØYÙ[˜Ù\È]\™H\™Xİ[Y[[œÈ\ÈXİ\ÈH™[H]\ÈXYÛ›ÜİXÜÈ°êYÛ[Y[Z\™\ËÜ‚‚ˆ“\ÈÈ[œÙZYÛ™[Y[È\ÈÛ›°êY\ÏÚ‚ˆ[‚ˆOİ›Û™Ï“HÛ›°êYH^\İH8 %Ü˜]Z][Y[Üİ›Û™Ïˆ‘‹QSQKS”ÑQHˆİ]\İİ\ˆ]K™Ûİ]‹™œ‹Z\È0è›İ\ˆš[Y\İšY[[Y[ÛO‚ˆOİ›Û™Ï“	Ú[\œ°ê]][Ûˆ˜Z]HY™°ê\™[˜ÙKÜİ›Û™ÏˆÜ›Ú\Ù\ˆH]š^‘ˆ°ê]°êH\È0êXÛİ\È[š\ÚX›\ÈˆÜ[ˆÛ\ÜÏH™]K\İ]‹LL‰OÜÜ[ˆ[ˆ[ŞY[›™Hİ\ˆ\ÈšY[œÈÛ\Üğê\È‹ÑËÛO‚ˆOİ›Û™Ï“H˜\Y]0êH\İ°êXÛÛ\[œğêYKÜİ›Û™Ïˆ\ÈX\˜Ú0ê\ÈØØ]^›İYÙ[š]H8 %H]H›İ\ÈÛ›™Hˆ0èÈÙ[XZ[™\È	Ø]˜[˜ÙHİ\ˆHX\˜Ú0êKÛO‚ˆİ[‚‚ˆÛÛ[Y[ĞRTˆÛÛœÙZ[^Ú]HÙ\ÈÛİ\˜Ù\ÏÚ‚ˆ“›İ™HØÛÜš[™È][KY˜Xİ]\ˆÛ™0ê™H^\Èˆİ›Û™Ï›ØØ[\Ø][ÛÜİ›Û™Ïˆ
+ÍIJKİ›Û™Ïœ\™›Ü›X[˜ÙH0ê[™\™ğê]\]YOÜİ›Û™Ïˆ
+IJKİ›Û™Ï°ê]]HšY[Üİ›Û™Ïˆ
+Œ	JH]İ›Û™Ï™[˜[Z\ÛYHHX\˜Ú0êHØØ[Üİ›Û™Ïˆ
+Œ	JKˆH°ê\İ[]\İ[ˆØÛÜ™Hİ\ˆL[O˜]™XÈ[\˜[\ÈHÛÛ™šX[˜ÙHŞ\İ0ê[X]\]Y\ÏÙ[O‹Ü‚ˆ›ØÚÜ][İO°ªÈHÛ›°êYHX›\]YHœ˜[°éØZ\ÙH\İ\›ZH\È\ÈšXÚ\È	Ñ]\›ÜKˆHœ˜ZYH]Y\İ[Ûˆ‰Ù\İ\ÈğîHH›İ]™\‹XZ\ÈÛÛ[Y[H\™H]™XÈšYİY]\‹ˆ0®ÏØ›ØÚÜ][İO‚‚ˆ]ˆÛ\ÜÏH˜İKX›Ş‚ˆ¼'ã«È›İ\ÈÛİZZ]^ˆ[™H[˜[\ÙH]Hİ\ˆ›İ™HX\˜Ú0êHİH›İ™HšY[ˆÏÜ‚ˆÜ[ˆÛ\ÜÏH˜İKXˆ‘[X[™\ˆ[™H[˜[\ÙH8¡¤ÜÜ[‚ˆÙ]‚Ù]˜Â‚ˆYˆ
+\KšYOOH	ÙİZYIÊH™]\›ˆ]ˆÛ\ÜÏH˜›ÙË\™]šY]ËZXY\ˆ‚ˆ]ˆÛ\ÜÏH˜Ø]X˜YÙH¼'äåˆİZYH˜]\]YH0­È	İ˜Ø]OÙ]‚ˆO‘İZYHÛÛ\]ˆ	İ›X™[H8 %pê]ÙHĞRTˆ	Ş\ŸOÚO‚ˆ]ˆÛ\ÜÏH›Y]H‚ˆÜ[¼'äáH	Û™]È]J
+KÓØØ[Q]Tİš[™Ê	Ùœ‹Q”‰ËÙ^N‰Û[Y\šXÉË[Û‰ÛÛ™ÉËYX\‰Û[Y\šXÉßJ_OÜÜ[‚ˆÜ[¸£ìHLˆZ[ˆHXİ\™OÜÜ[‚ˆÜ[¼'äâˆÛİ\˜Ù\ÈˆQSQH0­È‘ˆ0­ÈS”ÑQOÜÜ[‚ˆÙ]‚Ù]‚]ˆÛ\ÜÏH˜›ÙË\™]šY]ËX›ÙH‚ˆÛ\ÜÏH›XYÙHİZYH›İ\ÈÛ›™H[™Hpê]ÙHÛÛ\0êK0ê]\H\ˆ0ê]\Kİ\ˆXpëš\Ù\ˆİ›Û™Ï‰ÜOÜİ›Û™Ï‹ˆ[ÉØY™\ÜÙH]^[™\İ\ÜÙ]\œËÛÛœİ[[È]0êXÚY]\œÈÛİZZ][0ê\\ÜÙ\ˆ\Èš^Y™šXÚ0ê\È]ÛÛ\™[™™HHX\˜Ú0êH\ˆ\ÈÛ›°êY\ÈÙ™šXÚY[\ËÜ‚‚ˆ°â]\HH8 %Y[YšY\ˆ\ÈÛİ\˜Ù\È\ÜÛšX›\ÏÚ‚ˆ]˜[İ]H[˜[\ÙKØ\ÙÜ˜\Y^ˆ›ÜÈÛİ\˜Ù\Ëˆ›ÚXÚH\È[˜ÛÛİ\›˜X›\ÈÜ‚ˆÛ‚ˆOİ›Û™Ï‘‘ˆ
+]K™Ûİ]‹™œŠOÜİ›Û™Ïˆ8 %İ]\È\È˜[œØXİ[ÛœÈ›Û˜Úpê™\È\Z\ÈŒNXİX[\ğêY\Èš[Y\İšY[[Y[ˆÜ[ˆÛ\ÜÏH™]K\İ]Œ‹ÓH]]][ÛœÏÜÜ[ÛO‚ˆOİ›Û™Ï˜\ÙHQSQHOÜİ›Û™Ïˆ8 %
+ÈZ[[ÛœÈHXYÛ›ÜİXÜËTH\ÜÛšX›H[ˆ[\È°êY[ÛO‚ˆOİ›Û™Ï‘šXÚY\œÈS”ÑQOÜİ›Û™Ïˆ8 %™]™[\Ë0ê[[ÙÜ˜\YK[\ÚH\ˆÛÛ[][™H]\ˆT’TÏÛO‚ˆOİ›Û™Ï‘ğê[ÜÜZ[ÈÜ[”İ™Y]X\Üİ›Û™Ïˆ8 %Ú[È	Ú[0ê\°ê˜[œÜÜË˜\ÜÚ[œÈHšYOÛO‚ˆÛÛ‚‚ˆ°â]\Hˆ8 %0êYš[š\ˆH0ê\š[pê™H	Ø[˜[\ÙOÚ‚ˆX›O‚ˆ“š]™X]Oİ•[š]0êHğê[ÙÜ˜\\]YOİØ\È	İ\ØYÙH\\]YOİİ‚ˆ“XXÜ›Ïİ‘0ê\\[Y[ÈTÒOİ”İ˜]0êYÚYH	Ú[™\İ\ÜÙ[Y[°êYÚ[Û˜[Oİİ‚ˆ“pê\ÛÏİÛÛ[][™HÈT’TÏİ”ğê[Xİ[ÛˆHX\˜Ú0êHØØ[İİ‚ˆ“ZXÜ›ÏİY™\ÜÙHÈ\˜Ù[HØY\İ˜[Oİ°â]˜[X][Ûˆ	İ[ˆšY[ˆÜ0êXÚYš\]YOİİ‚ˆİX›O‚‚ˆ°â]\HÈ8 %ØÛÜ™\ˆ][\œ°ê]\Ú‚ˆ“HØÛÜš[™ÈĞRTˆ[0êÜ™H˜Xİ]\œÈÛ™0ê\°ê\Èˆİ›Û™Ï›ØØ[\Ø][ÛÜİ›Û™Ïˆ
+ÍIJKİ›Û™Ï°ê[™\™ÚYHOÜİ›Û™Ïˆ
+IJKİ›Û™Ï°ê]]HšY[Üİ›Û™Ïˆ
+Œ	JKİ›Û™Ï›X\˜Ú0êHØØ[‘Üİ›Û™Ïˆ
+Œ	JKˆ[ˆØÛÜ™H	™İÈÍKÌL[™\]YH[™HÜÜ[š]0êHÛÛYKÜ‚ˆ›ØÚÜ][İO”ØÛÜ™H	›ÈLˆY[˜ÙH™\]Z\ÙH8 %°ê\šYšXØ][Ûˆ\œ˜Z[ˆ[™\Ü[œØX›H]˜[0êXÚ\Ú[Û‹Ø›ØÚÜ][İO‚‚ˆ]ˆÛ\ÜÏH˜İKX›Ş‚ˆ¼'äåˆ0ê[0êXÚ\™Ù^ˆHÚXÚÛ\İÛÛ\0êH[ˆˆ8 %LˆÜš]0ê™\ÈĞRTˆ0è°ê\šYšY\ˆ]˜[İ]XÚ]Ü‚ˆÜ[ˆÛ\ÜÏH˜İKXˆ•0ê[0êXÚ\™Ù\ˆHİZYH8¡¤ÜÜ[‚ˆÙ]‚Ù]˜Â‚ˆYˆ
+\KšYOOH	ØØ\Ë\˜]\]YIÊH™]\›ˆ]ˆÛ\ÜÏH˜›ÙË\™]šY]ËZXY\ˆ‚ˆ]ˆÛ\ÜÏH˜Ø]X˜YÙH¼'å+Ø\È˜]\]YH0­È	İ˜Ø]OÙ]‚ˆOØ\È˜]\]YHˆÛÛ[Y[H]HH0ê]š]0êHH8 «	Ù\œ™]\ˆ	Ú[™\İ\ÜÙ[Y[ÚO‚ˆ]ˆÛ\ÜÏH›Y]H‚ˆÜ[¼'äáH	Û™]È]J
+KÓØØ[Q]Tİš[™Ê	Ùœ‹Q”‰ËÙ^N‰Û[Y\šXÉË[Û‰ÛÛ™ÉËYX\‰Û[Y\šXÉßJ_OÜÜ[‚ˆÜ[¸£ìHZ[ˆHXİ\™OÜÜ[‚ˆÜ[¼'ã«È	İ›X™[OÜÜ[‚ˆÙ]‚Ù]‚]ˆÛ\ÜÏH˜›ÙË\™]šY]ËX›ÙH‚ˆÛ\ÜÏH›XYİ›Û™ÏÛÛ^HÜİ›Û™Ïˆ[ˆ[™\İ\ÜÙ]\ˆ\Xİ[Y\‹YÙ]ÍL8 «0ê\Ú]H[™H]^È0èš^Ú[Z[Z\™\ËˆØ[œÈÛ›°êY\Ë[]\˜Z]\°êH0è[HİH˜XÙKˆ]™XÈHpê]ÙHĞRT‹HÚÚ^0ê]Z]0ê]šY[[ˆÜ‚‚ˆ”›Ùš[]›Ø›0ê[X]\]YOÚ‚ˆİ›Û™ÏÛY[Üİ›Û™Ïˆ[™\İ\ÜÙ]\ˆš]°êH0­È™[ZY\ˆ[™\İ\ÜÙ[Y[ØØ]Yˆ0­ÈÚX›Hˆ\š\ÈLÙHİH[Û™]Z[
+LÌL
+Oœ‹Ï‚ˆİ›Û™Ï”›Ø›0êYHÜİ›Û™Ïˆ\È]^šY[œÈY™šXÚ[Œ8 «ˆ[\ÜÜÚX›HH\İ[™İY\ˆH›Û›™HY™˜Z\™HØ[œÈÛ›°êY\ÈØš™Xİ]™\ËÜ‚‚ˆ“	Ø[˜[\ÙHĞRTˆ[ˆÈÛ›°êY\ÈÜ›Ú\ğêY\ÏÚ‚ˆX›O‚ˆÜš]0ê™OİšY[ˆH8 %\š\ÈLÙOİšY[ˆˆ8 %[Û™]Z[İİ‚ˆ”š^Y™šXÚ0êOİŒÎ8 «İŒH8 «İİ‚ˆ“pêYX[™H‘ˆ›Û™H
+Lˆ[Ú\ÊOİÜ[ˆÛ\ÜÏH™]K\İ]ŒMHø «ÜÜ[İÜ[ˆÛ\ÜÏH™]K\İ]Œø «ÜÜ[İİ‚ˆÛ\ÜÙHOİÈ8 %Ø[œÈÛÛ˜Z[Oİ‘H8 %˜]˜]^]˜[Œİİ‚ˆ”ØÛÜ™HĞRTİÜ[ˆÛ\ÜÏH™]K\İ]KÌLÜÜ[İÜ[ˆÛ\ÜÏH™]K\İ]L‹ÌLÜÜ[İİ‚ˆ”İ[Y[H°êYÛØÚX][Ûİ‹MIH
+Ûİ\ËXÛİ0êHœÈ‘ŠOİ‹LL‰H
+š\Ü]YHH[0êYÜ°êJOİİ‚ˆİX›O‚‚ˆ“H°ê\İ[]Ú‚ˆ[‚ˆO¸§!Hİ›Û™Ï°âXÛÛ›ÛZYH aux donnÃ©es, et Ã©vitÃ© 45 000 â‚¬ de travaux non provisionnÃ©s. [PAUSE] 500 euros d'honoraires pour cette tranquillitÃ© d'esprit.</p>
+  </div>
 
-const TYPES_CONTENU = [
-  { id: 'blog', label: 'Article blog', desc: '800-1200 mots', icon: 'âœï¸' },
-  { id: 'guide', label: 'Guide pratique', desc: '2000-3000 mots', icon: 'ğŸ“–' },
-  { id: 'cas-pratique', label: 'Cas pratique', desc: '1000-1500 mots', icon: 'ğŸ”¬' },
-  { id: 'podcast', label: 'Script podcast', desc: '1500-2500 mots', icon: 'ğŸ™ï¸' },
-  { id: 'infographie', label: 'Infographie data', desc: 'Structure + key facts', icon: 'ğŸ“Š' },
-];
+  <div class="podcast-seg">
+    <div class="podcast-seg-label">ğŸ‘‹ OUTRO + CTA â€” 90 secondes</div>
+    <p>Le message central : <strong>${p}</strong>, c'est une question de mÃ©thode, pas de chance.</p>
+    <p>Si vous voulez approfondir â€” direction sahar-conseil.fr. Tous nos guides sont disponibles gratuitement. La semaine prochaine, on parle de [PROCHAIN SUJET]. Abonnez-vous pour ne pas le rater. Ã€ trÃ¨s bientÃ´t !</p>
+  </div>
+</div>`;
 
-const PRIORITY_COLORS = { P0: 'badge-red', P1: 'badge-yellow', P2: 'badge-blue' };
+  if (type.id === 'infographie') return `
+<div class="blog-preview-header">
+  <div class="cat-badge">ğŸ“Š Infographie data Â· ${t.cat}</div>
+  <h1>Infographie : ${t.label} en chiffres</h1>
+  <div class="meta">
+    <span>ğŸ“… ${new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})}</span>
+    <span>ğŸ“ Sources : DVF Â· ADEME Â· INSEE Â· OpenStreetMap</span>
+  </div>
+</div>
+<div class="blog-preview-body">
+  <p class="lead">Structure de contenu optimisÃ©e pour une infographie visuelle. HiÃ©rarchie : 1 chiffre clÃ© impactant â†’ statistiques â†’ bullets â†’ mini-cas â†’ sources.</p>
 
-/* â”€â”€â”€ COMPOSANTS UTILITAIRES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-function SEOScore({ score }) {
-  const cls = score >= 80 ? 'seo-good' : score >= 60 ? 'seo-mid' : 'seo-bad';
-  const fillColor = score >= 80 ? '#00DC82' : score >= 60 ? '#eab308' : '#f87171';
-  const checks = [
-    { label: 'Balise title optimisÃ©e', ok: score >= 40 },
-    { label: 'Meta description prÃ©sente', ok: score >= 50 },
-    { label: 'Mot-clÃ© dans H1', ok: score >= 55 },
-    { label: 'Structure H2/H3', ok: score >= 65 },
-    { label: 'Longueur contenu', ok: score >= 70 },
-    { label: 'Liens internes', ok: score >= 80 },
-    { label: 'Schema markup', ok: score >= 90 },
-    { label: 'Score global â‰¥80', ok: score >= 80 },
-  ];
-  return (
-    <div className="seo-bar">
-      <div className="seo-score">
-        <span className={`seo-number ${cls}`}>{score}</span>
-        <div style={{flex:1}}>
-          <div style={{display:'flex',justifyContent:'space-between',fontSize:'.75rem',color:'var(--muted)',marginBottom:'.4rem'}}>
-            <span>Score SEO</span><span>/100</span>
-          </div>
-          <div className="seo-bar-track">
-            <div className="seo-bar-fill" style={{width:`${score}%`,background:fillColor}} />
-          </div>
-        </div>
-      </div>
-      <div className="seo-items" style={{marginTop:'.75rem'}}>
-        {checks.map(c => (
-          <div key={c.label} className={`seo-item ${c.ok ? 'ok' : 'warn'}`}>{c.label}</div>
-        ))}
-      </div>
+  <h2>ğŸ“ˆ Le chiffre clÃ©</h2>
+  <div style="text-align:center;padding:1.5rem 0">
+    <div class="infog-stat" style="display:inline-block">
+      <span class="num">125 000</span>
+      <span class="lbl">DPE analysÃ©s<br/>Base SAHAR Conseil</span>
     </div>
-  );
+  </div>
+
+  <h2>ğŸ“Š 3 statistiques essentielles</h2>
+  <div style="display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;margin-bottom:1rem">
+    <div class="infog-stat"><span class="num">48%</span><span class="lbl">des logements F/G<br/>interdits de location d'ici 2028</span></div>
+    <div class="infog-stat"><span class="num">-12%</span><span class="lbl">dÃ©cote moyenne<br/>passoires vs DPE A-C</span></div>
+    <div class="infog-stat"><span class="num">2,3M</span><span class="lbl">transactions DVF<br/>analysables depuis 2018</span></div>
+  </div>
+
+  <h2>âš¡ Points clÃ©s visuels</h2>
+  <ul>
+    <li>ğŸ  DVF + ADEME + INSEE = triangle d'or de l'analyse immobiliÃ¨re data-driven</li>
+    <li>ğŸ“Š Scoring SAHAR : 4 critÃ¨res pondÃ©rÃ©s, reproductible, avec intervalles de confiance</li>
+    <li>ğŸ” GranularitÃ© disponible : de la rÃ©gion jusqu'Ã  la parcelle cadastrale</li>
+    <li>â±ï¸ Mise Ã  jour : DVF trimestriel Â· DPE temps rÃ©el via API ADEME</li>
+    <li>âœ… Transparence : toutes les sources et mÃ©thodes sont citÃ©es systÃ©matiquement</li>
+  </ul>
+
+  <h2>ğŸ¯ Mini-cas illustratif</h2>
+  <p><strong>Paris 13e Â· T3 Â· 278 000 â‚¬</strong><br/>
+  Score SAHAR : <span class="data-stat">81/100</span> Â· DPE C Â· MÃ©diane DVF zone : 295 Kâ‚¬ Â· Potentiel nÃ©gociation : <span class="data-stat">-5%</span></p>
+
+  <div class="cta-box">
+    <p>ğŸ“Š TÃ©lÃ©charger l'infographie en HD â€” formats PNG et SVG disponibles.</p>
+    <span class="cta-btn">TÃ©lÃ©charger â†’</span>
+  </div>
+</div>`;
+
+  return `<div class="blog-preview-body"><p>Contenu gÃ©nÃ©rÃ© pour "${t.label}"</p></div>`;
 }
 
-/* â”€â”€â”€ MOCK GENERATION â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-async function generateContent(thematique, type, context) {
-  // Tentative Edge Function, fallback sur mock enrichi
+/* â”€â”€â”€ GENERATE CONTENT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+async function generateContent(t, type, ctx) {
   try {
     const { data: { session } } = await sb.auth.getSession();
+    const prompt = buildPrompt(t, type, ctx);
     const res = await fetch(`${SUPA_URL}/functions/v1/generate-content`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${session?.access_token || SUPA_ANON}`,
-      },
-      body: JSON.stringify({ thematique: thematique.id, type: type.id, context }),
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token || SUPA_ANON}` },
+      body: JSON.stringify({ thematique: t.id, type: type.id, context: ctx, prompt }),
     });
-    if (res.ok) {
-      const data = await res.json();
-      return data;
-    }
-  } catch (e) { /* fallback */ }
+    if (res.ok) return await res.json();
+  } catch (e) {}
 
-  // â”€â”€â”€ MOCK enrichi par thÃ©matique â”€â”€â”€
-  await new Promise(r => setTimeout(r, 2200));
-  const now = new Date().toLocaleDateString('fr-FR');
-  const slug = `${thematique.id}-${type.id}`;
-  const title = `${thematique.label} : Guide complet ${new Date().getFullYear()}`;
-
-  const mockHtml = `<h1>${title}</h1>
-<p><strong>Date de publication :</strong> ${now} | <strong>Lecture :</strong> 7 min | <strong>Sources :</strong> ADEME, DVF, INSEE</p>
-
-<h2>Introduction</h2>
-<p>Dans un contexte oÃ¹ les donnÃ©es publiques franÃ§aises sont de plus en plus accessibles, comprendre <strong>${thematique.label.toLowerCase()}</strong> est devenu un avantage dÃ©cisif pour les professionnels de l'immobilier et du retail.</p>
-<p>Ce guide vous explique comment exploiter les sources officielles â€” DVF, ADEME, INSEE â€” pour prendre des dÃ©cisions Ã©clairÃ©es, avec une mÃ©thode transparente et des exemples concrets.</p>
-
-<h2>1. Les donnÃ©es disponibles</h2>
-<p>La France dispose d'un Ã©cosystÃ¨me open data remarquable :</p>
-<ul>
-  <li><strong>DVF (Demande de Valeur FonciÃ¨re)</strong> â€” Toutes les transactions immobiliÃ¨res depuis 2018</li>
-  <li><strong>ADEME DPE</strong> â€” 8 millions de diagnostics Ã©nergÃ©tiques</li>
-  <li><strong>INSEE</strong> â€” DonnÃ©es dÃ©mographiques, Ã©conomiques et commerciales</li>
-  <li><strong>OpenStreetMap</strong> â€” Points d'intÃ©rÃªt et mobilitÃ©s</li>
-</ul>
-
-<h2>2. MÃ©thodologie d'analyse</h2>
-<p>SAHAR Conseil applique un scoring multi-facteur sur 4 axes :</p>
-<ul>
-  <li>ğŸ  <strong>Adresse &amp; localisation</strong> (35%) â€” accessibilitÃ©, dynamisme de la zone</li>
-  <li>âš¡ <strong>Performance Ã©nergÃ©tique</strong> (25%) â€” DPE, GES, travaux estimÃ©s</li>
-  <li>ğŸ”§ <strong>Ã‰tat du bien</strong> (20%) â€” anciennetÃ©, typologies</li>
-  <li>ğŸ“ˆ <strong>MarchÃ© local</strong> (20%) â€” volumes DVF, tendances, liquiditÃ©</li>
-</ul>
-
-<h2>3. Cas d'usage concret</h2>
-<p>Prenons l'exemple d'un investisseur souhaitant acheter un appartement Ã  Paris 75013 :</p>
-<p>En croisant les donnÃ©es DVF des 12 derniers mois avec les DPE ADEME, il est possible d'identifier que les biens classÃ©s D-E se nÃ©gocient en moyenne <strong>12% en dessous des prix de marchÃ©</strong>, offrant une marge de nÃ©gociation liÃ©e aux travaux obligatoires 2025.</p>
-
-<h2>4. Outils et ressources</h2>
-<p>Pour aller plus loin, SAHAR Conseil propose un simulateur d'estimation basÃ© sur ces donnÃ©es, disponible sur demande. Le rapport gÃ©nÃ©rÃ© inclut systÃ©matiquement les sources, la mÃ©thode de scoring et les intervalles de confiance.</p>
-
-<h2>Conclusion</h2>
-<p>MaÃ®triser l'open data immobilier n'est plus rÃ©servÃ© aux data scientists. Avec la bonne mÃ©thode et les bons outils, n'importe quel professionnel peut exploiter ces donnÃ©es pour rÃ©duire son risque et amÃ©liorer ses dÃ©cisions.</p>`;
-
-  const seoScore = 72 + Math.floor(Math.random() * 18);
-
+  await new Promise(r => setTimeout(r, 1600 + Math.random() * 1000));
+  const kw = KW[t.id] || {};
   return {
-    html: mockHtml,
+    html: buildMockHtml(t, type, ctx),
     meta: {
-      title,
-      slug,
-      description: `DÃ©couvrez comment ${thematique.label.toLowerCase()} grÃ¢ce aux donnÃ©es publiques DVF, ADEME et INSEE. Guide complet avec mÃ©thode transparente et exemples concrets.`,
-      tags: [thematique.id, type.id, 'open-data', 'immobilier', 'dvf', 'dpe'],
-      reading_time: type.id === 'guide' ? 12 : 7,
-      word_count: type.id === 'guide' ? 2400 : 1050,
-    },
-    seo_score: seoScore,
-    source: 'mock',
-  };
-}
+      v—&V7FR£Â÷7G&öæsâB(*Â7W"ÆR&—‚†ì:–vö6–F–öâWœ:–R"ÆW2Föæì:–W2Edb“ÂöÆ“à¢ÆÆ“î)ÈRÇ7G&öæså&—7VR:—f—L:’£Â÷7G&öæsâCR(*ÂFRG&fW‚ERæöâ&÷f—6–öæì:—27W"ÆR&–Vâ#ÂöÆ“à¢ÆÆ“î)ÈRÇ7G&öæså&VæFVÖVçBæWB£Â÷7G&öæsâ#S(*ÂöÖö—2g2“S(*ÂW7F–Ü:’÷W"ÆR&–Vâ#ÂöÆ“à¢Â÷VÃà¢Æ&Æö6·V÷FSì*²6ç2ÆW2Föæì:–W2EdbWBER7&ö—<:–W2Â¢vW&—2f—BÆRÖWf—26†ö—‚âÆR66÷&–ærÒvFöæì:’ÆW2&wVÖVçG2÷W"ì:–vö6–W"WBÆ6öæf–æ6R÷W"L:–6–FW"â+²(	B6Æ–VçBæöç–Ö—<:“Âö&Æö6·V÷FSà ¢ÆF—b6Æ73Ò&7FÖ&÷‚#à¢Çï	øêòf÷W2fW¢Vâ&ö¦WB6–Ö–Æ—&Rò4„"6öç6V–Â,:–Æ—6R6RG—RBvæÇ—6RVâC†‚ãÂ÷à¢Ç7â6Æ73Ò&7FÖ'Fâ#äFVÖæFW"VæRæÇ—6R(i#Â÷7ãà¢ÂöF—cà£ÂöF—cæ° ¢–b‡G—Ræ–BÓÓÒwöF67Br’&WGW&â £ÆF—b6Æ73Ò&&Æör×&Wf–WrÖ†VFW"#à¢ÆF—b6Æ73Ò&6BÖ&FvR#ï	øéûˆò67&—BöF67B+rFF–ÖÖóÂöF—cà¢Æƒå67&—B(	B"G·BæÆ&VÇÒ"+r8——6öFRG´ÖF‚æfÆö÷"„ÖF‚ç&æFöÒ‚’£#’³ÓÂöƒà¢ÆF—b6Æ73Ò&ÖWF#à¢Ç7ãï	ù8RG¶æWrFFR‚’çFôÆö6ÆTFFU7G&–ær‚vg"Ôe"rÇ¶F“¢vçVÖW&–2rÆÖöçFƒ¢vÆöærrÇ–V#¢vçVÖW&–2wÒ—ÓÂ÷7ãà¢Ç7ãî(ûãBÖ–â+r6öÆòÖöæöÆöwVSÂ÷7ãà¢Ç7ãï	øéûˆòVç&Vv—7G&VÖVçB&V6öÖÖæL:’¢7GVF–ò÷RÖ–7&ò6&F–ü:öFSÂ÷7ãà¢ÂöF—cà£ÂöF—cà£ÆF—b6Æ73Ò&&Æör×&Wf–WrÖ&öG’#à¢Ç6Æ73Ò&ÆVB#å67&—B6ö×ÆWBGRöF67B(	BFöâ÷&ÂæGW&VÂÂ&Vf÷&×VÆF–öç2–çL:–w,:–W2ÂG&ç6—F–öç2fW&&ÆW2W‡Æ–6—FW2âÆW2ÖVçF–öç2µU4UÒ–æF—VVçBÆW2&W7—&F–öç2&V6öÖÖæL:–W2ãÂ÷à ¢ÆF—b6Æ73Ò'öF67B×6Vr#à¢ÆF—b6Æ73Ò'öF67B×6VrÖÆ&VÂ#î(û”åE$ò(	B“6V6öæFW3ÂöF—cà¢Çä&öæ¦÷W"WB&–VçfVçVRFç2FF–ÖÖòÂÆRöF67BV’L:–7'—FRÂv–ÖÖö&–Æ–W"WBÆR&WF–Â"ÆW2Föæì:–W2â¦R7V—2´äôÕÒÂ6öç7VÇFçB6†W¢4„"6öç6V–ÂãÂ÷à¢ÇäV¦÷W&Bv‡V’Âöâ&ÆRFRÇ7G&öæsâG·BæÆ&VÂçFôÆ÷vW$66R‚—ÓÂ÷7G&öæsââµU4UÒWB¦Rf÷W2,:—f–Vç2(	B6RVRf÷W2ÆÆW¢VçFVæG&Rf&ö&&ÆVÖVçB6†ævW"Æf:vöâFöçBf÷W2&Vv&FW¢6RÖ&6Œ:’â&W7FW¢fV2Öö’Â:vGW&RBÖ–çWFW2ãÂ÷à¢ÂöF—cà ¢ÆF—b6Æ73Ò'öF67B×6Vr#à¢ÆF—b6Æ73Ò'öF67B×6VrÖÆ&VÂ#ï	ù8Ò4ôåDU…DR(	B2Ö–çWFW3ÂöF—cà¢Çå÷W"6ö×&VæG&R÷W'Vö’6R7V¦WBW7B7'V6–ÂV¦÷W&Bv‡V’Â–ÂfWB&VÖöçFW":#‚âµU4UÒ2vW7BÂvæì:–Rü;’Æg&æ6RÖ76—fVÖVçB÷WfW'B6W2Föæì:–W2–ÖÖö&–Æœ:‡&W2âEdbÂDTÔRÂ”å4TR(	BF÷WBW7BFWfVçR66W76–&ÆRw&GV—FVÖVçB7W"FFæv÷Wbæg"ãÂ÷à¢Çå6VbVRâ6VbVRÆÇW'BFW2&öfW76–öææVÇ2æR6fVçB26öÖÖVçBW‡Æö—FW"6W2Föæì:–W2âWB6WW‚V’6fVçBæRÆRF—6VçB2(	B2vW7BÆWW"fçFvR6ö×:—F—F–bâæ÷W2Â6†W¢4„"6öç6V–ÂÂöâL:–6–L:’FR'FvW"ÆÜ:—F†öFRâ&6RRvöâ7&ö—BVRÆG&ç7&Væ6Rf—Bfæ6W"ÆRÖ&6Œ:’ãÂ÷à¢ÂöF—cà ¢ÆF—b6Æ73Ò'öF67B×6Vr#à¢ÆF—b6Æ73Ò'öF67B×6VrÖÆ&VÂ#î)©ûˆòÜ8•D„ôDR(	BRÖ–çWFW3ÂöF—cà¢ÇäÆ÷'2Â6öæ7,:‡FVÖVçBÂ6öÖÖVçBöâf—BòG&ö—2:—FW2â6–×ÆRÂÖ—2&–v÷W&WW‚ãÂ÷à¢ÇãÇ7G&öæsì8—FR¢Æ6öÆÆV7FRãÂ÷7G&öæsâöâ'BFW2Föæì:–W2Edb(	BÆW2g&–W2G&ç67F–öç2Â2ÆW2&—‚ff–6Œ:—2(	B7&ö—<:–W2fV2Æ&6RDTÔR÷W"Â|:–æW&v–RâWBöâ¦÷WFR”å4TR÷W"ÆR6öçFW‡FR6ö6–òÜ:–6öæöÖ—VRâµU4UÓÂ÷à¢ÇãÇ7G&öæsì8—FR"¢ÆR66÷&–ærãÂ÷7G&öæsâöâöæL:‡&RBf7FWW'2âÆö6Æ—6F–öâÂ:–æW&v–RÂ:—FBGR&–VâÂG–æÖ—6ÖRGRÖ&6Œ:’â66÷&R7W"âG&ç7&VçBÂ&W&öGV7F–&ÆRãÂ÷à¢ÇãÇ7G&öæsì8—FR2¢Âv–çFW',:—FF–öâãÂ÷7G&öæsâWB2vW7BÌ:ü;’ÂvW‡W'F—6R‡VÖ–æR&W7FR—'&V×Æ:v&ÆRâVâ66÷&RFRs‚(	B:vfWWBF—&RVö’Â6öæ7,:‡FVÖVçBÂ÷W"f÷G&R627:–6–f—VRò2vW7BÌ:Rvöâ–çFW'f–VçBãÂ÷à¢ÂöF—cà ¢ÆF—b6Æ73Ò'öF67B×6Vr#à¢ÆF—b6Æ73Ò'öF67B×6VrÖÆ&VÂ#ï	øêòU„TÕÄR4ôä5$UB(	BBÖ–çWFW3ÂöF—cà¢Çä¦Rf—2f÷W2&6öçFW"Vâ62,:–VÂâµU4UÒVâ6Æ–VçBŒ:—6—F—BVçG&RFWW‚&–Vç2:FW2&—‚6–Ö–Æ—&W2âw,:&6R:æ÷G&RæÇ—6REdbÂöâL:–6÷WfW'BVRÆR&–Vâ":—F—B7W,:—fÇ\:’FR"R"&÷'BW‚G&ç67F–öç2,:–6VçFW2âWBVâÇW2(	BERRÂG&fW‚ö&Æ–vFö—&W2fçB##‚ãÂ÷à¢Çå,:—7VÇFB¢–Â6†WL:’ÆR&–VâÂì:–vö6œ:’RR7W"ÆR&—‚w,:&6R]Nˆ
+İËœš[X\H›X™[
+H
+È8 %	Û™]È]J
+K™Ù][YX\Š
+_XˆÛYÎˆ	İšYKIİ\KšYXˆ\ØÜš\[Ûˆ0êXÛİ]œ™^ˆ	ÊİËœš[X\_›X™[
+KÓİÙ\Ø\ÙJ
+_H]™XÈHpê]ÙH]HĞRTˆÛÛœÙZ[ˆÛİ\˜Ù\È‘‹QSQKS”ÑQH8 %İZYH^\]™XÈ^[\\ÈÛÛ˜Ü™]Ë˜ˆYÜÎˆİšY\KšY‹‹ŠİË›ÚOËœÛXÙJÊH×JWKˆ™XY[™×İ[YNˆÈ›ÙÎKİZYNŒL‹	ØØ\Ë\˜]\]YIÎÙØ\İŒM[™›ÙÜ˜\YNŒÈVİ\KšYHËˆÛÜ™ØÛİ[ˆÈ›ÙÎMLİZYNŒŒ	ØØ\Ë\˜]\]YIÎŒLŒÙØ\İŒŒ[™›ÙÜ˜\YNŒÍLVİ\KšYHLˆKˆÙ[×ÜØÛÜ™NˆÌ
+ÈX]™›ÛÜŠX]œ˜[™ÛJ
+H
+ˆŒŠKˆZWÜØÛÜ™Nˆ
+ÈX]™›ÛÜŠX]œ˜[™ÛJ
+H
+ˆŒŠKˆYÚX]ÜØÛÜ™Nˆˆ
+ÈX]™›ÛÜŠX]œ˜[™ÛJ
+H
+ˆJKˆÛİ\˜ÙNˆ	Û[ØÚÉËˆNÂŸB‚‹Êˆ8¥ 8¥ 8¥ ĞÓÔ‘TÈS‘S8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 
+‹Â™[˜İ[ÛˆØÛÜ™\Ô[™[
+ÈÙ[ËZKYÚX]JHÂˆÛÛœİØ\™ÈHÂˆÂˆX™[ˆ	ÔØÛÜ™HÑSÉË˜[ˆÙ[ËİY™š^ˆ	ËÌL	ËˆÛÛÜˆÙ[ÈHÈ	ÈÌÎ‰ÈˆÙ[ÈHŒÈ	ÈÙXXŒÌ	Èˆ	ÈÙÌMÌIËˆ[\œˆÙ[ÈHÈÈ‰Ñ^Ù[[	ËÛÎ‰Ø˜YÙKYÜ™Y[‰ÈHˆÙ[ÈHŒÈÈ‰ğàÜ[Z\Ù\‰ËÛÎ‰Ø˜YÙK^Y[İÉÈHˆÈ‰Ò[œİY™š\Ø[	ËÛÎ‰Ø˜YÙK\™Y	ÈKˆ˜\ˆÙ[ËˆÚXÚÜÎˆÂˆÈ‰Õ]HYÈÜ[Z\ğêIËÚÎˆÙ[ÈHKˆÈ‰ÓY]H\ØÜš\[Û‰ËÚÎˆÙ[ÈHLKˆÈ‰Ó[İXÛ0êH[œÈIËÚÎˆÙ[ÈHMHKˆÈ‰ÔİXİ\™H‹ÒÉËÚÎˆÙ[ÈHHKˆÈ‰ÓÛ™İY]\ˆHÛÛ[IËÚÎˆÙ[ÈHÌKˆÈ‰ÓY[œÈ[\›™\ÉËÚÎˆÙ[ÈHKˆKˆKˆÂˆX™[ˆ	Ñ0ê]Xİ[ÛˆPIË˜[ˆZKİY™š^ˆ	ÉIËˆÛÛÜˆZHŒÈ	ÈÌÎ‰ÈˆZHÈ	ÈÙXXŒÌ	Èˆ	ÈÙÌMÌIËˆ[\œˆZHŒÈÈ‰Ó˜]\™[8§$ÉËÛÎ‰Ø˜YÙKYÜ™Y[‰ÈHˆZHÈÈ‰ĞXØÙ\X›IËÛÎ‰Ø˜YÙK^Y[İÉÈHˆÈ‰ÒPH0ê]Xİ0êIËÛÎ‰Ø˜YÙK\™Y	ÈKˆ˜\ˆZKˆÚXÚÜÎˆÂˆÈ‰ÕÛˆ˜]\™[	ˆ˜\špêIËÚÎˆZHHKˆÈ‰Ô\œ^]0êH›Ü›X[IËÚÎˆZHÌKˆÈ‰Ô\ÈH]\›œÈPIËÚÎˆZHŒKˆÈ‰Ñ›Ü›][][ÛœÈ[XZ[™\ÉËÚÎˆZHÍHKˆKˆKˆÂˆX™[ˆ	ÔÚ[Z[\š]0êIË˜[ˆYÚX]İY™š^ˆ	ÉIËˆÛÛÜˆYÚX]LÈ	ÈÌÎ‰ÈˆYÚX]HÈ	ÈÙXXŒÌ	Èˆ	ÈÙÌMÌIËˆ[\œˆYÚX]LÈÈ‰ÓÜšYÚ[˜[8§$ÉËÛÎ‰Ø˜YÙKYÜ™Y[‰ÈHˆYÚX]HÈÈ‰ğà°ê\šYšY\‰ËÛÎ‰Ø˜YÙK^Y[İÉÈHˆÈ‰ÔÚ[Z[]YH0ê[]°êYIËÛÎ‰Ø˜YÙK\™Y	ÈKˆ˜\ˆYÚX]ˆÚXÚÜÎˆÂˆÈ‰ĞÛÛ[HÜšYÚ[˜[	ËÚÎˆYÚX]MHKˆÈ‰Ô\ÈHÛÜY\‹XÛÛ\‰ËÚÎˆYÚX]KˆÈ‰ÔÛİ\˜Ù\ÈšY[ˆÚ]0êY\ÉËÚÎˆYHKˆÈ‰Ô™Y›Ü›][][ÛœÈÒÉËÚÎˆYÚX]ŒKˆKˆKˆNÂˆ™]\›ˆ
+ˆ]ˆÛ\ÜÓ˜[YOHœØÛÜ™\Ë\[™[‚ˆØØ\™Ë›X\
+ÈOˆ
+ˆ]ˆÙ^O^ØË›X™[HÛ\ÜÓ˜[YOHœØÛÜ™KXØ\™‚ˆ]ˆÛ\ÜÓ˜[YOHœØÛÜ™KXØ\™ZXY\ˆ‚ˆÜ[ˆÛ\ÜÓ˜[YOHœØÛÜ™KXØ\™[X™[ØË›X™[OÜÜ[‚ˆÜ[ˆÛ\ÜÓ˜[YO^Ø˜YÙK\İ]\È	ØËš[\œ˜ÛßXHİ[O^ŞÙ›ÛÚ^™N‰ËÜ™[Iß_OØËš[\œOÜÜ[‚ˆÙ]‚ˆ]ˆİ[O^ŞÙ\Ü^N‰Ù›^	Ë[YÛ’][\Î‰Ø˜\Ù[[™IËØ\‰ËŒM\™[Iß_O‚ˆÜ[ˆÛ\ÜÓ˜[YOHœØÛÜ™K[[X™\ˆˆİ[O^ŞØÛÛÜ˜Ë˜ÛÛÜŸ_OØË˜[OÜÜ[‚ˆÜ[ˆÛ\ÜÓ˜[YOHœØÛÜ™K\İY™š^ØËœİY™š^OÜÜ[‚ˆÙ]‚ˆ]ˆÛ\ÜÓ˜[YOHœØÛÜ™KX˜\‹]˜XÚÈ‚ˆ]ˆÛ\ÜÓ˜[YOHœØÛÜ™KX˜\‹Yš[ˆİ[O^ŞİÚY˜	ÓX]›Z[ŠË˜˜\‹L
+_IX˜XÚÙÜ›İ[™˜Ë˜ÛÛÜŸ_HÏ‚ˆÙ]‚ˆ]ˆÛ\ÜÓ˜[YOHœØÛÜ™KXÚXÚÜÈ‚ˆØË˜ÚXÚÜË›X\
+ÚOˆ
+ˆ]ˆÙ^O^ØÚHÛ\ÜÓ˜[YO^ØØÛÜ™KXÚXÚÈ	ØÚ›ÚÈÈ	ÛÚÉÈˆ	İØ\›‰ßXOØÚOÙ]‚ˆ
+J_BˆÙ]‚ˆÙ]‚ˆ
+J_BˆÙ]‚ˆ
+NÂŸB‚‹Êˆ8¥ 8¥ 8¥ “ÓTÑÑÓH8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 
+‹Â™[˜İ[Ûˆ›Û\ÙÙÛJÈ\KİJHÂˆÛÛœİÛÜ[‹Ù]Ü[—HH\ÙTİ]J˜[ÙJNÂˆ™]\›ˆ
+ˆ]‚ˆ]ˆÛ\ÜÓ˜[YOHœ›Û\]ÙÙÛHˆÛÛXÚÏ^Ê
+HOˆÙ]Ü[ŠÈOˆ[Ê_O‚ˆÜ[¼'éè›Û\\\]pêOÜÜ[‚ˆÜ[ˆİ[O^ŞÛX\™Ú[“Y‰Ø]]ÉËÛÛÜ‰İ˜\ŠK[]]Y
+IË›ÛÚ^™N‰Ë\™[Iß_Oİ\KšXÛÛŸHİ\K›X™[H0­ÈÛÜ[ˆÈ	ø¥¬ˆX\Ü]Y\‰Èˆ	ø¥¯›Ú\‰ßOÜÜ[‚ˆÙ]‚ˆÛÜ[ˆ	‰ˆ]ˆÛ\ÜÓ˜[YOHœ›Û\\™]šY]ÈØZ[›Û\
+\Kİ
+_OÙ]ŸBˆÙ]‚ˆ
+NÂŸB‚‹Êˆ8¥ 8¥ 8¥ PˆğâS°âTUUTˆ8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 
+‹Â™[˜İ[ÛˆÛÛ[Ù[™\˜]ÜŠ
+HÂˆÛÛœİİ[X]\]YKÙ][X]\]YWHH\ÙTİ]JSPUTUQTÖÌJNÂˆÛÛœİİ\PÛÛ[KÙ]\PÛÛ[WHH\ÙTİ]JTT×ĞÓÓ•S•VÌJNÂˆÛÛœİØÛÛ^Ù]ÛÛ^HH\ÙTİ]J	ÉÊNÂˆÛÛœİÜİ]KÙ]İ]WHH\ÙTİ]J	ÚYIÊNÂˆÛÛœİÜ™\İ[Ù]™\İ[HH\ÙTİ]J[
+NÂˆÛÛœİÙ\œ›Ü‹Ù]\œ›Ü—HH\ÙTİ]J	ÉÊNÂ‚ˆ\Ş[˜È[˜İ[Ûˆ[™QÙ[™\˜]J
+HÂˆÙ]İ]J	ÙÙ[™\˜][™ÉÊNÈÙ]\œ›ÜŠ	ÉÊNÈÙ]™\İ[
+[
+NÂˆHÂˆÛÛœİ]HH]ØZ]Ù[™\˜]PÛÛ[
+[X]\]YK\PÛÛ[KÛÛ^
+NÂˆÙ]™\İ[
+]JNÈÙ]İ]J	ÙÛ™IÊNÂˆHØ]Ú
+JHÈÙ]\œ›ÜŠK›Y\ÜØYÙJNÈÙ]İ]J	ÚYIÊNÈBˆB‚ˆ\Ş[˜È[˜İ[Ûˆ[™TX›\Ú
 
-/* â”€â”€â”€ TAB: GÃ‰NÃ‰RATEUR â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-function ContentGenerator() {
-  const [thematique, setThematique] = useState(THEMATIQUES[0]);
-  const [typeContenu, setTypeContenu] = useState(TYPES_CONTENU[0]);
-  const [context, setContext] = useState('');
-  const [state, setState] = useState('idle'); // idle | generating | done | publishing | published
-  const [result, setResult] = useState(null);
-  const [error, setError] = useState('');
-
-  async function handleGenerate() {
-    setState('generating');
-    setError('');
-    setResult(null);
-    try {
-      const data = await generateContent(thematique, typeContenu, context);
-      setResult(data);
-      setState('done');
-    } catch (e) {
-      setError(e.message);
-      setState('idle');
-    }
-  }
-
-  async function handlePublish() {
-    if (!result) return;
-    setState('publishing');
-    try {
-      const { data: { session } } = await sb.auth.getSession();
-      const { error: err } = await sb.from('articles').insert([{
-        keyword: result.meta?.title,
-        slug: result.meta?.slug,
-        html_content: result.html,
-        meta_title: result.meta?.title,
-        meta_description: result.meta?.description,
-        reading_time: result.meta?.reading_time,
-        tags: result.meta?.tags || [],
-        status: 'published',
-        published_at: new Date().toISOString(),
-        created_by: session?.user?.id,
-        seo_score: result.seo_score,
-      }]);
-      if (err) throw err;
-      setState('published');
-    } catch (e) {
-      setError('Erreur publication : ' + e.message);
-      setState('done');
-    }
-  }
-
-  return (
-    <div>
-      <div className="gen-layout">
-        {/* Panneau gauche â€” ParamÃ¨tres */}
-        <div>
-          <div className="card" style={{marginBottom:'1rem'}}>
-            <div className="card-title">âš™ï¸ ParamÃ¨tres</div>
-
-            <div className="field-group">
-              <label className="field-label">ThÃ©matique</label>
-              <select value={thematique.id} onChange={e => setThematique(THEMATIQUES.find(t=>t.id===e.target.value))}>
-                {['P0','P1','P2'].map(p => (
-                  <optgroup key={p} label={`PrioritÃ© ${p}`}>
-                    {THEMATIQUES.filter(t=>t.priority===p).map(t => (
-                      <option key={t.id} value={t.id}>{t.icon} {t.label}</option>
-                    ))}
-                  </optgroup>
-                ))}
-              </select>
-            </div>
-
-            <div className="field-group">
-              <label className="field-label">Type de contenu</label>
-              {TYPES_CONTENU.map(t => (
-                <label key={t.id} style={{display:'flex',alignItems:'center',gap:'.6rem',padding:'.5rem .6rem',borderRadius:'6px',cursor:'pointer',background: typeContenu.id===t.id ? 'rgba(0,220,130,.08)' : 'transparent',border: typeContenu.id===t.id ? '1px solid rgba(0,220,130,.3)' : '1px solid transparent',marginBottom:'.3rem'}}>
-                  <input type="radio" name="type" checked={typeContenu.id===t.id} onChange={() => setTypeContenu(t)} style={{accentColor:'var(--green)'}} />
-                  <span style={{fontSize:'.9rem'}}>{t.icon} {t.label}</span>
-                  <span style={{fontSize:'.75rem',color:'var(--muted)',marginLeft:'auto'}}>{t.desc}</span>
-                </label>
-              ))}
-            </div>
-
-            <div className="field-group">
-              <label className="field-label">Contexte additionnel (optionnel)</label>
-              <textarea value={context} onChange={e=>setContext(e.target.value)} placeholder="Ex: Cibler les investisseurs Ãle-de-France, focus travaux DPE post-2025..." rows={3} />
-            </div>
-
-            {error && <div className="alert-err">{error}</div>}
-
-            <button className="btn btn-green" style={{width:'100%'}} onClick={handleGenerate} disabled={state==='generating'||state==='publishing'}>
-              {state==='generating' ? <><span className="spinner" style={{marginRight:'.5rem'}}></span>GÃ©nÃ©ration en cours...</> : 'ğŸš€ GÃ©nÃ©rer l\'article'}
-            </button>
-          </div>
-
-          {/* Infos thÃ©matique sÃ©lectionnÃ©e */}
-          <div className="card">
-            <div className="card-title" style={{fontSize:'.9rem'}}>ğŸ“‹ ThÃ©matique choisie</div>
-            <div style={{display:'flex',alignItems:'center',gap:'.75rem',marginBottom:'.75rem'}}>
-              <span style={{fontSize:'2rem'}}>{thematique.icon}</span>
+HÂˆYˆ
+\™\İ[
+H™]\›ÂˆÙ]İ]J	ÜX›\Ú[™ÉÊNÂˆHÂˆÛÛœİÈ]NˆÈÙ\ÜÚ[ÛˆHHH]ØZ]Ø‹˜]]™Ù]Ù\ÜÚ[ÛŠ
+NÂˆÛÛœİÈ\œ›Üˆ\œˆHH]ØZ]Ø‹™œ›ÛJ	Ø\XÛ\ÉÊKš[œÙ\
+ŞÂˆÙ^]ÛÜ™ˆ™\İ[›Y]OË]KÛYÎˆ™\İ[›Y]OËœÛYËˆ[ØÛÛ[ˆ™\İ[š[Y]Wİ]Nˆ™\İ[›Y]OË]KˆY]WÙ\ØÜš\[Ûˆ™\İ[›Y]OË™\ØÜš\[Û‹™XY[™×İ[YNˆ™\İ[›Y]OËœ™XY[™×İ[YKˆYÜÎˆ™\İ[›Y]OËYÜÈ×Kİ]\Îˆ	ÜX›\ÚY	ËˆX›\ÚYØ]ˆ™]È]J
+KÒTÓÔİš[™Ê
+KÜ™X]YØNˆÙ\ÜÚ[ÛË\Ù\ËšYˆÙ[×ÜØÛÜ™Nˆ™\İ[œÙ[×ÜØÛÜ™KZWÜØÛÜ™Nˆ™\İ[˜ZWÜØÛÜ™KYÚX]ÜØÛÜ™Nˆ™\İ[œYÚX]ÜØÛÜ™KˆWJNÂˆYˆ
+\œŠH›İÈ\œÂˆÙ]İ]J	ÜX›\ÚY	ÊNÂˆHØ]Ú
+JHÈÙ]\œ›ÜŠ	Ñ\œ™]\ˆX›XØ][Ûˆˆ	È
+ÈK›Y\ÜØYÙJNÈÙ]İ]J	ÙÛ™IÊNÈBˆB‚ˆ™]\›ˆ
+ˆ]‚ˆ]ˆÛ\ÜÓ˜[YOH™Ù[‹[^[İ]‚ˆËÊˆ[›™X]HØ]XÚH
+‹ßBˆ]‚ˆ]ˆÛ\ÜÓ˜[YOH˜Ø\™ˆİ[O^ŞÛX\™Ú[›İÛN‰Ì\™[Iß_O‚ˆ]ˆÛ\ÜÓ˜[YOH˜Ø\™]]H¸¦¦{î#È\˜[pê™\ÏÙ]‚ˆ]ˆÛ\ÜÓ˜[YOH™šY[YÜ›İ\‚ˆX™[Û\ÜÓ˜[YOH™šY[[X™[•0ê[X]\]YOÛX™[‚ˆÙ[Xİ˜[YO^İ[X]\]YKšYHÛÚ[™ÙO^ÙHOˆÙ][X]\]YJSPUTUQTË™š[™
+OšYOOYK\™Ù]˜[YJJ_O‚ˆÖÉÔ	Ë	ÔIË	Ô‰×K›X\
+Oˆ
+ˆÜÜ›İ\Ù^O^ÜHX™[^Øš[Üš]0êH	ÜXO‚ˆÕSPUTUQTË™š[\ŠOœš[Üš]OOO\
+K›X\
+Oˆ
+ˆÜ[ÛˆÙ^O^İšYH˜[YO^İšYOİšXÛÛŸHİ›X™[OÛÜ[Û‚ˆ
+J_BˆÛÜÜ›İ\‚ˆ
+J_BˆÜÙ[Xİ‚ˆÙ]‚ˆ]ˆÛ\ÜÓ˜[YOH™šY[YÜ›İ\‚ˆX™[Û\ÜÓ˜[YOH™šY[[X™[•\HHÛÛ[OÛX™[‚ˆÕTT×ĞÓÓ•S•K›X\
+Oˆ
+ˆX™[Ù^O^İšYHİ[O^ŞÙ\Ü^N‰Ù›^	Ë[YÛ’][\Î‰ØÙ[\‰ËØ\‰Ëœ™[IËY[™Î‰Ë\™[Hœ™[IË›Ü™\”˜Y]\Î‰Íœ	Ëİ\œÛÜ‰ÜÚ[\‰Ë˜XÚÙÜ›İ[™\PÛÛ[KšYOO]šYÉÜ™Ø˜JŒŒLÌŒ
+IÎ‰İ˜[œÜ\™[	Ë›Ü™\\PÛÛ[KšYOO]šYÉÌ\ÛÛY™Ø˜JŒŒLÌŒÊIÎ‰Ì\ÛÛY˜[œÜ\™[	ËX\™Ú[›İÛN‰ËŒ\™[Iß_O‚ˆ[œ]\OHœ˜Y[Èˆ˜[YOH\HˆÚXÚÙY^İ\PÛÛ[KšYOO]šYHÛÚ[™ÙO^Ê
+HOˆÙ]\PÛÛ[J
+_Hİ[O^ŞØXØÙ[ÛÛÜ‰İ˜\ŠKYÜ™Y[ŠIß_HÏ‚ˆÜ[ˆİ[O^ŞÙ›ÛÚ^™N‰Ë\™[Iß_OİšXÛÛŸHİ›X™[OÜÜ[‚ˆÜ[ˆİ[O^ŞÙ›ÛÚ^™N‰ËÌœ™[IËÛÛÜ‰İ˜\ŠK[]]Y
+IËX\™Ú[“Y‰Ø]]Éß_Oİ™\ØßOÜÜ[‚ˆÛX™[‚ˆ
+J_BˆÙ]‚ˆ]ˆÛ\ÜÓ˜[YOH™šY[YÜ›İ\‚ˆX™[Û\ÜÓ˜[YOH™šY[[X™[ÛÛ^HY][Û›™[
+Ü[Û›™[
+OÛX™[‚ˆ^\™XH˜[YO^ØÛÛ^HÛÚ[™ÙO^ÙOOœÙ]ÛÛ^
+K\™Ù]˜[YJ_HXÙZÛ\H‘^ˆÚX›\ˆ[™\İ\ÜÙ]\œÈQ‹›Øİ\È˜]˜]^HÜİLŒK‹‹ˆˆ›İÜÏ^ÌßHÏ‚ˆÙ]‚ˆ›Û\ÙÙÛH^İ[X]\]Y_H\O^İ\PÛÛ[_Hİ^ØÛÛ^HÏ‚ˆÙ\œ›Üˆ	‰ˆ]ˆÛ\ÜÓ˜[YOH˜[\Y\œˆˆİ[O^ŞÛX\™Ú[•Ü‰ËÍ\™[Iß_OÙ\œ›ÜŸOÙ]ŸBˆ]ÛˆÛ\ÜÓ˜[YOH˜ˆ‹YÜ™Y[ˆˆİ[O^ŞİÚY‰ÌL	IËX\™Ú[•Ü‰Ì\™[Iß_HÛÛXÚÏ^Ú[™QÙ[™\˜]_H\ØX›Y^Üİ]OOOIÙÙ[™\˜][™Éßİ]OOOIÜX›\Ú[™ÉßO‚ˆÜİ]OOOIÙÙ[™\˜][™ÉÈÈÜ[ˆÛ\ÜÓ˜[YOHœÜ[›™\ˆˆİ[O^ŞÛX\™Ú[”šYÚ‰Ë\™[Iß_OÜÜ[‘ğê[°ê\˜][Ûˆ[ˆÛİ\œË‹‹Ïˆˆ	ü'æ ğê[°ê\™\ˆ	Ø\XÛIßBˆØ]Û‚ˆÙ]‚‚ˆ]ˆÛ\ÜÓ˜[YOH˜Ø\™‚ˆ]ˆÛ\ÜÓ˜[YOH˜Ø\™]]Hˆİ[O^ŞÙ›ÛÚ^™N‰Ë\™[Iß_O¼'äâÈ[İXÛ0êHÚ)ble</div>
+            <div style={{display:'flex',alignItems:'center',gap:'.6rem',marginBottom:'.6rem'}}>
+              <span style={{fontSize:'1.6rem'}}>{thematique.icon}</span>
               <div>
-                <div style={{fontWeight:600,color:'#fff',fontSize:'.95rem'}}>{thematique.label}</div>
+                <div style={{fontWeight:600,color:'#fff',fontSize:'.9rem'}}>{thematique.label}</div>
                 <span className={`badge-status ${PRIORITY_COLORS[thematique.priority]}`}>{thematique.priority}</span>
+                <span className="badge-status badge-blue" style={{marginLeft:'.3rem',fontSize:'.65rem'}}>{thematique.cat}</span>
               </div>
             </div>
-            <div style={{fontSize:'.8rem',color:'var(--muted)'}}>Sources: DVF Â· ADEME Â· INSEE Â· OpenStreetMap</div>
+            {KW[thematique.id] && (
+              <div style={{fontSize:'.77rem'}}>
+                <div style={{color:'var(--green)',fontWeight:600,marginBottom:'.25rem'}}>ğŸ”‘ {KW[thematique.id].primary}</div>
+                <div style={{color:'var(--muted)'}}>~{KW[thematique.id].vol.toLocaleString('fr-FR')} rech./mois Â· DifficultÃ© <strong style={{color:'var(--text)'}}>{KW[thematique.id].diff}</strong></div>
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Panneau droit â€” RÃ©sultat */}
+        {/* Panneau droit */}
         <div>
           {result && (
             <>
-              <SEOScore score={result.seo_score} />
-              <div style={{display:'flex',gap:'.75rem',marginBottom:'.75rem',flexWrap:'wrap'}}>
+              <ScoresPanel seo={result.seo_score} ai={result.ai_score} plagiat={result.plagiat_score} />
+              <div style={{display:'flex',gap:'.75rem',marginBottom:'1rem',flexWrap:'wrap'}}>
                 {state === 'published' ? (
                   <span className="badge-status badge-green" style={{fontSize:'.85rem',padding:'.4rem .9rem'}}>âœ“ PubliÃ© avec succÃ¨s</span>
                 ) : (
@@ -396,39 +441,172 @@ function ContentGenerator() {
                     {state==='publishing' ? <><span className="spinner"></span> Publication...</> : 'ğŸ“¤ Publier l\'article'}
                   </button>
                 )}
-                <button className="btn btn-outline" onClick={() => { setResult(null); setState('idle'); }}>
-                  ğŸ”„ RÃ©initialiser
-                </button>
-                {result.source === 'mock' && <span className="badge-status badge-yellow" style={{fontSize:'.75rem'}}>âš  Mode dÃ©mo (Edge Function non dÃ©ployÃ©e)</span>}
+                <button className="btn btn-outline" onClick={() => { setResult(null); setState('idle'); }}>ğŸ”„ RÃ©initialiser</button>
+                {result.source === 'mock' && <span className="badge-status badge-yellow" style={{fontSize:'.72rem'}}>âš  Mode dÃ©mo â€” Edge Function non dÃ©ployÃ©e</span>}
               </div>
             </>
           )}
 
-          <div className="preview-box">
-            {state === 'generating' ? (
-              <div className="generating-overlay">
-                <div className="spinner"></div>
-                <div style={{fontWeight:600,color:'var(--text)'}}>GÃ©nÃ©ration en cours...</div>
-                <div style={{fontSize:'.85rem'}}>Analyse thÃ©matique Â· Structuration SEO Â· RÃ©daction</div>
-                <div style={{fontSize:'.8rem',color:'var(--muted)',marginTop:'.5rem'}}>~2-5 secondes</div>
-              </div>
-            ) : result ? (
-              <>
-                <div className="preview-title">APERÃ‡U ARTICLE</div>
-                <div className="preview-content" dangerouslySetInnerHTML={{ __html: result.html }} />
-                <div style={{marginTop:'1rem',paddingTop:'.75rem',borderTop:'1px solid var(--border)'}}>
-                  <div style={{fontSize:'.75rem',color:'var(--muted)',marginBottom:'.4rem'}}>Tags gÃ©nÃ©rÃ©s :</div>
-                  {(result.meta?.tags || []).map(t => <span key={t} className="tag">{t}</span>)}
+          <div className="preview-wrap">
+            <div className="preview-badge">
+              <span className="dot"></span>
+              Rendu sahar-conseil.fr Â· {typeContenu.icon} {typeContenu.label}
+            </div>
+            <div className="blog-preview">
+              {state === 'generating' ? (
+                <div className="generating-overlay">
+                  <div className="spinner"></div>
+                  <div style={{fontWeight:600,color:'#2D2D2D',fontFamily:"'DM Serif Display',serif",fontSize:'1.1rem'}}>GÃ©nÃ©ration en coursâ€¦</div>
+                  <div style={{fontSize:'.82rem',color:'#888'}}>Prompt {typeContenu.label} Â· Structuration SEO Â· RÃ©daction</div>
+                  <div style={{fontSize:'.75rem',color:'#aaa'}}>~2-4 secondes</div>
                 </div>
-              </>
-            ) : (
-              <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',minHeight:'320px',color:'var(--muted)',gap:'.75rem'}}>
-                <span style={{fontSize:'3rem'}}>âœï¸</span>
-                <div style={{fontWeight:600,fontSize:'1.1rem',color:'var(--text)'}}>PrÃªt Ã  gÃ©nÃ©rer</div>
-                <div style={{fontSize:'.85rem',textAlign:'center',maxWidth:'280px'}}>SÃ©lectionne une thÃ©matique, un type de contenu et clique sur "GÃ©nÃ©rer l'article"</div>
-              </div>
-            )}
+              ) : result ? (
+                <>
+                  <div dangerouslySetInnerHTML={{ __html: result.html }} />
+                  <div className="blog-tags">
+                    <span style={{fontSize:'.72rem',color:'#888',marginRight:'.4rem'}}>Tags :</span>
+                    {(result.meta?.tags || []).map((tag,i) => (
+                      <span key={tag} className={`blog-tag ${i===0?'primary-tag':''}`}>{tag}</span>
+                    ))}
+                  </div>
+                  <div className="blog-stats-bar">
+                    <span>ğŸ“ {result.meta?.word_count} mots</span>
+                    <span>â± {result.meta?.reading_time} min</span>
+                    <span>ğŸ“… {new Date().toLocaleDateString('fr-FR')}</span>
+                    <span>ğŸ”— {result.meta?.slug}</span>
+                  </div>
+                </>
+              ) : (
+                <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',minHeight:'380px',background:'#FAFAF8',gap:'1rem',padding:'2rem'}}>
+                  <span style={{fontSize:'3.5rem'}}>{typeContenu.icon}</span>
+                  <div style={{fontFamily:"'DM Serif Display',serif",fontSize:'1.4rem',color:'#1A1A1A'}}>PrÃªt Ã  gÃ©nÃ©rer</div>
+                  <div style={{fontSize:'.875rem',color:'#888',textAlign:'center',maxWidth:'300px',lineHeight:1.6}}>
+                    Prompt <strong style={{color:'#2D2D2D'}}>{typeContenu.label}</strong> adaptÃ© automatiquement Ã  la thÃ©matique choisie
+                  </div>
+                  <div style={{fontSize:'.75rem',color:'#bbb',marginTop:'.5rem'}}>Rendu fidÃ¨le Ã  sahar-conseil.fr/blog</div>
+                </div>
+              )}
+            </div>
           </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* â”€â”€â”€ TAB: MOTS-CLÃ‰S â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+function KeywordsManager() {
+  const [filter, setFilter]     = useState('');
+  const [prio, setPrio]         = useState('all');
+  const [customKw, setCustomKw] = useState({});
+  const [editId, setEditId]     = useState(null);
+  const [newKw, setNewKw]       = useState('');
+
+  const filtered = useMemo(() => THEMATIQUES.filter(t => {
+    const mp = prio === 'all' || t.priority === prio;
+    const mt = !filter || t.label.toLowerCase().includes(filter.toLowerCase()) || (KW[t.id]?.primary||'').toLowerCase().includes(filter.toLowerCase());
+    return mp && mt;
+  }), [filter, prio]);
+
+  const totalVol = Object.values(KW).reduce((a,b) => a+(b.vol||0), 0);
+  const diffBadge = { 'Faible':'badge-green', 'Moyenne':'badge-yellow', 'Forte':'badge-red' };
+
+  return (
+    <div>
+      <div className="grid-4" style={{marginBottom:'1.5rem'}}>
+        {[
+          { v: THEMATIQUES.length,                                             l:'ThÃ©matiques',     s:'15 sujets SAHAR' },
+          { v: THEMATIQUES.filter(t=>t.priority==='P0').length,                l:'PrioritÃ© P0',     s:'Ã€ traiter en premier' },
+          { v: totalVol.toLocaleString('fr-FR'),                               l:'Vol. total/mois', s:'Recherches combinÃ©es' },
+          { v: Object.keys(customKw).filter(k=>customKw[k]?.length>0).length, l:'ThÃ¨mes enrichis',  s:'Mots-clÃ©s ajoutÃ©s' },
+        ].map(k => (
+          <div key={k.l} className="card">
+            <div className="kpi-val">{k.v}</div>
+            <div className="kpi-label">{k.l}</div>
+            <div style={{fontSize:'.72rem',color:'var(--muted)',marginTop:'.15rem'}}>{k.s}</div>
+          </div>
+        ))}
+      </div>
+
+      <div className="card">
+        <div className="card-title" style={{justifyContent:'space-between',flexWrap:'wrap',gap:'.75rem'}}>
+          ğŸ”‘ Clusters de mots-clÃ©s
+          <div style={{display:'flex',gap:'.5rem',alignItems:'center',flexWrap:'wrap'}}>
+            <input type="text" value={filter} onChange={e=>setFilter(e.target.value)} placeholder="Rechercherâ€¦" style={{width:'160px',padding:'.35rem .7rem',fontSize:'.8rem'}} />
+            <select value={prio} onChange={e=>setPrio(e.target.value)} style={{width:'auto',padding:'.35rem .7rem',fontSize:'.8rem'}}>
+              <option value="all">Toutes prioritÃ©s</option>
+              <option value="P0">P0</option><option value="P1">P1</option><option value="P2">P2</option>
+            </select>
+          </div>
+        </div>
+        <div style={{overflowX:'auto'}}>
+          <table>
+            <thead>
+              <tr>
+                <th style={{minWidth:'185px'}}>ThÃ©matique</th>
+                <th style={{minWidth:'155px'}}>Mot-clÃ© principal</th>
+                <th style={{minWidth:'280px'}}>Secondaires + LSI</th>
+                <th style={{minWidth:'95px'}}>Vol./mois</th>
+                <th style={{minWidth:'80px'}}>DifficultÃ©</th>
+                <th style={{minWidth:'130px'}}>PersonnalisÃ©s</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map(t => {
+                const kw = KW[t.id] || {};
+                const custom = customKw[t.id] || [];
+                const pct = Math.min((kw.vol||0)/5000*100,100);
+                return (
+                  <tr key={t.id}>
+                    <td>
+                      <div style={{display:'flex',alignItems:'center',gap:'.45rem'}}>
+                        <span style={{fontSize:'1rem'}}>{t.icon}</span>
+                        <div>
+                          <div style={{fontWeight:500,color:'#fff',fontSize:'.83rem',lineHeight:1.3}}>{t.label}</div>
+                          <span className={`badge-status ${PRIORITY_COLORS[t.priority]}`}>{t.priority}</span>
+                        </div>
+                      </div>
+                    </td>
+                    <td><span className="kw-chip kw-primary">{kw.primary||t.label}</span></td>
+                    <td>
+                      {(kw.secondary||[]).map(s=><span key={s} className="kw-chip kw-secondary">{s}</span>)}
+                      {(kw.lsi||[]).map(s=><span key={s} className="kw-chip kw-lsi">âˆ¿ {s}</span>)}
+                    </td>
+                    <td>
+                      <div style={{fontWeight:600,color:'#fff',fontSize:'.88rem'}}>{(kw.vol||0).toLocaleString('fr-FR')}</div>
+                      <div style={{marginTop:'.3rem',background:'var(--border)',borderRadius:'99px',height:'3px',width:'75px'}}>
+                        <div style={{height:'3px',background:'var(--green)',borderRadius:'99px',width:`${pct}%`,opacity:.8}}/>
+                      </div>
+                    </td>
+                    <td><span className={`badge-status ${diffBadge[kw.diff]||'badge-blue'}`}>{kw.diff||'â€”'}</span></td>
+                    <td>
+                      <div style={{display:'flex',flexWrap:'wrap',alignItems:'center',gap:'.2rem'}}>
+                        {custom.map(k => (
+                          <span key={k} className="kw-chip kw-secondary" style={{cursor:'pointer'}} title="Cliquer pour supprimer" onClick={() => setCustomKw(p=>({...p,[t.id]:(p[t.id]||[]).filter(x=>x!==k)}))}>
+                            {k} <span style={{opacity:.5,fontSize:'.65rem'}}>âœ•</span>
+                          </span>
+                        ))}
+                        {editId === t.id ? (
+                          <span style={{display:'flex',gap:'.25rem',alignItems:'center'}}>
+                            <input type="text" value={newKw} onChange={e=>setNewKw(e.target.value)}
+                              onKeyDown={e=>{ if(e.key==='Enter'){setCustomKw(p=>({...p,[t.id]:[...(p[t.id]||[]),newKw.trim()]}));setNewKw('');setEditId(null);} if(e.key==='Escape')setEditId(null); }}
+                              placeholder="Ajouterâ€¦" style={{width:'95px',padding:'.18rem .5rem',fontSize:'.73rem'}} autoFocus />
+                            <button className="btn-ghost" style={{fontSize:'.72rem',padding:'.15rem .3rem'}} onClick={()=>{setCustomKw(p=>({...p,[t.id]:[...(p[t.id]||[]),newKw.trim()]}));setNewKw('');setEditId(null);}}>âœ“</button>
+                          </span>
+                        ) : (
+                          <button className="btn-ghost" style={{fontSize:'.75rem'}} onClick={()=>{setEditId(t.id);setNewKw('');}}>+ Ajouter</button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+        <div style={{marginTop:'.9rem',fontSize:'.75rem',color:'var(--muted)',lineHeight:1.7}}>
+          ğŸŸ¢ Mot-clÃ© principal Â· âšª Secondaires Â· ğŸ”µ LSI (sÃ©mantique latente) Â· Cliquer sur un mot-clÃ© perso pour le supprimer<br/>
+          Volumes estimÃ©s via recherche sÃ©mantique â€” donnÃ©es indicatives, non contractuelles
         </div>
       </div>
     </div>
@@ -438,127 +616,104 @@ function ContentGenerator() {
 /* â”€â”€â”€ TAB: PLANIFICATEUR â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function BatchScheduler() {
   const [articles, setArticles] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [batchStatus, setBatchStatus] = useState(null);
-  const [running, setRunning] = useState(false);
+  const [loading, setLoading]   = useState(true);
+  const [batchSt, setBatchSt]   = useState(null);
+  const [running, setRunning]   = useState(false);
 
   useEffect(() => { loadArticles(); }, []);
 
   async function loadArticles() {
     setLoading(true);
-    const { data } = await sb.from('articles').select('*').order('created_at', { ascending: false }).limit(20);
-    setArticles(data || []);
-    setLoading(false);
+    const { data } = await sb.from('articles').select('*').order('created_at',{ascending:false}).limit(20);
+    setArticles(data||[]); setLoading(false);
   }
 
-  // Simulation d'une gÃ©nÃ©ration batch (5 articles en sÃ©quence)
   async function runBatch() {
-    setRunning(true);
-    setBatchStatus({ total: 5, done: 0, current: null });
-    const queue = THEMATIQUES.filter(t => t.priority === 'P0' || t.priority === 'P1').slice(0, 5);
-    for (let i = 0; i < queue.length; i++) {
+    setRunning(true); setBatchSt({total:5,done:0,current:null});
+    const queue = THEMATIQUES.filter(t=>t.priority==='P0'||t.priority==='P1').slice(0,5);
+    for (let i=0;i<queue.length;i++) {
       const t = queue[i];
-      setBatchStatus({ total: 5, done: i, current: t.label });
-      const result = await generateContent(t, TYPES_CONTENU[0], '');
+      setBatchSt({total:5,done:i,current:t.label});
+      const r = await generateContent(t, TYPES_CONTENU[0], '');
       await sb.from('articles').insert([{
-        keyword: result.meta?.title,
-        slug: result.meta?.slug + '-' + Date.now(),
-        html_content: result.html,
-        meta_title: result.meta?.title,
-        meta_description: result.meta?.description,
-        reading_time: result.meta?.reading_time,
-        tags: result.meta?.tags || [],
-        status: 'draft',
-        seo_score: result.seo_score,
+        keyword: r.meta?.title, slug: r.meta?.slug+'-'+Date.now(),
+        html_content: r.html, meta_title: r.meta?.title,
+        meta_description: r.meta?.description, reading_time: r.meta?.reading_time,
+        tags: r.meta?.tags||[], status:'draft',
+        seo_score: r.seo_score, ai_score: r.ai_score, plagiat_score: r.plagiat_score,
         created_at: new Date().toISOString(),
       }]);
     }
-    setBatchStatus({ total: 5, done: 5, current: null });
-    setRunning(false);
-    loadArticles();
+    setBatchSt({total:5,done:5,current:null}); setRunning(false); loadArticles();
   }
 
   const fmtDate = iso => iso ? new Date(iso).toLocaleDateString('fr-FR') : 'â€”';
-  const statusBadge = s => {
-    if (s === 'published') return <span className="badge-status badge-green">â— PubliÃ©</span>;
-    if (s === 'draft') return <span className="badge-status badge-yellow">â— Brouillon</span>;
-    return <span className="badge-status badge-blue">â— En attente</span>;
-  };
+  const sBadge  = s => s==='published' ? <span className="badge-status badge-green">â— PubliÃ©</span>
+                     : s==='draft'     ? <span className="badge-status badge-yellow">â— Brouillon</span>
+                     : <span className="badge-status badge-blue">â— En attente</span>;
+  const scoreCol = (v, thr1, thr2) => v ? <span style={{color: v<=thr1?'var(--green)':v<=thr2?'#eab308':'#f87171',fontWeight:600}}>{v}{thr1<100?'%':''}</span> : <span style={{color:'var(--muted)'}}>â€”</span>;
 
   return (
     <div>
-      {/* Batch Controls */}
       <div className="card" style={{marginBottom:'1.5rem'}}>
         <div className="card-title">ğŸ”„ GÃ©nÃ©ration batch</div>
         <div className="grid-2" style={{gap:'1rem',alignItems:'start'}}>
           <div>
-            <div style={{fontSize:'.9rem',color:'var(--muted)',marginBottom:'1rem'}}>GÃ©nÃ©rer automatiquement les articles des thÃ©matiques P0 et P1 (5 articles prioritaires).</div>
+            <div style={{fontSize:'.9rem',color:'var(--muted)',marginBottom:'1rem'}}>GÃ©nÃ©rer automatiquement les articles des thÃ©matiques P0 + P1 (5 articles prioritaires).</div>
             <button className="btn btn-green" onClick={runBatch} disabled={running}>
-              {running ? <><span className="spinner"></span> Batch en cours...</> : 'âš¡ Lancer batch P0+P1 (5 articles)'}
+              {running ? <><span className="spinner"></span> Batch en coursâ€¦</> : 'âš¡ Lancer batch P0+P1 (5 articles)'}
             </button>
           </div>
-          {batchStatus && (
+          {batchSt && (
             <div>
               <div style={{fontSize:'.85rem',color:'var(--muted)',marginBottom:'.5rem'}}>
-                Progression: {batchStatus.done}/{batchStatus.total}
-                {batchStatus.current && <span> â€” {batchStatus.current}</span>}
+                Progression : {batchSt.done}/{batchSt.total}{batchSt.current && <span> â€” {batchSt.current}</span>}
               </div>
               {THEMATIQUES.filter(t=>t.priority==='P0'||t.priority==='P1').slice(0,5).map((t,i) => (
                 <div key={t.id} className="progress-row">
-                  <span style={{fontSize:'1rem'}}>{t.icon}</span>
+                  <span style={{fontSize:'.95rem'}}>{t.icon}</span>
                   <span className="progress-label" style={{fontSize:'.8rem'}}>{t.label}</span>
                   <div className="progress-track">
-                    <div className="progress-fill" style={{width: i < batchStatus.done ? '100%' : i === batchStatus.done && running ? '60%' : '0%'}} />
+                    <div className="progress-fill" style={{width:i<batchSt.done?'100%':i===batchSt.done&&running?'60%':'0%'}}/>
                   </div>
-                  <span style={{fontSize:'.75rem',width:'45px',textAlign:'right',color: i < batchStatus.done ? 'var(--green)' : 'var(--muted)'}}>
-                    {i < batchStatus.done ? 'âœ“ OK' : i === batchStatus.done && running ? '...' : 'En attente'}
+                  <span style={{fontSize:'.72rem',width:'45px',textAlign:'right',color:i<batchSt.done?'var(--green)':'var(--muted)'}}>
+                    {i<batchSt.done?'âœ“ OK':i===batchSt.done&&running?'...':'Attente'}
                   </span>
                 </div>
               ))}
-              {batchStatus.done === 5 && <div style={{color:'var(--green)',fontSize:'.875rem',marginTop:'.5rem',fontWeight:600}}>âœ“ Batch terminÃ© â€” {batchStatus.done} articles en brouillon</div>}
+              {batchSt.done===5 && <div style={{color:'var(--green)',fontSize:'.875rem',marginTop:'.5rem',fontWeight:600}}>âœ“ Batch terminÃ© â€” {batchSt.done} articles en brouillon</div>}
             </div>
           )}
         </div>
       </div>
 
-      {/* Articles table */}
       <div className="card">
         <div className="card-title" style={{justifyContent:'space-between'}}>
           ğŸ“„ Articles ({articles.length})
           <button className="btn btn-outline btn-sm" onClick={loadArticles}>â†» Actualiser</button>
         </div>
         {loading ? (
-          <div style={{display:'flex',justifyContent:'center',padding:'2rem'}}><div className="spinner" style={{width:28,height:28,borderWidth:3}}></div></div>
-        ) : articles.length === 0 ? (
+          <div style={{display:'flex',justifyContent:'center',padding:'2rem'}}><div className="spinner" style={{width:28,height:28,borderWidth:3}}/></div>
+        ) : articles.length===0 ? (
           <div style={{textAlign:'center',color:'var(--muted)',padding:'2rem'}}>Aucun article â€” gÃ©nÃ¨re ton premier article dans l'onglet GÃ©nÃ©rateur</div>
         ) : (
           <div style={{overflowX:'auto'}}>
             <table>
-              <thead>
-                <tr>
-                  <th>Titre</th>
-                  <th>Statut</th>
-                  <th>SEO</th>
-                  <th>Lecture</th>
-                  <th>Date</th>
-                </tr>
-              </thead>
+              <thead><tr>
+                <th>Titre</th><th>Statut</th><th>SEO</th><th>IA</th><th>Plagiat</th><th>Lecture</th><th>Date</th>
+              </tr></thead>
               <tbody>
                 {articles.map(a => (
                   <tr key={a.id}>
                     <td>
-                      <div style={{fontWeight:500,color:'#fff',maxWidth:'300px',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{a.keyword || a.meta_title || 'â€”'}</div>
-                      <div style={{fontSize:'.75rem',color:'var(--muted)'}}>{a.slug}</div>
+                      <div style={{fontWeight:500,color:'#fff',maxWidth:'260px',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{a.keyword||a.meta_title||'â€”'}</div>
+                      <div style={{fontSize:'.72rem',color:'var(--muted)'}}>{a.slug}</div>
                     </td>
-                    <td>{statusBadge(a.status)}</td>
-                    <td>
-                      {a.seo_score ? (
-                        <span style={{color: a.seo_score >= 80 ? 'var(--green)' : a.seo_score >= 60 ? '#eab308' : '#f87171',fontWeight:600}}>
-                          {a.seo_score}
-                        </span>
-                      ) : 'â€”'}
-                    </td>
-                    <td style={{color:'var(--muted)'}}>{a.reading_time ? `${a.reading_time} min` : 'â€”'}</td>
+                    <td>{sBadge(a.status)}</td>
+                    <td>{scoreCol(a.seo_score, 80, 60)}</td>
+                    <td>{a.ai_score ? <span style={{color:a.ai_score<20?'var(--green)':a.ai_score<40?'#eab308':'#f87171',fontWeight:600}}>{a.ai_score}%</span> : <span style={{color:'var(--muted)'}}>â€”</span>}</td>
+                    <td>{a.plagiat_score ? <span style={{color:a.plagiat_score<10?'var(--green)':a.plagiat_score<25?'#eab308':'#f87171',fontWeight:600}}>{a.plagiat_score}%</span> : <span style={{color:'var(--muted)'}}>â€”</span>}</td>
+                    <td style={{color:'var(--muted)'}}>{a.reading_time?`${a.reading_time} min`:'â€”'}</td>
                     <td style={{color:'var(--muted)',fontSize:'.8rem'}}>{fmtDate(a.created_at)}</td>
                   </tr>
                 ))}
@@ -573,81 +728,69 @@ function BatchScheduler() {
 
 /* â”€â”€â”€ TAB: ANALYTICS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function AnalyticsDashboard() {
-  const [stats, setStats] = useState({ total: 0, published: 0, draft: 0, avg_seo: 0 });
+  const [stats, setStats]   = useState({total:0,published:0,draft:0,avg_seo:0});
   const [loading, setLoading] = useState(true);
-  const [byPriority, setByPriority] = useState({P0:0,P1:0,P2:0});
 
   useEffect(() => {
     async function load() {
       const { data } = await sb.from('articles').select('status,seo_score,tags');
       if (!data) return setLoading(false);
-      const total = data.length;
-      const published = data.filter(a=>a.status==='published').length;
+      const total = data.length, published = data.filter(a=>a.status==='published').length;
       const draft = data.filter(a=>a.status==='draft').length;
-      const scores = data.filter(a=>a.seo_score).map(a=>a.seo_score);
-      const avg_seo = scores.length ? Math.round(scores.reduce((a,b)=>a+b,0)/scores.length) : 0;
-      setStats({ total, published, draft, avg_seo });
-      setLoading(false);
+      const sc = data.filter(a=>a.seo_score).map(a=>a.seo_score);
+      const avg_seo = sc.length ? Math.round(sc.reduce((a,b)=>a+b,0)/sc.length) : 0;
+      setStats({total,published,draft,avg_seo}); setLoading(false);
     }
     load();
   }, []);
 
-  const contentPlan = THEMATIQUES.map(t => ({
-    ...t,
-    types: TYPES_CONTENU.map(tc => ({ ...tc, done: Math.random() > .7 })),
-  }));
+  const plan = THEMATIQUES.map(t => ({ ...t, types: TYPES_CONTENU.map(tc=>({...tc,done:Math.random()>.7})) }));
 
   return (
     <div>
-      {/* KPIs */}
       <div className="grid-4" style={{marginBottom:'1.5rem'}}>
         {[
-          { val: stats.total, label: 'Articles crÃ©Ã©s', trend: '+3 cette semaine', up: true },
-          { val: stats.published, label: 'Articles publiÃ©s', trend: `${Math.round(stats.published/Math.max(stats.total,1)*100)}% du total`, up: true },
-          { val: stats.draft, label: 'Brouillons', trend: 'Ã  publier', up: false },
-          { val: stats.avg_seo || 'â€”', label: 'Score SEO moyen', trend: stats.avg_seo >= 75 ? 'Bon' : 'Ã€ amÃ©liorer', up: (stats.avg_seo||0) >= 75 },
+          { v:stats.total,     l:'Articles crÃ©Ã©s',    tr:'+3 cette semaine', up:true  },
+          { v:stats.published, l:'Articles publiÃ©s',  tr:`${Math.round(stats.published/Math.max(stats.total,1)*100)}% du total`, up:true },
+          { v:stats.draft,     l:'Brouillons',        tr:'Ã€ publier',        up:false },
+          { v:stats.avg_seo||'â€”', l:'Score SEO moyen', tr:stats.avg_seo>=75?'Bon':'Ã€ amÃ©liorer', up:(stats.avg_seo||0)>=75 },
         ].map(k => (
-          <div key={k.label} className="card">
-            <div className="kpi-val">{loading ? '...' : k.val}</div>
-            <div className="kpi-label">{k.label}</div>
-            <div className={`kpi-trend ${k.up ? 'trend-up' : ''}`}>{k.trend}</div>
+          <div key={k.l} className="card">
+            <div className="kpi-val">{loading?'â€¦':k.v}</div>
+            <div className="kpi-label">{k.l}</div>
+            <div className={`kpi-trend ${k.up?'trend-up':''}`}>{k.tr}</div>
           </div>
         ))}
       </div>
 
-      {/* Plan de contenu 15Ã—5 */}
       <div className="card">
-        <div className="card-title">ğŸ“Š Plan de contenu â€” 15 thÃ©matiques Ã— 5 formats (75 articles)</div>
+        <div className="card-title">ğŸ“‹ Plan de contenu â€” 15 thÃ©matiques Ã— 5 formats (75 articles)</div>
         <div style={{overflowX:'auto'}}>
           <table>
-            <thead>
-              <tr>
-                <th style={{minWidth:'200px'}}>ThÃ©matique</th>
-                <th>Prio</th>
-                {TYPES_CONTENU.map(t => <th key={t.id}>{t.icon} {t.label}</th>)}
-                <th>Avancement</th>
-              </tr>
-            </thead>
+            <thead><tr>
+              <th style={{minWidth:'200px'}}>ThÃ©matique</th>
+              <th>Prio</th>
+              {TYPES_CONTENU.map(t=><th key={t.id}>{t.icon} {t.label}</th>)}
+              <th>Avancement</th>
+            </tr></thead>
             <tbody>
-              {contentPlan.map(t => {
+              {plan.map(t => {
                 const done = t.types.filter(tc=>tc.done).length;
                 return (
                   <tr key={t.id}>
                     <td><span style={{marginRight:'.4rem'}}>{t.icon}</span>{t.label}</td>
                     <td><span className={`badge-status ${PRIORITY_COLORS[t.priority]}`}>{t.priority}</span></td>
-                    {t.types.map(tc => (
+                    {t.types.map(tc=>(
                       <td key={tc.id} style={{textAlign:'center'}}>
-                        {tc.done
-                          ? <span style={{color:'var(--green)',fontSize:'1.1rem'}}>âœ“</span>
-                          : <span style={{color:'var(--border)',fontSize:'1.1rem'}}>â—‹</span>}
+                        {tc.done ? <span style={{color:'var(--green)',fontSize:'1rem'}}>âœ“</span> : <span style={{color:'var(--border)',fontSize:'1rem'}}>â—‹</span>}
                       </td>
                     ))}
                     <td>
                       <div style={{display:'flex',alignItems:'center',gap:'.5rem'}}>
-                        <div className="progress-track" style={{width:'60px'}}>
-                          <div className="progress-fill" style={{width:`${done/5*100}%`}} />
+                        <div className="progress-track" style={{width:'55px'}}>
+                          <div className="progress-fill" style={{width:`${done/5*100}%`}}/>
                         </div>
-                        <span style={{fontSize:'.75rem',color:'var(--muted)'}}>{done}/5</span>
+                        <span style={{fontSize:'.73rem',color:'var(--muted)'}}>{done}/5</span>
                       </div>
                     </td>
                   </tr>
@@ -656,9 +799,7 @@ function AnalyticsDashboard() {
             </tbody>
           </table>
         </div>
-        <div style={{marginTop:'1rem',fontSize:'.8rem',color:'var(--muted)'}}>
-          â„¹ï¸ DonnÃ©es illustratives â€” se synchronisent avec la table articles Supabase
-        </div>
+        <div style={{marginTop:'.9rem',fontSize:'.77rem',color:'var(--muted)'}}>âš ï¸ DonnÃ©es illustratives â€” synchronisation avec la table articles Supabase</div>
       </div>
     </div>
   );
@@ -667,21 +808,16 @@ function AnalyticsDashboard() {
 /* â”€â”€â”€ LOGIN PAGE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function LoginPage({ onLogin }) {
   const [email, setEmail] = useState('');
-  const [pwd, setPwd] = useState('');
+  const [pwd, setPwd]     = useState('');
   const [loading, setLoading] = useState(false);
-  const [err, setErr] = useState('');
+  const [err, setErr]     = useState('');
 
   async function handleSubmit(e) {
-    e.preventDefault();
-    setLoading(true);
-    setErr('');
+    e.preventDefault(); setLoading(true); setErr('');
     const { data, error } = await sb.auth.signInWithPassword({ email, password: pwd });
     if (error) { setErr(error.message); setLoading(false); return; }
     if (!ADMIN_EMAILS.includes(data.user.email)) {
-      await sb.auth.signOut();
-      setErr('AccÃ¨s rÃ©servÃ© aux administrateurs SAHAR.');
-      setLoading(false);
-      return;
+      await sb.auth.signOut(); setErr('AccÃ¨s rÃ©servÃ© aux administrateurs SAHAR.'); setLoading(false); return;
     }
     onLogin(data.user);
   }
@@ -691,28 +827,15 @@ function LoginPage({ onLogin }) {
       <div className="login-card">
         <div className="login-logo">
           <div className="badge">S</div>
-          <div>
-            <div>SAHAR Conseil</div>
-            <span>Content Factory â€” Admin</span>
-          </div>
+          <div><h1>SAHAR Conseil</h1><span>Content Factory v2 â€” Admin</span></div>
         </div>
         {err && <div className="alert-err">{err}</div>}
         <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label>Email</label>
-            <input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="ton@email.com" required />
-          </div>
-          <div className="form-group">
-            <label>Mot de passe</label>
-            <input type="password" value={pwd} onChange={e=>setPwd(e.target.value)} placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" required />
-          </div>
-          <button className="btn-primary" type="submit" disabled={loading}>
-            {loading ? 'Connexion...' : 'AccÃ©der Ã  la Content Factory â†’'}
-          </button>
+          <div className="form-group"><label>Email</label><input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="ton@email.com" required /></div>
+          <div className="form-group"><label>Mot de passe</label><input type="password" value={pwd} onChange={e=>setPwd(e.target.value)} placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" required /></div>
+          <button className="btn-primary" type="submit" disabled={loading}>{loading?'Connexionâ€¦':'AccÃ©der Ã  la Content Factory â†’'}</button>
         </form>
-        <div style={{marginTop:'1.5rem',textAlign:'center',fontSize:'.8rem',color:'var(--muted)'}}>
-          AccÃ¨s restreint Â· SAHAR Conseil Â© 2025
-        </div>
+        <div style={{marginTop:'1.5rem',textAlign:'center',fontSize:'.8rem',color:'var(--muted)'}}>AccÃ¨s restreint Â· SAHAR Conseil Â© 2025</div>
       </div>
     </div>
   );
@@ -720,9 +843,10 @@ function LoginPage({ onLogin }) {
 
 /* â”€â”€â”€ ADMIN APP â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 const TABS = [
-  { id: 'generator', label: 'GÃ©nÃ©rateur', icon: 'âœï¸' },
-  { id: 'scheduler', label: 'Planificateur', icon: 'ğŸ“…' },
-  { id: 'analytics', label: 'Analytics', icon: 'ğŸ“Š' },
+  { id:'generator', label:'GÃ©nÃ©rateur',    icon:'âœï¸'  },
+  { id:'keywords',  label:'Mots-clÃ©s',     icon:'ğŸ”‘'  },
+  { id:'scheduler', label:'Planificateur', icon:'ğŸ“…'  },
+  { id:'analytics', label:'Analytics',     icon:'ğŸ“Š'  },
 ];
 
 function AdminApp({ user, onLogout }) {
@@ -734,7 +858,7 @@ function AdminApp({ user, onLogout }) {
           <div className="nav-badge">S</div>
           <div>
             <div className="nav-title">SAHAR Content Factory</div>
-            <div className="nav-sub">GÃ©nÃ©ration Â· Planification Â· Analytics</div>
+            <div className="nav-sub">GÃ©nÃ©ration Â· Mots-clÃ©s Â· Planification Â· Analytics</div>
           </div>
         </div>
         <div className="nav-user">
@@ -745,54 +869,48 @@ function AdminApp({ user, onLogout }) {
       <div className="admin-body">
         <div className="tabs">
           {TABS.map(t => (
-            <button key={t.id} className={`tab ${tab===t.id?'active':''}`} onClick={() => setTab(t.id)}>
+            <button key={t.id} className={`tab ${tab===t.id?'active':''}`} onClick={()=>setTab(t.id)}>
               {t.icon} {t.label}
             </button>
           ))}
         </div>
-        {tab === 'generator' && <ContentGenerator />}
-        {tab === 'scheduler' && <BatchScheduler />}
-        {tab === 'analytics' && <AnalyticsDashboard />}
+        {tab==='generator'  && <ContentGenerator />}
+        {tab==='keywords'   && <KeywordsManager />}
+        {tab==='scheduler'  && <BatchScheduler />}
+        {tab==='analytics'  && <AnalyticsDashboard />}
       </div>
     </div>
   );
 }
 
-/* â”€â”€â”€ ROOT APP â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* â”€â”€â”€ ROOT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function App() {
-  const [user, setUser] = useState(null);
+  const [user, setUser]     = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     sb.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user && ADMIN_EMAILS.includes(session.user.email)) {
-        setUser(session.user);
-      }
+      if (session?.user && ADMIN_EMAILS.includes(session.user.email)) setUser(session.user);
       setLoading(false);
     });
-    const { data: { subscription } } = sb.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = sb.auth.onAuthStateChange((_e, session) => {
       if (session?.user && ADMIN_EMAILS.includes(session.user.email)) setUser(session.user);
       else setUser(null);
     });
     return () => subscription.unsubscribe();
   }, []);
 
-  async function handleLogout() {
-    await sb.auth.signOut();
-    setUser(null);
-  }
+  async function handleLogout() { await sb.auth.signOut(); setUser(null); }
 
   if (loading) return (
     <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center'}}>
       <div className="spinner" style={{width:40,height:40,borderWidth:4}}></div>
     </div>
   );
-
   return user ? <AdminApp user={user} onLogout={handleLogout} /> : <LoginPage onLogin={setUser} />;
 }
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(<App />);
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
 </script>
 </body>
 </html>
