@@ -419,7 +419,7 @@ def generate_html_article(article: dict, spotify_show_id: str = "") -> str:
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@400;500&display=swap" rel="stylesheet">
   <style>
-    :root {{ --bleu:#185FA5; --bleu-c:#E6F1FB; --vert:#1D9E75; --vert-c:#E1F5EE; --gris-f:#2C2C2A; --gris-m:#73726c; --gris-c:#F1EFE8; --blanc:#FFF; --border:#D3D1C7; }}
+    :root {{ --bleu:#00DC82; --bleu-c:#E6F1FB; --vert:#1D9E75; --vert-c:#E1F5EE; --gris-f:#2C2C2A; --gris-m:#73726c; --gris-c:#F1EFE8; --blanc:#FFF; --border:#D3D1C7; }}
     *,*::before,*::after {{ box-sizing:border-box; margin:0; padding:0; }}
     html {{ scroll-behavior:smooth; }}
     body {{ font-family:'Inter',sans-serif; color:var(--gris-f); background:var(--blanc); line-height:1.7; }}
@@ -429,7 +429,7 @@ def generate_html_article(article: dict, spotify_show_id: str = "") -> str:
     .nav-logo {{ font-family:'Syne',sans-serif; font-size:1.1rem; font-weight:700; color:var(--bleu); text-decoration:none; }}
     .nav-cta {{ background:var(--bleu); color:var(--blanc); padding:.5rem 1.2rem; border-radius:8px; font-size:.85rem; font-weight:500; text-decoration:none; }}
 
-    .article-hero {{ background:linear-gradient(145deg,#0E3D6B,#185FA5); color:#fff; padding:4rem 5% 3rem; }}
+    .article-hero {{ background:linear-gradient(145deg,#0E3D6B,#00DC82); color:#fff; padding:4rem 5% 3rem; }}
     .article-hero .breadcrumb {{ font-size:.8rem; opacity:.6; margin-bottom:1rem; }}
     .article-hero .breadcrumb a {{ color:#fff; text-decoration:none; }}
     .article-hero h1 {{ font-size:clamp(1.6rem,3.5vw,2.4rem); font-weight:800; margin-bottom:1rem; max-width:720px; }}
@@ -524,7 +524,7 @@ def generate_blog_index(articles: list) -> str:
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@400;500&display=swap" rel="stylesheet">
   <style>
-    :root {{ --bleu:#185FA5; --bleu-c:#E6F1FB; --vert:#1D9E75; --gris-f:#2C2C2A; --gris-m:#73726c; --gris-c:#F1EFE8; --blanc:#FFF; --border:#D3D1C7; }}
+    :root {{ --bleu:#00DC82; --bleu-c:#E6F1FB; --vert:#1D9E75; --gris-f:#2C2C2A; --gris-m:#73726c; --gris-c:#F1EFE8; --blanc:#FFF; --border:#D3D1C7; }}
     *,*::before,*::after {{ box-sizing:border-box; margin:0; padding:0; }}
     body {{ font-family:'Inter',sans-serif; color:var(--gris-f); background:var(--blanc); line-height:1.6; }}
     h1,h2,h3 {{ font-family:'Syne',sans-serif; }}

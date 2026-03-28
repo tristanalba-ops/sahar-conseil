@@ -24,21 +24,29 @@ from reportlab.graphics.charts.barcharts import VerticalBarChart
 from reportlab.graphics.charts.piecharts import Pie
 
 
-# ── Palette SAHAR ────────────────────────────────────────────────────────────
-BLEU      = colors.HexColor("#185FA5")
-BLEU_F    = colors.HexColor("#0E3D6B")
-BLEU_C    = colors.HexColor("#E8F0FE")
-VERT      = colors.HexColor("#1D9E75")
-VERT_C    = colors.HexColor("#E6F7F0")
-ROUGE     = colors.HexColor("#E24B4A")
-ROUGE_C   = colors.HexColor("#FDE8E8")
-ORANGE    = colors.HexColor("#BA7517")
-ORANGE_C  = colors.HexColor("#FFF3E0")
-GRIS_F    = colors.HexColor("#F5F5F5")
-GRIS_M    = colors.HexColor("#CCCCCC")
-GRIS_B    = colors.HexColor("#888888")
-NOIR      = colors.HexColor("#1A1A1A")
-BLANC     = colors.white
+# ── Palette SAHAR — Brand Identity ────────────────────────────────────────────
+# Primaire : vert SAHAR #00DC82, fond sombre #0D0D0D
+SAHAR_GREEN   = colors.HexColor("#00DC82")
+SAHAR_GREEN_D = colors.HexColor("#00B86B")   # vert fonce pour texte sur blanc
+SAHAR_GREEN_C = colors.HexColor("#E6FFF3")   # vert tres clair (backgrounds)
+DARK          = colors.HexColor("#0D0D0D")   # fond couverture
+DARK_2        = colors.HexColor("#141414")   # variante sombre
+DARK_3        = colors.HexColor("#1E1E1E")   # headers tables
+VERT          = colors.HexColor("#00DC82")   # signal positif (= brand)
+VERT_C        = colors.HexColor("#E6FFF3")
+ROUGE         = colors.HexColor("#E24B4A")
+ROUGE_C       = colors.HexColor("#FDE8E8")
+ORANGE        = colors.HexColor("#BA7517")
+ORANGE_C      = colors.HexColor("#FFF3E0")
+GRIS_F        = colors.HexColor("#F5F5F5")
+GRIS_M        = colors.HexColor("#CCCCCC")
+GRIS_B        = colors.HexColor("#888888")
+NOIR          = colors.HexColor("#1A1A1A")
+BLANC         = colors.white
+# Aliases de compatibilite
+BLEU   = SAHAR_GREEN_D
+BLEU_F = DARK
+BLEU_C = SAHAR_GREEN_C
 
 PAGE_W, PAGE_H = A4
 MARGIN = 18 * mm
@@ -60,29 +68,29 @@ def _styles():
     s["cover_sub"] = ParagraphStyle(
         "cover_sub", parent=base["Normal"],
         fontName="Helvetica", fontSize=14,
-        textColor=colors.HexColor("#B0C4DE"), leading=18
+        textColor=colors.HexColor("#A0A0A0"), leading=18
     )
     s["cover_date"] = ParagraphStyle(
         "cover_date", parent=base["Normal"],
         fontName="Helvetica", fontSize=10,
-        textColor=colors.HexColor("#8AAED0"), leading=13
+        textColor=colors.HexColor("#707070"), leading=13
     )
 
     # Contenu
     s["h1"] = ParagraphStyle(
         "h1", parent=base["Normal"],
         fontName="Helvetica-Bold", fontSize=16,
-        textColor=BLEU_F, leading=20, spaceBefore=4, spaceAfter=8
+        textColor=DARK_3, leading=20, spaceBefore=4, spaceAfter=8
     )
     s["h2"] = ParagraphStyle(
         "h2", parent=base["Normal"],
         fontName="Helvetica-Bold", fontSize=12,
-        textColor=BLEU, leading=16, spaceBefore=10, spaceAfter=4
+        textColor=SAHAR_GREEN_D, leading=16, spaceBefore=10, spaceAfter=4
     )
     s["h3"] = ParagraphStyle(
         "h3", parent=base["Normal"],
         fontName="Helvetica-Bold", fontSize=10,
-        textColor=BLEU, leading=13, spaceBefore=6, spaceAfter=3
+        textColor=SAHAR_GREEN_D, leading=13, spaceBefore=6, spaceAfter=3
     )
     s["body"] = ParagraphStyle(
         "body", parent=base["Normal"],
@@ -107,7 +115,7 @@ def _styles():
     s["kpi_val"] = ParagraphStyle(
         "kpi_val", parent=base["Normal"],
         fontName="Helvetica-Bold", fontSize=20,
-        textColor=BLEU, alignment=TA_CENTER, leading=24
+        textColor=SAHAR_GREEN_D, alignment=TA_CENTER, leading=24
     )
     s["kpi_label"] = ParagraphStyle(
         "kpi_label", parent=base["Normal"],
@@ -181,7 +189,7 @@ def _indice_confiance(nb_transactions: int, mois_couverture: int = 12) -> tuple:
 def _section_divider(story, S, title: str, icon: str = ""):
     """Ajoute un séparateur de section."""
     story.append(Spacer(1, 3*mm))
-    story.append(HRFlowable(width=USABLE_W, thickness=0.8, color=BLEU, spaceAfter=2))
+    story.append(HRFlowable(width=USABLE_W, thickness=0.8, color=SAHAR_GREEN, spaceAfter=2))
     story.append(Paragraph(f"{icon} {title}" if icon else title, S["h2"]))
     story.append(Spacer(1, 2*mm))
 
@@ -250,9 +258,9 @@ def _draw_bar_compare(val_commune, val_dept, label_c="Commune", label_d="Departe
 
     # Commune bar
     w1 = bar_w * min((val_commune or 0) / max_val, 1)
-    d.add(Rect(x_start, y1, w1, bar_h, fillColor=BLEU, strokeColor=None))
+    d.add(Rect(x_start, y1, w1, bar_h, fillColor=SAHAR_GREEN_D, strokeColor=None))
     d.add(String(x_start + w1 + 3, y1 + 1, _fmt(val_commune),
-                 fontSize=7, fontName="Helvetica-Bold", fillColor=BLEU))
+                 fontSize=7, fontName="Helvetica-Bold", fillColor=SAHAR_GREEN_D))
 
     # Dept bar
     w2 = bar_w * min((val_dept or 0) / max_val, 1)
@@ -358,7 +366,7 @@ def generer_rapport_commune(
     cover_data = [[""]]
     cover_t = Table(cover_data, colWidths=[USABLE_W], rowHeights=[PAGE_H - 2 * MARGIN])
     cover_t.setStyle(TableStyle([
-        ("BACKGROUND", (0, 0), (-1, -1), BLEU_F),
+        ("BACKGROUND", (0, 0), (-1, -1), DARK),
         ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
     ]))
 
@@ -371,12 +379,12 @@ def generer_rapport_commune(
     # Title
     cover_content.append(Paragraph("Rapport d'analyse", ParagraphStyle(
         "ct1", fontName="Helvetica", fontSize=14,
-        textColor=colors.HexColor("#8AAED0"), alignment=TA_CENTER, leading=18
+        textColor=SAHAR_GREEN, alignment=TA_CENTER, leading=18
     )))
     cover_content.append(Spacer(1, 3*mm))
     cover_content.append(Paragraph("de marche immobilier", ParagraphStyle(
         "ct2", fontName="Helvetica", fontSize=14,
-        textColor=colors.HexColor("#8AAED0"), alignment=TA_CENTER, leading=18
+        textColor=SAHAR_GREEN, alignment=TA_CENTER, leading=18
     )))
     cover_content.append(Spacer(1, 8*mm))
     cover_content.append(Paragraph(commune.upper(), ParagraphStyle(
@@ -386,7 +394,7 @@ def generer_rapport_commune(
     cover_content.append(Spacer(1, 3*mm))
     cover_content.append(Paragraph(f"Departement {dept}", ParagraphStyle(
         "ct4", fontName="Helvetica", fontSize=14,
-        textColor=colors.HexColor("#B0C4DE"), alignment=TA_CENTER, leading=18
+        textColor=colors.HexColor("#A0A0A0"), alignment=TA_CENTER, leading=18
     )))
     cover_content.append(Spacer(1, 15*mm))
 
@@ -399,31 +407,31 @@ def generer_rapport_commune(
     cover_content.append(Spacer(1, 3*mm))
     cover_content.append(Paragraph(signal, ParagraphStyle(
         "ct6", fontName="Helvetica", fontSize=12,
-        textColor=colors.HexColor("#B0C4DE"), alignment=TA_CENTER, leading=16
+        textColor=colors.HexColor("#A0A0A0"), alignment=TA_CENTER, leading=16
     )))
     cover_content.append(Spacer(1, 30*mm))
 
     # Footer
     cover_content.append(HRFlowable(width=USABLE_W * 0.6, thickness=0.5,
-                                     color=colors.HexColor("#2A5F8F"), spaceAfter=6))
+                                     color=SAHAR_GREEN, spaceAfter=6))
     cover_content.append(Paragraph("SAHAR Conseil", ParagraphStyle(
         "ct7", fontName="Helvetica-Bold", fontSize=12,
         textColor=BLANC, alignment=TA_CENTER, leading=15
     )))
     cover_content.append(Paragraph("sahar-conseil.fr", ParagraphStyle(
         "ct8", fontName="Helvetica", fontSize=9,
-        textColor=colors.HexColor("#8AAED0"), alignment=TA_CENTER, leading=12
+        textColor=SAHAR_GREEN, alignment=TA_CENTER, leading=12
     )))
     cover_content.append(Spacer(1, 4*mm))
     cover_content.append(Paragraph(f"Rapport genere le {date_str}", ParagraphStyle(
         "ct9", fontName="Helvetica", fontSize=8,
-        textColor=colors.HexColor("#6A8CB5"), alignment=TA_CENTER, leading=11
+        textColor=colors.HexColor("#707070"), alignment=TA_CENTER, leading=11
     )))
 
     # Wrap cover in a single cell table for background
     inner_t = Table([[c] for c in cover_content], colWidths=[USABLE_W])
     inner_t.setStyle(TableStyle([
-        ("BACKGROUND", (0, 0), (-1, -1), BLEU_F),
+        ("BACKGROUND", (0, 0), (-1, -1), DARK),
         ("LEFTPADDING", (0, 0), (-1, -1), 0),
         ("RIGHTPADDING", (0, 0), (-1, -1), 0),
         ("TOPPADDING", (0, 0), (-1, -1), 0),
@@ -444,14 +452,14 @@ def generer_rapport_commune(
         ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
     ]))
     story.append(hdr)
-    story.append(HRFlowable(width=USABLE_W, thickness=1.5, color=BLEU, spaceAfter=6))
+    story.append(HRFlowable(width=USABLE_W, thickness=1.5, color=SAHAR_GREEN, spaceAfter=6))
 
     # KPI Cards row
     kpi_items = [
         (f"{score}/100", "Score marche", _color_score(score)),
-        (_fmt(prix_med, "{:,.0f} EUR"), "Prix median EUR/m2", BLEU),
+        (_fmt(prix_med, "{:,.0f} EUR"), "Prix median EUR/m2", SAHAR_GREEN_D),
         (_pct(evol), "Evolution 12 mois", VERT if evol and evol > 0 else ROUGE if evol and evol < 0 else GRIS_B),
-        (str(volume), "Transactions 12m", BLEU),
+        (str(volume), "Transactions 12m", SAHAR_GREEN_D),
     ]
 
     kpi_cells = []
@@ -531,7 +539,7 @@ def generer_rapport_commune(
 
     t_extra = Table(extra_rows, colWidths=[USABLE_W * 0.30, USABLE_W * 0.25, USABLE_W * 0.45], repeatRows=1)
     t_extra.setStyle(TableStyle([
-        ("BACKGROUND",   (0, 0), (-1, 0), BLEU),
+        ("BACKGROUND",   (0, 0), (-1, 0), DARK_3),
         ("TEXTCOLOR",    (0, 0), (-1, 0), BLANC),
         ("FONTNAME",     (0, 0), (-1, 0), "Helvetica-Bold"),
         ("FONTSIZE",     (0, 0), (-1, -1), 8),
@@ -550,7 +558,7 @@ def generer_rapport_commune(
     # ══════════════════════════════════════════════════════════════════════
 
     story.append(Paragraph(f"Analyse par type de bien  |  {commune}", S["h1"]))
-    story.append(HRFlowable(width=USABLE_W, thickness=1.5, color=BLEU, spaceAfter=6))
+    story.append(HRFlowable(width=USABLE_W, thickness=1.5, color=SAHAR_GREEN, spaceAfter=6))
 
     if stats_appt or stats_maison:
         # Two columns layout
@@ -572,7 +580,7 @@ def generer_rapport_commune(
 
         t_type = Table(type_rows, colWidths=[USABLE_W * 0.40, USABLE_W * 0.30, USABLE_W * 0.30], repeatRows=1)
         t_type.setStyle(TableStyle([
-            ("BACKGROUND",    (0, 0), (-1, 0), BLEU),
+            ("BACKGROUND",    (0, 0), (-1, 0), DARK_3),
             ("TEXTCOLOR",     (0, 0), (-1, 0), BLANC),
             ("FONTNAME",      (0, 0), (-1, 0), "Helvetica-Bold"),
             ("FONTSIZE",      (0, 0), (-1, -1), 8.5),
@@ -649,7 +657,7 @@ def generer_rapport_commune(
 
         t_tr = Table(tr_rows, colWidths=[USABLE_W * 0.40, USABLE_W * 0.30, USABLE_W * 0.30], repeatRows=1)
         t_tr.setStyle(TableStyle([
-            ("BACKGROUND",    (0, 0), (-1, 0), BLEU),
+            ("BACKGROUND",    (0, 0), (-1, 0), DARK_3),
             ("TEXTCOLOR",     (0, 0), (-1, 0), BLANC),
             ("FONTNAME",      (0, 0), (-1, 0), "Helvetica-Bold"),
             ("FONTSIZE",      (0, 0), (-1, -1), 8),
@@ -669,7 +677,7 @@ def generer_rapport_commune(
     # ══════════════════════════════════════════════════════════════════════
 
     story.append(Paragraph(f"Transactions comparables  |  {commune}", S["h1"]))
-    story.append(HRFlowable(width=USABLE_W, thickness=1.5, color=BLEU, spaceAfter=4))
+    story.append(HRFlowable(width=USABLE_W, thickness=1.5, color=SAHAR_GREEN, spaceAfter=4))
     story.append(Paragraph(
         f"Selection des transactions les plus recentes enregistrees a {commune}. "
         "Source : DVF (Demandes de Valeurs Foncieres) — data.gouv.fr.",
@@ -711,7 +719,7 @@ def generer_rapport_commune(
         cw = [USABLE_W*0.10, USABLE_W*0.30, USABLE_W*0.12, USABLE_W*0.10, USABLE_W*0.20, USABLE_W*0.12]
         t_tx = Table(tx_rows, colWidths=cw, repeatRows=1)
         t_tx.setStyle(TableStyle([
-            ("BACKGROUND",    (0, 0), (-1, 0), BLEU),
+            ("BACKGROUND",    (0, 0), (-1, 0), DARK_3),
             ("TEXTCOLOR",     (0, 0), (-1, 0), BLANC),
             ("FONTNAME",      (0, 0), (-1, 0), "Helvetica-Bold"),
             ("FONTSIZE",      (0, 0), (-1, -1), 7.5),
@@ -743,7 +751,7 @@ def generer_rapport_commune(
             ]
             t_cs = Table(comp_stats, colWidths=[USABLE_W * 0.50, USABLE_W * 0.50], repeatRows=1)
             t_cs.setStyle(TableStyle([
-                ("BACKGROUND",    (0, 0), (-1, 0), BLEU),
+                ("BACKGROUND",    (0, 0), (-1, 0), DARK_3),
                 ("TEXTCOLOR",     (0, 0), (-1, 0), BLANC),
                 ("FONTNAME",      (0, 0), (-1, 0), "Helvetica-Bold"),
                 ("FONTSIZE",      (0, 0), (-1, -1), 8.5),
@@ -765,7 +773,7 @@ def generer_rapport_commune(
     # ══════════════════════════════════════════════════════════════════════
 
     story.append(Paragraph(f"Estimation de prix  |  {commune}", S["h1"]))
-    story.append(HRFlowable(width=USABLE_W, thickness=1.5, color=BLEU, spaceAfter=4))
+    story.append(HRFlowable(width=USABLE_W, thickness=1.5, color=SAHAR_GREEN, spaceAfter=4))
     story.append(Paragraph(
         "Estimation basee sur les transactions comparables avec intervalles de confiance "
         "a differents niveaux de risque. L'ecart-type mesure la dispersion des prix — "
@@ -831,7 +839,7 @@ def generer_rapport_commune(
         cw_est = [USABLE_W*0.28, USABLE_W*0.18, USABLE_W*0.14, USABLE_W*0.22, USABLE_W*0.18]
         t_est = Table(est_rows, colWidths=cw_est, repeatRows=1)
         t_est.setStyle(TableStyle([
-            ("BACKGROUND",    (0, 0), (-1, 0), BLEU),
+            ("BACKGROUND",    (0, 0), (-1, 0), DARK_3),
             ("TEXTCOLOR",     (0, 0), (-1, 0), BLANC),
             ("FONTNAME",      (0, 0), (-1, 0), "Helvetica-Bold"),
             ("FONTSIZE",      (0, 0), (-1, -1), 7.5),
@@ -873,7 +881,7 @@ def generer_rapport_commune(
 
         t_val = Table(val_rows, colWidths=[USABLE_W*0.35, USABLE_W*0.35, USABLE_W*0.30], repeatRows=1)
         t_val.setStyle(TableStyle([
-            ("BACKGROUND",    (0, 0), (-1, 0), BLEU),
+            ("BACKGROUND",    (0, 0), (-1, 0), DARK_3),
             ("TEXTCOLOR",     (0, 0), (-1, 0), BLANC),
             ("FONTNAME",      (0, 0), (-1, 0), "Helvetica-Bold"),
             ("FONTSIZE",      (0, 0), (-1, -1), 8.5),
@@ -907,7 +915,7 @@ def generer_rapport_commune(
 
         t_disp = Table(disp_rows, colWidths=[USABLE_W*0.35, USABLE_W*0.30, USABLE_W*0.35], repeatRows=1)
         t_disp.setStyle(TableStyle([
-            ("BACKGROUND",    (0, 0), (-1, 0), BLEU),
+            ("BACKGROUND",    (0, 0), (-1, 0), DARK_3),
             ("TEXTCOLOR",     (0, 0), (-1, 0), BLANC),
             ("FONTNAME",      (0, 0), (-1, 0), "Helvetica-Bold"),
             ("FONTSIZE",      (0, 0), (-1, -1), 8),
@@ -975,7 +983,7 @@ def generer_rapport_commune(
     # ══════════════════════════════════════════════════════════════════════
 
     story.append(Paragraph(f"Recommandations strategiques  |  {commune}", S["h1"]))
-    story.append(HRFlowable(width=USABLE_W, thickness=1.5, color=BLEU, spaceAfter=6))
+    story.append(HRFlowable(width=USABLE_W, thickness=1.5, color=SAHAR_GREEN, spaceAfter=6))
 
     # Score jauge
     gauge = _draw_score_gauge(score, 100)
@@ -1003,7 +1011,7 @@ def generer_rapport_commune(
     for title, recos in profiles:
         reco_header = Table([[Paragraph(title, S["reco_title"])]], colWidths=[USABLE_W])
         reco_header.setStyle(TableStyle([
-            ("BACKGROUND", (0, 0), (-1, -1), BLEU),
+            ("BACKGROUND", (0, 0), (-1, -1), DARK_3),
             ("TOPPADDING", (0, 0), (-1, -1), 6),
             ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
             ("LEFTPADDING", (0, 0), (-1, -1), 10),
@@ -1028,7 +1036,7 @@ def generer_rapport_commune(
     # ══════════════════════════════════════════════════════════════════════
 
     story.append(Paragraph("Methodologie et mentions legales", S["h1"]))
-    story.append(HRFlowable(width=USABLE_W, thickness=1.5, color=BLEU, spaceAfter=6))
+    story.append(HRFlowable(width=USABLE_W, thickness=1.5, color=SAHAR_GREEN, spaceAfter=6))
 
     story.append(Paragraph("Sources de donnees", S["h3"]))
     story.append(Paragraph(
