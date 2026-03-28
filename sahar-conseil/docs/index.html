@@ -12,6 +12,23 @@
   <link rel="canonical" href="https://sahar-conseil.fr/" />
   <meta name="robots" content="index, follow, max-image-preview:large" />
 
+  <!-- GEO / Local SEO -->
+  <meta name="geo.region" content="FR" />
+  <meta name="geo.placename" content="France" />
+  <meta name="language" content="fr" />
+  <meta name="author" content="SAHAR Conseil" />
+  <meta name="keywords" content="open data immobilier, DVF analyse, DPE ADEME, scoring territorial, données publiques France, conseil données, data immobilier, passoires thermiques, zones commerciales INSEE" />
+
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#00DC82" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="SAHAR Conseil" />
+
+  <!-- Favicons -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%2300DC82'/><text y='.9em' font-size='75' x='12'>S</text></svg>" />
+
   <!-- Open Graph -->
   <meta property="og:title" content="SAHAR Conseil — Exploitez l'open data pour décider mieux" />
   <meta property="og:description" content="DVF, DPE ADEME, INSEE : apprenez à lire les données publiques françaises avec des outils métier sourcés et une méthode transparente." />
@@ -19,11 +36,16 @@
   <meta property="og:url" content="https://sahar-conseil.fr/" />
   <meta property="og:locale" content="fr_FR" />
   <meta property="og:site_name" content="SAHAR Conseil" />
+  <meta property="og:image" content="https://sahar-conseil.fr/og-image.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="SAHAR Conseil — Open data pour professionnels" />
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="SAHAR Conseil — Exploitez l'open data pour décider mieux" />
   <meta name="twitter:description" content="DVF, DPE ADEME, INSEE : des outils pédagogiques pour professionnels de l'immobilier, de l'énergie et du retail." />
+  <meta name="twitter:image" content="https://sahar-conseil.fr/og-image.png" />
 
   <!-- JSON-LD Organization -->
   <script type="application/ld+json">
@@ -55,6 +77,51 @@
       "target": "https://sahar-conseil.fr/?q={search_term_string}",
       "query-input": "required name=search_term_string"
     }
+  }
+  </script>
+
+  <!-- JSON-LD LocalBusiness (GEO SEO) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "ProfessionalService",
+    "name": "SAHAR Conseil",
+    "url": "https://sahar-conseil.fr",
+    "logo": "https://sahar-conseil.fr/og-image.png",
+    "image": "https://sahar-conseil.fr/og-image.png",
+    "description": "Cabinet de conseil en exploitation des données publiques françaises (DVF, DPE ADEME, INSEE) pour les professionnels de l'immobilier, de l'énergie et du retail.",
+    "areaServed": {
+      "@type": "Country",
+      "name": "France"
+    },
+    "serviceType": ["Analyse de données immobilières", "Scoring DPE ADEME", "Données INSEE retail", "Conseil open data"],
+    "priceRange": "€€",
+    "email": "contact@sahar-conseil.fr",
+    "foundingDate": "2025",
+    "knowsLanguage": "fr",
+    "hasOfferCatalog": {
+      "@type": "OfferCatalog",
+      "name": "Suite d'outils open data",
+      "itemListElement": [
+        {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "DVF Analyse", "description": "Analyse des mutations immobilières DGFiP"}},
+        {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "DPE Scanner", "description": "Exploration du registre DPE ADEME commune par commune"}},
+        {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Zone Score Retail", "description": "Scoring attractivité commerciale INSEE/SIRENE"}}
+      ]
+    }
+  }
+  </script>
+
+  <!-- JSON-LD BreadcrumbList -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {"@type": "ListItem", "position": 1, "name": "Accueil", "item": "https://sahar-conseil.fr/"},
+      {"@type": "ListItem", "position": 2, "name": "Outils", "item": "https://sahar-conseil.fr/#outils"},
+      {"@type": "ListItem", "position": 3, "name": "Blog", "item": "https://sahar-conseil.fr/blog/"},
+      {"@type": "ListItem", "position": 4, "name": "Contact", "item": "https://sahar-conseil.fr/#contact"}
+    ]
   }
   </script>
 
@@ -93,6 +160,8 @@
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="dns-prefetch" href="https://cdn.jsdelivr.net" />
+  <link rel="dns-prefetch" href="https://ylrrcbklufshebcizgus.supabase.co" />
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet" />
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -1374,19 +1443,152 @@
       transform: translateY(0);
     }
 
+    /* ===== HAMBURGER MENU ===== */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 8px;
+      z-index: 200;
+      border-radius: 8px;
+      transition: background 0.2s;
+    }
+    .hamburger:hover { background: rgba(255,255,255,0.05); }
+    .hamburger span {
+      display: block;
+      width: 24px;
+      height: 2px;
+      background: var(--text-white);
+      border-radius: 2px;
+      transition: all 0.3s ease;
+      transform-origin: center;
+    }
+    .hamburger.active span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger.active span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+    .hamburger.active span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    /* Mobile nav overlay */
+    .mobile-nav-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 150;
+      backdrop-filter: blur(4px);
+    }
+    .mobile-nav-overlay.active { display: block; }
+
+    .mobile-nav-drawer {
+      position: fixed;
+      top: 0;
+      right: -320px;
+      width: 300px;
+      height: 100dvh;
+      background: #0f0f14;
+      border-left: 1px solid var(--border-color);
+      z-index: 160;
+      transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      flex-direction: column;
+      padding: 5rem 2rem 2rem;
+      gap: 0.5rem;
+      overflow-y: auto;
+    }
+    .mobile-nav-drawer.active { right: 0; }
+    .mobile-nav-drawer a {
+      color: var(--text-white);
+      text-decoration: none;
+      font-size: 1.1rem;
+      font-weight: 500;
+      padding: 1rem 1.2rem;
+      border-radius: 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .mobile-nav-drawer a:hover, .mobile-nav-drawer a:focus {
+      background: rgba(0,220,130,0.08);
+      color: var(--accent-green);
+    }
+    .mobile-nav-drawer .mobile-nav-cta {
+      margin-top: 1rem;
+      background: var(--accent-green);
+      color: #000 !important;
+      font-weight: 700;
+      text-align: center;
+      justify-content: center;
+      border-radius: 100px;
+      border: none;
+    }
+    .mobile-nav-drawer .mobile-nav-compte {
+      font-size: 0.95rem;
+      color: rgba(255,255,255,0.6) !important;
+      border: 1px solid rgba(255,255,255,0.1);
+      margin-top: 0.5rem;
+    }
+    .mobile-nav-close {
+      position: absolute;
+      top: 1.2rem;
+      right: 1.2rem;
+      background: rgba(255,255,255,0.05);
+      border: none;
+      color: var(--text-white);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      font-size: 1.1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+    .mobile-nav-close:hover { background: rgba(255,255,255,0.1); }
+
     @media (max-width: 768px) {
-      nav { flex-direction: column; gap: 1rem; padding: 1rem 5%; }
+      nav {
+        padding: 1rem 4%;
+        flex-wrap: nowrap;
+        justify-content: space-between;
+      }
       .nav-links { display: none; }
-      .hero { flex-direction: column; min-height: auto; padding: 3rem 5%; }
+      .nav-actions { display: none; }
+      .hamburger { display: flex; }
+
+      .hero { flex-direction: column; min-height: auto; padding: 3rem 4%; gap: 2rem; }
       .hero-visual { display: none; }
-      h1 { font-size: clamp(1.8rem, 5vw, 2.8rem); }
+      h1 { font-size: clamp(1.8rem, 7vw, 2.8rem); }
+      .hero > p { font-size: 1rem; }
+      .hero-actions { flex-direction: column; gap: 0.75rem; }
+      .hero-actions a { text-align: center; }
+
+      section { padding: 3rem 4%; }
+      .section-header { margin-bottom: 2rem; }
+
       .tools-grid { grid-template-columns: 1fr; }
       .rapport-content { flex-direction: column; }
       .rapport-features { grid-template-columns: 1fr; }
       .pricing-grid { grid-template-columns: 1fr; }
       .steps { gap: 1.8rem; }
       .video-banners { grid-template-columns: 1fr; }
+      .sectors-grid { grid-template-columns: repeat(2, 1fr); }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
       footer { grid-template-columns: 1fr; text-align: center; }
+      .footer-links { flex-wrap: wrap; justify-content: center; }
+      .blog-cards { gap: 0.75rem; }
+      .blog-podcast-grid { gap: 1.5rem; }
+      .gating-inner { flex-direction: column; text-align: center; gap: 1rem; }
+    }
+
+    @media (max-width: 480px) {
+      .sectors-grid { grid-template-columns: 1fr; }
+      .stats-grid { grid-template-columns: 1fr; }
+      .pricing-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -1394,18 +1596,35 @@
 
 <!-- NAV -->
 <nav>
-  <a href="index.html" class="nav-logo" onclick="if(location.pathname.endsWith('index.html')||location.pathname==='/'||location.pathname.endsWith('site_final.html')){event.preventDefault();window.scrollTo({top:0,behavior:'smooth'});}">SAHAR</a>
+  <a href="/" class="nav-logo" onclick="if(location.pathname.endsWith('index.html')||location.pathname==='/'||location.pathname.endsWith('site_final.html')){event.preventDefault();window.scrollTo({top:0,behavior:'smooth'});}">SAHAR</a>
   <ul class="nav-links">
     <li><a href="#outils">Outils</a></li>
     <li><a href="#rapport">Rapport</a></li>
     <li><a href="#secteurs">Secteurs</a></li>
-    <li><a href="#blog">Blog & Podcast</a></li>
+    <li><a href="#blog">Blog &amp; Podcast</a></li>
     <li><a href="#contact">Contact</a></li>
   </ul>
   <div class="nav-actions">
     <a href="compte.html" class="nav-compte" id="nav-compte-link">Mon espace</a>
     <a href="#contact" class="nav-cta">Nous contacter</a>
   </div>
+  <!-- Hamburger (mobile) -->
+  <button class="hamburger" id="hamburger-btn" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="mobile-drawer">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- Mobile nav drawer -->
+<div class="mobile-nav-overlay" id="mobile-overlay" aria-hidden="true"></div>
+<nav class="mobile-nav-drawer" id="mobile-drawer" aria-label="Menu mobile">
+  <button class="mobile-nav-close" id="mobile-close" aria-label="Fermer le menu">✕</button>
+  <a href="#outils" class="mobile-nav-link">📊 Outils</a>
+  <a href="#rapport" class="mobile-nav-link">📄 Rapport</a>
+  <a href="#secteurs" class="mobile-nav-link">🏙️ Secteurs</a>
+  <a href="#blog" class="mobile-nav-link">📰 Blog &amp; Podcast</a>
+  <a href="#contact" class="mobile-nav-link">✉️ Contact</a>
+  <a href="compte.html" class="mobile-nav-compte" id="mobile-compte-link">👤 Mon espace</a>
+  <a href="#contact" class="mobile-nav-cta">Nous contacter →</a>
 </nav>
 
 <!-- HERO -->
@@ -1750,13 +1969,13 @@
 <section id="blog" class="blog-podcast-section">
   <div class="section-header">
     <div class="section-label">Contenus</div>
-    <h2 class="section-title">Comprendre l'open data : blog & podcast</h2>
+    <h2 class="section-title">Comprendre l'open data : blog &amp; podcast</h2>
     <p class="section-sub">Analyses de données, guides pratiques et cas d'usage concrets — pour savoir exactement ce que valent les données publiques dans votre secteur.</p>
   </div>
   <div class="blog-podcast-grid">
     <div>
       <div class="blog-cards">
-        <a href="blog/prix-immobilier-2026-villes-qui-montent.html" class="blog-card" aria-label="Lire l'article : Prix immobilier 2026 — les villes qui montent">
+        <a href="blog/" class="blog-card" aria-label="Lire l'article : Prix immobilier 2026 — les villes qui montent">
           <div class="blog-card-emoji" role="img" aria-hidden="true" style="background:rgba(0,220,130,0.1)">📊</div>
           <div class="blog-card-content">
             <div class="blog-card-tag">Analyse DVF</div>
@@ -1829,9 +2048,14 @@
           </div>
         </div>
       </div>
-      <!-- Spotify embed — remplacer SHOW_ID par ton vrai ID -->
-      <div class="podcast-spotify-embed">
-        <iframe style="border-radius:12px" src="https://open.spotify.com/embed/show/VOTRE_SHOW_ID?utm_source=generator&theme=0" width="100%" height="152" frameborder="0" allowfullscreen allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+      <!-- Spotify podcast card — mettre à jour avec l'ID du show quand disponible -->
+      <div class="podcast-spotify-embed" style="background:rgba(30,215,96,0.07);border:1px solid rgba(30,215,96,0.2);border-radius:12px;padding:1.5rem;display:flex;align-items:center;gap:1.2rem">
+        <div style="width:52px;height:52px;background:#1DB954;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.5rem">🎙️</div>
+        <div>
+          <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;margin-bottom:.3rem">SAHAR Podcast</div>
+          <div style="font-size:.85rem;color:var(--text-gray);margin-bottom:.75rem">Épisodes à venir — open data, immobilier &amp; données publiques</div>
+          <a href="#contact" style="font-size:.8rem;color:#1DB954;font-weight:600;text-decoration:none;border:1px solid rgba(29,185,84,.3);padding:.3rem .9rem;border-radius:100px">Me notifier →</a>
+        </div>
       </div>
     </div>
   </div>
@@ -1851,7 +2075,7 @@
     <h2 class="section-title">Nous contacter</h2>
     <p class="section-sub">Réponse sous 24h ouvrées.</p>
   </div>
-  <form class="contact-form" id="contact-form" action="https://formspree.io/f/VOTRE_ID_FORMSPREE" method="POST">
+  <form class="contact-form" id="contact-form" action="#" method="POST">
     <!-- Honeypot anti-spam (invisible pour les humains, piège pour les bots) -->
     <div style="position:absolute;left:-9999px;height:0;overflow:hidden" aria-hidden="true">
       <input type="text" name="_gotcha" tabindex="-1" autocomplete="off">
@@ -1916,6 +2140,49 @@
   </div>
 </footer>
 
+<!-- HAMBURGER MENU JS -->
+<script>
+(function(){
+  var btn = document.getElementById('hamburger-btn');
+  var drawer = document.getElementById('mobile-drawer');
+  var overlay = document.getElementById('mobile-overlay');
+  var closeBtn = document.getElementById('mobile-close');
+
+  function openMenu() {
+    btn.classList.add('active');
+    drawer.classList.add('active');
+    overlay.classList.add('active');
+    btn.setAttribute('aria-expanded', 'true');
+    overlay.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeMenu() {
+    btn.classList.remove('active');
+    drawer.classList.remove('active');
+    overlay.classList.remove('active');
+    btn.setAttribute('aria-expanded', 'false');
+    overlay.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  }
+
+  btn.addEventListener('click', function() {
+    if (drawer.classList.contains('active')) closeMenu(); else openMenu();
+  });
+  overlay.addEventListener('click', closeMenu);
+  closeBtn.addEventListener('click', closeMenu);
+
+  // Close on link click
+  drawer.querySelectorAll('a').forEach(function(a) {
+    a.addEventListener('click', closeMenu);
+  });
+
+  // Close on Escape
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeMenu();
+  });
+})();
+</script>
+
 <!-- GA4 Event Tracking & Interactions -->
 <script>
 (function(){
@@ -1965,30 +2232,63 @@
     });
   });
 
-  // Honeypot anti-bot : bloque la soumission si le champ caché est rempli
+  // Contact form — submission via Supabase (no Formspree needed)
   var contactForm = document.getElementById('contact-form');
   if(contactForm){
-    contactForm.addEventListener('submit', function(e){
+    contactForm.addEventListener('submit', async function(e){
+      e.preventDefault();
+      // Anti-bot honeypot
       var trap = contactForm.querySelector('[name="_gotcha"]');
-      if(trap && trap.value !== ''){
-        e.preventDefault();
-        return false;
+      if(trap && trap.value !== '') return false;
+
+      var submitBtn = contactForm.querySelector('[type="submit"]');
+      var origText = submitBtn ? submitBtn.textContent : '';
+      if(submitBtn){ submitBtn.textContent = 'Envoi en cours…'; submitBtn.disabled = true; }
+
+      var fd = new FormData(contactForm);
+      var payload = {
+        nom: fd.get('nom') || '',
+        email: fd.get('email') || '',
+        secteur: fd.get('secteur') || '',
+        message: fd.get('message') || '',
+        source: 'site_contact',
+        consentement_rgpd: !!fd.get('consentement_rgpd'),
+        created_at: new Date().toISOString()
+      };
+
+      try {
+        var SUPA_URL = 'https://ylrrcbklufshebcizgus.supabase.co';
+        var SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlscnJjYmtsdWZzaGViY2l6Z3VzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1NjQzNTEsImV4cCI6MjA5MDE0MDM1MX0.KQjvB5aePbmCcrAu9yYKoIblDG0ui90LXa-DcL7HAEA';
+        var res = await fetch(SUPA_URL + '/rest/v1/sahar_leads', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': SUPA_ANON,
+            'Authorization': 'Bearer ' + SUPA_ANON,
+            'Prefer': 'return=minimal'
+          },
+          body: JSON.stringify(payload)
+        });
+        if(res.ok || res.status === 201){
+          contactForm.innerHTML = '<div style="text-align:center;padding:3rem 2rem"><div style="font-size:2.5rem;margin-bottom:1rem">✅</div><h3 style="font-family:Space Grotesk,sans-serif;font-size:1.4rem;margin-bottom:0.75rem">Message reçu !</h3><p style="color:var(--text-gray)">Nous vous recontacterons sous 24h ouvrées.</p></div>';
+          if(typeof gtag === 'function') gtag('event','generate_lead',{event_category:'conversion',event_label:'contact_form'});
+        } else {
+          throw new Error('HTTP ' + res.status);
+        }
+      } catch(err) {
+        console.error('[SAHAR] Form error:', err);
+        if(submitBtn){ submitBtn.textContent = origText; submitBtn.disabled = false; }
+        var errDiv = contactForm.querySelector('.form-error');
+        if(!errDiv){
+          errDiv = document.createElement('p');
+          errDiv.className = 'form-error';
+          errDiv.style.cssText = 'color:#FF6B6B;text-align:center;margin-top:1rem;font-size:.9rem';
+          contactForm.appendChild(errDiv);
+        }
+        errDiv.textContent = 'Une erreur est survenue. Envoyez un email à contact@sahar-conseil.fr';
       }
     });
   }
-
-  // Track form submissions (GA4 — ne s'exécute que si consentement donné)
-  var forms = document.querySelectorAll('form');
-  forms.forEach(function(f){
-    f.addEventListener('submit', function(){
-      if(typeof gtag === 'function'){
-        gtag('event', 'generate_lead', {
-          event_category: 'conversion',
-          event_label: 'contact_form'
-        });
-      }
-    });
-  });
 
   // Track scroll depth
   var s25=false,s50=false,s75=false;
