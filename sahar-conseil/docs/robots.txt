@@ -2,6 +2,7 @@ User-agent: *
 Allow: /
 Disallow: /_assets/
 Disallow: /404.html
+Disallow: /admin/
 
 # Sitemap
 Sitemap: https://sahar-conseil.fr/sitemap.xml

@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>SAHAR — Back-office Admin</title>
+<meta name="robots" content="noindex, nofollow">
+<!-- Google Identity Services -->
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+:root {
+  --bg: #0D0D0D;
+  --bg2: #141414;
+  --bg3: #1A1A1A;
+  --border: #2A2A2A;
+  --green: #00DC82;
+  --green-dim: #00DC8222;
+  --text: #F0F0F0;
+  --text-gray: #888;
+  --red: #FF6B6B;
+  --orange: #FFB347;
+  --blue: #4A9EFF;
+  --font: 'Inter', system-ui, sans-serif;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:var(--font); background:var(--bg); color:var(--text); min-height:100vh; }
+
+/* ── LOGIN ── */
+#login-screen {
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  min-height:100vh; gap:2rem;
+}
+#login-screen h1 { font-size:2rem; font-weight:700; }
+#login-screen h1 span { color:var(--green); }
+#login-screen p { color:var(--text-gray); font-size:.95rem; }
+#login-error { color:var(--red); font-size:.9rem; display:none; }
+
+/* ── APP ── */
+#app { display:none; }
+header {
+  position:sticky; top:0; z-index:100;
+  background:var(--bg2); border-bottom:1px solid var(--border);
+  display:flex; align-items:center; justify-content:space-between;
+  padding:.75rem 1.5rem; gap:1rem;
+}
+header .logo { font-weight:700; font-size:1.1rem; }
+header .logo span { color:var(--green); }
+header .user-info { display:flex; align-items:center; gap:.75rem; font-size:.85rem; color:var(--text-gray); }
+header .user-info img { width:28px; height:28px; border-radius:50%; }
+header .btn-logout {
+  background:none; border:1px solid var(--border); color:var(--text-gray);
+  padding:.3rem .75rem; border-radius:6px; cursor:pointer; font-size:.8rem;
+  transition:border-color .2s;
+}
+header .btn-logout:hover { border-color:var(--red); color:var(--red); }
+
+nav {
+  display:flex; gap:.25rem; padding:.5rem 1.5rem;
+  background:var(--bg2); border-bottom:1px solid var(--border);
+  overflow-x:auto; white-space:nowrap;
+}
+nav button {
+  background:none; border:none; color:var(--text-gray); padding:.5rem 1rem;
+  border-radius:6px; cursor:pointer; font-size:.85rem; transition:all .15s;
+}
+nav button:hover { background:var(--bg3); color:var(--text); }
+nav button.active { background:var(--green-dim); color:var(--green); }
+
+main { padding:1.5rem; max-width:1400px; margin:0 auto; }
+
+/* ── SECTIONS ── */
+.section { display:none; }
+.section.active { display:block; }
+
+/* ── STATS STRIP ── */
+.stats-strip {
+  display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:1rem;
+  margin-bottom:1.5rem;
+}
+.stat-card {
+  background:var(--bg2); border:1px solid var(--border); border-radius:12px;
+  padding:1rem 1.25rem;
+}
+.stat-card .val { font-size:1.8rem; font-weight:700; color:var(--green); }
+.stat-card .label { font-size:.8rem; color:var(--text-gray); margin-top:.25rem; }
+
+/* ── TABLE ── */
+.table-toolbar {
+  display:flex; gap:.75rem; margin-bottom:1rem; flex-wrap:wrap; align-items:center;
+}
+.table-toolbar input, .table-toolbar select {
+  background:var(--bg2); border:1px solid var(--border); color:var(--text);
+  padding:.45rem .75rem; border-radius:8px; font-size:.85rem; outline:none;
+}
+.table-toolbar input:focus, .table-toolbar select:focus { border-color:var(--green); }
+.table-wrap { overflow-x:auto; border-radius:12px; border:1px solid var(--border); }
+table { width:100%; border-collapse:collapse; font-size:.85rem; }
+th {
+  background:var(--bg3); color:var(--text-gray); text-align:left;
+  padding:.75rem 1rem; font-weight:600; white-space:nowrap;
+  border-bottom:1px solid var(--border);
+}
+td {
+  padding:.7rem 1rem; border-bottom:1px solid var(--border);
+  vertical-align:middle;
+}
+tr:last-child td { border-bottom:none; }
+tr:hover td { background:var(--bg3); }
+
+.badge {
+  display:inline-block; padding:.2rem .6rem; border-radius:100px;
+  font-size:.75rem; font-weight:600;
+}
+.badge-nouveau { background:#1A2A1A; color:var(--green); }
+.badge-contacte { background:#1A1A2A; color:var(--blue); }
+.badge-rdv { background:#2A2A1A; color:var(--orange); }
+.badge-perdu { background:#2A1A1A; color:var(--red); }
+.badge-gagne { background:#0D2A1A; color:#00FF99; }
+
+select.statut-select {
+  background:var(--bg3); border:1px solid var(--border); color:var(--text);
+  padding:.2rem .5rem; border-radius:6px; font-size:.78rem; cursor:pointer;
+}
+
+/* ── KANBAN ── */
+.kanban { display:flex; gap:1rem; overflow-x:auto; padding-bottom:1rem; }
+.kanban-col {
+  min-width:220px; background:var(--bg2); border:1px solid var(--border);
+  border-radius:12px; padding:1rem; flex-shrink:0;
+}
+.kanban-col h3 {
+  font-size:.85rem; font-weight:600; color:var(--text-gray);
+  margin-bottom:.75rem; display:flex; justify-content:space-between;
+}
+.kanban-col h3 .count {
+  background:var(--bg3); color:var(--green); padding:.1rem .5rem;
+  border-radius:100px; font-size:.75rem;
+}
+.kanban-card {
+  background:var(--bg3); border:1px solid var(--border); border-radius:8px;
+  padding:.75rem; margin-bottom:.5rem; cursor:pointer; transition:border-color .15s;
+}
+.kanban-card:hover { border-color:var(--green); }
+.kanban-card .name { font-weight:600; font-size:.88rem; margin-bottom:.25rem; }
+.kanban-card .meta { font-size:.78rem; color:var(--text-gray); }
+.kanban-card .sect { font-size:.75rem; color:var(--green); margin-top:.25rem; }
+
+/* ── EMAIL ── */
+.email-composer {
+  background:var(--bg2); border:1px solid var(--border); border-radius:12px;
+  padding:1.5rem; max-width:700px;
+}
+.form-group { margin-bottom:1rem; }
+.form-group label { display:block; font-size:.82rem; color:var(--text-gray); margin-bottom:.4rem; }
+.form-group input, .form-group textarea, .form-group select {
+  width:100%; background:var(--bg3); border:1px solid var(--border); color:var(--text);
+  padding:.6rem .9rem; border-radius:8px; font-size:.88rem; outline:none; font-family:inherit;
+}
+.form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+  border-color:var(--green);
+}
+.form-group textarea { resize:vertical; min-height:120px; }
+
+.btn {
+  padding:.55rem 1.25rem; border-radius:8px; border:none; cursor:pointer;
+  font-size:.85rem; font-weight:600; transition:all .15s;
+}
+.btn-primary { background:var(--green); color:#000; }
+.btn-primary:hover { background:#00FF99; }
+.btn-primary:disabled { background:#333; color:var(--text-gray); cursor:not-allowed; }
+.btn-outline { background:none; border:1px solid var(--border); color:var(--text); }
+.btn-outline:hover { border-color:var(--green); }
+
+/* ── TOAST ── */
+#toast {
+  position:fixed; bottom:1.5rem; right:1.5rem; z-index:999;
+  background:var(--bg3); border:1px solid var(--green); color:var(--text);
+  padding:.75rem 1.25rem; border-radius:10px; font-size:.88rem;
+  opacity:0; transition:opacity .3s; pointer-events:none;
+}
+#toast.show { opacity:1; }
+
+/* ── LOADER ── */
+.spinner {
+  width:36px; height:36px; border:3px solid var(--border);
+  border-top-color:var(--green); border-radius:50%;
+  animation:spin .8s linear infinite; margin:3rem auto;
+}
+@keyframes spin { to { transform:rotate(360deg); } }
+.empty-state { text-align:center; padding:3rem; color:var(--text-gray); }
+
+/* ── SECTION TITLE ── */
+.section-title {
+  font-size:1.2rem; font-weight:700; margin-bottom:1.25rem;
+  display:flex; align-items:center; gap:.75rem;
+}
+.section-title .icon { font-size:1.1rem; }
+</style>
+</head>
+<body>
+
+<!-- ══════════════ LOGIN ══════════════ -->
+<div id="login-screen">
+  <div style="text-align:center">
+    <div style="font-size:2.5rem;margin-bottom:.5rem">⚙️</div>
+    <h1><span>SAHAR</span> Back-office</h1>
+    <p style="margin-top:.5rem">Accès restreint — connexion Google requise</p>
+  </div>
+  <div id="g_id_onload"
+    data-client_id="GOOGLE_CLIENT_ID_PLACEHOLDER"
+    data-callback="handleGoogleLogin"
+    data-auto_prompt="false">
+  </div>
+  <div class="g_id_signin"
+    data-type="standard"
+    data-theme="filled_black"
+    data-text="signin_with"
+    data-shape="pill"
+    data-logo_alignment="left">
+  </div>
+  <p id="login-error">❌ Accès refusé. Compte Google non autorisé.</p>
+</div>
+
+<!-- ══════════════ APP ══════════════ -->
+<div id="app">
+  <header>
+    <div class="logo">⚙️ <span>SAHAR</span> Admin</div>
+    <div class="user-info">
+      <img id="user-avatar" src="" alt="">
+      <span id="user-name"></span>
+      <button class="btn-logout" onclick="logout()">Déconnexion</button>
+    </div>
+  </header>
+
+  <nav>
+    <button class="active" onclick="showSection('dashboard',this)">📊 Dashboard</button>
+    <button onclick="showSection('leads',this)">👥 Leads</button>
+    <button onclick="showSection('kanban',this)">📋 Pipeline</button>
+    <button onclick="showSection('email',this)">✉️ Emailing</button>
+  </nav>
+
+  <main>
+
+    <!-- ── DASHBOARD ── -->
+    <div id="section-dashboard" class="section active">
+      <div class="section-title"><span class="icon">📊</span> Vue d'ensemble</div>
+      <div class="stats-strip" id="stats-strip">
+        <div class="stat-card"><div class="val" id="stat-total">—</div><div class="label">Leads total</div></div>
+        <div class="stat-card"><div class="val" id="stat-nouveau">—</div><div class="label">Nouveaux</div></div>
+        <div class="stat-card"><div class="val" id="stat-contacte">—</div><div class="label">Contactés</div></div>
+        <div class="stat-card"><div class="val" id="stat-rdv">—</div><div class="label">RDV</div></div>
+        <div class="stat-card"><div class="val" id="stat-gagne">—</div><div class="label">Gagnés</div></div>
+      </div>
+      <div class="section-title" style="margin-top:1.5rem"><span class="icon">🕐</span> Derniers leads</div>
+      <div id="recent-leads-wrap"></div>
+    </div>
+
+    <!-- ── LEADS ── -->
+    <div id="section-leads" class="section">
+      <div class="section-title"><span class="icon">👥</span> Tous les leads</div>
+      <div class="table-toolbar">
+        <input type="search" id="leads-search" placeholder="🔍 Rechercher nom, email…" oninput="filterLeads()">
+        <select id="leads-filter-statut" onchange="filterLeads()">
+          <option value="">Tous statuts</option>
+          <option value="nouveau">Nouveau</option>
+          <option value="contacte">Contacté</option>
+          <option value="rdv">RDV</option>
+          <option value="devis">Devis</option>
+          <option value="gagne">Gagné</option>
+          <option value="perdu">Perdu</option>
+        </select>
+        <select id="leads-filter-secteur" onchange="filterLeads()">
+          <option value="">Tous secteurs</option>
+          <option value="Immobilier">Immobilier</option>
+          <option value="Énergie / Rénovation">Énergie</option>
+          <option value="Retail / Franchise">Retail</option>
+          <option value="Automobile">Automobile</option>
+          <option value="RH / Recrutement">RH</option>
+        </select>
+        <button class="btn btn-outline" onclick="loadLeads()">↻ Rafraîchir</button>
+      </div>
+      <div id="leads-table-wrap">
+        <div class="spinner"></div>
+      </div>
+    </div>
+
+    <!-- ── KANBAN ── -->
+    <div id="section-kanban" class="section">
+      <div class="section-title"><span class="icon">📋</span> Pipeline commercial</div>
+      <div class="kanban" id="kanban-board">
+        <div class="spinner"></div>
+      </div>
+    </div>
+
+    <!-- ── EMAIL ── -->
+    <div id="section-email" class="section">
+      <div class="section-title"><span class="icon">✉️</span> Envoyer un email</div>
+      <div class="email-composer">
+        <div class="form-group">
+          <label>Destinataire</label>
+          <select id="email-to-select" onchange="prefillEmail()">
+            <option value="">— Choisir un lead —</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="email-to" placeholder="destinataire@email.com">
+        </div>
+        <div class="form-group">
+          <label>Nom</label>
+          <input type="text" id="email-nom" placeholder="Prénom Nom">
+        </div>
+        <div class="form-group">
+          <label>Template</label>
+          <select id="email-template" onchange="applyTemplate()">
+            <option value="">— Email libre —</option>
+            <option value="j0">J+0 — Confirmation de réception</option>
+            <option value="j3">J+3 — Relance douce</option>
+            <option value="j7">J+7 — Contenu valeur (DVF/DPE)</option>
+            <option value="custom">Email personnalisé</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Sujet</label>
+          <input type="text" id="email-subject" placeholder="Sujet de l'email">
+        </div>
+        <div class="form-group">
+          <label>Corps du message (HTML autorisé)</label>
+          <textarea id="email-body" placeholder="Votre message…"></textarea>
+        </div>
+        <div style="display:flex;gap:.75rem;margin-top:.5rem">
+          <button class="btn btn-primary" onclick="sendEmail()" id="btn-send">Envoyer →</button>
+          <span id="email-status" style="font-size:.85rem;color:var(--text-gray);align-self:center"></span>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════
+// CONFIG
+// ══════════════════════════════════════════
+const ALLOWED_EMAILS = ['tristan.alba@yahoo.fr'];
+
+const SUPA_URL  = 'https://ylrrcbklufshebcizgus.supabase.co';
+const SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlscnJjYmtsdWZzaGViY2l6Z3VzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1NjQzNTEsImV4cCI6MjA5MDE0MDM1MX0.KQjvB5aePbmCcrAu9yYKoIblDG0ui90LXa-DcL7HAEA';
+
+const SEND_EMAIL_FN = 'https://ylrrcbklufshebcizgus.supabase.co/functions/v1/send-email';
+
+const STAGES = ['nouveau','contacté','rdv','devis','gagne','perdu'];
+const STAGE_LABELS = { nouveau:'🆕 Nouveau', contacté:'📞 Contacté', rdv:'📅 RDV', devis:'📄 Devis', gagne:'✅ Gagné', perdu:'❌ Perdu' };
+
+let allLeads = [];
+let googleToken = null;
+
+// ══════════════════════════════════════════
+// AUTH
+// ══════════════════════════════════════════
+function handleGoogleLogin(response) {
+  const payload = parseJwt(response.credential);
+  const email = payload.email;
+
+  if (!ALLOWED_EMAILS.includes(email)) {
+    document.getElementById('login-error').style.display = 'block';
+    return;
+  }
+
+  googleToken = response.credential;
+  document.getElementById('user-name').textContent = payload.name || email;
+  const avatar = document.getElementById('user-avatar');
+  if (payload.picture) { avatar.src = payload.picture; } else { avatar.style.display='none'; }
+
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+
+  loadAll();
+}
+
+function parseJwt(token) {
+  const base64 = token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/');
+  return JSON.parse(atob(base64));
+}
+
+function logout() {
+  googleToken = null;
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+  if (window.google?.accounts?.id) google.accounts.id.disableAutoSelect();
+}
+
+// ══════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════
+function showSection(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById('section-' + id).classList.add('active');
+  btn.classList.add('active');
+
+  if (id === 'kanban') renderKanban();
+  if (id === 'email') populateEmailSelect();
+}
+
+// ══════════════════════════════════════════
+// SUPABASE HELPERS
+// ══════════════════════════════════════════
+async function supa(path, method='GET', body=null) {
+  const opts = {
+    method,
+    headers: {
+      'apikey': SUPA_ANON,
+      'Authorization': 'Bearer ' + SUPA_ANON,
+      'Content-Type': 'application/json',
+      'Prefer': method === 'GET' ? 'return=representation' : 'return=minimal'
+    }
+  };
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(SUPA_URL + '/rest/v1/' + path, opts);
+  if (!res.ok) throw new Error(await res.text());
+  const text = await res.text();
+  return text ? JSON.parse(text) : null;
+}
+
+// ══════════════════════════════════════════
+// LOAD ALL DATA
+// ══════════════════════════════════════════
+async function loadAll() {
+  await loadLeads();
+}
+
+async function loadLeads() {
+  try {
+    const data = await supa('sahar_leads?order=created_at.desc&limit=200');
+    allLeads = data || [];
+    updateStats();
+    renderLeadsTable(allLeads);
+    populateEmailSelect();
+    renderRecentLeads();
+  } catch(e) {
+    console.error(e);
+    document.getElementById('leads-table-wrap').innerHTML =
+      '<div class="empty-state">⚠️ Erreur chargement leads : ' + e.message + '</div>';
+  }
+}
+
+// ══════════════════════════════════════════
+// STATS
+// ══════════════════════════════════════════
+function updateStats() {
+  const statuts = allLeads.map(l => l.statut || 'nouveau');
+  document.getElementById('stat-total').textContent = allLeads.length;
+  document.getElementById('stat-nouveau').textContent = statuts.filter(s=>s==='nouveau').length;
+  document.getElementById('stat-contacte').textContent = statuts.filter(s=>s==='contacte'||s==='contacté').length;
+  document.getElementById('stat-rdv').textContent = statuts.filter(s=>s==='rdv').length;
+  document.getElementById('stat-gagne').textContent = statuts.filter(s=>s==='gagne'||s==='gagné').length;
+}
+
+function renderRecentLeads() {
+  const recent = allLeads.slice(0, 5);
+  const wrap = document.getElementById('recent-leads-wrap');
+  if (!recent.length) { wrap.innerHTML='<div class="empty-state">Aucun lead</div>'; return; }
+  wrap.innerHTML = `<div class="table-wrap"><table>
+    <thead><tr><th>Nom</th><th>Email</th><th>Secteur</th><th>Statut</th><th>Date</th></tr></thead>
+    <tbody>${recent.map(l => leadRow(l)).join('')}</tbody>
+  </table></div>`;
+}
+
+// ══════════════════════════════════════════
+// LEADS TABLE
+// ══════════════════════════════════════════
+function leadRow(l) {
+  const d = l.created_at ? new Date(l.created_at).toLocaleDateString('fr-FR') : '—';
+  const statut = l.statut || 'nouveau';
+  return `<tr>
+    <td><strong>${esc(l.nom||'—')}</strong></td>
+    <td><a href="mailto:${esc(l.email)}" style="color:var(--green);text-decoration:none">${esc(l.email||'—')}</a></td>
+    <td>${esc(l.secteur||'—')}</td>
+    <td>
+      <select class="statut-select" data-id="${l.id}" onchange="updateStatut(this)">
+        ${['nouveau','contacte','rdv','devis','gagne','perdu'].map(s =>
+          `<option value="${s}" ${statut===s?'selected':''}>${s.charAt(0).toUpperCase()+s.slice(1)}</option>`
+        ).join('')}
+      </select>
+    </td>
+    <td style="color:var(--text-gray)">${d}</td>
+  </tr>`;
+}
+
+function renderLeadsTable(leads) {
+  const wrap = document.getElementById('leads-table-wrap');
+  if (!leads.length) {
+    wrap.innerHTML = '<div class="empty-state">Aucun lead trouvé</div>';
+    return;
+  }
+  wrap.innerHTML = `<div class="table-wrap"><table>
+    <thead><tr><th>Nom</th><th>Email</th><th>Secteur</th><th>Message</th><th>Statut</th><th>Date</th></tr></thead>
+    <tbody>${leads.map(l => {
+      const d = l.created_at ? new Date(l.created_at).toLocaleDateString('fr-FR') : '—';
+      const statut = l.statut || 'nouveau';
+      return `<tr>
+        <td><strong>${esc(l.nom||'—')}</strong></td>
+        <td><a href="mailto:${esc(l.email)}" style="color:var(--green);text-decoration:none">${esc(l.email||'—')}</a></td>
+        <td>${esc(l.secteur||'—')}</td>
+        <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text-gray)"
+            title="${esc(l.message||'')}">
+          ${esc(l.message||'—')}
+        </td>
+        <td>
+          <select class="statut-select" data-id="${l.id}" onchange="updateStatut(this)">
+            ${['nouveau','contacte','rdv','devis','gagne','perdu'].map(s =>
+              `<option value="${s}" ${statut===s?'selected':''}>${s.charAt(0).toUpperCase()+s.slice(1)}</option>`
+            ).join('')}
+          </select>
+        </td>
+        <td style="color:var(--text-gray)">${d}</td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table></div>`;
+}
+
+function filterLeads() {
+  const q = document.getElementById('leads-search').value.toLowerCase();
+  const statut = document.getElementById('leads-filter-statut').value;
+  const secteur = document.getElementById('leads-filter-secteur').value;
+  const filtered = allLeads.filter(l => {
+    const matchQ = !q || (l.nom||'').toLowerCase().includes(q) || (l.email||'').toLowerCase().includes(q);
+    const matchS = !statut || (l.statut||'nouveau') === statut;
+    const matchSect = !secteur || (l.secteur||'') === secteur;
+    return matchQ && matchS && matchSect;
+  });
+  renderLeadsTable(filtered);
+}
+
+async function updateStatut(sel) {
+  const id = sel.dataset.id;
+  const statut = sel.value;
+  try {
+    await supa('sahar_leads?id=eq.' + encodeURIComponent(id), 'PATCH', { statut });
+    const lead = allLeads.find(l => l.id === id);
+    if (lead) lead.statut = statut;
+    updateStats();
+    toast('✅ Statut mis à jour');
+  } catch(e) {
+    toast('❌ Erreur : ' + e.message);
+    await loadLeads();
+  }
+}
+
+// ══════════════════════════════════════════
+// KANBAN
+// ══════════════════════════════════════════
+function renderKanban() {
+  const cols = ['nouveau','contacte','rdv','devis','gagne','perdu'];
+  const labels = {
+    nouveau:'🆕 Nouveau', contacte:'📞 Contacté', rdv:'📅 RDV',
+    devis:'📄 Devis', gagne:'✅ Gagné', perdu:'❌ Perdu'
+  };
+  const board = document.getElementById('kanban-board');
+  if (!allLeads.length) {
+    board.innerHTML = '<div class="empty-state">Aucun lead</div>';
+    return;
+  }
+  board.innerHTML = cols.map(col => {
+    const cards = allLeads.filter(l => (l.statut||'nouveau') === col);
+    return `<div class="kanban-col">
+      <h3>${labels[col]} <span class="count">${cards.length}</span></h3>
+      ${cards.length ? cards.map(l => `
+        <div class="kanban-card">
+          <div class="name">${esc(l.nom||'Anonyme')}</div>
+          <div class="meta">${esc(l.email||'')}</div>
+          ${l.secteur ? `<div class="sect">${esc(l.secteur)}</div>` : ''}
+        </div>
+      `).join('') : '<div style="color:var(--text-gray);font-size:.8rem;text-align:center;padding:.5rem">Vide</div>'}
+    </div>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════
+// EMAIL
+// ══════════════════════════════════════════
+const TEMPLATES = {
+  j0: {
+    subject: 'Votre demande a bien été reçue — SAHAR Conseil',
+    body: `Bonjour {nom},<br><br>
+Merci pour votre message ! Nous l'avons bien reçu et vous recontacterons sous 24h ouvrées.<br><br>
+En attendant, n'hésitez pas à explorer nos analyses sur <a href="https://sahar-conseil.fr">sahar-conseil.fr</a>.<br><br>
+Cordialement,<br>
+<strong>L'équipe SAHAR Conseil</strong>`
+  },
+  j3: {
+    subject: 'Avez-vous eu le temps de réfléchir ? — SAHAR Conseil',
+    body: `Bonjour {nom},<br><br>
+Je me permets de reprendre contact suite à votre demande de la semaine dernière.<br><br>
+Avez-vous des questions ou souhaitez-vous planifier un appel de 15 minutes pour échanger sur vos besoins en données ?<br><br>
+<a href="https://sahar-conseil.fr/#contact">Prendre rendez-vous →</a><br><br>
+Cordialement,<br>
+<strong>Tristan — SAHAR Conseil</strong>`
+  },
+  j7: {
+    subject: 'Données DVF & DPE gratuites pour votre secteur',
+    body: `Bonjour {nom},<br><br>
+Pour vous aider dans votre réflexion, voici les ressources gratuites que nous avons préparées :<br><br>
+📊 <a href="https://sahar-conseil.fr/blog/prix-immobilier-2026-villes-qui-montent.html">Prix immobilier 2026 — les villes qui montent</a><br><br>
+Ces données sont extraites directement de DVF et des certificats DPE ADEME — sans filtre, sans intermédiaire.<br><br>
+Vous souhaitez une analyse sur votre zone ? Répondez simplement à cet email.<br><br>
+Cordialement,<br>
+<strong>Tristan — SAHAR Conseil</strong>`
+  }
+};
+
+function populateEmailSelect() {
+  const sel = document.getElementById('email-to-select');
+  sel.innerHTML = '<option value="">— Choisir un lead —</option>' +
+    allLeads.map(l => `<option value="${esc(l.email)}" data-nom="${esc(l.nom||'')}">${esc(l.nom||l.email)} — ${esc(l.email)}</option>`).join('');
+}
+
+function prefillEmail() {
+  const sel = document.getElementById('email-to-select');
+  const opt = sel.options[sel.selectedIndex];
+  if (opt.value) {
+    document.getElementById('email-to').value = opt.value;
+    document.getElementById('email-nom').value = opt.dataset.nom || '';
+  }
+}
+
+function applyTemplate() {
+  const tpl = document.getElementById('email-template').value;
+  const nom = document.getElementById('email-nom').value || 'là';
+  if (TEMPLATES[tpl]) {
+    document.getElementById('email-subject').value = TEMPLATES[tpl].subject;
+    document.getElementById('email-body').value = TEMPLATES[tpl].body.replace('{nom}', nom.split(' ')[0]);
+  }
+}
+
+async function sendEmail() {
+  const to = document.getElementById('email-to').value;
+  const nom = document.getElementById('email-nom').value || to;
+  const subject = document.getElementById('email-subject').value;
+  const body = document.getElementById('email-body').value;
+  const btn = document.getElementById('btn-send');
+  const status = document.getElementById('email-status');
+
+  if (!to || !subject || !body) { toast('⚠️ Remplissez tous les champs'); return; }
+
+  btn.disabled = true;
+  btn.textContent = 'Envoi…';
+  status.textContent = '';
+
+  try {
+    const res = await fetch(SEND_EMAIL_FN, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-google-token': googleToken
+      },
+      body: JSON.stringify({ to, nom, subject, body })
+    });
+    const data = await res.json();
+    if (res.ok && data.ok) {
+      toast('✅ Email envoyé à ' + to);
+      status.textContent = '✅ Envoyé';
+      document.getElementById('email-subject').value = '';
+      document.getElementById('email-body').value = '';
+      document.getElementById('email-template').value = '';
+    } else {
+      throw new Error(data.error || 'Erreur envoi');
+    }
+  } catch(e) {
+    toast('❌ ' + e.message);
+    status.textContent = '❌ Échec';
+  }
+  btn.disabled = false;
+  btn.textContent = 'Envoyer →';
+}
+
+// ══════════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════════
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function toast(msg, duration=3000) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), duration);
+}
+</script>
+</body>
+</html>
