@@ -1,0 +1,32 @@
+# This file specifies files that are *not* uploaded to Google Cloud Platform
+# using gcloud. It follows the same rules as .gitignore, with the addition of
+# "#!include" directives (which insert rules from other files) and "#!exclude"
+# directives (which reverse inclusivity of a rule in this file).
+
+# If you would like to exclude files from the app while keeping them in git, use
+# .gitignore instead
+
+node_modules/
+.git
+.github
+npm-debug.log
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Build
+dist/
+build/
+
+# Tests
+test/
+*.test.js
+coverage/
+
+# Docs
+README.md
+docs/
