@@ -128,41 +128,44 @@
   <!-- dataLayer disponible avant tout -->
   <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}</script>
   <!-- tarteaucitron CMP — GA4 ne se charge qu'après consentement explicite -->
-  <script src="https://cdn.jsdelivr.net/npm/tarteaucitron@1.16.0/tarteaucitron.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/tarteaucitron@1.16.0/tarteaucitron.js"></script>
   <script>
-  tarteaucitron.init({
-    "privacyUrl": "politique-confidentialite.html",
-    "hashtag": "#tarteaucitron",
-    "cookieName": "tarteaucitron",
-    "orientation": "bottom",
-    "groupServices": false,
-    "showAlertSmall": false,
-    "cookieslist": true,
-    "closePopup": false,
-    "showIcon": true,
-    "iconPosition": "BottomRight",
-    "adblocker": false,
-    "DenyAllCta": true,
-    "AcceptAllCta": true,
-    "highPrivacy": true,
-    "handleBrowserDNTRequest": false,
-    "removeCredit": false,
-    "moreInfoLink": true,
-    "useExternalCss": false,
-    "useExternalJs": false,
-    "readmoreLink": "politique-confidentialite.html",
-    "mandatory": true,
-    "mandatoryCookies": []
+  document.addEventListener('DOMContentLoaded', function() {
+    tarteaucitron.init({
+      "privacyUrl": "politique-confidentialite.html",
+      "hashtag": "#tarteaucitron",
+      "cookieName": "tarteaucitron",
+      "orientation": "bottom",
+      "groupServices": false,
+      "showAlertSmall": false,
+      "cookieslist": true,
+      "closePopup": false,
+      "showIcon": true,
+      "iconPosition": "BottomRight",
+      "adblocker": false,
+      "DenyAllCta": true,
+      "AcceptAllCta": true,
+      "highPrivacy": true,
+      "handleBrowserDNTRequest": false,
+      "removeCredit": false,
+      "moreInfoLink": true,
+      "useExternalCss": false,
+      "useExternalJs": false,
+      "readmoreLink": "politique-confidentialite.html",
+      "mandatory": true,
+      "mandatoryCookies": []
+    });
+    tarteaucitron.user.gtagUa = 'G-XV2P0YPJK0';
+    tarteaucitron.user.gtagMore = function() {};
+    (tarteaucitron.job = tarteaucitron.job || []).push('gtag');
   });
-  tarteaucitron.user.gtagUa = 'G-XV2P0YPJK0';
-  tarteaucitron.user.gtagMore = function() {};
-  (tarteaucitron.job = tarteaucitron.job || []).push('gtag');
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="dns-prefetch" href="https://cdn.jsdelivr.net" />
   <link rel="dns-prefetch" href="https://ylrrcbklufshebcizgus.supabase.co" />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500&display=swap" onload="this.onload=null;this.rel='stylesheet'" />
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500&display=swap" /></noscript>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     :root {
@@ -2314,8 +2317,9 @@
 </script>
 
 <!-- SUPABASE AUTH + CONTENT GATING -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
+document.addEventListener('DOMContentLoaded', function() {
 (async function() {
   try {
     const SUPA_URL = 'https://ylrrcbklufshebcizgus.supabase.co';
@@ -2342,6 +2346,7 @@
     console.warn('[SAHAR] Auth init error:', e.message);
   }
 })();
+});
 </script>
 
 </body>
