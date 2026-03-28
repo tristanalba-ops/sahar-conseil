@@ -22,7 +22,22 @@ from reportlab.graphics.shapes import Drawing, Rect, String, Circle, Line, Wedge
 from reportlab.graphics import renderPDF
 from reportlab.graphics.charts.barcharts import VerticalBarChart
 from reportlab.graphics.charts.piecharts import Pie
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
 
+# ── Enregistrement police Poppins (ronde, moderne) ──────────────────────────
+_FONT_DIR = "/usr/share/fonts/truetype/google-fonts"
+pdfmetrics.registerFont(TTFont("Poppins",       f"{_FONT_DIR}/Poppins-Regular.ttf"))
+pdfmetrics.registerFont(TTFont("Poppins-Bold",   f"{_FONT_DIR}/Poppins-Bold.ttf"))
+pdfmetrics.registerFont(TTFont("Poppins-Medium", f"{_FONT_DIR}/Poppins-Medium.ttf"))
+pdfmetrics.registerFont(TTFont("Poppins-Italic", f"{_FONT_DIR}/Poppins-Italic.ttf"))
+pdfmetrics.registerFontFamily(
+    "Poppins",
+    normal="Poppins",
+    bold="Poppins-Bold",
+    italic="Poppins-Italic",
+    boldItalic="Poppins-Bold",
+)
 
 # ── Palette SAHAR — Brand Identity ────────────────────────────────────────────
 # Primaire : vert SAHAR #00DC82, fond sombre #0D0D0D
@@ -62,84 +77,84 @@ def _styles():
     # Couverture
     s["cover_title"] = ParagraphStyle(
         "cover_title", parent=base["Normal"],
-        fontName="Helvetica-Bold", fontSize=28,
+        fontName="Poppins-Bold", fontSize=28,
         textColor=BLANC, leading=34, spaceAfter=6
     )
     s["cover_sub"] = ParagraphStyle(
         "cover_sub", parent=base["Normal"],
-        fontName="Helvetica", fontSize=14,
+        fontName="Poppins", fontSize=14,
         textColor=colors.HexColor("#A0A0A0"), leading=18
     )
     s["cover_date"] = ParagraphStyle(
         "cover_date", parent=base["Normal"],
-        fontName="Helvetica", fontSize=10,
+        fontName="Poppins", fontSize=10,
         textColor=colors.HexColor("#707070"), leading=13
     )
 
     # Contenu
     s["h1"] = ParagraphStyle(
         "h1", parent=base["Normal"],
-        fontName="Helvetica-Bold", fontSize=16,
+        fontName="Poppins-Bold", fontSize=16,
         textColor=DARK_3, leading=20, spaceBefore=4, spaceAfter=8
     )
     s["h2"] = ParagraphStyle(
         "h2", parent=base["Normal"],
-        fontName="Helvetica-Bold", fontSize=12,
+        fontName="Poppins-Bold", fontSize=12,
         textColor=SAHAR_GREEN_D, leading=16, spaceBefore=10, spaceAfter=4
     )
     s["h3"] = ParagraphStyle(
         "h3", parent=base["Normal"],
-        fontName="Helvetica-Bold", fontSize=10,
+        fontName="Poppins-Bold", fontSize=10,
         textColor=SAHAR_GREEN_D, leading=13, spaceBefore=6, spaceAfter=3
     )
     s["body"] = ParagraphStyle(
         "body", parent=base["Normal"],
-        fontName="Helvetica", fontSize=9,
+        fontName="Poppins", fontSize=9,
         textColor=NOIR, leading=13
     )
     s["body_bold"] = ParagraphStyle(
         "body_bold", parent=base["Normal"],
-        fontName="Helvetica-Bold", fontSize=9,
+        fontName="Poppins-Bold", fontSize=9,
         textColor=NOIR, leading=13
     )
     s["small"] = ParagraphStyle(
         "small", parent=base["Normal"],
-        fontName="Helvetica", fontSize=7.5,
+        fontName="Poppins", fontSize=7.5,
         textColor=GRIS_B, leading=10
     )
     s["caption"] = ParagraphStyle(
         "caption", parent=base["Normal"],
-        fontName="Helvetica-Oblique", fontSize=7.5,
+        fontName="Poppins-Italic", fontSize=7.5,
         textColor=GRIS_B, leading=10
     )
     s["kpi_val"] = ParagraphStyle(
         "kpi_val", parent=base["Normal"],
-        fontName="Helvetica-Bold", fontSize=20,
+        fontName="Poppins-Bold", fontSize=20,
         textColor=SAHAR_GREEN_D, alignment=TA_CENTER, leading=24
     )
     s["kpi_label"] = ParagraphStyle(
         "kpi_label", parent=base["Normal"],
-        fontName="Helvetica", fontSize=7.5,
+        fontName="Poppins", fontSize=7.5,
         textColor=GRIS_B, alignment=TA_CENTER, leading=10
     )
     s["footer"] = ParagraphStyle(
         "footer", parent=base["Normal"],
-        fontName="Helvetica", fontSize=6.5,
+        fontName="Poppins", fontSize=6.5,
         textColor=GRIS_B, alignment=TA_CENTER
     )
     s["reco_title"] = ParagraphStyle(
         "reco_title", parent=base["Normal"],
-        fontName="Helvetica-Bold", fontSize=11,
+        fontName="Poppins-Bold", fontSize=11,
         textColor=BLANC, leading=14, alignment=TA_LEFT
     )
     s["reco_body"] = ParagraphStyle(
         "reco_body", parent=base["Normal"],
-        fontName="Helvetica", fontSize=9,
+        fontName="Poppins", fontSize=9,
         textColor=NOIR, leading=13
     )
     s["badge"] = ParagraphStyle(
         "badge", parent=base["Normal"],
-        fontName="Helvetica-Bold", fontSize=9,
+        fontName="Poppins-Bold", fontSize=9,
         textColor=BLANC, alignment=TA_CENTER, leading=12
     )
     return s
@@ -230,9 +245,9 @@ def _draw_score_gauge(score: int, size: int = 80) -> Drawing:
 
     # Score text
     sc = _color_score(score)
-    d.add(String(cx, cy - 12, f"{score}", fontSize=18, fontName="Helvetica-Bold",
+    d.add(String(cx, cy - 12, f"{score}", fontSize=18, fontName="Poppins-Bold",
                  fillColor=sc, textAnchor="middle"))
-    d.add(String(cx, cy - 22, "/100", fontSize=8, fontName="Helvetica",
+    d.add(String(cx, cy - 22, "/100", fontSize=8, fontName="Poppins",
                  fillColor=GRIS_B, textAnchor="middle"))
     return d
 
@@ -250,8 +265,8 @@ def _draw_bar_compare(val_commune, val_dept, label_c="Commune", label_d="Departe
     y1, y2 = height - 14, height - 30
 
     # Labels
-    d.add(String(0, y1 + 2, label_c, fontSize=7, fontName="Helvetica", fillColor=NOIR))
-    d.add(String(0, y2 + 2, label_d, fontSize=7, fontName="Helvetica", fillColor=GRIS_B))
+    d.add(String(0, y1 + 2, label_c, fontSize=7, fontName="Poppins", fillColor=NOIR))
+    d.add(String(0, y2 + 2, label_d, fontSize=7, fontName="Poppins", fillColor=GRIS_B))
 
     x_start = 70
     bar_w = width - x_start - 50
@@ -260,13 +275,13 @@ def _draw_bar_compare(val_commune, val_dept, label_c="Commune", label_d="Departe
     w1 = bar_w * min((val_commune or 0) / max_val, 1)
     d.add(Rect(x_start, y1, w1, bar_h, fillColor=SAHAR_GREEN_D, strokeColor=None))
     d.add(String(x_start + w1 + 3, y1 + 1, _fmt(val_commune),
-                 fontSize=7, fontName="Helvetica-Bold", fillColor=SAHAR_GREEN_D))
+                 fontSize=7, fontName="Poppins-Bold", fillColor=SAHAR_GREEN_D))
 
     # Dept bar
     w2 = bar_w * min((val_dept or 0) / max_val, 1)
     d.add(Rect(x_start, y2, w2, bar_h, fillColor=GRIS_M, strokeColor=None))
     d.add(String(x_start + w2 + 3, y2 + 1, _fmt(val_dept),
-                 fontSize=7, fontName="Helvetica", fillColor=GRIS_B))
+                 fontSize=7, fontName="Poppins", fillColor=GRIS_B))
 
     return d
 
@@ -378,22 +393,22 @@ def generer_rapport_commune(
 
     # Title
     cover_content.append(Paragraph("Rapport d'analyse", ParagraphStyle(
-        "ct1", fontName="Helvetica", fontSize=14,
+        "ct1", fontName="Poppins", fontSize=14,
         textColor=SAHAR_GREEN, alignment=TA_CENTER, leading=18
     )))
     cover_content.append(Spacer(1, 3*mm))
     cover_content.append(Paragraph("de marche immobilier", ParagraphStyle(
-        "ct2", fontName="Helvetica", fontSize=14,
+        "ct2", fontName="Poppins", fontSize=14,
         textColor=SAHAR_GREEN, alignment=TA_CENTER, leading=18
     )))
     cover_content.append(Spacer(1, 8*mm))
     cover_content.append(Paragraph(commune.upper(), ParagraphStyle(
-        "ct3", fontName="Helvetica-Bold", fontSize=32,
+        "ct3", fontName="Poppins-Bold", fontSize=32,
         textColor=BLANC, alignment=TA_CENTER, leading=38
     )))
     cover_content.append(Spacer(1, 3*mm))
     cover_content.append(Paragraph(f"Departement {dept}", ParagraphStyle(
-        "ct4", fontName="Helvetica", fontSize=14,
+        "ct4", fontName="Poppins", fontSize=14,
         textColor=colors.HexColor("#A0A0A0"), alignment=TA_CENTER, leading=18
     )))
     cover_content.append(Spacer(1, 15*mm))
@@ -401,12 +416,12 @@ def generer_rapport_commune(
     # Score badge on cover
     score_bg = _color_score(score)
     cover_content.append(Paragraph(f"Score marche : {score}/100", ParagraphStyle(
-        "ct5", fontName="Helvetica-Bold", fontSize=16,
+        "ct5", fontName="Poppins-Bold", fontSize=16,
         textColor=BLANC, alignment=TA_CENTER, leading=20
     )))
     cover_content.append(Spacer(1, 3*mm))
     cover_content.append(Paragraph(signal, ParagraphStyle(
-        "ct6", fontName="Helvetica", fontSize=12,
+        "ct6", fontName="Poppins", fontSize=12,
         textColor=colors.HexColor("#A0A0A0"), alignment=TA_CENTER, leading=16
     )))
     cover_content.append(Spacer(1, 30*mm))
@@ -415,16 +430,16 @@ def generer_rapport_commune(
     cover_content.append(HRFlowable(width=USABLE_W * 0.6, thickness=0.5,
                                      color=SAHAR_GREEN, spaceAfter=6))
     cover_content.append(Paragraph("SAHAR Conseil", ParagraphStyle(
-        "ct7", fontName="Helvetica-Bold", fontSize=12,
+        "ct7", fontName="Poppins-Bold", fontSize=12,
         textColor=BLANC, alignment=TA_CENTER, leading=15
     )))
     cover_content.append(Paragraph("sahar-conseil.fr", ParagraphStyle(
-        "ct8", fontName="Helvetica", fontSize=9,
+        "ct8", fontName="Poppins", fontSize=9,
         textColor=SAHAR_GREEN, alignment=TA_CENTER, leading=12
     )))
     cover_content.append(Spacer(1, 4*mm))
     cover_content.append(Paragraph(f"Rapport genere le {date_str}", ParagraphStyle(
-        "ct9", fontName="Helvetica", fontSize=8,
+        "ct9", fontName="Poppins", fontSize=8,
         textColor=colors.HexColor("#707070"), alignment=TA_CENTER, leading=11
     )))
 
@@ -465,7 +480,7 @@ def generer_rapport_commune(
     kpi_cells = []
     for val, label, col in kpi_items:
         cell_content = Table([
-            [Paragraph(val, ParagraphStyle("kv", fontName="Helvetica-Bold",
+            [Paragraph(val, ParagraphStyle("kv", fontName="Poppins-Bold",
                                             fontSize=18, textColor=col,
                                             alignment=TA_CENTER, leading=22))],
             [Paragraph(label, S["kpi_label"])],
@@ -491,7 +506,7 @@ def generer_rapport_commune(
     # Indice de confiance
     conf_badge = Table([[
         Paragraph(f"<b>Indice de fiabilite :</b> {conf_label}", ParagraphStyle(
-            "conf", fontName="Helvetica", fontSize=9, textColor=conf_color, leading=12
+            "conf", fontName="Poppins", fontSize=9, textColor=conf_color, leading=12
         )),
         Paragraph(conf_expl, S["small"]),
     ]], colWidths=[USABLE_W * 0.35, USABLE_W * 0.65])
@@ -511,7 +526,7 @@ def generer_rapport_commune(
 
     signal_row = Table([[
         Paragraph(f"<b>Signal de marche :</b> {signal}", ParagraphStyle(
-            "sig", fontName="Helvetica-Bold", fontSize=10, textColor=signal_color, leading=14
+            "sig", fontName="Poppins-Bold", fontSize=10, textColor=signal_color, leading=14
         )),
     ]], colWidths=[USABLE_W])
     signal_row.setStyle(TableStyle([
