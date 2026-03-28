@@ -392,6 +392,8 @@
       background: linear-gradient(135deg, rgba(74,124,89,0.7), rgba(91,127,165,0.7));
       transition: all 0.4s ease;
       cursor: pointer;
+      background-size: cover;
+      background-position: center;
     }
 
     .video-banner:hover {
@@ -409,6 +411,16 @@
       z-index: 1;
     }
 
+    .video-banner-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(74,124,89,0.5), rgba(91,127,165,0.5));
+      z-index: 1;
+    }
+
     .video-banner-icon, .video-banner-title, .video-banner-tag {
       position: relative;
       z-index: 2;
@@ -423,6 +435,133 @@
     }
 
     .video-banner-tag { font-size: 0.9rem; opacity: 0.9; }
+
+    /* IMAGE GALLERY STRIP */
+    .image-gallery {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+      margin: 4rem 0;
+    }
+
+    .gallery-img {
+      position: relative;
+      height: 200px;
+      border-radius: 12px;
+      overflow: hidden;
+      background: var(--border);
+    }
+
+    .gallery-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s ease;
+    }
+
+    .gallery-img:hover img {
+      transform: scale(1.05);
+    }
+
+    /* HISTOIRE SECTION */
+    .histoire-section {
+      position: relative;
+      background: linear-gradient(135deg, rgba(74,124,89,0.15), rgba(74,124,89,0.08));
+      border-radius: 20px;
+      overflow: hidden;
+      padding: 6rem 4rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+    }
+
+    .histoire-bg-image {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 55%;
+      height: 100%;
+      background-image: url('https://images.unsplash.com/photo-1486325212027-8081e485255e?w=1200&q=80');
+      background-size: cover;
+      background-position: center;
+      z-index: 0;
+    }
+
+    .histoire-overlay {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 55%;
+      height: 100%;
+      background: linear-gradient(90deg, rgba(250,250,248,0) 0%, rgba(250,250,248,1) 40%);
+      z-index: 1;
+    }
+
+    .histoire-content {
+      position: relative;
+      z-index: 2;
+      max-width: 500px;
+    }
+
+    .histoire-content h2 {
+      font-size: 2.5rem;
+      margin-bottom: 2rem;
+      line-height: 1.1;
+    }
+
+    .histoire-etymology {
+      background: var(--white);
+      border-left: 4px solid var(--accent);
+      padding: 2rem;
+      margin-bottom: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+    }
+
+    .histoire-etymology-word {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.8rem;
+      color: var(--accent);
+      font-weight: 400;
+      margin-bottom: 0.5rem;
+    }
+
+    .histoire-etymology-meaning {
+      color: var(--text-light);
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    .histoire-content p {
+      color: var(--text-light);
+      font-size: 0.95rem;
+      line-height: 1.8;
+      margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 768px) {
+      .histoire-section {
+        grid-template-columns: 1fr;
+        padding: 4rem 2rem;
+      }
+
+      .histoire-bg-image {
+        position: relative;
+        width: 100%;
+        height: 250px;
+        margin-bottom: 2rem;
+      }
+
+      .histoire-overlay {
+        width: 100%;
+        background: none;
+      }
+
+      .image-gallery {
+        grid-template-columns: 1fr;
+      }
+    }
 
     /* RAPPORT SHOWCASE */
     .rapport-section {
@@ -476,6 +615,24 @@
       padding: 2.5rem 2rem;
       text-align: center;
       transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .sector-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, rgba(74,124,89,0.04), rgba(91,127,165,0.04));
+      z-index: 0;
+    }
+
+    .sector-card > * {
+      position: relative;
+      z-index: 1;
     }
 
     .sector-card:hover {
@@ -967,6 +1124,21 @@
   </div>
 </section>
 
+<!-- IMAGE GALLERY -->
+<section class="reveal">
+  <div class="image-gallery">
+    <div class="gallery-img">
+      <img src="https://images.unsplash.com/photo-1486325212027-8081e485255e?w=600&q=80" alt="Aerial city view" />
+    </div>
+    <div class="gallery-img">
+      <img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=600&q=80" alt="Modern buildings" />
+    </div>
+    <div class="gallery-img">
+      <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&q=80" alt="Data visualization" />
+    </div>
+  </div>
+</section>
+
 <!-- VIDEO SECTION -->
 <section class="video-section reveal">
   <div class="section-header">
@@ -974,26 +1146,20 @@
     <h2 class="section-title">Solutions par secteur</h2>
   </div>
   <div class="video-banners">
-    <a href="#contact" class="video-banner reveal">
-      <video autoplay muted loop playsinline style="z-index: 0;">
-        <source src="https://videos.pexels.com/video-files/3571264/3571264-sd_640_360_30fps.mp4" type="video/mp4">
-      </video>
+    <a href="#contact" class="video-banner reveal" style="background-image: url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=600&q=80');">
+      <div class="video-banner-overlay"></div>
       <div class="video-banner-icon">🏠</div>
       <div class="video-banner-title">Immobilier</div>
       <div class="video-banner-tag">Estimer avec confiance</div>
     </a>
-    <a href="#contact" class="video-banner reveal">
-      <video autoplay muted loop playsinline style="z-index: 0;">
-        <source src="https://videos.pexels.com/video-files/856958/856958-sd_640_360_25fps.mp4" type="video/mp4">
-      </video>
+    <a href="#contact" class="video-banner reveal" style="background-image: url('https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&q=80');">
+      <div class="video-banner-overlay"></div>
       <div class="video-banner-icon">⚡</div>
       <div class="video-banner-title">Énergie</div>
       <div class="video-banner-tag">Identifier les passoires</div>
     </a>
-    <a href="#contact" class="video-banner reveal">
-      <video autoplay muted loop playsinline style="z-index: 0;">
-        <source src="https://videos.pexels.com/video-files/3255275/3255275-sd_640_360_25fps.mp4" type="video/mp4">
-      </video>
+    <a href="#contact" class="video-banner reveal" style="background-image: url('https://images.unsplash.com/photo-1486325212027-8081e485255e?w=600&q=80');">
+      <div class="video-banner-overlay"></div>
       <div class="video-banner-icon">🏪</div>
       <div class="video-banner-title">Retail</div>
       <div class="video-banner-tag">Localiser les zones</div>
@@ -1232,6 +1398,31 @@
       <div class="podcast-spotify-embed">
         <iframe style="border-radius:12px" src="https://open.spotify.com/embed/show/VOTRE_SHOW_ID?utm_source=generator&theme=0" width="100%" height="152" frameborder="0" allowfullscreen allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
       </div>
+    </div>
+  </div>
+</section>
+
+<!-- NOTRE HISTOIRE -->
+<section class="reveal">
+  <div class="histoire-section">
+    <div class="histoire-bg-image"></div>
+    <div class="histoire-overlay"></div>
+    <div class="histoire-content">
+      <h2>Notre histoire.<br>L'aube, deux fois.</h2>
+
+      <div class="histoire-etymology">
+        <div class="histoire-etymology-word">SAHAR (سحر)</div>
+        <div class="histoire-etymology-meaning">signifie "l'aube" en arabe — le moment précis où la lumière commence à percer l'obscurité. C'est exactement ce que nous faisons : nous révélons ce que les données publiques cachent au premier regard.</div>
+      </div>
+
+      <div class="histoire-etymology">
+        <div class="histoire-etymology-word">Alba</div>
+        <div class="histoire-etymology-meaning">le nom de famille du fondateur, signifie aussi "l'aube" en latin, en espagnol et en italien. Cette double étymologie n'est pas un hasard — c'est une mission.</div>
+      </div>
+
+      <p><strong>Tristan Alba</strong> a fondé SAHAR Conseil à Bordeaux avec une conviction : les données publiques françaises sont une mine d'or inexploitée. DVF, DPE, SIRENE, INSEE — des millions de données accessibles à tous, mais lisibles par personne.</p>
+
+      <p>SAHAR les transforme en outils d'aide à la décision concrets pour les professionnels de l'immobilier, de l'énergie, du retail et du recrutement. Pas de data labs complexes. Pas de dépendance à des consultants. Juste des réponses claires, en 30 secondes.</p>
     </div>
   </div>
 </section>
