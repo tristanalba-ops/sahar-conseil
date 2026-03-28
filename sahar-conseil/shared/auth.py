@@ -77,3 +77,9 @@ def deconnecter():
     """Réinitialise l'état d'authentification."""
     st.session_state.pop("_sahar_auth_ok", None)
     st.rerun()
+
+
+# Alias pour compatibilité avec app.py
+def check_password() -> bool:
+    """Alias de verifier_acces() — authentification par mot de passe (clé 'password' dans secrets)."""
+    return verifier_acces(cle_secret="password", message="🔐 Back-office SAHAR")
