@@ -14,7 +14,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 
   <style>
@@ -56,7 +56,7 @@
       border-bottom: 1px solid var(--border);
     }
     .nav-logo {
-      font-family: 'Playfair Display', serif;
+      font-family: 'Space Grotesk', sans-serif;
       font-size: 1.3rem;
       color: var(--green);
       text-decoration: none;
@@ -566,7 +566,11 @@
 
 <nav>
   <a href="index.html" class="nav-logo">SAHAR</a>
-  <a href="index.html" class="nav-back">← Retour au site</a>
+  <div style="display:flex;align-items:center;gap:1.5rem">
+    <a href="index.html#outils" class="nav-back" style="color:rgba(255,255,255,.55);font-size:.875rem;text-decoration:none;transition:color .2s">Outils</a>
+    <a href="index.html#contact" class="nav-back" style="color:rgba(255,255,255,.55);font-size:.875rem;text-decoration:none;transition:color .2s">Contact</a>
+  </div>
+  <a href="index.html" class="nav-back" style="font-size:.875rem;text-decoration:none;transition:color .2s">&#x2190; Retour au site</a>
 </nav>
 
 <main>
@@ -837,5 +841,24 @@
     else if (document.getElementById('panel-register').classList.contains('active')) doRegister();
   });
 </script>
+
+<footer style="background:#0d0d0d;color:#A0A0A0;padding:2.5rem 5%;border-top:1px solid rgba(255,255,255,0.08);display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:2rem;max-width:1400px;margin:0 auto;">
+  <div>
+    <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.1rem;color:#00DC82;margin-bottom:.5rem;">SAHAR Conseil</div>
+    <p style="font-size:.85rem;opacity:.8">Open data &#x2192; d&#xE9;cisions professionnelles</p>
+  </div>
+  <ul style="display:flex;flex-direction:column;gap:.8rem;list-style:none;">
+    <li><a href="index.html#outils" style="color:#A0A0A0;text-decoration:none;font-size:.85rem;transition:color .2s">Outils</a></li>
+    <li><a href="blog/" style="color:#A0A0A0;text-decoration:none;font-size:.85rem">Blog</a></li>
+    <li><a href="index.html#contact" style="color:#A0A0A0;text-decoration:none;font-size:.85rem">Contact</a></li>
+    <li><a href="mentions-legales.html" style="color:#A0A0A0;text-decoration:none;font-size:.85rem">Mentions l&#xE9;gales</a></li>
+    <li><a href="politique-confidentialite.html" style="color:#A0A0A0;text-decoration:none;font-size:.85rem">Confidentialit&#xE9;</a></li>
+    <li><a href="cgu.html" style="color:#A0A0A0;text-decoration:none;font-size:.85rem">CGU</a></li>
+    <li><a href="cgv.html" style="color:#A0A0A0;text-decoration:none;font-size:.85rem">CGV</a></li>
+  </ul>
+  <div style="font-size:.8rem;opacity:.6">
+    <p>&#xA9; 2025-2026 SAHAR Conseil</p>
+  </div>
+</footer>
 </body>
 </html>
