@@ -1929,8 +1929,12 @@
     }
   });
 
+  // Auto-add reveal class FIRST, then observe all at once
+  document.querySelectorAll('section, .tool-card, .sector-card, .price-card').forEach(function(el){
+    el.classList.add('reveal');
+  });
+
   // Reveal animations on scroll
-  var reveals = document.querySelectorAll('.reveal');
   var observer = new IntersectionObserver(function(entries){
     entries.forEach(function(entry){
       if(entry.isIntersecting){
@@ -1938,14 +1942,16 @@
         observer.unobserve(entry.target);
       }
     });
-  }, { threshold: 0.1 });
+  }, { threshold: 0.08, rootMargin: '0px 0px -20px 0px' });
 
-  reveals.forEach(function(el){ observer.observe(el); });
-
-  // Auto-add reveal class to sections and cards
-  var sections = document.querySelectorAll('section, .tool-card, .sector-card, .price-card');
-  sections.forEach(function(el){
-    el.classList.add('reveal');
+  // Observe all .reveal elements + force-visible those already in viewport at load
+  document.querySelectorAll('.reveal').forEach(function(el){
+    var rect = el.getBoundingClientRect();
+    if(rect.top < window.innerHeight && rect.bottom > 0){
+      el.classList.add('visible'); // already in viewport on load
+    } else {
+      observer.observe(el);
+    }
   });
 
   // Track CTA clicks
