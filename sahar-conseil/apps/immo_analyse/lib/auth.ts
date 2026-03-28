@@ -4,7 +4,7 @@ import { createClient } from "@supabase/supabase-js";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
 export const authOptions: NextAuthOptions = {
@@ -31,41 +31,10 @@ export const authOptions: NextAuthOptions = {
             throw new Error("Invalid credentials");
           }
 
-          // Fetch user profile from database
-          const { data: profile, error: profileError } = await supabase
-            .from("user_profiles")
-            .select("*")
-            .eq("user_id", data.user.id)
-            .single();
-
-          if (profileError) {
-            // Create profile if doesn't exist
-            const { data: newProfile } = await supabase
-              .from("user_profiles")
-              .insert([
-                {
-                  user_id: data.user.id,
-                  email: data.user.email,
-                  first_name: "",
-                  last_name: "",
-                  created_at: new Date().toISOString(),
-                },
-              ])
-              .select()
-              .single();
-
-            return {
-              id: data.user.id,
-              email: data.user.email,
-              name: newProfile?.first_name || "User",
-              access_token: data.session?.access_token,
-            };
-          }
-
           return {
             id: data.user.id,
             email: data.user.email,
-            name: profile?.first_name || "User",
+            name: data.user.user_metadata?.first_name || data.user.email?.split("@")[0] || "User",
             access_token: data.session?.access_token,
           };
         } catch (error) {
