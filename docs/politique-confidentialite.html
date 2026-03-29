@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+  <title>Politique de confidentialité — SAHAR Conseil</title>
+  <meta name="description" content="Politique de confidentialité et gestion des données personnelles de SAHAR Conseil." />
+  <link rel="canonical" href="https://sahar-conseil.fr/politique-confidentialite.html" />
+  <meta name="robots" content="noindex, follow" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    :root{--dark-bg:#0D0D0D;--dark-bg-light:#1A1A2E;--accent-green:#00DC82;--accent:#00DC82;--accent-purple:#7B61FF;--accent-coral:#FF6B6B;--accent-yellow:#FFD166;--text-white:#FFFFFF;--text-gray:#A0A0A0;--border-color:#2A2A3E;--border:#2A2A3E}
+    body{background:var(--dark-bg);color:var(--text-white);font-family:'Inter',sans-serif;line-height:1.7;font-size:1rem}
+    a{color:var(--accent);text-decoration:none}
+    a:hover{text-decoration:underline}
+    main{max-width:760px;margin:0 auto;padding:4rem 2rem 6rem}
+    h1{font-family:'Space Grotesk',sans-serif;font-size:2rem;font-weight:700;margin-bottom:.5rem}
+    .updated{font-size:.8rem;color:var(--text-gray);margin-bottom:3rem}
+    h2{font-family:'Space Grotesk',sans-serif;font-size:1.15rem;font-weight:600;margin:2.5rem 0 .75rem;color:var(--accent)}
+    h3{font-size:1rem;font-weight:600;margin:1.5rem 0 .5rem;color:var(--text-white)}
+    p{margin-bottom:1rem;color:#D0D0D0}
+    ul{margin:.5rem 0 1rem 1.5rem;color:#D0D0D0}
+    li{margin-bottom:.4rem}
+    table{width:100%;border-collapse:collapse;margin:1rem 0 1.5rem;font-size:.875rem}
+    th{background:#1A1A2E;padding:.75rem 1rem;text-align:left;font-weight:600;font-family:'Space Grotesk',sans-serif;border-bottom:1px solid var(--border)}
+    td{padding:.65rem 1rem;border-bottom:1px solid #1E1E2E;color:#D0D0D0}
+    tr:last-child td{border-bottom:none}
+      /* === NAV === */
+    nav{display:flex;align-items:center;justify-content:space-between;padding:1.2rem 5%;background:rgba(13,13,13,0.8);backdrop-filter:blur(10px);border-bottom:1px solid var(--border-color);position:sticky;top:0;z-index:100;transition:all .3s ease}
+    nav.scrolled{box-shadow:0 4px 20px rgba(0,0,0,.5)}
+    .nav-logo{font-family:'Space Grotesk',sans-serif;font-size:1.35rem;font-weight:700;color:var(--accent-green);text-decoration:none;letter-spacing:-.5px}
+    .nav-links{display:flex;gap:2.5rem;list-style:none;align-items:center}
+    .nav-links a{color:var(--text-white);text-decoration:none;font-size:.95rem;transition:color .2s}
+    .nav-links a:hover{color:var(--accent-green)}
+    .nav-actions{display:flex;align-items:center;gap:.75rem}
+    .nav-compte{color:rgba(255,255,255,.75);text-decoration:none;font-size:.875rem;font-weight:500;padding:.5rem 1rem;border:1px solid rgba(255,255,255,.2);border-radius:100px;transition:all .2s}
+    .nav-compte:hover{color:#fff;border-color:rgba(255,255,255,.5);background:rgba(255,255,255,.05)}
+    .nav-cta{background:var(--accent-green)!important;color:#000!important;padding:.6rem 1.5rem!important;border-radius:100px;font-weight:600;font-size:.9rem;transition:all .3s;text-decoration:none}
+    .nav-cta:hover{transform:scale(1.05);box-shadow:0 0 20px rgba(0,220,130,.3)}
+    /* Hamburger */
+    .hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;background:none;border:none;padding:8px;z-index:200;border-radius:8px;transition:background .2s}
+    .hamburger:hover{background:rgba(255,255,255,.05)}
+    .hamburger span{display:block;width:24px;height:2px;background:var(--text-white);border-radius:2px;transition:all .3s ease;transform-origin:center}
+    .hamburger.active span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+    .hamburger.active span:nth-child(2){opacity:0;transform:scaleX(0)}
+    .hamburger.active span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+    /* Mobile overlay */
+    .mobile-nav-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:150;backdrop-filter:blur(4px)}
+    .mobile-nav-overlay.active{display:block}
+    .mobile-nav-drawer{position:fixed;top:0;right:-320px;width:300px;height:100dvh;background:#0f0f14;border-left:1px solid var(--border-color);z-index:160;transition:right .3s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;padding:5rem 2rem 2rem;gap:.5rem;overflow-y:auto}
+    .mobile-nav-drawer.active{right:0}
+    .mobile-nav-drawer a{color:var(--text-white);text-decoration:none;font-size:1.1rem;font-weight:500;padding:1rem 1.2rem;border-radius:10px;border-bottom:1px solid rgba(255,255,255,.05);transition:all .2s;display:flex;align-items:center;gap:.75rem}
+    .mobile-nav-drawer a:hover,.mobile-nav-drawer a:focus{background:rgba(0,220,130,.08);color:var(--accent-green)}
+    .mobile-nav-drawer .mobile-nav-cta{margin-top:1rem;background:var(--accent-green);color:#000!important;font-weight:700;text-align:center;justify-content:center;border-radius:100px;border:none}
+    .mobile-nav-drawer .mobile-nav-compte{font-size:.95rem;color:rgba(255,255,255,.6)!important;border:1px solid rgba(255,255,255,.1);margin-top:.5rem}
+    .mobile-nav-close{position:absolute;top:1.2rem;right:1.2rem;background:rgba(255,255,255,.05);border:none;color:var(--text-white);width:36px;height:36px;border-radius:50%;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s}
+    .mobile-nav-close:hover{background:rgba(255,255,255,.1)}
+    /* Footer */
+    footer{background:var(--dark-bg);color:var(--text-gray);padding:3.5rem 5%;border-top:1px solid var(--border-color);display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:2.5rem;max-width:1400px;margin:0 auto}
+    .footer-logo{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.1rem;color:var(--accent-green);margin-bottom:.5rem}
+    footer>div:first-child>p{font-size:.85rem;opacity:.8}
+    footer p{font-size:.85rem}
+    .footer-links{display:flex;flex-direction:column;gap:.8rem;list-style:none}
+    .footer-links a{color:var(--text-gray);text-decoration:none;font-size:.85rem;transition:color .2s}
+    .footer-links a:hover{color:var(--accent-green)}
+    footer>div:last-child{font-size:.8rem;opacity:.6}
+    /* Responsive */
+    @media(max-width:768px){nav{padding:1rem 4%}.nav-links{display:none}.nav-actions{display:none}.hamburger{display:flex}footer{grid-template-columns:1fr;text-align:center}.footer-links{flex-direction:row;flex-wrap:wrap;justify-content:center}}
+  </style>
+</head>
+<body>
+<nav>
+  <a href="/" class="nav-logo">SAHAR</a>
+  <ul class="nav-links">
+    <li><a href="index.html#outils">Outils</a></li>
+    <li><a href="index.html#rapport">Rapport</a></li>
+    <li><a href="index.html#secteurs">Secteurs</a></li>
+    <li><a href="index.html#blog">Blog &amp; Podcast</a></li>
+    <li><a href="index.html#contact">Contact</a></li>
+  </ul>
+  <div class="nav-actions">
+    <a href="compte.html" class="nav-compte">Mon espace</a>
+    <a href="index.html#contact" class="nav-cta">Nous contacter</a>
+  </div>
+  <button class="hamburger" id="hamburger-btn" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="mobile-drawer">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<div class="mobile-nav-overlay" id="mobile-overlay" aria-hidden="true"></div>
+<nav class="mobile-nav-drawer" id="mobile-drawer" aria-label="Menu mobile">
+  <button class="mobile-nav-close" id="mobile-close" aria-label="Fermer le menu">&#x2715;</button>
+  <a href="index.html#outils" class="mobile-nav-link">&#x1F4CA; Outils</a>
+  <a href="index.html#rapport" class="mobile-nav-link">&#x1F4C4; Rapport</a>
+  <a href="index.html#secteurs" class="mobile-nav-link">&#x1F3D9;&#xFE0F; Secteurs</a>
+  <a href="index.html#blog" class="mobile-nav-link">&#x1F4F0; Blog &amp; Podcast</a>
+  <a href="index.html#contact" class="mobile-nav-link">&#x2709;&#xFE0F; Contact</a>
+  <a href="compte.html" class="mobile-nav-compte">&#x1F464; Mon espace</a>
+  <a href="index.html#contact" class="mobile-nav-cta">Nous contacter &#x2192;</a>
+</nav>
+
+<main>
+  <h1>Politique de confidentialité</h1>
+  <p class="updated">Dernière mise à jour : mars 2026 — Conforme RGPD (Règlement UE 2016/679)</p>
+
+  <h2>1. Responsable du traitement</h2>
+  <p>
+    <strong>SAHAR Conseil</strong> — Tristan Alba<br>
+    Email : <a href="mailto:contact@sahar-conseil.fr">contact@sahar-conseil.fr</a>
+  </p>
+
+  <h2>2. Données collectées et finalités</h2>
+  <table>
+    <thead>
+      <tr><th>Donnée</th><th>Finalité</th><th>Base légale</th><th>Durée</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Nom, email, secteur, message</td>
+        <td>Traitement des demandes de démo ou d'accès</td>
+        <td>Consentement (art. 6.1.a)</td>
+        <td>3 ans à compter du dernier contact</td>
+      </tr>
+      <tr>
+        <td>Données de navigation (GA4)</td>
+        <td>Mesure d'audience, amélioration du site</td>
+        <td>Consentement (art. 6.1.a)</td>
+        <td>13 mois (paramétrage GA4)</td>
+      </tr>
+      <tr>
+        <td>Cookies techniques</td>
+        <td>Fonctionnement du site, mémorisation des préférences cookies</td>
+        <td>Intérêt légitime (art. 6.1.f)</td>
+        <td>6 mois</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>3. Cookies et traceurs</h2>
+  <p>Ce site utilise :</p>
+  <ul>
+    <li><strong>Cookies techniques obligatoires</strong> — nécessaires au fonctionnement du site et à la mémorisation de vos préférences de consentement (tarteaucitron). Pas de consentement requis.</li>
+    <li><strong>Google Analytics 4 (GA4)</strong> — mesure d'audience anonymisée. Chargé uniquement après votre consentement explicite. Vous pouvez retirer votre consentement à tout moment via l'icône cookie en bas de page.</li>
+  </ul>
+  <p>Aucun cookie publicitaire ou de profilage tiers n'est déposé sur ce site.</p>
+
+  <h2>4. Destinataires des données</h2>
+  <p>Vos données ne sont pas vendues ni cédées à des tiers. Elles peuvent être transmises à :</p>
+  <ul>
+    <li><strong>Formspree</strong> (formspree.io) — routage des formulaires de contact</li>
+    <li><strong>Google Ireland Limited</strong> — analytics, si consentement donné (données potentiellement transférées hors UE, sous clauses contractuelles types)</li>
+    <li><strong>Brevo (ex-Sendinblue)</strong> — envoi d'emails transactionnels et marketing, si consentement donné</li>
+  </ul>
+
+  <h2>5. Transferts hors UE</h2>
+  <p>
+    Google Analytics peut transférer des données vers les États-Unis. Ces transferts sont encadrés par les Clauses Contractuelles Types (CCT) de la Commission Européenne. En cas de refus, désactivez GA4 via la bannière de consentement.
+  </p>
+
+  <h2>6. Vos droits</h2>
+  <p>Conformément au RGPD, vous disposez des droits suivants :</p>
+  <ul>
+    <li><strong>Accès</strong> — obtenir une copie de vos données</li>
+    <li><strong>Rectification</strong> — corriger des données inexactes</li>
+    <li><strong>Effacement</strong> — demander la suppression de vos données</li>
+    <li><strong>Opposition</strong> — vous opposer à un traitement basé sur l'intérêt légitime</li>
+    <li><strong>Portabilité</strong> — recevoir vos données dans un format structuré</li>
+    <li><strong>Retrait du consentement</strong> — à tout moment, sans affecter la licéité des traitements antérieurs</li>
+  </ul>
+  <p>Pour exercer vos droits : <a href="mailto:contact@sahar-conseil.fr">contact@sahar-conseil.fr</a> — réponse sous 30 jours.</p>
+  <p>En cas de litige non résolu, vous pouvez saisir la <strong>CNIL</strong> : <a href="https://www.cnil.fr" target="_blank" rel="noopener">cnil.fr</a></p>
+
+  <h2>7. Opposition au démarchage téléphonique (Bloctel)</h2>
+  <p>
+    Si vous ne souhaitez pas être contacté par téléphone dans le cadre de prospection commerciale, vous pouvez vous inscrire gratuitement sur la liste d'opposition au démarchage téléphonique : <a href="https://www.bloctel.gouv.fr" target="_blank" rel="noopener noreferrer">bloctel.gouv.fr</a>
+  </p>
+  <p>SAHAR Conseil s'engage à consulter cette liste avant tout contact téléphonique de prospection.</p>
+
+  <h2>8. Sécurité</h2>
+  <p>
+    SAHAR Conseil met en œuvre des mesures techniques et organisationnelles appropriées pour protéger vos données contre tout accès non autorisé, perte ou divulgation : HTTPS, hébergement sur infrastructure certifiée, accès restreint aux données.
+  </p>
+
+  <h2>9. Modification de la politique</h2>
+  <p>
+    Cette politique peut être mise à jour. La date de dernière révision est indiquée en haut de cette page. Tout changement substantiel fera l'objet d'une information sur le site.
+  </p>
+</main>
+
+<footer>
+  <div>
+    <div class="footer-logo">SAHAR Conseil</div>
+    <p>Open data &#x2192; d&#xE9;cisions professionnelles</p>
+  </div>
+  <ul class="footer-links">
+    <li><a href="index.html#outils">Outils</a></li>
+    <li><a href="blog/">Blog</a></li>
+    <li><a href="compte.html">Mon espace</a></li>
+    <li><a href="index.html#contact">Contact</a></li>
+    <li><a href="mentions-legales.html">Mentions l&#xE9;gales</a></li>
+    <li><a href="politique-confidentialite.html">Confidentialit&#xE9;</a></li>
+    <li><a href="cgu.html">CGU</a></li>
+    <li><a href="cgv.html">CGV</a></li>
+  </ul>
+  <div>
+    <p style="font-size:.75rem;opacity:.6">&#xA9; 2025-2026 SAHAR Conseil</p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var btn=document.getElementById('hamburger-btn');
+  var drawer=document.getElementById('mobile-drawer');
+  var overlay=document.getElementById('mobile-overlay');
+  var closeBtn=document.getElementById('mobile-close');
+  function openMenu(){btn.classList.add('active');drawer.classList.add('active');overlay.classList.add('active');btn.setAttribute('aria-expanded','true');overlay.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';}
+  function closeMenu(){btn.classList.remove('active');drawer.classList.remove('active');overlay.classList.remove('active');btn.setAttribute('aria-expanded','false');overlay.setAttribute('aria-hidden','true');document.body.style.overflow='';}
+  btn.addEventListener('click',function(){if(drawer.classList.contains('active'))closeMenu();else openMenu();});
+  overlay.addEventListener('click',closeMenu);
+  closeBtn.addEventListener('click',closeMenu);
+  drawer.querySelectorAll('a').forEach(function(a){a.addEventListener('click',closeMenu);});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')closeMenu();});
+  var nav=document.querySelector('nav');
+  window.addEventListener('scroll',function(){if(window.scrollY>5)nav.classList.add('scrolled');else nav.classList.remove('scrolled');});
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+# SAHAR Conseil
+> Transformer les données publiques françaises en pipeline commercial.
+
+SAHAR Conseil est un outil SaaS qui détecte les opportunités commerciales dans les données ouvertes (DVF, DPE, INSEE, SIRENE) et les gère dans un CRM pipeline intégré.
+
+## Services
+- [Analyse immobilier DVF](https://tristanalba-ops.github.io/sahar-conseil/immobilier.html) : scoring opportunités, carte prix m², pipeline closing
+- [Prospection rénovation DPE](https://tristanalba-ops.github.io/sahar-conseil/energie-renovation.html) : passoires F/G, score urgence, artisans RGE
+- [Zone Score Retail](https://tristanalba-ops.github.io/sahar-conseil/retail-franchise.html) : attractivité zone, concurrence, franchiseurs
+- [RH Tension Map](https://tristanalba-ops.github.io/sahar-conseil/rh-recrutement.html) : tensions recrutement DARES par bassin
+- [CRM Pipeline](https://tristanalba-ops.github.io/sahar-conseil/crm.html) : Kanban, KPIs, fiche enrichie, mobile friendly
+
+## Ressources
+- [Scoring prospects](https://tristanalba-ops.github.io/sahar-conseil/scoring-prospects.html)
+- [Automatisation prospection](https://tristanalba-ops.github.io/sahar-conseil/automatisation-prospection.html)
+- [Lead magnet immobilier](https://tristanalba-ops.github.io/sahar-conseil/lead-magnet-immobilier.html)
+- [Optimiser son pipeline](https://tristanalba-ops.github.io/sahar-conseil/conversion-pipeline.html)
+- [KPIs commerciaux](https://tristanalba-ops.github.io/sahar-conseil/kpis-commerciaux.html)
+
+## Données sources
+DVF (data.gouv.fr), DPE ADEME, INSEE IRIS/BPE, SIRENE, DARES, Cadastre Etalab
+
+## Contact
+https://tristanalba-ops.github.io/sahar-conseil/#contact
+
+## Pages locales — Prix immobilier par ville
+- [Prix immobilier Bordeaux](https://tristanalba-ops.github.io/sahar-conseil/prix-immobilier-bordeaux.html)
+- [Prix immobilier Paris](https://tristanalba-ops.github.io/sahar-conseil/prix-immobilier-paris.html)
+- [Prix immobilier Lyon](https://tristanalba-ops.github.io/sahar-conseil/prix-immobilier-lyon.html)
+- [Prix immobilier Marseille](https://tristanalba-ops.github.io/sahar-conseil/prix-immobilier-marseille.html)
+- [Prix immobilier Toulouse](https://tristanalba-ops.github.io/sahar-conseil/prix-immobilier-toulouse.html)
+- [Prix immobilier Nantes](https://tristanalba-ops.github.io/sahar-conseil/prix-immobilier-nantes.html)
+- [Prix immobilier Nice](https://tristanalba-ops.github.io/sahar-conseil/prix-immobilier-nice.html)
+- [Prix immobilier Lille](https://tristanalba-ops.github.io/sahar-conseil/prix-immobilier-lille.html)
+- [Prix immobilier Rennes](https://tristanalba-ops.github.io/sahar-conseil/prix-immobilier-rennes.html)
+- [Prix immobilier Strasbourg](https://tristanalba-ops.github.io/sahar-conseil/prix-immobilier-strasbourg.html)

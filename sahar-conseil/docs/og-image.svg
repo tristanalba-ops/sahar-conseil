@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="1200" height="630" fill="#FAFAF8"/>
+
+  <!-- Accent shapes -->
+  <circle cx="100" cy="100" r="120" fill="#4A7C59" opacity="0.1"/>
+  <circle cx="1100" cy="530" r="150" fill="#4A7C59" opacity="0.08"/>
+  <rect x="0" y="0" width="1200" height="8" fill="#4A7C59"/>
+
+  <!-- Main text -->
+  <text x="600" y="240" font-family="'DM Serif Display', serif" font-size="72" font-weight="400" text-anchor="middle" fill="#4A7C59">
+    SAHAR Conseil
+  </text>
+
+  <!-- Subtitle -->
+  <text x="600" y="320" font-family="'Inter', sans-serif" font-size="32" font-weight="400" text-anchor="middle" fill="#2D2D2D">
+    Open Data au service des professionnels
+  </text>
+
+  <!-- Supporting text -->
+  <text x="600" y="385" font-family="'Inter', sans-serif" font-size="18" font-weight="400" text-anchor="middle" fill="#7A7A7A">
+    Immobilier • Énergie • Retail • RH
+  </text>
+
+  <!-- Decorative line -->
+  <line x1="350" y1="420" x2="1050" y2="420" stroke="#4A7C59" stroke-width="2" opacity="0.3"/>
+
+  <!-- Bottom accent -->
+  <text x="600" y="510" font-family="'Inter', sans-serif" font-size="16" font-weight="500" text-anchor="middle" fill="#4A7C59">
+    Transformez les données publiques en outils d'aide à la décision
+  </text>
+</svg>

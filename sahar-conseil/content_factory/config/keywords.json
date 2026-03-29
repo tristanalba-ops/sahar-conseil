@@ -1,0 +1,133 @@
+{
+  "keywords": [
+    {
+      "seed": "DVF analyse immobilier",
+      "secteur": "immobilier",
+      "cible": "agents immobiliers",
+      "url_cible": "immobilier.html",
+      "priorite": 1
+    },
+    {
+      "seed": "passoires thermiques interdites location 2025",
+      "secteur": "energie",
+      "cible": "artisans RGE bailleurs",
+      "url_cible": "energie-renovation.html",
+      "priorite": 1
+    },
+    {
+      "seed": "prospecter données DVF agent immobilier",
+      "secteur": "immobilier",
+      "cible": "agents immobiliers",
+      "url_cible": "trouver-prospects-immobiliers.html",
+      "priorite": 1
+    },
+    {
+      "seed": "DPE logement F G travaux obligatoires",
+      "secteur": "energie",
+      "cible": "propriétaires bailleurs",
+      "url_cible": "passoires-thermiques-interdites.html",
+      "priorite": 1
+    },
+    {
+      "seed": "CRM pipeline commercial immobilier",
+      "secteur": "crm",
+      "cible": "commerciaux terrain",
+      "url_cible": "crm.html",
+      "priorite": 2
+    },
+    {
+      "seed": "scoring prospect commercial données publiques",
+      "secteur": "methode",
+      "cible": "directeurs commerciaux",
+      "url_cible": "scoring-prospects.html",
+      "priorite": 2
+    },
+    {
+      "seed": "open data prospection commerciale France",
+      "secteur": "methode",
+      "cible": "commerciaux",
+      "url_cible": "prospecter-donnees-publiques.html",
+      "priorite": 2
+    },
+    {
+      "seed": "MaPrimeRenov artisan RGE prospects",
+      "secteur": "energie",
+      "cible": "artisans RGE",
+      "url_cible": "energie-renovation.html",
+      "priorite": 2
+    },
+    {
+      "seed": "attractivité commerciale zone franchise implantation",
+      "secteur": "retail",
+      "cible": "franchiseurs développeurs réseau",
+      "url_cible": "retail-franchise.html",
+      "priorite": 2
+    },
+    {
+      "seed": "tension recrutement bassin emploi DARES",
+      "secteur": "rh",
+      "cible": "cabinets recrutement DRH",
+      "url_cible": "rh-recrutement.html",
+      "priorite": 3
+    }
+  ],
+  "internal_links": {
+    "immobilier": [
+      {"texte": "analyse DVF", "url": "immobilier.html"},
+      {"texte": "trouver des prospects immobiliers", "url": "trouver-prospects-immobiliers.html"},
+      {"texte": "scoring prospect", "url": "scoring-prospects.html"},
+      {"texte": "pipeline CRM", "url": "crm.html"}
+    ],
+    "energie": [
+      {"texte": "passoires thermiques interdites", "url": "passoires-thermiques-interdites.html"},
+      {"texte": "DPE Scanner", "url": "energie-renovation.html"},
+      {"texte": "pipeline CRM rénovation", "url": "crm.html"}
+    ],
+    "crm": [
+      {"texte": "pipeline commercial", "url": "crm.html"},
+      {"texte": "KPIs commerciaux", "url": "kpis-commerciaux.html"},
+      {"texte": "automatisation prospection", "url": "automatisation-prospection.html"},
+      {"texte": "conversion pipeline", "url": "conversion-pipeline.html"}
+    ],
+    "methode": [
+      {"texte": "données publiques", "url": "prospecter-donnees-publiques.html"},
+      {"texte": "scoring prospects", "url": "scoring-prospects.html"},
+      {"texte": "automatisation prospection", "url": "automatisation-prospection.html"}
+    ],
+    "retail": [
+      {"texte": "attractivité commerciale", "url": "retail-franchise.html"},
+      {"texte": "données publiques", "url": "prospecter-donnees-publiques.html"}
+    ],
+    "rh": [
+      {"texte": "tension recrutement", "url": "rh-recrutement.html"},
+      {"texte": "données publiques DARES", "url": "prospecter-donnees-publiques.html"}
+    ]
+  },
+  "ctas": {
+    "demo": {
+      "texte": "Voir une démo gratuite →",
+      "url": "index.html#contact"
+    },
+    "outil_immo": {
+      "texte": "Accéder à DVF Analyse Pro →",
+      "url": "immobilier.html"
+    },
+    "outil_dpe": {
+      "texte": "Accéder au DPE Scanner →",
+      "url": "energie-renovation.html"
+    },
+    "tarifs": {
+      "texte": "Voir les tarifs →",
+      "url": "index.html#tarifs"
+    }
+  },
+  "settings": {
+    "score_minimum": 60,
+    "langue": "fr",
+    "pays": "FR",
+    "base_url": "https://sahar-conseil.fr",
+    "blog_dir": "blog",
+    "max_articles_par_run": 3,
+    "longueur_article_mots": 1200
+  }
+}
