@@ -38,11 +38,14 @@ SB_HEADERS = {
     "Prefer": "resolution=merge-duplicates,return=minimal",
 }
 
-# INSEE open data — RP2020 IRIS
-# Fichiers disponibles sur https://www.insee.fr/fr/statistiques/7705908
-RP_POP_URL = "https://www.insee.fr/fr/statistiques/fichier/7705908/base-ic-evol-struct-pop-2020_csv.zip"
-RP_LOG_URL = "https://www.insee.fr/fr/statistiques/fichier/7705908/base-ic-logement-2020_csv.zip"
-RP_ACT_URL = "https://www.insee.fr/fr/statistiques/fichier/7705908/base-ic-activite-residents-2020_csv.zip"
+# INSEE open data — RP2020 IRIS (bases infracommunales agrégées)
+# Population  : https://www.insee.fr/fr/statistiques/7704076
+# Logement    : https://www.insee.fr/fr/statistiques/7704078
+# Activité    : https://www.insee.fr/fr/statistiques/7704089
+# Filosofi    : https://www.insee.fr/fr/statistiques/7233950
+RP_POP_URL = "https://www.insee.fr/fr/statistiques/fichier/7704076/base-ic-evol-struct-pop-2020_csv.zip"
+RP_LOG_URL = "https://www.insee.fr/fr/statistiques/fichier/7704078/base-ic-logement-2020_csv.zip"
+RP_ACT_URL = "https://www.insee.fr/fr/statistiques/fichier/7704089/base-ic-activite-residents-2020_csv.zip"
 # Filosofi 2020 IRIS
 FIL_URL    = "https://www.insee.fr/fr/statistiques/fichier/7233950/indic-struct-distrib-revenu-2020-IRIS_csv.zip"
 
