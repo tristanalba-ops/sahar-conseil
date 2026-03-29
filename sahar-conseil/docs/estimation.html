@@ -450,16 +450,17 @@ function toTitleCase(str) {
 
 // ── Estimation ────────────────────────────────────────────────────────────────
 async function lancerEstimation() {
-  const voie    = document.getElementById('voie-val').value;
-  const commune = document.getElementById('commune-val').value;
+  let voie    = document.getElementById('voie-val').value;
+  let commune = document.getElementById('commune-val').value;
+  const rawInput = document.getElementById('voie-input').value.trim();
   const type    = document.getElementById('type-bien').value;
   const surface = parseFloat(document.getElementById('surface').value) || null;
   const pieces  = parseInt(document.getElementById('nb-pieces').value) || null;
   const dpe     = document.getElementById('dpe').value;
 
   const errEl = document.getElementById('error-msg');
-  if (!voie || !commune) {
-    errEl.textContent = 'Veuillez sélectionner une voie dans la liste.';
+  if (!rawInput) {
+    errEl.textContent = 'Veuillez saisir une rue ou voie.';
     errEl.style.display = 'block'; return;
   }
   errEl.style.display = 'none';
@@ -470,11 +471,27 @@ async function lancerEstimation() {
   document.getElementById('btn-estimer').disabled = true;
 
   try {
-    let url = `${SUPA_URL}/rest/v1/dvf_mutations?adresse_nom_voie=eq.${encodeURIComponent(voie)}&commune=eq.${encodeURIComponent(commune)}&nature_mutation=eq.Vente&surface_reelle_bati=gte.5&valeur_fonciere=gte.10000&select=*&limit=2000`;
-    if (type) url += `&type_local=eq.${encodeURIComponent(type)}`;
+    let url, rows;
 
-    const res  = await fetch(url, { headers: HEADERS });
-    const rows = await res.json();
+    if (voie && commune) {
+      // Sélection depuis l'autocomplete — recherche exacte
+      url = `${SUPA_URL}/rest/v1/dvf_mutations?adresse_nom_voie=eq.${encodeURIComponent(voie)}&commune=eq.${encodeURIComponent(commune)}&nature_mutation=eq.Vente&surface_reelle_bati=gte.5&valeur_fonciere=gte.10000&select=*&limit=2000`;
+      if (type) url += `&type_local=eq.${encodeURIComponent(type)}`;
+      const res1 = await fetch(url, { headers: HEADERS });
+      rows = await res1.json();
+    } else {
+      // Saisie libre — recherche ILIKE sur le texte brut
+      const q = rawInput.toUpperCase();
+      url = `${SUPA_URL}/rest/v1/dvf_mutations?adresse_nom_voie=ilike.*${encodeURIComponent(q)}*&nature_mutation=eq.Vente&surface_reelle_bati=gte.5&valeur_fonciere=gte.10000&select=*&limit=2000`;
+      if (type) url += `&type_local=eq.${encodeURIComponent(type)}`;
+      const res2 = await fetch(url, { headers: HEADERS });
+      rows = await res2.json();
+      // Déduire voie et commune depuis les résultats
+      if (rows.length > 0) {
+        voie = rows[0].adresse_nom_voie || q;
+        commune = rows[0].commune || '';
+      }
+    }
 
     if (!rows.length) throw new Error('Aucune transaction trouvée pour cette voie et ce type de bien.');
 
