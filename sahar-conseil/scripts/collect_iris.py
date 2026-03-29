@@ -98,11 +98,25 @@ def pct(num, denom) -> float | None:
 
 
 def upsert_batch(rows: list[dict], table: str = "iris_demographics") -> bool:
-    """Upsert en batch via Supabase REST (on conflict code_iris)."""
+    """Upsert en batch via Supabase REST (on conflict code_iris).
+
+    Règles PostgREST :
+    - ?on_conflict=code_iris → résoudre le conflit sur la colonne unique
+    - Toutes les lignes d'un batch doivent avoir exactement les mêmes clés
+    """
+    if not rows:
+        return True
+
+    # Normaliser : toutes les lignes doivent avoir le même ensemble de clés
+    all_keys = set()
+    for row in rows:
+        all_keys.update(row.keys())
+    normalized = [{k: row.get(k, None) for k in all_keys} for row in rows]
+
     r = requests.post(
-        f"{SUPABASE_URL}/rest/v1/{table}",
+        f"{SUPABASE_URL}/rest/v1/{table}?on_conflict=code_iris",
         headers=SB_HEADERS,
-        json=rows,
+        json=normalized,
         timeout=30,
     )
     if r.status_code not in (200, 201):
@@ -400,12 +414,7 @@ def main():
     print(f"4. Upsert Supabase ({len(rows)} lignes, batch={batch_size})...")
     for i in range(0, len(rows), batch_size):
         batch = rows[i:i + batch_size]
-        # Nettoyage : retirer les None pour les colonnes non modifiées
-        clean_batch = [
-            {k: v for k, v in row.items() if v is not None}
-            for row in batch
-        ]
-        ok = upsert_batch(clean_batch)
+        ok = upsert_batch(batch)
         if ok:
             total_ok += len(batch)
         pct_done = (i + len(batch)) / len(rows) * 100
