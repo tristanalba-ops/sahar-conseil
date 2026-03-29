@@ -799,7 +799,9 @@ async function fetchDVF(commune, typeBien) {
     "nature_mutation": "eq.Vente",
     "surface_reelle_bati": "gte.5",
     "valeur_fonciere": "gte.10000",
+    "date_mutation": "gte.2020-01-01",
     "select": "*",
+    "order": "date_mutation.desc",
     "limit": "2000",
   });
   // Filtre optionnel par type
@@ -861,7 +863,7 @@ function evolution12m(evo) {
 
 // ── Modèle hédonique ─────────────────────────────────────────────────────────
 const DPE_COEF   = { A:.10, B:.06, C:.03, D:0, E:-.05, F:-.10, G:-.15 };
-const ETAT_COEF  = { excellent:.07, tres_bon:.04, bon:0, moyen:-.06, mauvais:-.15 };
+const ETATECOEF  = { excellent:.07, tres_bon:.04, bon:0, moyen:-.06, mauvais:-.15 };
 
 function applyHedonic(pm2base, dpe, etat, parking, balcony, garden, view, poi) {
   let adj = 1;
@@ -1046,7 +1048,7 @@ function showAnalyse(geo, rows, stats, evo, poi, scoreImmo) {
       <tr><th>Date</th><th>Adresse</th><th>Surface</th><th>Prix/m²</th></tr>
       ${comps.map(r => `<tr>
         <td>${(r.date_mutation || "").slice(0, 7)}</td>
-        <td style="max-width:110px;overflow:hidden;white-space:nowraw;text-overflow:ellipsis">${(r.adresse_nom_voie || "—").slice(0, 20)}</td>
+        <td style="max-width:110px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">$x(r.adresse_nom_voie || "—").slice(0, 20)}</td>
         <td>${Math.round(r.surface_reelle_bati)} m²</td>
         <td><b>${fmtN(Math.round(r.valeur_fonciere / r.surface_reelle_bati))} €</b></td>
       </tr>`).join("")}
@@ -1105,7 +1107,7 @@ document.getElementById("estimation-form").addEventListener("submit", async (e) 
     // 1. Géocodage
     btn.textContent = "Géocodage…";
     const geo = await geocode(adresse);
-    if (!geo) throw new Error("Adresse non reconnue. Vérifiez �'orthographe et réessayez.");
+    if (!geo) throw new Error("Adresse non reconnue. Vérifiez l'orthographe et réessayez.");
 
     // 2. DVF
     btn.textContent = "Chargement des transactions…";
