@@ -42,12 +42,24 @@ SB_HEADERS = {
 # Population  : https://www.insee.fr/fr/statistiques/7704076
 # Logement    : https://www.insee.fr/fr/statistiques/7704078
 # Activité    : https://www.insee.fr/fr/statistiques/7704089
-# Filosofi    : https://www.insee.fr/fr/statistiques/7233950
+# Filosofi    : https://www.insee.fr/fr/statistiques/7233950 (format complet)
+#               https://www.insee.fr/fr/statistiques/7342199 (format simplifié "cc")
 RP_POP_URL = "https://www.insee.fr/fr/statistiques/fichier/7704076/base-ic-evol-struct-pop-2020_csv.zip"
 RP_LOG_URL = "https://www.insee.fr/fr/statistiques/fichier/7704078/base-ic-logement-2020_csv.zip"
 RP_ACT_URL = "https://www.insee.fr/fr/statistiques/fichier/7704089/base-ic-activite-residents-2020_csv.zip"
-# Filosofi 2020 IRIS
-FIL_URL    = "https://www.insee.fr/fr/statistiques/fichier/7233950/indic-struct-distrib-revenu-2020-IRIS_csv.zip"
+
+# Filosofi : plusieurs URLs à tester dans l'ordre (INSEE change les noms de fichiers)
+FIL_URLS = [
+    # Format simplifié "chiffres clés" (ajouté fin 2023)
+    "https://www.insee.fr/fr/statistiques/fichier/7342199/cc_filosofi_2020_IRIS_csv.zip",
+    # Format complet original
+    "https://www.insee.fr/fr/statistiques/fichier/7233950/indic-struct-distrib-revenu-2020-IRIS_csv.zip",
+    # Variante avec tiret bas
+    "https://www.insee.fr/fr/statistiques/fichier/7233950/FILO2020_DISP_IRIS_csv.zip",
+    # Filosofi 2021 si 2020 indisponible
+    "https://www.insee.fr/fr/statistiques/fichier/8229323/indic-struct-distrib-revenu-2021-IRIS_csv.zip",
+    "https://www.insee.fr/fr/statistiques/fichier/8229323/cc_filosofi_2021_IRIS_csv.zip",
+]
 
 
 # ── Helpers ────────────────────────────────────────────────────────────────────
@@ -305,40 +317,61 @@ def process_act(df_act: pd.DataFrame, iris_set: set, merged: dict) -> dict:
 
 def process_filosofi(df_fil: pd.DataFrame, iris_set: set, merged: dict) -> dict:
     """
-    Extrait depuis indic-struct-distrib-revenu-2020-IRIS :
+    Extrait depuis les fichiers Filosofi IRIS :
     revenu médian par UC + taux de pauvreté.
 
-    Colonnes clés :
-      IRIS, MED20 (revenu médian €/UC)
-      TP6020 (taux pauvreté %)
+    Colonnes détectées automatiquement selon le format (complet ou simplifié) :
+      IRIS  → code IRIS (ou LIBIRIS, CODE_IRIS)
+      MED20 → revenu médian €/UC (ou MED21, Q220, RFMED20, DISP_MED)
+      TP6020 → taux pauvreté % (ou TP6021, DISP_TP60)
     """
-    col_iris = next((c for c in df_fil.columns if c.upper() in ("IRIS", "LIBIRIS", "CODE_IRIS")), None)
+    # Afficher les premières colonnes pour diagnostic
+    cols_upper = [c.upper() for c in df_fil.columns]
+    print(f"  ℹ Colonnes Filosofi (10 premières) : {cols_upper[:10]}")
+
+    col_iris = next(
+        (c for c in df_fil.columns if c.upper() in ("IRIS", "LIBIRIS", "CODE_IRIS", "CODEIRIS")),
+        None
+    )
     if not col_iris:
-        # Filosofi peut avoir un format différent
-        print(f"  ⚠ Colonnes disponibles Filosofi : {list(df_fil.columns[:10])}")
+        print(f"  ⚠ Colonne IRIS introuvable. Colonnes disponibles : {list(df_fil.columns[:15])}")
         return merged
 
     df_fil = df_fil[df_fil[col_iris].isin(iris_set)].copy()
-    df_fil.columns = [c.upper() for c in df_fil.columns]
+    df_fil.columns = cols_upper
     col_iris = col_iris.upper()
     print(f"  → {len(df_fil)} IRIS matchés sur Filosofi")
 
+    # Colonnes revenu médian — ordre de priorité
+    REV_COLS  = ["MED20", "MED21", "DISP_MED", "Q220", "RFMED20", "MED", "REVMED"]
+    # Colonnes taux pauvreté — ordre de priorité
+    PAUV_COLS = ["TP6020", "TP6021", "DISP_TP60", "TP60", "TAUX_PAUVRETE"]
+
+    col_rev  = next((c for c in REV_COLS  if c in df_fil.columns), None)
+    col_pauv = next((c for c in PAUV_COLS if c in df_fil.columns), None)
+
+    if not col_rev:
+        print(f"  ⚠ Colonne revenu médian introuvable parmi {REV_COLS}")
+        print(f"     Colonnes numériques disponibles : {[c for c in df_fil.columns if df_fil[c].dtype in ('float64','object')][:20]}")
+    if not col_pauv:
+        print(f"  ⚠ Colonne taux pauvreté introuvable parmi {PAUV_COLS}")
+
+    matched = 0
     for _, row in df_fil.iterrows():
         code = str(row[col_iris])
+        rev  = safe_float(row.get(col_rev))  if col_rev  else None
+        pauv = safe_float(row.get(col_pauv)) if col_pauv else None
 
-        # Filosofi 2020 : MED20 ou Q220 pour médiane
-        rev = safe_float(row.get("MED20") or row.get("Q220") or row.get("RFMED20"))
-        pauv = safe_float(row.get("TP6020") or row.get("TAUX_PAUVRETE"))
+        if rev is not None or pauv is not None:
+            matched += 1
 
-        d = {
-            "code_iris":     code,
-            "revenu_median": rev,
-            "taux_pauvrete": pauv,
-        }
+        d = {"code_iris": code, "revenu_median": rev, "taux_pauvrete": pauv}
         if code in merged:
             merged[code].update({k: v for k, v in d.items() if v is not None})
         else:
             merged[code] = d
+
+    print(f"  ✓ {matched} IRIS avec revenu médian ou taux de pauvreté")
     return merged
 
 
@@ -392,13 +425,21 @@ def main():
 
     print()
 
-    # Filosofi
-    try:
-        df_fil = download_csv(FIL_URL)
-        merged = process_filosofi(df_fil, iris_set, merged)
-        print(f"   ✓ Filosofi (revenus) traité")
-    except Exception as e:
-        print(f"   ⚠ Erreur Filosofi : {e}")
+    # Filosofi — tentatives successives
+    fil_ok = False
+    for fil_url in FIL_URLS:
+        try:
+            df_fil = download_csv(fil_url)
+            merged = process_filosofi(df_fil, iris_set, merged)
+            print(f"   ✓ Filosofi (revenus) traité depuis {fil_url.split('/')[-1]}")
+            fil_ok = True
+            break
+        except Exception as e:
+            print(f"   ✗ {fil_url.split('/')[-1]} : {e}")
+    if not fil_ok:
+        print("   ⚠ Filosofi indisponible — revenu_median restera NULL")
+        print("     → Visitez https://www.insee.fr/fr/statistiques/7233950")
+        print("       et copiez l'URL du ZIP Filosofi IRIS dans FIL_URLS[0]")
 
     print(f"\n3. Enrichissement total : {len(merged)} IRIS à mettre à jour\n")
 
