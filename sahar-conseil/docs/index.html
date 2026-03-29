@@ -7,8 +7,8 @@
   <meta http-equiv="X-Content-Type-Options" content="nosniff" />
   <meta http-equiv="X-Frame-Options" content="SAMEORIGIN" />
   <meta name="referrer" content="strict-origin-when-cross-origin" />
-  <title>SAHAR Conseil — Exploitez l'open data pour décider mieux | Immobilier · Énergie · Retail</title>
-  <meta name="description" content="SAHAR Conseil vous apprend à exploiter DVF, DPE ADEME et données INSEE pour prendre de meilleures décisions professionnelles. Scorings sourcés, analyses clés en main, méthodologie transparente." />
+  <title>SAHAR Conseil — Données immobilières & rénovation énergétique | DVF · DPE · INSEE</title>
+  <meta name="description" content="SAHAR Conseil transforme les open data publiques (DVF, DPE ADEME, INSEE) en outils d'aide à la décision pour les professionnels de l'immobilier et de la rénovation énergétique." />
   <link rel="canonical" href="https://sahar-conseil.fr/" />
   <meta name="robots" content="index, follow, max-image-preview:large" />
 
@@ -44,7 +44,7 @@
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="SAHAR Conseil — Exploitez l'open data pour décider mieux" />
-  <meta name="twitter:description" content="DVF, DPE ADEME, INSEE : des outils pédagogiques pour professionnels de l'immobilier, de l'énergie et du retail." />
+  <meta name="twitter:description" content="DVF, DPE ADEME, INSEE : des outils d'aide à la décision pour professionnels de l'immobilier et de la rénovation énergétique." />
   <meta name="twitter:image" content="https://sahar-conseil.fr/og-image.png" />
 
   <!-- JSON-LD Organization -->
@@ -89,12 +89,12 @@
     "url": "https://sahar-conseil.fr",
     "logo": "https://sahar-conseil.fr/og-image.png",
     "image": "https://sahar-conseil.fr/og-image.png",
-    "description": "Cabinet de conseil en exploitation des données publiques françaises (DVF, DPE ADEME, INSEE) pour les professionnels de l'immobilier, de l'énergie et du retail.",
+    "description": "Cabinet de conseil en exploitation des données publiques françaises (DVF, DPE ADEME, INSEE) pour les professionnels de l'immobilier et de la rénovation énergétique.",
     "areaServed": {
       "@type": "Country",
       "name": "France"
     },
-    "serviceType": ["Analyse de données immobilières", "Scoring DPE ADEME", "Données INSEE retail", "Conseil open data"],
+    "serviceType": ["Analyse de données immobilières", "Scoring DPE ADEME", "Estimation immobilière DVF", "Rénovation énergétique MaPrimeRénov"],
     "priceRange": "€€",
     "email": "contact@sahar-conseil.fr",
     "foundingDate": "2025",
@@ -105,7 +105,7 @@
       "itemListElement": [
         {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "DVF Analyse", "description": "Analyse des mutations immobilières DGFiP"}},
         {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "DPE Scanner", "description": "Exploration du registre DPE ADEME commune par commune"}},
-        {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Zone Score Retail", "description": "Scoring attractivité commerciale INSEE/SIRENE"}}
+        {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "RénoÉnergie", "description": "Identification passoires thermiques et potentiel MaPrimeRénov"}}
       ]
     }
   }
@@ -944,7 +944,7 @@
     }
 
     /* SECTORS */
-    #secteurs {
+    #domaines {
       background: var(--dark-bg);
     }
 
@@ -1602,8 +1602,9 @@
   <a href="/" class="nav-logo" onclick="if(location.pathname.endsWith('index.html')||location.pathname==='/'||location.pathname.endsWith('site_final.html')){event.preventDefault();window.scrollTo({top:0,behavior:'smooth'});}">SAHAR</a>
   <ul class="nav-links">
     <li><a href="#outils">Outils</a></li>
+    <li><a href="/estimation" style="color:#00DC82;font-weight:600;">🏠 Estimer</a></li>
     <li><a href="#rapport">Rapport</a></li>
-    <li><a href="#secteurs">Secteurs</a></li>
+    <li><a href="#domaines">Domaines</a></li>
     <li><a href="#blog">Blog &amp; Podcast</a></li>
     <li><a href="#contact">Contact</a></li>
   </ul>
@@ -1621,9 +1622,10 @@
 <div class="mobile-nav-overlay" id="mobile-overlay" aria-hidden="true"></div>
 <nav class="mobile-nav-drawer" id="mobile-drawer" aria-label="Menu mobile">
   <button class="mobile-nav-close" id="mobile-close" aria-label="Fermer le menu">✕</button>
+  <a href="/estimation" class="mobile-nav-link" style="background:#00DC82;color:#0D0D0D;font-weight:700;border-radius:6px;padding:.6rem 1rem;">🏠 Estimer mon bien</a>
   <a href="#outils" class="mobile-nav-link">📊 Outils</a>
   <a href="#rapport" class="mobile-nav-link">📄 Rapport</a>
-  <a href="#secteurs" class="mobile-nav-link">🏙️ Secteurs</a>
+  <a href="#domaines" class="mobile-nav-link">🏠 Domaines</a>
   <a href="#blog" class="mobile-nav-link">📰 Blog &amp; Podcast</a>
   <a href="#contact" class="mobile-nav-link">✉️ Contact</a>
   <a href="compte.html" class="mobile-nav-compte" id="mobile-compte-link">👤 Mon espace</a>
@@ -1741,32 +1743,14 @@
       <div class="tool-desc">Explorez le registre DPE ADEME commune par commune : liste des logements F/G, score d'urgence rénovation, export structuré pour artisans RGE et bailleurs institutionnels.</div>
       <div class="tool-sector">Énergie / Rénovation · Source : ADEME</div>
     </a>
-    <a class="tool-card" href="#contact" style="border-top-color: var(--accent-yellow)">
-      <div class="tool-card-top">
-        <div class="tool-icon">🏪</div>
-        <span class="tool-badge badge-beta">Bêta</span>
-      </div>
-      <h3 class="tool-title">Zone Score Retail</h3>
-      <div class="tool-desc">Analysez l'attractivité commerciale d'une commune avec les données INSEE et SIRENE : densité équipements, dynamique de population, pression concurrentielle — score 0 à 100 documenté.</div>
-      <div class="tool-sector">Retail / Franchise · Sources : INSEE · SIRENE</div>
-    </a>
-    <a class="tool-card" href="#contact" style="border-top-color: var(--accent-coral)">
-      <div class="tool-card-top">
-        <div class="tool-icon">🚗</div>
-        <span class="tool-badge badge-soon">À venir</span>
-      </div>
-      <h3 class="tool-title">EV Potential Map</h3>
-      <div class="tool-desc">Identifiez les zones sous-équipées en bornes de recharge à partir des données d'immatriculation et du réseau existant. Heatmap par IRIS, score de pénétration départemental.</div>
-      <div class="tool-sector">Automobile · Sources : SDES · IRVE</div>
-    </a>
     <a class="tool-card" href="#contact" style="border-top-color: var(--accent-purple)">
       <div class="tool-card-top">
-        <div class="tool-icon">👥</div>
+        <div class="tool-icon">🏗️</div>
         <span class="tool-badge badge-soon">À venir</span>
       </div>
-      <h3 class="tool-title">RH Tension Map</h3>
-      <div class="tool-desc">Lisez les tensions du marché du travail par bassin d'emploi grâce aux indices DARES : métiers sous-dotés, zones à risque, carte des déséquilibres offre/demande.</div>
-      <div class="tool-sector">RH / Recrutement · Source : DARES · Pôle Emploi</div>
+      <h3 class="tool-title">POI Score Commune</h3>
+      <div class="tool-desc">Mesurez la qualité de l'environnement d'une commune : transports, commerces, santé, éducation — score de walkability 0 à 100 issu du BPE INSEE.</div>
+      <div class="tool-sector">Immobilier · Sources : INSEE BPE · OSM</div>
     </a>
     <div class="tool-card" style="background:rgba(26, 26, 46, 0.3);border:2px dashed var(--border-color)">
       <div class="tool-card-top">
@@ -1774,8 +1758,8 @@
         <span class="tool-badge badge-soon">Sur mesure</span>
       </div>
       <h3 class="tool-title">Étude territoriale</h3>
-      <div class="tool-desc">Analyse sur mesure de votre zone et secteur : données croisées, interprétation par un expert, rapport PDF + présentation livré en 5 jours ouvrés.</div>
-      <div class="tool-sector">Tous secteurs — Sur mesure</div>
+      <div class="tool-desc">Analyse sur mesure de votre commune : données DVF, DPE et POI croisées, rapport PDF + interprétation expert livré en 5 jours ouvrés.</div>
+      <div class="tool-sector">Immobilier &amp; Rénovation — Sur mesure</div>
     </div>
   </div>
 </section>
@@ -1800,9 +1784,9 @@
       <div class="play-button"></div>
     </a>
     <a href="#contact" class="video-banner">
-      <div class="video-banner-icon">🏪</div>
-      <div class="video-banner-title">Retail</div>
-      <div class="video-banner-tag">Trouver la bonne zone</div>
+      <div class="video-banner-icon">📍</div>
+      <div class="video-banner-title">Territoire</div>
+      <div class="video-banner-tag">Croiser les sources</div>
       <div class="play-button"></div>
     </a>
   </div>
@@ -1877,43 +1861,33 @@
   </div>
 </section>
 
-<!-- SECTORS -->
-<section id="secteurs">
+<!-- DOMAINES -->
+<section id="domaines">
   <div class="section-header">
-    <div class="section-label">Secteurs</div>
-    <h2 class="section-title">Une même rigueur analytique pour chaque métier</h2>
-    <p class="section-sub">Les mêmes principes — source officielle, scoring transparent, interprétation contextuelle — adaptés aux questions concrètes de chaque secteur.</p>
+    <div class="section-label">Domaines</div>
+    <h2 class="section-title">Deux expertises, une même exigence de données</h2>
+    <p class="section-sub">Sources officielles, scoring transparent, interprétation contextuelle — pour les professionnels de l'immobilier et de la rénovation énergétique.</p>
   </div>
-  <div class="sectors-grid">
+  <div class="sectors-grid" style="grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); max-width: 900px; margin: 0 auto;">
     <div class="sector-card">
       <div class="sector-emoji" role="img" aria-label="Immobilier">🏠</div>
       <h3 class="sector-name">Immobilier</h3>
-      <p class="sector-desc">Comprendre les prix réels du marché avec les données DVF, identifier les biens sous-valorisés, lire la dynamique d'une commune</p>
+      <p class="sector-desc">Comprendre les prix réels du marché avec les données DVF DGFiP, identifier les biens sous-valorisés, lire la dynamique et le volume de transactions d'une commune</p>
+      <div style="margin-top:1rem;display:flex;gap:.5rem;flex-wrap:wrap;">
+        <span style="background:rgba(0,220,130,0.1);color:#00DC82;border:1px solid rgba(0,220,130,0.2);border-radius:100px;padding:.2rem .7rem;font-size:.75rem;">DVF DGFiP</span>
+        <span style="background:rgba(0,220,130,0.1);color:#00DC82;border:1px solid rgba(0,220,130,0.2);border-radius:100px;padding:.2rem .7rem;font-size:.75rem;">INSEE BPE</span>
+        <span style="background:rgba(0,220,130,0.1);color:#00DC82;border:1px solid rgba(0,220,130,0.2);border-radius:100px;padding:.2rem .7rem;font-size:.75rem;">POI Score</span>
+      </div>
     </div>
     <div class="sector-card">
       <div class="sector-emoji" role="img" aria-label="Énergie et rénovation">⚡</div>
-      <h3 class="sector-name">Énergie / Rénovation</h3>
-      <p class="sector-desc">Localiser les passoires thermiques F/G avec le registre DPE ADEME, évaluer le potentiel MaPrimeRénov', cibler les prospects par commune</p>
-    </div>
-    <div class="sector-card">
-      <div class="sector-emoji" role="img" aria-label="Retail et franchise">🏪</div>
-      <h3 class="sector-name">Retail / Franchise</h3>
-      <p class="sector-desc">Évaluer l'attractivité d'une zone commerciale avec INSEE et SIRENE : densité équipements, pression concurrentielle, zones blanches</p>
-    </div>
-    <div class="sector-card">
-      <div class="sector-emoji" role="img" aria-label="Automobile et électromobilité">🚗</div>
-      <h3 class="sector-name">Automobile</h3>
-      <p class="sector-desc">Analyser le potentiel des véhicules électriques par territoire : parc immatriculé, zones sous-équipées en bornes, score de pénétration</p>
-    </div>
-    <div class="sector-card">
-      <div class="sector-emoji" role="img" aria-label="RH et recrutement">👥</div>
-      <h3 class="sector-name">RH / Recrutement</h3>
-      <p class="sector-desc">Lire les tensions du marché du travail par bassin d'emploi et métier grâce aux données DARES : zones sous-dotées, risques de recrutement</p>
-    </div>
-    <div class="sector-card">
-      <div class="sector-emoji" role="img" aria-label="Santé et déserts médicaux">🏥</div>
-      <h3 class="sector-name">Santé (v2)</h3>
-      <p class="sector-desc">Cartographier les déserts médicaux, mesurer la densité praticiens par territoire, identifier les zones attractives pour une nouvelle installation</p>
+      <h3 class="sector-name">Rénovation Énergétique</h3>
+      <p class="sector-desc">Localiser les passoires thermiques F/G avec le registre DPE ADEME, évaluer le potentiel MaPrimeRénov', cibler les propriétaires concernés par commune</p>
+      <div style="margin-top:1rem;display:flex;gap:.5rem;flex-wrap:wrap;">
+        <span style="background:rgba(123,97,255,0.1);color:#7B61FF;border:1px solid rgba(123,97,255,0.2);border-radius:100px;padding:.2rem .7rem;font-size:.75rem;">DPE ADEME</span>
+        <span style="background:rgba(123,97,255,0.1);color:#7B61FF;border:1px solid rgba(123,97,255,0.2);border-radius:100px;padding:.2rem .7rem;font-size:.75rem;">MaPrimeRénov'</span>
+        <span style="background:rgba(123,97,255,0.1);color:#7B61FF;border:1px solid rgba(123,97,255,0.2);border-radius:100px;padding:.2rem .7rem;font-size:.75rem;">Éco-PTZ</span>
+      </div>
     </div>
   </div>
 </section>
@@ -2096,10 +2070,7 @@
       <select name="secteur">
         <option value="">Choisir votre secteur</option>
         <option>Immobilier</option>
-        <option>Énergie / Rénovation</option>
-        <option>Retail / Franchise</option>
-        <option>Automobile</option>
-        <option>RH / Recrutement</option>
+        <option>Rénovation énergétique</option>
         <option>Autre</option>
       </select>
     </div>
@@ -2136,7 +2107,6 @@
     <li><a href="mentions-legales.html">Mentions légales</a></li>
     <li><a href="politique-confidentialite.html">Confidentialité</a></li>
     <li><a href="cgu.html">CGU</a></li>
-    <li><a href="cgv.html">CGV</a></li>
   </ul>
   <div>
     <p style="font-size: 0.75rem; opacity: 0.6">© 2025-2026 SAHAR Conseil</p>
