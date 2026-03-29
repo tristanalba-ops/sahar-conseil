@@ -1046,7 +1046,7 @@ function showAnalyse(geo, rows, stats, evo, poi, scoreImmo) {
       <tr><th>Date</th><th>Adresse</th><th>Surface</th><th>Prix/m²</th></tr>
       ${comps.map(r => `<tr>
         <td>${(r.date_mutation || "").slice(0, 7)}</td>
-        <td style="max-width:110px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">${(r.adresse_nom_voie || "—").slice(0, 20)}</td>
+        <td style="max-width:110px;overflow:hidden;white-space:nowraw;text-overflow:ellipsis">${(r.adresse_nom_voie || "—").slice(0, 20)}</td>
         <td>${Math.round(r.surface_reelle_bati)} m²</td>
         <td><b>${fmtN(Math.round(r.valeur_fonciere / r.surface_reelle_bati))} €</b></td>
       </tr>`).join("")}
@@ -1105,18 +1105,23 @@ document.getElementById("estimation-form").addEventListener("submit", async (e) 
     // 1. Géocodage
     btn.textContent = "Géocodage…";
     const geo = await geocode(adresse);
-    if (!geo) throw new Error("Adresse non reconnue. Vérifiez  l'orthographe et réessayez.");
+    if (!geo) throw new Error("Adresse non reconnue. Vérifiez �'orthographe et réessayez.");
+
     // 2. DVF
     btn.textContent = "Chargement des transactions…";
     const rows = await fetchDVF(geo.commune, typeBien);
     if (rows.length < 3) throw new Error(`Pas assez de données DVF pour "${geo.commune}". Essayez avec le nom de commune seul.`);
+
     // 3. POI
     const poi = await fetchPOI(geo.commune);
+
     // 4. Stats
     const stats = computeStats(rows);
     if (!stats) throw new Error("Données insuffisantes pour calculer les statistiques.");
+
     // 5. Évolution
     const evo = computeEvolution(rows);
+
     // 6. Modèle hédonique
     const pm2Ajuste  = applyHedonic(stats.median, dpe, etat, parking, balcony, garden, view, poi);
     const prixEstime = Math.round(pm2Ajuste * surface);
@@ -1124,13 +1129,51 @@ document.getElementById("estimation-form").addEventListener("submit", async (e) 
     const evol12     = evolution12m(evo);
     const siImmo     = scoreImmo(stats, evo);
     const poiScore   = poi ? parseInt(poi.score_global) : null;
+
+    // Impact DPE pour affichage
     const dpeCoef = DPE_COEF[dpe] || 0;
     const dpeImpact = dpeCoef !== 0 ? (dpeCoef > 0 ? "+" : "") + Math.round(dpeCoef * 100) + "% vs médiane" : "Neutre";
-    showResult({ prix_estime: prixEstime, pm2_ajuste: pm2Ajuste, pm2_median: stats.median, n_transactions: stats.n, evol12, confiance: conf, poi_score: poiScore, s_immo: siImmo, dpe_impact: dpeImpact });
+
+    // 7. Afficher résultat principal
+    showResult({
+      prix_estime:    prixEstime,
+      pm2_ajuste:     pm2Ajuste,
+      pm2_median:     stats.median,
+      n_transactions: stats.n,
+      evol12,
+      confiance:      conf,
+      poi_score:      poiScore,
+      s_immo:         siImmo,
+      dpe_impact:     dpeImpact,
+    });
+
+    // 8. Afficher analyse détaillée
     showAnalyse(geo, rows, stats, evo, poi, siImmo);
-    if (document.getElementById("lead_email").value.trim()) {
-      fetch(`${SUPA_URL}/rest/v1/sahar_leads`, { method: "POST", headers: { apikey: SUPA_ANON, Authorization: `Bearer ${SUPA_ANON}`, "Content-Type": "application/json", Prefer: "return=minimal" }, body: JSON.stringify({ nom: document.getElementById("lead_nom").value.trim(), email: document.getElementById("lead_email").value.trim(), tel: document.getElementById("lead_tel").value.trim(), source: "estimateur", adresse, commune: geo.commune, prix_estime: prixEstime, created_at: new Date().toISOString() }) }).catch(() => {});
+
+    // 9. Lead capture (Supabase)
+    const nom   = document.getElementById("lead_nom").value.trim();
+    const email = document.getElementById("lead_email").value.trim();
+    const tel   = document.getElementById("lead_tel").value.trim();
+    if (email) {
+      fetch(`${SUPA_URL}/rest/v1/sahar_leads`, {
+        method: "POST",
+        headers: {
+          apikey: SUPA_ANON,
+          Authorization: `Bearer ${SUPA_ANON}`,
+          "Content-Type": "application/json",
+          Prefer: "return=minimal",
+        },
+        body: JSON.stringify({
+          nom, email, tel,
+          source: "estimateur",
+          adresse,
+          commune: geo.commune,
+          prix_estime: prixEstime,
+          created_at: new Date().toISOString(),
+        }),
+      }).catch(() => {}); // silencieux
     }
+
   } catch (err) {
     console.error(err);
     showError(err.message || "Erreur inattendue. Réessayez dans quelques secondes.");
