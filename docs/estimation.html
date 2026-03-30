@@ -783,7 +783,7 @@ async function geocode(adresse) {
 }
 
 // ── estimate_property RPC ─────────────────────────────────────────────────────
-async function estimateRPC(p_code_postal, p_surface, p_type_local) {
+async function estimateRPC(codePostal, surface, typeLocal) {
   const r = await fetch(`${SUPA_URL}/rest/v1/rpc/estimate_property`, {
     method: "POST",
     headers: {
@@ -791,7 +791,11 @@ async function estimateRPC(p_code_postal, p_surface, p_type_local) {
       "Authorization": `Bearer ${SUPA_ANON}`,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ p_code_postal, p_surface, p_type_local }),
+    body: JSON.stringify({
+      "p_code_postal": String(codePostal),
+      "p_surface":     Number(surface),
+      "p_type_local":  String(typeLocal),
+    }),
   });
   if (!r.ok) {
     const txt = await r.text().catch(() => r.status);
@@ -965,7 +969,11 @@ function showError(msg) {
 }
 
 // ── Submit ────────────────────────────────────────────────────────────────────
-document.getElementById("estimation-form").addEventListener("submit", async (e) => {
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("estimation-form").addEventListener("submit", submitHandler);
+});
+
+async function submitHandler(e) {
   e.preventDefault();
   const btn          = document.getElementById("btn-submit");
   const errBox       = document.getElementById("error-box");
@@ -1030,7 +1038,7 @@ document.getElementById("estimation-form").addEventListener("submit", async (e) 
     btn.disabled = false;
     btn.textContent = "Estimer mon bien";
   }
-});
+}
 </script>
 </body>
 </html>
