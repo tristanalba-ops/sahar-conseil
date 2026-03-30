@@ -391,6 +391,11 @@
   </nav>
 </header>
 
+<!-- SUCCESS BANNER -->
+<div id="success-banner" style="display:none;background:#00D47E;color:#111;text-align:center;padding:14px 20px;font-weight:600;font-size:0.95rem;">
+  Merci&nbsp;! Votre clé API vous sera envoyée par email.
+</div>
+
 <!-- HERO -->
 <div class="page-hero">
   <h1>Tarifs simples,<br>sans surprise</h1>
@@ -410,7 +415,7 @@
         <span class="period">/mois</span>
       </div>
       <p class="plan-desc">Idéal pour démarrer et tester l'API dans vos projets.</p>
-      <a href="/#contact" class="plan-btn btn-outline">Commencer</a>
+      <button class="plan-btn btn-outline" data-plan="starter">Commencer</button>
       <ul class="plan-features">
         <li>100 estimations / jour</li>
         <li>API REST</li>
@@ -430,7 +435,7 @@
         <span class="period">/mois</span>
       </div>
       <p class="plan-desc">Pour les professionnels qui ont besoin de volume et de fiabilité.</p>
-      <a href="/#contact" class="plan-btn btn-green">Essai gratuit 14 jours</a>
+      <button class="plan-btn btn-green" data-plan="pro">Essai gratuit 14 jours</button>
       <ul class="plan-features">
         <li>500 estimations / jour</li>
         <li>API REST + Webhooks</li>
@@ -555,6 +560,42 @@
 </footer>
 
 <script>
+// Success banner
+if (new URLSearchParams(window.location.search).get('success') === 'true') {
+  document.getElementById('success-banner').style.display = 'block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Checkout
+var CHECKOUT_URL = 'https://wwvdpixzfaviaapixarb.supabase.co/functions/v1/create-checkout';
+
+document.querySelectorAll('[data-plan]').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    var plan = this.dataset.plan;
+    var original = this.textContent;
+    this.disabled = true;
+    this.textContent = 'Chargement…';
+
+    fetch(CHECKOUT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ plan: plan })
+    })
+    .then(function(res) {
+      if (!res.ok) throw new Error('Erreur ' + res.status);
+      return res.json();
+    })
+    .then(function(data) {
+      window.location.href = data.url;
+    })
+    .catch(function() {
+      btn.disabled = false;
+      btn.textContent = original;
+      alert('Une erreur est survenue, veuillez réessayer ou contacter contact@intentanalytics.fr');
+    });
+  });
+});
+
 // FAQ accordion
 document.querySelectorAll('.faq-question').forEach(function(btn) {
   btn.addEventListener('click', function() {
