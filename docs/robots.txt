@@ -4,7 +4,7 @@ Disallow: /_assets/
 Disallow: /404.html
 
 # Sitemap
-Sitemap: https://sahar-conseil.fr/sitemap.xml
+Sitemap: https://intentanalytics.fr/sitemap.xml
 
 # Google
 User-agent: Googlebot
