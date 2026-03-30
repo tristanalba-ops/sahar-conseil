@@ -6,6 +6,10 @@
   <title>Estimation immobilière – Intent Analytics</title>
   <meta name="description" content="Estimez gratuitement la valeur de votre bien immobilier : prix DVF, DPE, cadre de vie, démographie et tendances de marché." />
   <link rel="canonical" href="https://intentanalytics.fr/estimation" />
+  <meta property="og:title" content="Estimation immobilière gratuite – Intent Analytics" />
+  <meta property="og:description" content="Estimez votre bien en quelques secondes : prix DVF, DPE, cadre de vie, démographie et tendances de marché local." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://intentanalytics.fr/estimation" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f0eb; color: #1a1a1a; min-height: 100vh; }
@@ -250,9 +254,9 @@
     <div id="sec-chart-content"></div>
   </div>
 
-  <!-- Dernières ventes -->
+  <!-- Comparables / Dernières ventes -->
   <div class="section-card hidden" id="sec-ventes">
-    <div class="section-title">🏠 Dernières ventes dans la zone</div>
+    <div class="section-title" id="sec-ventes-title">🏠 Biens comparables vendus récemment</div>
     <div id="sec-ventes-content"></div>
   </div>
 
@@ -479,7 +483,7 @@ function launch(cp, ins, surface, type) {
   doEstimate(cp, surface, type);
   doCommune(cp);
   doChart(cp);
-  doVentes(cp);
+  doVentes(cp, type);
   doDPE(cp, ins);
   if (ins) doWiki(ins); else hideSection("sec-wiki");
 }
@@ -621,17 +625,42 @@ async function doChart(cp) {
   } catch (_) { hideSection("sec-chart"); }
 }
 
-// ── Fetch: dvf_mutations (dernières ventes) ───────────────────────────────────
-async function doVentes(cp) {
+// ── Fetch: dvf_mutations (comparables / dernières ventes) ─────────────────────
+async function doVentes(cp, type) {
+  const baseFields = "&surface_reelle_bati=gt.0&valeur_fonciere=gt.0&order=date_mutation.desc&limit=5"
+    + "&select=date_mutation,valeur_fonciere,surface_reelle_bati,type_local,nombre_pieces_principales,adresse_nom_voie";
   try {
-    const url = SUPA_URL + "/rest/v1/dvf_mutations?code_postal=eq." + encodeURIComponent(cp)
-      + "&surface_reelle_bati=gt.0&valeur_fonciere=gt.0&order=date_mutation.desc&limit=5"
-      + "&select=date_mutation,valeur_fonciere,surface_reelle_bati,type_local,nombre_pieces_principales,adresse_nom_voie";
-    const r = await fetch(url, { headers: SH });
-    if (!r.ok) throw new Error();
-    const data = await r.json();
-    if (Array.isArray(data) && data.length) renderVentes(data); else hideSection("sec-ventes");
+    // 1. Try comparables: same CP + same type
+    const urlComp = SUPA_URL + "/rest/v1/dvf_mutations?code_postal=eq." + encodeURIComponent(cp)
+      + "&type_local=eq." + encodeURIComponent(type) + baseFields;
+    const rComp = await fetch(urlComp, { headers: SH });
+    if (!rComp.ok) throw new Error();
+    const dataComp = await rComp.json();
+
+    if (Array.isArray(dataComp) && dataComp.length >= 5) {
+      setVentesTitle("🏘️ Biens comparables vendus récemment");
+      renderVentes(dataComp);
+      return;
+    }
+
+    // 2. Fallback: all types, same CP
+    const urlAll = SUPA_URL + "/rest/v1/dvf_mutations?code_postal=eq." + encodeURIComponent(cp) + baseFields;
+    const rAll = await fetch(urlAll, { headers: SH });
+    if (!rAll.ok) throw new Error();
+    const dataAll = await rAll.json();
+
+    if (Array.isArray(dataAll) && dataAll.length) {
+      setVentesTitle("🏠 Dernières ventes dans la zone");
+      renderVentes(dataAll);
+    } else {
+      hideSection("sec-ventes");
+    }
   } catch (_) { hideSection("sec-ventes"); }
+}
+
+function setVentesTitle(txt) {
+  const el = document.getElementById("sec-ventes-title");
+  if (el) el.textContent = txt;
 }
 
 // ── Fetch: dpe_commune_agg ────────────────────────────────────────────────────
