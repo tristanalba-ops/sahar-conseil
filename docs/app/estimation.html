@@ -1,0 +1,1189 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Estimer mon bien — Intent Analytics</title>
+  <meta name="description" content="Estimez la valeur de votre bien immobilier gratuitement. Modèle économétrique basé sur les données DVF, DPE et POI." />
+  <link rel="canonical" href="https://intentanalytics.fr/app/estimation" />
+  <meta name="robots" content="index, follow" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Estimateur immobilier gratuit — Intent Analytics" />
+  <meta property="og:description" content="Obtenez une estimation de votre bien en quelques secondes. Données DVF + DPE + équipements de proximité." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://intentanalytics.fr/app/estimation" />
+  <meta property="og:locale" content="fr_FR" />
+
+  <!-- JSON-LD -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Estimateur Immobilier Intent Analytics",
+    "url": "https://intentanalytics.fr/app/estimation",
+    "description": "Estimation de valeur immobilière basée sur les données publiques françaises (DVF, DPE, BAN, POI).",
+    "applicationCategory": "BusinessApplication",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" },
+    "provider": { "@type": "Organization", "name": "Intent Analytics", "url": "https://intentanalytics.fr" }
+  }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600;700&display=swap" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green:  #00DC82;
+      --dark:   #0D0D0D;
+      --gray:   #73726C;
+      --light:  #F5F4F0;
+      --white:  #FFFFFF;
+      --radius: 12px;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--light);
+      color: var(--dark);
+      min-height: 100vh;
+    }
+
+    /* ── Navbar ── */
+    nav {
+      background: var(--dark);
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-logo {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.4rem;
+      color: var(--white);
+      text-decoration: none;
+    }
+    .nav-logo span { color: var(--green); }
+    .nav-links a {
+      color: #ccc;
+      text-decoration: none;
+      font-size: .875rem;
+      margin-left: 1.5rem;
+      transition: color .2s;
+    }
+    .nav-links a:hover { color: var(--white); }
+    .nav-cta {
+      background: var(--green) !important;
+      color: var(--dark) !important;
+      padding: .4rem 1rem;
+      border-radius: 6px;
+      font-weight: 600 !important;
+    }
+
+    /* ── Hero ── */
+    .hero {
+      background: var(--dark);
+      padding: 3rem 2rem 2.5rem;
+      text-align: center;
+      color: var(--white);
+    }
+    .hero-tag {
+      display: inline-block;
+      background: var(--green);
+      color: var(--dark);
+      font-size: .75rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: .3rem .9rem;
+      border-radius: 20px;
+      margin-bottom: 1rem;
+    }
+    .hero h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      line-height: 1.2;
+      margin-bottom: .75rem;
+    }
+    .hero h1 em { color: var(--green); font-style: normal; }
+    .hero p {
+      color: #aaa;
+      font-size: 1rem;
+      max-width: 560px;
+      margin: 0 auto;
+    }
+    .hero-badges {
+      display: flex;
+      justify-content: center;
+      gap: .75rem;
+      flex-wrap: wrap;
+      margin-top: 1.25rem;
+    }
+    .badge {
+      background: rgba(255,255,255,.07);
+      border: 1px solid rgba(255,255,255,.12);
+      color: #ccc;
+      font-size: .75rem;
+      padding: .3rem .8rem;
+      border-radius: 6px;
+    }
+    .badge strong { color: var(--green); }
+
+    /* ── App container ── */
+    .app-wrapper {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+    }
+
+    /* ── Form ── */
+    .form-card {
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 2rem 2.5rem;
+      box-shadow: 0 4px 24px rgba(0,0,0,.08);
+      border: 1px solid #e5e7eb;
+    }
+    .form-card h2 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem 1.5rem;
+    }
+    .form-grid .full { grid-column: 1 / -1; }
+    .form-group { display: flex; flex-direction: column; gap: .3rem; }
+    .form-group label {
+      font-size: .8rem;
+      font-weight: 600;
+      color: #374151;
+    }
+    .form-group input,
+    .form-group select {
+      padding: .6rem .75rem;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: .9rem;
+      font-family: 'Inter', sans-serif;
+      background: #fafafa;
+      transition: border .2s;
+    }
+    .form-group input:focus,
+    .form-group select:focus {
+      border-color: var(--green);
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(0,220,130,.12);
+    }
+    .checkbox-row {
+      grid-column: 1 / -1;
+      display: flex;
+      gap: 1.25rem;
+      flex-wrap: wrap;
+      padding: .5rem 0;
+    }
+    .checkbox-row label {
+      display: flex;
+      align-items: center;
+      gap: .4rem;
+      font-size: .82rem;
+      color: #374151;
+      cursor: pointer;
+    }
+    .checkbox-row input[type="checkbox"] {
+      width: 18px; height: 18px;
+      accent-color: var(--green);
+    }
+    .lead-section {
+      grid-column: 1 / -1;
+      background: var(--light);
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      margin-top: .5rem;
+    }
+    .lead-section p {
+      font-size: .78rem;
+      color: var(--gray);
+      margin-bottom: .75rem;
+    }
+    .lead-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: .75rem;
+    }
+    .lead-grid .form-group input {
+      background: var(--white);
+    }
+    .btn-estimate {
+      grid-column: 1 / -1;
+      margin-top: .5rem;
+      padding: .85rem 2rem;
+      background: var(--green);
+      color: var(--dark);
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 700;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      transition: background .2s, transform .1s;
+    }
+    .btn-estimate:hover { background: #00c974; }
+    .btn-estimate:active { transform: scale(.98); }
+    .btn-estimate:disabled {
+      background: #ccc;
+      cursor: wait;
+    }
+
+    /* ── Results ── */
+    .result-card {
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 2rem 2.5rem;
+      margin-top: 1.5rem;
+      box-shadow: 0 4px 24px rgba(0,0,0,.08);
+      border: 1px solid #e5e7eb;
+      display: none;
+    }
+    .result-card.visible { display: block; animation: fadeUp .4s ease-out; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+    .result-header {
+      display: flex;
+      align-items: flex-end;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid var(--light);
+    }
+    .price-main {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(2rem, 5vw, 3rem);
+      color: var(--dark);
+      line-height: 1;
+    }
+    .price-m2 {
+      font-size: .95rem;
+      color: var(--gray);
+      padding-bottom: .3rem;
+    }
+    .confidence {
+      margin-left: auto;
+      text-align: right;
+    }
+    .confidence-label { font-size: .75rem; color: var(--gray); text-transform: uppercase; letter-spacing: .5px; }
+    .confidence-bar {
+      width: 120px; height: 8px;
+      background: #e5e7eb;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-top: .3rem;
+    }
+    .confidence-fill {
+      height: 100%;
+      background: var(--green);
+      border-radius: 4px;
+      transition: width .6s ease-out;
+    }
+    .confidence-val { font-size: .85rem; font-weight: 700; color: var(--dark); margin-top: .2rem; }
+
+    .result-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .metric-box {
+      background: var(--light);
+      border-radius: 8px;
+      padding: 1rem;
+    }
+    .metric-label { font-size: .72rem; color: var(--gray); text-transform: uppercase; letter-spacing: .5px; }
+    .metric-val { font-size: 1.15rem; font-weight: 700; color: var(--dark); margin-top: .2rem; }
+    .metric-sub { font-size: .75rem; color: var(--gray); margin-top: .15rem; }
+
+    .scores-row {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.5rem;
+    }
+    .score-pill {
+      display: flex;
+      align-items: center;
+      gap: .4rem;
+      background: var(--light);
+      padding: .4rem .9rem;
+      border-radius: 20px;
+      font-size: .82rem;
+      font-weight: 600;
+    }
+    .score-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+    }
+    .score-green  { background: #22c55e; }
+    .score-yellow { background: #eab308; }
+    .score-red    { background: #ef4444; }
+
+    .fourchette {
+      background: var(--light);
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .fourchette-label { font-size: .8rem; font-weight: 600; color: var(--gray); }
+    .fourchette-bar {
+      flex: 1;
+      height: 6px;
+      background: linear-gradient(to right, #fbbf24, #22c55e, #fbbf24);
+      border-radius: 3px;
+      min-width: 120px;
+    }
+    .fourchette-vals {
+      display: flex;
+      justify-content: space-between;
+      font-size: .8rem;
+      font-weight: 600;
+      gap: 1.5rem;
+    }
+
+    /* ── Analyse section ── */
+    .analyse-section {
+      display: none;
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 1.75rem 2rem;
+      margin-top: 1.25rem;
+      border: 1px solid #e5e7eb;
+    }
+    .analyse-section.visible { display: block; }
+    .analyse-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.25rem;
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+    }
+    .analyse-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+    }
+    @media (max-width: 720px) { .analyse-grid { grid-template-columns: 1fr; } }
+    #analyse-map { height: 300px; border-radius: 10px; }
+    #analyse-chart-wrap { position: relative; height: 240px; }
+    .kpi-bar-row { display: flex; align-items: center; gap: .75rem; margin-bottom: .6rem; }
+    .kpi-bar-name { font-size: .8rem; width: 100px; flex-shrink: 0; }
+    .kpi-bar-track { flex: 1; height: 8px; background: #f0f0f0; border-radius: 4px; overflow: hidden; }
+    .kpi-bar-fill { height: 100%; border-radius: 4px; transition: width .6s ease; }
+    .kpi-bar-val { font-size: .8rem; font-weight: 700; width: 36px; text-align: right; }
+    .reco-box {
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+      margin-top: 1rem;
+      font-size: .9rem;
+      font-weight: 600;
+    }
+    .comparables-table { width: 100%; border-collapse: collapse; font-size: .8rem; margin-top: .75rem; }
+    .comparables-table th { background: #f8f8f8; padding: .45rem .65rem; text-align: left; font-size: .7rem; color: #666; text-transform: uppercase; }
+    .comparables-table td { padding: .45rem .65rem; border-top: 1px solid #f4f4f4; }
+
+    /* ── Error ── */
+    .error-msg {
+      background: #fef2f2;
+      border: 1px solid #fca5a5;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-top: 1rem;
+      color: #991b1b;
+      font-size: .85rem;
+      display: none;
+    }
+    .error-msg.visible { display: block; }
+
+    /* ── Sources / trust ── */
+    .trust-section {
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 1.5rem 2rem;
+      margin-top: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      border: 1px solid #e5e7eb;
+    }
+    .trust-section h3 {
+      font-size: .85rem;
+      color: var(--gray);
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      white-space: nowrap;
+    }
+    .trust-logos {
+      display: flex;
+      gap: 1.25rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .trust-logo {
+      background: var(--light);
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      padding: .35rem .75rem;
+      font-size: .78rem;
+      font-weight: 600;
+      color: #374151;
+    }
+
+    /* ── Comment ca marche ── */
+    .how-section {
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 2rem;
+      margin-top: 1.5rem;
+      border: 1px solid #e5e7eb;
+    }
+    .how-section h2 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.5rem;
+      margin-bottom: 1.25rem;
+    }
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+    .step {
+      background: var(--light);
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+    }
+    .step-num {
+      display: inline-flex;
+      width: 28px; height: 28px;
+      background: var(--green);
+      color: var(--dark);
+      font-weight: 800;
+      font-size: .85rem;
+      border-radius: 50%;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: .5rem;
+    }
+    .step h4 { font-size: .9rem; font-weight: 600; margin-bottom: .25rem; }
+    .step p  { font-size: .8rem; color: var(--gray); line-height: 1.5; }
+
+    /* ── Footer ── */
+    footer {
+      background: var(--dark);
+      color: #888;
+      text-align: center;
+      font-size: .8rem;
+      padding: 1.5rem;
+      margin-top: 2rem;
+    }
+    footer a { color: var(--green); text-decoration: none; }
+
+    /* ── Responsive ── */
+    @media (max-width: 640px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .lead-grid { grid-template-columns: 1fr; }
+      .confidence { margin-left: 0; text-align: left; }
+      .fourchette { flex-direction: column; align-items: stretch; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav>
+  <a class="nav-logo" href="/"><span>Intent Analytics</span> Conseil</a>
+  <div class="nav-links">
+    <a href="/#outils">Outils</a>
+    <a href="/#secteurs">Secteurs</a>
+    <a href="/blog">Blog</a>
+    <a href="/#contact" class="nav-cta">Contact</a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <span class="hero-tag">Outil gratuit</span>
+  <h1>Estimez la valeur de votre<br><em>bien immobilier</em></h1>
+  <p>Modèle économétrique basé sur les données publiques françaises. Résultat en quelques secondes.</p>
+  <div class="hero-badges">
+    <span class="badge"><strong>DVF</strong> — 6M transactions</span>
+    <span class="badge"><strong>DPE</strong> — Impact énergétique</span>
+    <span class="badge"><strong>BAN</strong> — Géocodage précis</span>
+    <span class="badge"><strong>POI</strong> — Équipements 500m</span>
+  </div>
+</section>
+
+<!-- Contenu principal -->
+<div class="app-wrapper">
+
+  <!-- Formulaire -->
+  <div class="form-card">
+    <h2>Votre bien</h2>
+    <form id="estimation-form" class="form-grid" autocomplete="off">
+
+      <div class="form-group full">
+        <label for="adresse">Adresse complète</label>
+        <input type="text" id="adresse" name="adresse" placeholder="12 rue de la Paix, 75002 Paris" required minlength="5" />
+      </div>
+
+      <div class="form-group">
+        <label for="type_bien">Type de bien</label>
+        <select id="type_bien" name="type_bien" required>
+          <option value="Appartement">Appartement</option>
+          <option value="Maison">Maison</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="surface">Surface (m²)</label>
+        <input type="number" id="surface" name="surface" placeholder="65" required min="5" max="2000" />
+      </div>
+
+      <div class="form-group">
+        <label for="nb_pieces">Nombre de pièces</label>
+        <input type="number" id="nb_pieces" name="nb_pieces" value="3" min="1" max="20" />
+      </div>
+
+      <div class="form-group">
+        <label for="dpe">DPE</label>
+        <select id="dpe" name="dpe">
+          <option value="A">A</option>
+          <option value="B">B</option>
+          <option value="C">C</option>
+          <option value="D" selected>D</option>
+          <option value="E">E</option>
+          <option value="F">F</option>
+          <option value="G">G</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="annee_construction">Année de construction</label>
+        <input type="number" id="annee_construction" name="annee_construction" value="1980" min="1800" max="2025" />
+      </div>
+
+      <div class="form-group">
+        <label for="etat">État général</label>
+        <select id="etat" name="etat">
+          <option value="mauvais">Mauvais</option>
+          <option value="moyen">Moyen</option>
+          <option value="bon" selected>Bon</option>
+          <option value="tres_bon">Très bon</option>
+          <option value="excellent">Excellent</option>
+        </select>
+      </div>
+
+      <div class="checkbox-row">
+        <label><input type="checkbox" id="has_parking" /> Parking / garage</label>
+        <label><input type="checkbox" id="has_balcony" /> Balcon / terrasse</label>
+        <label><input type="checkbox" id="has_garden" />  Jardin</label>
+        <label><input type="checkbox" id="has_view" />    Vue dégagée</label>
+      </div>
+
+      <div class="lead-section">
+        <p>Recevez votre rapport complet par email (optionnel)</p>
+        <div class="lead-grid">
+          <div class="form-group">
+            <label for="lead_nom">Nom</label>
+            <input type="text" id="lead_nom" placeholder="Jean Dupont" />
+          </div>
+          <div class="form-group">
+            <label for="lead_email">Email</label>
+            <input type="email" id="lead_email" placeholder="jean@exemple.fr" />
+          </div>
+          <div class="form-group">
+            <label for="lead_tel">Téléphone</label>
+            <input type="tel" id="lead_tel" placeholder="06 12 34 56 78" />
+          </div>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-estimate" id="btn-submit">
+        Estimer mon bien
+      </button>
+    </form>
+
+    <div class="error-msg" id="error-box"></div>
+  </div>
+
+  <!-- Résultats -->
+  <div class="result-card" id="result-card">
+    <div class="result-header">
+      <div>
+        <div class="price-main" id="r-prix">—</div>
+        <div class="price-m2" id="r-prix-m2"></div>
+      </div>
+      <div class="confidence">
+        <div class="confidence-label">Confiance</div>
+        <div class="confidence-bar"><div class="confidence-fill" id="r-conf-bar"></div></div>
+        <div class="confidence-val" id="r-conf-val"></div>
+      </div>
+    </div>
+
+    <div class="result-grid" id="r-metrics"></div>
+
+    <div class="scores-row" id="r-scores"></div>
+
+    <div class="fourchette" id="r-fourchette">
+      <div class="fourchette-label">Fourchette</div>
+      <div class="fourchette-bar"></div>
+      <div class="fourchette-vals">
+        <span id="r-low">—</span>
+        <span id="r-high">—</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Analyse détaillée -->
+  <div class="analyse-section" id="analyse-section">
+    <div class="analyse-title">📊 Analyse du marché local</div>
+
+    <div id="reco-box-wrap"></div>
+
+    <!-- KPI scores -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.75rem;margin-bottom:1.25rem" id="kpi-cards"></div>
+
+    <!-- Scores bars -->
+    <div id="score-bars" style="margin-bottom:1.25rem"></div>
+
+    <div class="analyse-grid">
+      <!-- Carte -->
+      <div>
+        <div style="font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#888;margin-bottom:.5rem">Transactions DVF sur la zone</div>
+        <div id="analyse-map"></div>
+        <div style="font-size:.7rem;color:#aaa;margin-top:.4rem">
+          <span style="color:#22c55e">●</span> Sous médiane
+          <span style="color:#eab308;margin-left:.6rem">●</span> Dans la médiane
+          <span style="color:#ef4444;margin-left:.6rem">●</span> Au-dessus
+        </div>
+      </div>
+      <!-- Graphique évolution -->
+      <div>
+        <div style="font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#888;margin-bottom:.5rem">Évolution prix médian / m²</div>
+        <div id="analyse-chart-wrap"><canvas id="analyse-chart"></canvas></div>
+        <!-- Comparables -->
+        <div style="font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#888;margin:.9rem 0 .4rem">Dernières transactions</div>
+        <div id="comparables-wrap" style="overflow-x:auto"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sources -->
+  <div class="trust-section">
+    <h3>Sources de données</h3>
+    <div class="trust-logos">
+      <span class="trust-logo">DVF — Cerema</span>
+      <span class="trust-logo">DPE — ADEME</span>
+      <span class="trust-logo">BAN — data.gouv.fr</span>
+      <span class="trust-logo">POI — OpenStreetMap</span>
+      <span class="trust-logo">Modèle hédonique Intent Analytics</span>
+    </div>
+  </div>
+
+  <!-- Comment ça marche -->
+  <div class="how-section">
+    <h2>Comment fonctionne l'estimation ?</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <h4>Géocodage BAN</h4>
+        <p>Votre adresse est transformée en coordonnées GPS précises via la Base Adresse Nationale.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <h4>Marché local DVF</h4>
+        <p>Prix médian, évolution 12 mois et volume de transactions sur votre zone (source Cerema).</p>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <h4>Score équipements</h4>
+        <p>Transport, commerces, écoles, santé dans un rayon de 500m (OpenStreetMap).</p>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <h4>Impact DPE</h4>
+        <p>La classe énergétique influence le prix de ±8% selon les études ADEME / Banque de France.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">5</div>
+        <h4>Modèle économétrique</h4>
+        <p>Régression hédonique combinant tous les facteurs pour estimer la valeur de marché.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Footer -->
+<footer>
+  <p>
+    © 2026 Intent Analytics —
+    <a href="/legal/mentions-legales.html">Mentions légales</a> ·
+    <a href="/legal/politique-confidentialite.html">Confidentialité</a> ·
+    <a href="mailto:contact@intentanalytics.fr">contact@intentanalytics.fr</a>
+  </p>
+  <p style="margin-top:.5rem;font-size:.72rem;color:#555;">
+    Estimation à titre indicatif. Ne constitue pas une expertise immobilière certifiée.
+  </p>
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script>
+const SUPA_URL  = "https://wwvdpixzfaviaapixarb.supabase.co";
+const SUPA_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3dmRwaXh6ZmF2aWFhcGl4YXJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3Mzk0NDgsImV4cCI6MjA5MDMxNTQ0OH0.NjOeWzUCo2BJPcxnkEJNm215GJBr1RAHba1eL_EF758";
+const BAN_URL   = "https://api-adresse.data.gouv.fr/search/";
+let leafletMap  = null;
+let chartInst   = null;
+// ── Formatters ────────────────────────────────────────────────────────────────
+const fmt = n => n == null ? "—" :
+  new Intl.NumberFormat("fr-FR", { style:"currency", currency:"EUR", maximumFractionDigits:0 }).format(n);
+const fmtN = n => n == null ? "—" : new Intl.NumberFormat("fr-FR").format(n);
+
+function scoreColor(v) {
+  if (v >= 70) return "score-green";
+  if (v >= 40) return "score-yellow";
+  return "score-red";
+}
+
+// ── Supabase fetch (no SDK needed) ────────────────────────────────────────────
+async function supaFetch(table, params) {
+  const qs = new URLSearchParams(params).toString();
+  const r = await fetch(`${SUPA_URL}/rest/v1/${table}?${qs}`, {
+    headers: { apikey: SUPA_ANON, Authorization: `Bearer ${SUPA_ANON}` }
+  });
+  if (!r.ok) return [];
+  return r.json();
+}
+
+// ── BAN Geocoding ─────────────────────────────────────────────────────────────
+async function geocode(adresse) {
+  const r = await fetch(`${BAN_URL}?q=${encodeURIComponent(adresse)}&limit=1`);
+  const d = await r.json();
+  const f = d.features?.[0];
+  if (!f) return null;
+  return {
+    label:     f.properties.label,
+    commune:   f.properties.city,
+    cp:        f.properties.postcode,
+    citycode:  f.properties.citycode,
+    lat:       f.geometry.coordinates[1],
+    lon:       f.geometry.coordinates[0],
+    score:     Math.round(f.properties.score * 100),
+  };
+}
+
+// ── DVF fetch ─────────────────────────────────────────────────────────────────
+async function fetchDVF(commune, typeBien) {
+  // Essai 1 : par commune exacte
+  let rows = await supaFetch("dvf_mutations", {
+    "commune": `ilike.*${commune.toUpperCase()}*`,
+    "nature_mutation": "eq.Vente",
+    "surface_reelle_bati": "gte.5",
+    "valeur_fonciere": "gte.10000",
+    "date_mutation": "gte.2020-01-01",
+    "select": "*",
+    "order": "date_mutation.desc",
+    "limit": "2000",
+  });
+  // Filtre optionnel par type
+  if (typeBien && rows.length > 20) {
+    const typeFilter = typeBien === "Appartement" ? "Appartement" : "Maison";
+    const filtered = rows.filter(r => (r.type_local || "").includes(typeFilter));
+    if (filtered.length >= 8) rows = filtered;
+  }
+  return rows;
+}
+
+// ── POI fetch ─────────────────────────────────────────────────────────────────
+async function fetchPOI(commune) {
+  const rows = await supaFetch("poi_scores_commune", { "select": "*", "limit": "500" });
+  return rows.find(r => (r.commune || "").toUpperCase().includes(commune.toUpperCase())) || null;
+}
+
+// ── Stats ─────────────────────────────────────────────────────────────────────
+function computeStats(rows) {
+  const pm2s = rows
+    .filter(r => r.valeur_fonciere > 0 && r.surface_reelle_bati > 5)
+    .map(r => r.valeur_fonciere / r.surface_reelle_bati)
+    .sort((a, b) => a - b);
+  if (pm2s.length < 3) return null;
+  // P10-P90 filter
+  const lo = pm2s[Math.floor(pm2s.length * 0.10)];
+  const hi = pm2s[Math.floor(pm2s.length * 0.90)];
+  const filt = pm2s.filter(v => v >= lo && v <= hi);
+  const med = filt[Math.floor(filt.length / 2)];
+  const q1  = filt[Math.floor(filt.length * 0.25)];
+  const q3  = filt[Math.floor(filt.length * 0.75)];
+  return { median: Math.round(med), q1: Math.round(q1), q3: Math.round(q3), n: filt.length };
+}
+
+function computeEvolution(rows) {
+  const byYear = {};
+  rows.forEach(r => {
+    const y = (r.date_mutation || "").slice(0, 4);
+    if (!y || isNaN(y) || r.surface_reelle_bati < 5 || r.valeur_fonciere < 1000) return;
+    const pm2 = r.valeur_fonciere / r.surface_reelle_bati;
+    if (!byYear[y]) byYear[y] = [];
+    byYear[y].push(pm2);
+  });
+  const result = {};
+  Object.keys(byYear).sort().forEach(y => {
+    const vals = byYear[y].sort((a,b) => a-b);
+    result[y] = Math.round(vals[Math.floor(vals.length / 2)]);
+  });
+  return result;
+}
+
+function evolution12m(evo) {
+  const years = Object.keys(evo).sort();
+  if (years.length < 2) return null;
+  const y1 = evo[years[years.length - 2]];
+  const y2 = evo[years[years.length - 1]];
+  return y1 > 0 ? Math.round((y2 - y1) / y1 * 1000) / 10 : null;
+}
+
+// ── Modèle hédonique ─────────────────────────────────────────────────────────
+const DPE_COEF   = { A:.10, B:.06, C:.03, D:0, E:-.05, F:-.10, G:-.15 };
+const ETAT_COEF  = { excellent:.07, tres_bon:.04, bon:0, moyen:-.06, mauvais:-.15 };
+
+function applyHedonic(pm2base, dpe, etat, parking, balcony, garden, view, poi) {
+  let adj = 1;
+  adj += DPE_COEF[dpe]  ?? 0;
+  adj += ETAT_COEF[etat] ?? 0;
+  if (parking) adj += 0.04;
+  if (balcony) adj += 0.025;
+  if (garden)  adj += 0.045;
+  if (view)    adj += 0.03;
+  if (poi && poi.score_global > 70) adj += 0.02;
+  return Math.round(pm2base * adj);
+}
+
+function confidence(n) {
+  if (n >= 50) return 90;
+  if (n >= 20) return 75;
+  if (n >= 10) return 60;
+  if (n >= 5)  return 45;
+  return 30;
+}
+
+// ── Affichage résultat ────────────────────────────────────────────────────────
+function showResult(r) {
+  const card = document.getElementById("result-card");
+  card.classList.add("visible");
+
+  document.getElementById("r-prix").textContent = fmt(r.prix_estime);
+  document.getElementById("r-prix-m2").textContent = fmtN(r.pm2_ajuste) + " € / m²";
+
+  const confPct = r.confiance;
+  document.getElementById("r-conf-bar").style.width  = confPct + "%";
+  document.getElementById("r-conf-val").textContent  = confPct + " %";
+
+  // Métriques
+  const metrics = document.getElementById("r-metrics");
+  metrics.innerHTML = "";
+  [
+    { label: "Prix médian zone",     val: fmtN(r.pm2_median) + " €/m²",  sub: `${r.n_transactions} transactions` },
+    { label: "Évolution 12 mois",    val: r.evol12 != null ? (r.evol12 >= 0 ? "+" : "") + r.evol12 + " %" : "—", sub: "" },
+    { label: "DPE sélectionné",      val: document.getElementById("dpe").value, sub: r.dpe_impact },
+    { label: "Score localisation",   val: r.poi_score != null ? r.poi_score + "/100" : "—", sub: "" },
+  ].forEach(k => {
+    const b = document.createElement("div");
+    b.className = "metric-box";
+    b.innerHTML = `<div class="metric-label">${k.label}</div><div class="metric-val">${k.val}</div>${k.sub ? `<div class="metric-sub">${k.sub}</div>` : ""}`;
+    metrics.appendChild(b);
+  });
+
+  // Scores pills
+  const scoresEl = document.getElementById("r-scores");
+  scoresEl.innerHTML = "";
+  [
+    ["Marché", r.s_immo],
+    ["Localisation", r.poi_score],
+    ["Confiance", confPct],
+  ].forEach(([label, v]) => {
+    if (v == null) return;
+    const pill = document.createElement("span");
+    pill.className = "score-pill";
+    pill.innerHTML = `<span class="score-dot ${scoreColor(v)}"></span>${label} : ${v} %`;
+    scoresEl.appendChild(pill);
+  });
+
+  // Fourchette
+  document.getElementById("r-low").textContent  = fmt(r.prix_estime * 0.91);
+  document.getElementById("r-high").textContent = fmt(r.prix_estime * 1.09);
+
+  card.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+// ── Section analyse ───────────────────────────────────────────────────────────
+function showAnalyse(geo, rows, stats, evo, poi, scoreImmo) {
+  const section = document.getElementById("analyse-section");
+  section.classList.add("visible");
+
+  const evol12 = evolution12m(evo);
+  const poiScore = poi ? parseInt(poi.score_global) : null;
+  const scoreGlobal = Math.round(scoreImmo * 0.40 + (poiScore || 50) * 0.35 + Math.min(90, 50 + stats.n) * 0.25);
+
+  // Reco box
+  let recoTxt, recoColor;
+  if (scoreGlobal >= 70) { recoTxt = "💚 Marché attractif — Potentiel de valorisation confirmé."; recoColor = "#d1fae5"; }
+  else if (scoreGlobal >= 50) { recoTxt = "🟡 Marché correct — Vérifier les spécificités locales."; recoColor = "#fef9c3"; }
+  else { recoTxt = "🔴 Points d'attention — Vigilance recommandée."; recoColor = "#fee2e2"; }
+  document.getElementById("reco-box-wrap").innerHTML =
+    `<div class="reco-box" style="background:${recoColor}">${recoTxt} Score global : <strong>${scoreGlobal}/100</strong></div>`;
+
+  // KPI cards
+  const kpiCards = document.getElementById("kpi-cards");
+  kpiCards.innerHTML = "";
+  [
+    ["Prix médian /m²",   fmtN(stats.median) + " €",           "Q1 " + fmtN(stats.q1) + " — Q3 " + fmtN(stats.q3)],
+    ["Évolution 12 mois", evol12 != null ? (evol12 >= 0 ? "+" : "") + evol12 + " %" : "—", ""],
+    ["Transactions",      stats.n,                              "analysées"],
+    ["Score localisation",poiScore != null ? poiScore + "/100" : "—", "équipements"],
+  ].forEach(([lbl, val, sub]) => {
+    const b = document.createElement("div");
+    b.className = "metric-box";
+    b.innerHTML = `<div class="metric-label">${lbl}</div><div class="metric-val">${val}</div>${sub ? `<div class="metric-sub">${sub}</div>` : ""}`;
+    kpiCards.appendChild(b);
+  });
+
+  // Score bars
+  const sbars = document.getElementById("score-bars");
+  sbars.innerHTML = "";
+  const scoreDefs = [
+    ["Immobilier",   scoreImmo,          "#6366f1"],
+    ["Localisation", poiScore || 0,      "#f59e0b"],
+    ["Global",       scoreGlobal,        scoreGlobal >= 70 ? "#10b981" : scoreGlobal >= 50 ? "#f59e0b" : "#ef4444"],
+  ];
+  scoreDefs.forEach(([name, val, color]) => {
+    const row = document.createElement("div");
+    row.className = "kpi-bar-row";
+    row.innerHTML = `
+      <span class="kpi-bar-name">${name}</span>
+      <div class="kpi-bar-track"><div class="kpi-bar-fill" style="width:${val}%;background:${color}"></div></div>
+      <span class="kpi-bar-val" style="color:${color}">${val}</span>`;
+    sbars.appendChild(row);
+  });
+
+  // Carte Leaflet
+  if (geo && geo.lat) {
+    if (leafletMap) { leafletMap.remove(); leafletMap = null; }
+    leafletMap = L.map("analyse-map").setView([geo.lat, geo.lon], 14);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+      { attribution: "© OpenStreetMap", maxZoom: 19 }).addTo(leafletMap);
+    const pinIcon = L.divIcon({
+      html: `<div style="background:#10b981;color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:12px;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.3)">📍</div>`,
+      iconSize: [22, 22], iconAnchor: [11, 11]
+    });
+    L.marker([geo.lat, geo.lon], { icon: pinIcon }).addTo(leafletMap)
+      .bindPopup(`<b>${geo.label || geo.commune}</b>`).openPopup();
+    rows.slice(0, 200).forEach(r => {
+      const lt = r.latitude, ln = r.longitude;
+      const sf = r.surface_reelle_bati, vf = r.valeur_fonciere;
+      if (!lt || !ln || sf < 5 || vf < 1000) return;
+      const pm2 = vf / sf;
+      const ratio = pm2 / stats.median;
+      const c = ratio > 1.15 ? "#ef4444" : ratio < 0.85 ? "#22c55e" : "#eab308";
+      L.circleMarker([lt, ln], { radius: 5, fillColor: c, color: "#fff", weight: 1.5, fillOpacity: 0.85 })
+        .addTo(leafletMap)
+        .bindPopup(`<b>${fmtN(Math.round(pm2))} €/m²</b><br>${Math.round(sf)} m² · ${(r.date_mutation || "").slice(0, 7)}`);
+    });
+  }
+
+  // Chart évolution
+  const years  = Object.keys(evo).sort();
+  const prices = years.map(y => evo[y]);
+  if (chartInst) { chartInst.destroy(); chartInst = null; }
+  if (years.length > 0) {
+    const ctx = document.getElementById("analyse-chart").getContext("2d");
+    chartInst = new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: years,
+        datasets: [{
+          label: "Prix médian €/m²",
+          data: prices,
+          backgroundColor: prices.map((v, i) => i === prices.length - 1 ? "#10b981" : "#6366f1aa"),
+          borderRadius: 5,
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: c => fmtN(c.raw) + " €/m²" } }
+        },
+        scales: { y: { ticks: { callback: v => fmtN(v) + "€" } } }
+      }
+    });
+  }
+
+  // Comparables
+  const comps = rows
+    .filter(r => r.date_mutation && r.surface_reelle_bati > 5 && r.valeur_fonciere > 0)
+    .sort((a, b) => b.date_mutation.localeCompare(a.date_mutation))
+    .slice(0, 12);
+  const wrap = document.getElementById("comparables-wrap");
+  if (comps.length > 0) {
+    wrap.innerHTML = `<table class="comparables-table">
+      <tr><th>Date</th><th>Adresse</th><th>Surface</th><th>Prix/m²</th></tr>
+      ${comps.map(r => `<tr>
+        <td>${(r.date_mutation || "").slice(0, 7)}</td>
+        <td style="max-width:110px;overflow:hidden;white-space:nowraw;text-overflow:ellipsis">${(r.adresse_nom_voie || "—").slice(0, 20)}</td>
+        <td>${Math.round(r.surface_reelle_bati)} m²</td>
+        <td><b>${fmtN(Math.round(r.valeur_fonciere / r.surface_reelle_bati))} €</b></td>
+      </tr>`).join("")}
+    </table>`;
+  }
+
+  section.scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+// ── Score immobilier ──────────────────────────────────────────────────────────
+function scoreImmo(stats, evo) {
+  const evol12 = evolution12m(evo);
+  let s = 50;
+  if (evol12 != null) {
+    if (evol12 > 5)  s += 20;
+    else if (evol12 > 0) s += 8;
+    else if (evol12 < -5) s -= 20;
+  }
+  if (stats.n > 40) s += 15;
+  else if (stats.n < 8) s -= 15;
+  return Math.max(10, Math.min(100, s));
+}
+
+// ── Erreur ────────────────────────────────────────────────────────────────────
+function showError(msg) {
+  const el = document.getElementById("error-box");
+  el.textContent = msg;
+  el.classList.add("visible");
+}
+
+// ── Submit ────────────────────────────────────────────────────────────────────
+document.getElementById("estimation-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const btn     = document.getElementById("btn-submit");
+  const errBox  = document.getElementById("error-box");
+  const resCard = document.getElementById("result-card");
+  const analyseSection = document.getElementById("analyse-section");
+
+  errBox.classList.remove("visible");
+  resCard.classList.remove("visible");
+  analyseSection.classList.remove("visible");
+  btn.disabled = true;
+  btn.textContent = "Analyse en cours…";
+
+  try {
+    const adresse = document.getElementById("adresse").value.trim();
+    const surface = parseFloat(document.getElementById("surface").value) || 65;
+    const typeBien = document.getElementById("type_bien").value;
+    const dpe     = document.getElementById("dpe").value;
+    const etat    = document.getElementById("etat").value;
+    const parking = document.getElementById("has_parking").checked;
+    const balcony = document.getElementById("has_balcony").checked;
+    const garden  = document.getElementById("has_garden").checked;
+    const view    = document.getElementById("has_view").checked;
+
+    // 1. Géocodage
+    btn.textContent = "Géocodage…";
+    const geo = await geocode(adresse);
+    if (!geo) throw new Error("Adresse non reconnue. Vérifiez l'orthographe et réessayez.");
+
+    // 2. DVF
+    btn.textContent = "Chargement des transactions…";
+    const rows = await fetchDVF(geo.commune, typeBien);
+    if (rows.length < 3) throw new Error(`Pas assez de données DVF pour "${geo.commune}". Essayez avec le nom de commune seul.`);
+
+    // 3. POI
+    const poi = await fetchPOI(geo.commune);
+
+    // 4. Stats
+    const stats = computeStats(rows);
+    if (!stats) throw new Error("Données insuffisantes pour calculer les statistiques.");
+
+    // 5. Évolution
+    const evo = computeEvolution(rows);
+
+    // 6. Modèle hédonique
+    const pm2Ajuste  = applyHedonic(stats.median, dpe, etat, parking, balcony, garden, view, poi);
+    const prixEstime = Math.round(pm2Ajuste * surface);
+    const conf       = confidence(stats.n);
+    const evol12     = evolution12m(evo);
+    const siImmo     = scoreImmo(stats, evo);
+    const poiScore   = poi ? parseInt(poi.score_global) : null;
+
+    // Impact DPE pour affichage
+    const dpeCoef = DPE_COEF[dpe] || 0;
+    const dpeImpact = dpeCoef !== 0 ? (dpeCoef > 0 ? "+" : "") + Math.round(dpeCoef * 100) + "% vs médiane" : "Neutre";
+
+    // 7. Afficher résultat principal
+    showResult({
+      prix_estime:    prixEstime,
+      pm2_ajuste:     pm2Ajuste,
+      pm2_median:     stats.median,
+      n_transactions: stats.n,
+      evol12,
+      confiance:      conf,
+      poi_score:      poiScore,
+      s_immo:         siImmo,
+      dpe_impact:     dpeImpact,
+    });
+
+    // 8. Afficher analyse détaillée
+    showAnalyse(geo, rows, stats, evo, poi, siImmo);
+
+    // 9. Lead capture (Supabase)
+    const nom   = document.getElementById("lead_nom").value.trim();
+    const email = document.getElementById("lead_email").value.trim();
+    const tel   = document.getElementById("lead_tel").value.trim();
+    if (email) {
+      fetch(`${SUPA_URL}/rest/v1/sahar_leads`, {
+        method: "POST",
+        headers: {
+          apikey: SUPA_ANON,
+          Authorization: `Bearer ${SUPA_ANON}`,
+          "Content-Type": "application/json",
+          Prefer: "return=minimal",
+        },
+        body: JSON.stringify({
+          nom, email, tel,
+          source: "estimateur",
+          adresse,
+          commune: geo.commune,
+          prix_estime: prixEstime,
+          created_at: new Date().toISOString(),
+        }),
+      }).catch(() => {}); // silencieux
+    }
+
+  } catch (err) {
+    console.error(err);
+    showError(err.message || "Erreur inattendue. Réessayez dans quelques secondes.");
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Estimer mon bien";
+  }
+});
+</script>
+</body>
+</html>

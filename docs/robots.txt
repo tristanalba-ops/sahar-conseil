@@ -1,33 +1,12 @@
 # robots.txt pour intentanalytics.fr
-# Mise à jour : 31 mars 2026
-# Permet à Google de crawler tout le site sauf les dossiers non-publics
+# Mise à jour : 30 mars 2026
 
 User-agent: *
 Allow: /
 Disallow: /admin/
 Disallow: /.git/
-Disallow: /node_modules/
-Disallow: /temp/
-Disallow: /draft/
 Disallow: /_*
 
-# Crawl delay (optionnel - laisse Google crawler vite)
-# Crawl-delay: 1
-
-# Sitemap location
-Sitemap: https://intentanalytics.fr/sitemap.xml
-
-# Note sur la migration de domaine
-# Ancien domaine : sahar-conseil.fr
-# Nouveau domaine : intentanalytics.fr
-# Redirection 301 configurée au niveau du registrar
-
-User-agent: *
-Allow: /
-Disallow: /_assets/
-Disallow: /404.html
-
-# Sitemap
 Sitemap: https://intentanalytics.fr/sitemap.xml
 
 # Google
