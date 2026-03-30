@@ -123,6 +123,32 @@
     .wiki-link { font-size: 0.85rem; color: #00D47E; text-decoration: none; font-weight: 600; }
     .wiki-link:hover { text-decoration: underline; }
 
+    /* ── Chart ── */
+    .chart-wrap { position: relative; width: 100%; }
+    .chart-wrap canvas { width: 100% !important; border-radius: 8px; display: block; }
+    .chart-title { font-size: 0.9rem; font-weight: 700; color: #333; margin-bottom: 14px; }
+
+    /* ── Vente cards ── */
+    .vente-list { display: flex; flex-direction: column; gap: 10px; }
+    .vente-card { display: flex; align-items: center; gap: 14px; padding: 14px 16px; background: #fafafa; border: 1.5px solid #eee; border-radius: 12px; }
+    .vente-icon { width: 38px; height: 38px; background: #f0fdf8; border: 1.5px solid #bbf7d0; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; }
+    .vente-body { flex: 1; min-width: 0; }
+    .vente-type { font-size: 0.82rem; font-weight: 700; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .vente-rue { font-size: 0.75rem; color: #888; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .vente-right { text-align: right; flex-shrink: 0; }
+    .vente-prix { font-size: 1rem; font-weight: 800; color: #111; }
+    .vente-m2 { font-size: 0.75rem; color: #888; margin-top: 1px; }
+    .vente-date { font-size: 0.7rem; color: #bbb; margin-top: 2px; }
+
+    /* ── Aides rénov ── */
+    .aides-intro { font-size: 0.88rem; color: #555; margin-bottom: 16px; line-height: 1.55; padding: 12px 14px; background: #fffbeb; border: 1.5px solid #fde68a; border-radius: 10px; }
+    .aide-row { display: flex; align-items: center; gap: 12px; padding: 11px 0; border-bottom: 1px solid #f0f0f0; }
+    .aide-row:last-of-type { border-bottom: none; }
+    .aide-label { flex: 1; font-size: 0.88rem; color: #333; font-weight: 500; }
+    .aide-montant { font-size: 0.85rem; font-weight: 700; color: #059669; flex-shrink: 0; }
+    .aide-cta { display: inline-flex; align-items: center; gap: 6px; margin-top: 16px; padding: 10px 18px; background: #00D47E; color: #fff; border-radius: 8px; font-size: 0.88rem; font-weight: 700; text-decoration: none; transition: background .2s; }
+    .aide-cta:hover { background: #00be70; }
+
     /* ── CTA ── */
     .cta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
     .cta-box { border: 1.5px solid #e0e0e0; border-radius: 12px; padding: 22px 20px; text-align: center; transition: border-color .2s, box-shadow .2s; }
@@ -218,6 +244,18 @@
     <div id="sec-market-content"></div>
   </div>
 
+  <!-- Graphique évolution -->
+  <div class="section-card hidden" id="sec-chart">
+    <div class="section-title">📈 Évolution des prix au m²</div>
+    <div id="sec-chart-content"></div>
+  </div>
+
+  <!-- Dernières ventes -->
+  <div class="section-card hidden" id="sec-ventes">
+    <div class="section-title">🏠 Dernières ventes dans la zone</div>
+    <div id="sec-ventes-content"></div>
+  </div>
+
   <!-- DPE -->
   <div class="section-card hidden" id="sec-dpe">
     <div class="section-title">⚡ Diagnostic énergétique</div>
@@ -240,6 +278,12 @@
   <div class="section-card hidden" id="sec-wiki">
     <div class="section-title">📖 À propos de la commune</div>
     <div id="sec-wiki-content"></div>
+  </div>
+
+  <!-- Aides rénovation -->
+  <div class="section-card hidden" id="sec-aides">
+    <div class="section-title">🔧 Aides rénovation disponibles</div>
+    <div id="sec-aides-content"></div>
   </div>
 
   <!-- CTA -->
@@ -420,11 +464,13 @@ function launch(cp, ins, surface, type) {
   formCard.style.display = "none";
   resetWrap.style.display = "block";
 
-  showSk("sec-price",  skPrice());
-  showSk("sec-market", skBars(3));
-  showSk("sec-dpe",    skDPE());
-  showSk("sec-vie",    skBars(4));
-  showSk("sec-demo",   skDemo());
+  showSk("sec-price",   skPrice());
+  showSk("sec-market",  skBars(3));
+  showSk("sec-chart",   skChart());
+  showSk("sec-ventes",  skVentes());
+  showSk("sec-dpe",     skDPE());
+  showSk("sec-vie",     skBars(4));
+  showSk("sec-demo",    skDemo());
   if (ins) showSk("sec-wiki", skWiki());
   showSection("sec-cta");
 
@@ -432,7 +478,9 @@ function launch(cp, ins, surface, type) {
 
   doEstimate(cp, surface, type);
   doCommune(cp);
-  doDPE(cp);
+  doChart(cp);
+  doVentes(cp);
+  doDPE(cp, ins);
   if (ins) doWiki(ins); else hideSection("sec-wiki");
 }
 
@@ -502,6 +550,25 @@ function skWiki() {
     + '<div class="sk" style="height:10px;width:70%;border-radius:5px;"></div>'
     + '</div></div>';
 }
+function skChart() {
+  return '<div class="sk" style="height:200px;border-radius:8px;"></div>';
+}
+function skVentes() {
+  return Array(3).fill(
+    '<div style="display:flex;gap:14px;padding:14px 0;border-bottom:1px solid #f0f0f0;align-items:center;">'
+    + '<div class="sk" style="width:38px;height:38px;border-radius:9px;flex-shrink:0;"></div>'
+    + '<div style="flex:1;"><div class="sk" style="height:11px;width:60%;border-radius:5px;margin-bottom:7px;"></div>'
+    + '<div class="sk" style="height:9px;width:40%;border-radius:5px;"></div></div>'
+    + '<div style="text-align:right;"><div class="sk" style="height:14px;width:80px;border-radius:5px;margin-bottom:6px;"></div>'
+    + '<div class="sk" style="height:9px;width:55px;border-radius:5px;margin-left:auto;"></div></div>'
+    + '</div>'
+  ).join("");
+}
+function skAides() {
+  return '<div class="sk" style="height:56px;border-radius:10px;margin-bottom:14px;"></div>'
+    + Array(3).fill('<div class="sk" style="height:14px;border-radius:5px;margin-bottom:10px;"></div>').join("")
+    + '<div class="sk" style="height:36px;width:200px;border-radius:8px;margin-top:16px;"></div>';
+}
 
 // ── Fetch: estimate_property ──────────────────────────────────────────────────
 async function doEstimate(cp, surface, type) {
@@ -544,15 +611,58 @@ async function doCommune(cp) {
   }
 }
 
+// ── Fetch: market_stats (graphique) ──────────────────────────────────────────
+async function doChart(cp) {
+  try {
+    const r = await fetch(SUPA_URL + "/rest/v1/market_stats?code_postal=eq." + encodeURIComponent(cp) + "&order=annee.asc&select=annee,prix_median_m2,volume", { headers: SH });
+    if (!r.ok) throw new Error();
+    const data = await r.json();
+    if (Array.isArray(data) && data.length >= 2) renderChart(data); else hideSection("sec-chart");
+  } catch (_) { hideSection("sec-chart"); }
+}
+
+// ── Fetch: dvf_mutations (dernières ventes) ───────────────────────────────────
+async function doVentes(cp) {
+  try {
+    const url = SUPA_URL + "/rest/v1/dvf_mutations?code_postal=eq." + encodeURIComponent(cp)
+      + "&surface_reelle_bati=gt.0&valeur_fonciere=gt.0&order=date_mutation.desc&limit=5"
+      + "&select=date_mutation,valeur_fonciere,surface_reelle_bati,type_local,nombre_pieces_principales,adresse_nom_voie";
+    const r = await fetch(url, { headers: SH });
+    if (!r.ok) throw new Error();
+    const data = await r.json();
+    if (Array.isArray(data) && data.length) renderVentes(data); else hideSection("sec-ventes");
+  } catch (_) { hideSection("sec-ventes"); }
+}
+
 // ── Fetch: dpe_commune_agg ────────────────────────────────────────────────────
-async function doDPE(cp) {
+async function doDPE(cp, ins) {
   try {
     const r = await fetch(SUPA_URL + "/rest/v1/dpe_commune_agg?code_postal=eq." + encodeURIComponent(cp) + "&select=*&limit=1", { headers: SH });
     if (!r.ok) throw new Error();
     const data = await r.json();
     const d = Array.isArray(data) ? data[0] : data;
-    if (d) renderDPE(d); else hideSection("sec-dpe");
-  } catch (_) { hideSection("sec-dpe"); }
+    if (d) {
+      renderDPE(d);
+      const passoire = parseFloat(d.pct_passoire ?? d.pct_passoires ?? 0);
+      if (passoire > 15 && ins) doAides(ins); else hideSection("sec-aides");
+    } else {
+      hideSection("sec-dpe");
+      hideSection("sec-aides");
+    }
+  } catch (_) { hideSection("sec-dpe"); hideSection("sec-aides"); }
+}
+
+// ── Fetch: ref_renovation_aids ────────────────────────────────────────────────
+async function doAides(ins) {
+  showSk("sec-aides", skAides());
+  try {
+    const url = SUPA_URL + "/rest/v1/ref_renovation_aids?code_insee=eq." + encodeURIComponent(ins)
+      + "&revenu_classe=eq.modeste&select=geste_label,mpr_montant,cee_montant,ptz_eligible&limit=5";
+    const r = await fetch(url, { headers: SH });
+    if (!r.ok) throw new Error();
+    const data = await r.json();
+    if (Array.isArray(data) && data.length) renderAides(data); else renderAidesDefault();
+  } catch (_) { renderAidesDefault(); }
 }
 
 // ── Fetch: commune_context ────────────────────────────────────────────────────
@@ -790,6 +900,160 @@ function renderWiki(d) {
   setContent("sec-wiki", h);
 }
 
+// ── Render: price chart ───────────────────────────────────────────────────────
+function renderChart(rows) {
+  const prices = rows.map(r => parseFloat(r.prix_median_m2)).filter(v => !isNaN(v));
+  const years  = rows.map(r => String(r.annee));
+  if (!prices.length) { hideSection("sec-chart"); return; }
+
+  const W = 700, H = 200, PAD = { top: 20, right: 20, bottom: 36, left: 62 };
+  const iW = W - PAD.left - PAD.right;
+  const iH = H - PAD.top  - PAD.bottom;
+  const minP = Math.min(...prices) * 0.95;
+  const maxP = Math.max(...prices) * 1.05;
+  const xStep = iW / Math.max(prices.length - 1, 1);
+
+  function px(i) { return PAD.left + i * xStep; }
+  function py(v) { return PAD.top + iH - ((v - minP) / (maxP - minP)) * iH; }
+
+  const canvasId = "priceChart_" + Date.now();
+  setContent("sec-chart", '<div class="chart-wrap"><canvas id="' + canvasId + '" width="' + W + '" height="' + H + '" style="max-height:200px;"></canvas></div>');
+
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  const ctx = canvas.getContext("2d");
+
+  // Grid
+  ctx.strokeStyle = "#f0f0f0"; ctx.lineWidth = 1;
+  const yTicks = 4;
+  for (let i = 0; i <= yTicks; i++) {
+    const y = PAD.top + (iH / yTicks) * i;
+    ctx.beginPath(); ctx.moveTo(PAD.left, y); ctx.lineTo(PAD.left + iW, y); ctx.stroke();
+  }
+
+  // Y labels
+  ctx.fillStyle = "#aaa"; ctx.font = "11px system-ui"; ctx.textAlign = "right";
+  for (let i = 0; i <= yTicks; i++) {
+    const v = maxP - ((maxP - minP) / yTicks) * i;
+    const y = PAD.top + (iH / yTicks) * i;
+    ctx.fillText(Math.round(v).toLocaleString("fr-FR") + " €", PAD.left - 8, y + 4);
+  }
+
+  // X labels
+  ctx.textAlign = "center"; ctx.fillStyle = "#aaa";
+  years.forEach((yr, i) => {
+    if (years.length <= 8 || i % Math.ceil(years.length / 8) === 0 || i === years.length - 1) {
+      ctx.fillText(yr, px(i), H - PAD.bottom + 18);
+    }
+  });
+
+  // Area fill
+  const grad = ctx.createLinearGradient(0, PAD.top, 0, PAD.top + iH);
+  grad.addColorStop(0, "rgba(0,212,126,0.18)");
+  grad.addColorStop(1, "rgba(0,212,126,0)");
+  ctx.beginPath();
+  ctx.moveTo(px(0), PAD.top + iH);
+  prices.forEach((v, i) => ctx.lineTo(px(i), py(v)));
+  ctx.lineTo(px(prices.length - 1), PAD.top + iH);
+  ctx.closePath();
+  ctx.fillStyle = grad; ctx.fill();
+
+  // Line
+  ctx.beginPath(); ctx.strokeStyle = "#00D47E"; ctx.lineWidth = 2.5; ctx.lineJoin = "round";
+  prices.forEach((v, i) => i === 0 ? ctx.moveTo(px(i), py(v)) : ctx.lineTo(px(i), py(v)));
+  ctx.stroke();
+
+  // Points + tooltip data stored on canvas
+  const points = prices.map((v, i) => ({ x: px(i), y: py(v), val: v, yr: years[i] }));
+  points.forEach(pt => {
+    ctx.beginPath(); ctx.arc(pt.x, pt.y, 4, 0, Math.PI * 2);
+    ctx.fillStyle = "#fff"; ctx.fill();
+    ctx.strokeStyle = "#00D47E"; ctx.lineWidth = 2.5; ctx.stroke();
+  });
+
+  // Hover tooltip
+  const tip = document.createElement("div");
+  tip.style.cssText = "position:absolute;display:none;background:#111;color:#fff;font-size:12px;font-weight:700;padding:5px 10px;border-radius:7px;pointer-events:none;white-space:nowrap;z-index:10;";
+  canvas.parentElement.style.position = "relative";
+  canvas.parentElement.appendChild(tip);
+
+  canvas.addEventListener("mousemove", e => {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = W / rect.width;
+    const mx = (e.clientX - rect.left) * scaleX;
+    let closest = null, minD = Infinity;
+    points.forEach(pt => { const d = Math.abs(pt.x - mx); if (d < minD) { minD = d; closest = pt; } });
+    if (closest && minD < 30) {
+      tip.textContent = closest.yr + " · " + Math.round(closest.val).toLocaleString("fr-FR") + " €/m²";
+      const tipX = (closest.x / W * rect.width) + rect.left - canvas.parentElement.getBoundingClientRect().left;
+      const tipY = (closest.y / H * rect.height);
+      tip.style.left = tipX + "px"; tip.style.top = (tipY - 32) + "px";
+      tip.style.display = "block"; tip.style.transform = "translateX(-50%)";
+    } else { tip.style.display = "none"; }
+  });
+  canvas.addEventListener("mouseleave", () => { tip.style.display = "none"; });
+}
+
+// ── Render: dernières ventes ──────────────────────────────────────────────────
+function renderVentes(rows) {
+  const fmtDate = s => {
+    if (!s) return "";
+    const d = new Date(s);
+    return isNaN(d) ? s : d.toLocaleDateString("fr-FR", { month: "short", year: "numeric" });
+  };
+  let h = '<div class="vente-list">';
+  rows.forEach(v => {
+    const surf  = parseFloat(v.surface_reelle_bati);
+    const prix  = parseFloat(v.valeur_fonciere);
+    const m2    = (surf > 0 && prix > 0) ? Math.round(prix / surf) : null;
+    const type  = v.type_local || "Bien";
+    const pieces = v.nombre_pieces_principales;
+    const icon  = (type.toLowerCase().includes("maison")) ? "🏠" : "🏢";
+    const rue   = v.adresse_nom_voie ? "Rue " + esc(v.adresse_nom_voie) : "";
+    const label = type + (surf > 0 ? " · " + Math.round(surf) + " m²" : "") + (pieces ? " · " + pieces + " p." : "");
+    h += '<div class="vente-card">';
+    h += '<div class="vente-icon">' + icon + '</div>';
+    h += '<div class="vente-body"><div class="vente-type">' + esc(label) + '</div>';
+    if (rue) h += '<div class="vente-rue">' + rue + '</div>';
+    h += '</div>';
+    h += '<div class="vente-right"><div class="vente-prix">' + fmtEur(prix) + '</div>';
+    if (m2) h += '<div class="vente-m2">' + fmtEur(m2) + '/m²</div>';
+    h += '<div class="vente-date">' + fmtDate(v.date_mutation) + '</div>';
+    h += '</div></div>';
+  });
+  h += '</div>';
+  setContent("sec-ventes", h);
+}
+
+// ── Render: aides rénovation ──────────────────────────────────────────────────
+function renderAides(rows) {
+  let h = '<p class="aides-intro">⚠️ Ce secteur présente une part importante de passoires thermiques (F/G). Des aides à la rénovation sont disponibles pour les ménages modestes.</p>';
+  h += '<div class="aide-rows">';
+  rows.forEach(a => {
+    const mpr = a.mpr_montant != null ? fmtEur(a.mpr_montant) + " MaPrimeRénov'" : null;
+    const cee = a.cee_montant != null ? fmtEur(a.cee_montant) + " CEE" : null;
+    const montants = [mpr, cee].filter(Boolean).join(" + ");
+    h += '<div class="aide-row">'
+      + '<div class="aide-label">🔹 ' + esc(a.geste_label || "Geste de rénovation") + '</div>'
+      + (montants ? '<div class="aide-montant">' + esc(montants) + '</div>' : '')
+      + '</div>';
+  });
+  h += '</div>';
+  h += '<a class="aide-cta" href="https://france-renov.gouv.fr/aides/maprimerenov" target="_blank" rel="noopener">🌿 Estimez vos aides sur France Rénov</a>';
+  setContent("sec-aides", h);
+}
+
+function renderAidesDefault() {
+  const h = '<p class="aides-intro">⚠️ Ce secteur présente une part importante de passoires thermiques (F/G). Des aides nationales sont disponibles pour financer vos travaux de rénovation énergétique.</p>'
+    + '<div class="aide-rows">'
+    + '<div class="aide-row"><div class="aide-label">🔹 Isolation des murs et combles</div><div class="aide-montant">jusqu\'à 75 % MaPrimeRénov\'</div></div>'
+    + '<div class="aide-row"><div class="aide-label">🔹 Changement de chaudière</div><div class="aide-montant">jusqu\'à 10 000 € MaPrimeRénov\'</div></div>'
+    + '<div class="aide-row"><div class="aide-label">🔹 Pompe à chaleur</div><div class="aide-montant">jusqu\'à 5 000 € CEE</div></div>'
+    + '</div>'
+    + '<a class="aide-cta" href="https://france-renov.gouv.fr/aides/maprimerenov" target="_blank" rel="noopener">🌿 Estimez vos aides sur France Rénov</a>';
+  setContent("sec-aides", h);
+}
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function showError(msg) { errorBox.textContent = msg; errorBox.classList.add("visible"); }
 function hideError()    { errorBox.classList.remove("visible"); errorBox.textContent = ""; }
@@ -801,7 +1065,7 @@ resetBtn.addEventListener("click", () => {
   hideError();
   formCard.style.display = "";
   resetWrap.style.display = "none";
-  ["sec-price","sec-market","sec-dpe","sec-vie","sec-demo","sec-wiki","sec-cta"].forEach(hideSection);
+  ["sec-price","sec-market","sec-chart","sec-ventes","sec-dpe","sec-aides","sec-vie","sec-demo","sec-wiki","sec-cta"].forEach(hideSection);
   formCard.scrollIntoView({ behavior: "smooth", block: "start" });
 });
 </script>
