@@ -528,6 +528,7 @@ form.addEventListener("submit", async e => {
 
 // ── Render results ─────────────────────────────────────────────────────────────
 function renderResults(d, surface) {
+  document.getElementById('results').style.display = 'block';
   const prix       = d.prix_median   ?? d.estimation   ?? d.prix_estime ?? null;
   const bas        = d.prix_bas      ?? d.fourchette_basse ?? null;
   const haut       = d.prix_haut     ?? d.fourchette_haute ?? null;
