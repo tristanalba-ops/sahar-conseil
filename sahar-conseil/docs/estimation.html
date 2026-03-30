@@ -3,20 +3,20 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Estimer mon bien — SAHAR Conseil</title>
+  <title>Estimer mon bien — Intent Analytics</title>
   <meta name="description" content="Estimez la valeur de votre bien immobilier gratuitement. Données DVF officielles, prix par rue, comparables réels." />
-  <link rel="canonical" href="https://sahar-conseil.fr/estimation" />
+  <link rel="canonical" href="https://intentanalytics.fr/estimation" />
   <meta name="robots" content="index, follow" />
-  <meta property="og:title" content="Estimateur immobilier gratuit — SAHAR Conseil" />
+  <meta property="og:title" content="Estimateur immobilier gratuit — Intent Analytics" />
   <meta property="og:description" content="Prix réels issus des actes notariés DVF. Estimation par rue, fourchette de marché, comparables." />
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://sahar-conseil.fr/estimation" />
+  <meta property="og:url" content="https://intentanalytics.fr/estimation" />
   <meta property="og:locale" content="fr_FR" />
   <script type="application/ld+json">
-  {"@context":"https://schema.org","@type":"WebApplication","name":"Estimateur Immobilier SAHAR Conseil",
-   "url":"https://sahar-conseil.fr/estimation","applicationCategory":"BusinessApplication",
+  {"@context":"https://schema.org","@type":"WebApplication","name":"Estimateur Immobilier Intent Analytics",
+   "url":"https://intentanalytics.fr/estimation","applicationCategory":"BusinessApplication",
    "offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"},
-   "provider":{"@type":"Organization","name":"SAHAR Conseil","url":"https://sahar-conseil.fr"}}
+   "provider":{"@type":"Organization","name":"Intent Analytics","url":"https://intentanalytics.fr"}}
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600;700&display=swap" />
@@ -170,7 +170,7 @@
 <body>
 
 <nav>
-  <a class="nav-logo" href="/"><span>SAHAR</span> Conseil</a>
+  <a class="nav-logo" href="/"><span>Intent Analytics</span> </a>
   <div class="nav-links">
     <a href="/#outils">Outils</a>
     <a href="/#domaines">Domaines</a>
@@ -335,7 +335,7 @@
       </div>
 
       <!-- Vote -->
-      <p style="font-size:.85rem;font-weight:600;margin-bottom:.5rem;">L'estimation SAHAR est :</p>
+      <p style="font-size:.85rem;font-weight:600;margin-bottom:.5rem;">L'estimation Intent Analytics est :</p>
       <div class="vote-row">
         <button class="vote-btn" id="vote-yes" onclick="setVote(true)">👍 Cohérente</button>
         <button class="vote-btn" id="vote-no"  onclick="setVote(false)">👎 Trop haute / basse</button>
@@ -369,10 +369,10 @@
 </div><!-- /app-wrapper -->
 
 <footer>
-  <p>© 2026 SAHAR Conseil —
+  <p>© 2026 Intent Analytics —
     <a href="/mentions-legales.html">Mentions légales</a> ·
     <a href="/politique-confidentialite.html">Confidentialité</a> ·
-    <a href="mailto:contact@sahar-conseil.fr">contact@sahar-conseil.fr</a>
+    <a href="mailto:contact@intentanalytics.fr">contact@intentanalytics.fr</a>
   </p>
   <p style="margin-top:.5rem;font-size:.72rem;color:#555;">Estimation à titre indicatif. Ne constitue pas une expertise immobilière certifiée.</p>
 </footer>
@@ -705,10 +705,10 @@ async function saveFeedback() {
   }
 }
 
-// Aussi tracker les recherches dans sahar_tracking
+// Aussi tracker les recherches dans Intent Analytics_tracking
 async function trackSearch(voie, commune) {
   try {
-    await fetch(`${SUPA_URL}/rest/v1/sahar_tracking`, {
+    await fetch(`${SUPA_URL}/rest/v1/Intent Analytics_tracking`, {
       method: 'POST',
       headers: { ...HEADERS, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
       body: JSON.stringify({
