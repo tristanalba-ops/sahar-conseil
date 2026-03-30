@@ -801,7 +801,9 @@ async function estimateRPC(codePostal, surface, typeLocal) {
     const txt = await r.text().catch(() => r.status);
     throw new Error("Erreur serveur : " + txt);
   }
-  return r.json();
+  const json = await r.json();
+  // Supabase peut retourner un tableau à un élément — on unwrap
+  return Array.isArray(json) ? json[0] : json;
 }
 
 // ── Affichage résultat ────────────────────────────────────────────────────────
@@ -809,29 +811,29 @@ function showResult(rpc) {
   const card = document.getElementById("result-card");
   card.classList.add("visible");
 
-  const prixEstime = rpc.prix_estime ?? rpc.estimation ?? rpc.prix;
-  const prixM2     = rpc.prix_m2 ?? rpc.prix_median_m2 ?? rpc.pm2_median;
-  const confiance  = rpc.confiance ?? rpc.confidence ?? 50;
-  const tendance   = rpc.tendance ?? rpc.evolution_12m ?? rpc.evol12;
-  const nbTx       = rpc.nb_transactions ?? rpc.n_transactions ?? rpc.nb_tx ?? 0;
-  const fourchBas  = rpc.fourchette_basse ?? rpc.prix_bas  ?? (prixEstime != null ? Math.round(prixEstime * 0.91) : null);
-  const fourchHaut = rpc.fourchette_haute ?? rpc.prix_haut ?? (prixEstime != null ? Math.round(prixEstime * 1.09) : null);
+  const prixEstime = rpc.prix_estime;
+  const prixM2     = rpc.prix_m2_reference;
+  const confiance  = rpc.niveau_confiance ?? 50;
+  const tendance   = rpc.evolution_12m;
+  const nbTx       = rpc.nb_transactions ?? 0;
+  const fourchBas  = rpc.fourchette_basse;
+  const fourchHaut = rpc.fourchette_haute;
 
   document.getElementById("r-prix").textContent    = fmt(prixEstime);
   document.getElementById("r-prix-m2").textContent = prixM2 != null ? fmtN(prixM2) + " € / m²" : "—";
 
   const confPct = Math.round(confiance);
   document.getElementById("r-conf-bar").style.width = confPct + "%";
-  document.getElementById("r-conf-val").textContent = confPct + " %";
+  document.getElementById("r-conf-val").textContent = rpc.label_confiance ?? (confPct + " %");
 
   // Métriques
   const metrics = document.getElementById("r-metrics");
   metrics.innerHTML = "";
   [
-    { label: "Prix médian zone",  val: prixM2 != null ? fmtN(prixM2) + " €/m²" : "—",                          sub: nbTx ? `${nbTx} transactions` : "" },
-    { label: "Tendance 12 mois",  val: tendance != null ? (tendance >= 0 ? "+" : "") + tendance + " %" : "—",   sub: "" },
-    { label: "Fourchette basse",  val: fmt(fourchBas),                                                           sub: "" },
-    { label: "Fourchette haute",  val: fmt(fourchHaut),                                                          sub: "" },
+    { label: "Prix médian zone",  val: prixM2 != null ? fmtN(prixM2) + " €/m²" : "—",  sub: nbTx ? `${nbTx} transactions` : "" },
+    { label: "Tendance 12 mois",  val: rpc.label_tendance ?? (tendance != null ? (tendance >= 0 ? "+" : "") + tendance + " %" : "—"), sub: "" },
+    { label: "Fourchette basse",  val: fmt(fourchBas),  sub: "" },
+    { label: "Fourchette haute",  val: fmt(fourchHaut), sub: "" },
   ].forEach(k => {
     const b = document.createElement("div");
     b.className = "metric-box";
@@ -842,7 +844,10 @@ function showResult(rpc) {
   // Scores pills
   const scoresEl = document.getElementById("r-scores");
   scoresEl.innerHTML = "";
-  [["Confiance", confPct]].forEach(([label, v]) => {
+  [
+    ["Confiance", confPct],
+    ["Cadre de vie", rpc.score_cadre_vie],
+  ].forEach(([label, v]) => {
     if (v == null) return;
     const pill = document.createElement("span");
     pill.className = "score-pill";
@@ -862,10 +867,10 @@ function showAnalyse(geo, rpc) {
   const section = document.getElementById("analyse-section");
   section.classList.add("visible");
 
-  const confiance  = rpc.confiance ?? rpc.confidence ?? 50;
-  const tendance   = rpc.tendance ?? rpc.evolution_12m ?? rpc.evol12 ?? null;
-  const nbTx       = rpc.nb_transactions ?? rpc.n_transactions ?? rpc.nb_tx ?? 0;
-  const prixM2     = rpc.prix_m2 ?? rpc.prix_median_m2 ?? rpc.pm2_median;
+  const confiance   = rpc.niveau_confiance ?? 50;
+  const tendance    = rpc.evolution_12m ?? null;
+  const nbTx        = rpc.nb_transactions ?? 0;
+  const prixM2      = rpc.prix_m2_reference;
   const scoreGlobal = Math.min(100, Math.round(confiance * 0.6 + Math.min(100, nbTx * 2) * 0.4));
 
   // Reco box
@@ -969,11 +974,8 @@ function showError(msg) {
 }
 
 // ── Submit ────────────────────────────────────────────────────────────────────
-document.addEventListener("DOMContentLoaded", () => {
-  document.getElementById("estimation-form").addEventListener("submit", submitHandler);
-});
-
-async function submitHandler(e) {
+// Script is at end of <body> — form is already in DOM, no DOMContentLoaded needed
+document.getElementById("estimation-form").addEventListener("submit", async function submitHandler(e) {
   e.preventDefault();
   const btn          = document.getElementById("btn-submit");
   const errBox       = document.getElementById("error-box");
@@ -1000,8 +1002,7 @@ async function submitHandler(e) {
     // 2. Appel RPC estimate_property
     btn.textContent = "Calcul de l'estimation…";
     const rpc = await estimateRPC(geo.cp, surface, typeBien);
-    const prixEstime = rpc.prix_estime ?? rpc.estimation ?? rpc.prix;
-    if (prixEstime == null) throw new Error("Données insuffisantes pour cette zone. Essayez avec une ville voisine.");
+    if (!rpc || rpc.prix_estime == null) throw new Error("Données insuffisantes pour cette zone. Essayez avec une ville voisine.");
 
     // 3. Afficher résultats
     showResult(rpc);
