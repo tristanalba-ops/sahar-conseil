@@ -5,11 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta http-equiv="X-Content-Type-Options" content="nosniff" />
   <meta http-equiv="X-Frame-Options" content="SAMEORIGIN" />
-  <title>Tarifs & API — Intent Analytics</title>
+  <title>Nos Prix — Intent Analytics</title>
   <meta name="description" content="Choisissez votre plan Intent Analytics. Accès à l'API d'estimation immobilière dès 49€/mois. Plans Starter, Pro et Enterprise." />
   <link rel="canonical" href="https://intentanalytics.fr/pricing" />
   <meta name="robots" content="index, follow" />
-  <meta property="og:title" content="Tarifs — Intent Analytics" />
+  <meta property="og:title" content="Nos Prix — Intent Analytics" />
   <meta property="og:description" content="Plans Starter, Pro et Enterprise pour accéder à l'API d'estimation immobilière Intent Analytics." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://intentanalytics.fr/pricing" />
@@ -83,37 +83,6 @@
       max-width: 560px;
       margin: 0 auto 32px;
       line-height: 1.6;
-    }
-    .billing-toggle {
-      display: inline-flex;
-      background: #e8e2db;
-      border-radius: 100px;
-      padding: 4px;
-      gap: 2px;
-      font-size: 0.875rem;
-    }
-    .billing-toggle span {
-      padding: 6px 18px;
-      border-radius: 100px;
-      cursor: pointer;
-      transition: all .2s;
-      color: #666;
-    }
-    .billing-toggle span.active {
-      background: #fff;
-      color: #111;
-      font-weight: 600;
-      box-shadow: 0 1px 4px rgba(0,0,0,.1);
-    }
-    .badge-save {
-      background: #00D47E;
-      color: #fff;
-      font-size: 0.72rem;
-      font-weight: 700;
-      padding: 2px 8px;
-      border-radius: 100px;
-      margin-left: 6px;
-      vertical-align: middle;
     }
 
     /* ── Pricing grid ── */
@@ -416,9 +385,9 @@
   <a href="/" class="logo">Intent Analytics</a>
   <nav>
     <a href="/estimation">Estimer</a>
-    <a href="/pricing" class="active">API</a>
-    <a href="/#contact">Contact</a>
-    <a href="/api" class="btn">Documentation</a>
+    <a href="/pricing" class="active">Prix</a>
+    <a href="/api">API</a>
+    <a href="mailto:contact@intentanalytics.fr">Contact</a>
   </nav>
 </header>
 
@@ -426,10 +395,6 @@
 <div class="page-hero">
   <h1>Tarifs simples,<br>sans surprise</h1>
   <p>Accédez à l'API d'estimation immobilière alimentée par les données officielles DVF, DPE ADEME et INSEE.</p>
-  <div class="billing-toggle">
-    <span class="active">Mensuel</span>
-    <span>Annuel <span class="badge-save">-20%</span></span>
-  </div>
 </div>
 
 <!-- PRICING CARDS -->
@@ -559,7 +524,7 @@
         <span class="faq-icon">+</span>
       </button>
       <div class="faq-answer">
-        <p>Oui, le changement de plan prend effet immédiatement. La facturation est ajustée au prorata du mois en cours. Il n'y a pas d'engagement minimum sur les plans Starter et Pro. L'offre Enterprise est disponible sur devis avec engagement annuel recommandé.</p>
+        <p>Oui, le changement de plan prend effet immédiatement. La facturation est ajustée au prorata du mois en cours. Il n'y a pas d'engagement minimum sur les plans Starter, Pro et Enterprise.</p>
       </div>
     </div>
 
@@ -581,8 +546,8 @@
   <span class="footer-logo">Intent Analytics</span>
   <ul>
     <li><a href="/estimation">Estimer</a></li>
-    <li><a href="/pricing">API</a></li>
-    <li><a href="/api">Documentation</a></li>
+    <li><a href="/pricing">Prix</a></li>
+    <li><a href="/api">Documentation API</a></li>
     <li><a href="legal/mentions-legales.html">Mentions légales</a></li>
     <li><a href="legal/politique-confidentialite.html">Confidentialité</a></li>
   </ul>
@@ -608,13 +573,6 @@ document.querySelectorAll('.faq-question').forEach(function(btn) {
   });
 });
 
-// Billing toggle (visual only)
-document.querySelectorAll('.billing-toggle span').forEach(function(span) {
-  span.addEventListener('click', function() {
-    document.querySelectorAll('.billing-toggle span').forEach(function(s) { s.classList.remove('active'); });
-    this.classList.add('active');
-  });
-});
 </script>
 
 </body>
