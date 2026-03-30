@@ -375,27 +375,26 @@
 const SUPA_URL  = "https://wwvdpixzfaviaapixarb.supabase.co";
 const SUPA_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3dmRwaXh6ZmF2aWFhcGl4YXJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3Mzk0NDgsImV4cCI6MjA5MDMxNTQ0OH0.NjOeWzUCo2BJPcxnkEJNm215GJBr1RAHba1eL_EF758";
 
-// ── Formatters ─────────────────────────────────────────────────────────────────
 const fmtEur = n => new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(n);
 const fmtNum = n => new Intl.NumberFormat("fr-FR").format(n);
 
-// ── DOM refs ───────────────────────────────────────────────────────────────────
-const addressInput   = document.getElementById("address");
-const codePostalInput= document.getElementById("codePostal");
-const acList         = document.getElementById("autocompleteList");
-const form           = document.getElementById("estimForm");
-const submitBtn      = document.getElementById("submitBtn");
-const loader         = document.getElementById("loader");
-const errorBox       = document.getElementById("errorBox");
-const resultsEl      = document.getElementById("results");
-const resetBtn       = document.getElementById("resetBtn");
+const addressInput    = document.getElementById("address");
+const codePostalInput = document.getElementById("codePostal");
+const acList          = document.getElementById("autocompleteList");
+const form            = document.getElementById("estimForm");
+const loader          = document.getElementById("loader");
+const errorBox        = document.getElementById("errorBox");
+const resultsEl       = document.getElementById("results");
+const resetBtn        = document.getElementById("resetBtn");
 
-// ── Autocomplete ───────────────────────────────────────────────────────────────
-let debounceTimer = null;
-let activeIdx = -1;
-let suggestions = [];
+let debounceTimer   = null;
+let activeIdx       = -1;
+let suggestions     = [];
+let storedCodePostal = "";
 
+// ── Autocomplete ──────────────────────────────────────────────────────────────
 addressInput.addEventListener("input", () => {
+  storedCodePostal = "";
   clearTimeout(debounceTimer);
   const q = addressInput.value.trim();
   if (q.length < 3) { closeList(); return; }
@@ -464,8 +463,9 @@ function renderList(feats) {
 
 function selectSuggestion(feat) {
   const p = feat.properties;
-  addressInput.value = p.label || "";
-  codePostalInput.value = p.postcode || "";
+  addressInput.value    = p.label || "";
+  storedCodePostal      = p.postcode || "";
+  codePostalInput.value = storedCodePostal;
   closeList();
 }
 
@@ -473,27 +473,55 @@ function closeList() {
   acList.classList.remove("open");
   acList.innerHTML = "";
   suggestions = [];
-  activeIdx = -1;
+  activeIdx   = -1;
 }
 
 function escHtml(s) {
-  return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+  return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 }
 
-// ── Form submit ────────────────────────────────────────────────────────────────
+// ── Géocodage fallback ────────────────────────────────────────────────────────
+async function geocodeAddress(addr) {
+  const url = `https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(addr)}&limit=1`;
+  const res = await fetch(url);
+  if (!res.ok) return null;
+  const data = await res.json();
+  const feat = (data.features || [])[0];
+  return feat ? feat.properties.postcode : null;
+}
+
+// ── Form submit ───────────────────────────────────────────────────────────────
 form.addEventListener("submit", async e => {
   e.preventDefault();
-  const cp      = codePostalInput.value.trim();
+
   const surface = parseFloat(document.getElementById("surface").value);
   const type    = document.getElementById("typeBien").value;
 
-  // Validation
-  if (!cp) { showError("Veuillez sélectionner une adresse depuis la liste de suggestions."); return; }
-  if (isNaN(surface) || surface < 5) { showError("Veuillez saisir une surface valide (min. 5 m²)."); return; }
+  if (!surface || isNaN(surface) || surface < 5) {
+    showError("Veuillez saisir une surface valide (min. 5 m²).");
+    return;
+  }
+
+  let cp = storedCodePostal || codePostalInput.value.trim();
+
+  if (!cp) {
+    const addr = addressInput.value.trim();
+    if (!addr) { showError("Veuillez saisir une adresse."); return; }
+    hideError();
+    showLoader(true);
+    cp = await geocodeAddress(addr);
+    if (!cp) {
+      showLoader(false);
+      showError("Impossible de localiser cette adresse. Sélectionnez une suggestion dans la liste.");
+      return;
+    }
+    storedCodePostal      = cp;
+    codePostalInput.value = cp;
+  }
 
   hideError();
   showLoader(true);
-  setFormVisible(false);
+  form.style.display = "none";
 
   try {
     const res = await fetch(`${SUPA_URL}/rest/v1/rpc/estimate_property`, {
@@ -516,67 +544,65 @@ form.addEventListener("submit", async e => {
     }
 
     const data = await res.json();
-    renderResults(data, surface);
-    resultsEl.classList.add("visible");
-    resetBtn.classList.add("visible");
+    // La réponse est un tableau — on prend le premier élément
+    const d = Array.isArray(data) ? data[0] : data;
+
+    if (!d || d.prix_estime == null) {
+      throw new Error("Données insuffisantes pour cette zone. Essayez une adresse différente.");
+    }
+
+    renderResults(d, surface);
+
   } catch (err) {
-    setFormVisible(true);
-    showError("Une erreur est survenue : " + (err.message || "réessayez plus tard."));
+    form.style.display = "";
+    showError(err.message || "Une erreur est survenue. Réessayez plus tard.");
   } finally {
     showLoader(false);
   }
 });
 
-// ── Render results ─────────────────────────────────────────────────────────────
+// ── Render results ────────────────────────────────────────────────────────────
 function renderResults(d, surface) {
-  document.getElementById('results').style.display = 'block';
-  const prix       = d.prix_median   ?? d.estimation   ?? d.prix_estime ?? null;
-  const bas        = d.prix_bas      ?? d.fourchette_basse ?? null;
-  const haut       = d.prix_haut     ?? d.fourchette_haute ?? null;
-  const prixM2     = d.prix_m2       ?? (prix && surface ? Math.round(prix / surface) : null);
-  const nbTrans    = d.nb_transactions ?? d.nb_trans ?? null;
-  const tendance   = d.tendance      ?? null;
-  const evolution  = d.evolution     ?? d.evolution_pct ?? null;
-  const confiance  = d.confiance     ?? d.score_confiance ?? null;
-  const cadreVie   = d.score_cadre_vie ?? d.cadre_vie ?? null;
-  const commune    = d.commune       ?? d.nom_commune ?? "";
+  const prix        = d.prix_estime;
+  const bas         = d.fourchette_basse;
+  const haut        = d.fourchette_haute;
+  const prixM2      = d.prix_m2_reference ?? (prix && surface ? Math.round(prix / surface) : null);
+  const nbTrans     = d.nb_transactions ?? null;
+  const labelTend   = d.label_tendance  ?? null;
+  const evolution   = d.evolution_12m   ?? null;
+  const confiance   = d.niveau_confiance ?? null;
+  const labelConf   = d.label_confiance  ?? null;
+  const commune     = d.nom_commune      ?? "";
 
   let html = "";
 
   // Prix principal
   html += `<div class="result-price">`;
   if (commune) html += `<div class="commune">${escHtml(commune)}</div>`;
-  html += `<div class="price-main">${prix !== null ? fmtEur(prix) : "—"}</div>`;
-  if (bas !== null && haut !== null) {
+  html += `<div class="price-main">${fmtEur(prix)}</div>`;
+  if (bas != null && haut != null) {
     html += `<div class="price-range">Fourchette : <span>${fmtEur(bas)}</span> – <span>${fmtEur(haut)}</span></div>`;
   }
   html += `</div>`;
 
   // Stats grid
   html += `<div class="result-grid">`;
-
-  if (prixM2 !== null) {
-    html += stat("Prix au m²", fmtEur(prixM2) + "/m²");
+  if (prixM2 != null)    html += stat("Prix au m²",       `${fmtEur(prixM2)}/m²`);
+  if (nbTrans != null)   html += stat("Transactions DVF", fmtNum(nbTrans));
+  if (labelTend != null) html += stat("Tendance marché",  buildTrend(labelTend, evolution));
+  if (confiance != null) {
+    const confLabel = labelConf ? `<br><small style="font-size:0.7rem;color:#888;">${escHtml(labelConf)}</small>` : "";
+    html += stat("Confiance", buildStars(confiance) + confLabel);
   }
-  if (nbTrans !== null) {
-    html += stat("Transactions DVF", fmtNum(nbTrans));
-  }
-  if (tendance !== null) {
-    const tBadge = buildTrend(tendance, evolution);
-    html += stat("Tendance marché", tBadge);
-  }
-  if (confiance !== null) {
-    html += stat("Confiance", buildStars(confiance));
-  }
-  if (cadreVie !== null) {
-    html += stat("Cadre de vie", `<span>${fmtNum(Math.round(cadreVie))}/100</span>`);
-  }
-
   html += `</div>`;
 
   html += `<p class="result-disclaimer">Estimation indicative basée sur les données DVF. Ne constitue pas une évaluation professionnelle.</p>`;
 
-  resultsEl.innerHTML = html;
+  resultsEl.innerHTML     = html;
+  resultsEl.style.display = "block";
+  resultsEl.classList.add("visible");
+  resetBtn.style.display  = "block";
+  resetBtn.classList.add("visible");
 }
 
 function stat(label, valueHtml) {
@@ -586,46 +612,44 @@ function stat(label, valueHtml) {
 function buildStars(score) {
   const n = Math.round(Math.min(Math.max(score, 0), 5));
   let s = '<span class="stars">';
-  for (let i = 1; i <= 5; i++) {
-    s += i <= n ? '<span class="filled">★</span>' : '<span class="empty">★</span>';
-  }
+  for (let i = 1; i <= 5; i++) s += i <= n ? '<span class="filled">★</span>' : '<span class="empty">★</span>';
   return s + '</span>';
 }
 
-function buildTrend(tendance, evolution) {
-  const t = (tendance || "").toLowerCase();
-  let cls = "flat", icon = "→", label = tendance;
-  if (t.includes("hau") || t === "up")   { cls = "up";   icon = "↑"; }
-  if (t.includes("rec") || t === "down") { cls = "down"; icon = "↓"; }
-  const pct = evolution !== null ? ` ${evolution > 0 ? "+" : ""}${evolution}%` : "";
+function buildTrend(label, evolution) {
+  const t = (label || "").toLowerCase();
+  let cls = "flat", icon = "→";
+  if (t.includes("hau") || t.includes("up"))   { cls = "up";   icon = "↑"; }
+  if (t.includes("rec") || t.includes("down"))  { cls = "down"; icon = "↓"; }
+  const pct = evolution != null ? ` (${evolution > 0 ? "+" : ""}${evolution}%)` : "";
   return `<span class="trend-badge ${cls}">${icon} ${escHtml(label)}${escHtml(pct)}</span>`;
 }
 
-// ── Helpers ────────────────────────────────────────────────────────────────────
-function showLoader(on) {
-  loader.classList.toggle("visible", on);
-}
-function setFormVisible(on) {
-  form.style.display = on ? "" : "none";
-}
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function showLoader(on) { loader.classList.toggle("visible", on); }
+
 function showError(msg) {
   errorBox.textContent = msg;
   errorBox.classList.add("visible");
 }
+
 function hideError() {
   errorBox.classList.remove("visible");
   errorBox.textContent = "";
 }
 
-// ── Reset ──────────────────────────────────────────────────────────────────────
+// ── Reset ─────────────────────────────────────────────────────────────────────
 resetBtn.addEventListener("click", () => {
   form.reset();
+  storedCodePostal      = "";
   codePostalInput.value = "";
-  resultsEl.innerHTML = "";
+  resultsEl.innerHTML   = "";
+  resultsEl.style.display = "none";
   resultsEl.classList.remove("visible");
+  resetBtn.style.display  = "none";
   resetBtn.classList.remove("visible");
   hideError();
-  setFormVisible(true);
+  form.style.display = "";
 });
 </script>
 
