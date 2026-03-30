@@ -4,312 +4,160 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Estimation immobilière – Intent Analytics</title>
-  <meta name="description" content="Estimez gratuitement la valeur de votre bien immobilier grâce aux données DVF officielles." />
+  <meta name="description" content="Estimez gratuitement la valeur de votre bien immobilier : prix DVF, DPE, cadre de vie, démographie et tendances de marché." />
   <link rel="canonical" href="https://intentanalytics.fr/estimation" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      font-family: system-ui, -apple-system, sans-serif;
-      background: #f5f0eb;
-      color: #1a1a1a;
-      min-height: 100vh;
-    }
+    body { font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f0eb; color: #1a1a1a; min-height: 100vh; }
 
     /* ── Header ── */
-    header {
-      background: #111;
-      padding: 0 24px;
-      height: 56px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    header .logo {
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: #00D47E;
-      text-decoration: none;
-      letter-spacing: -0.5px;
-    }
-    header nav a {
-      color: #aaa;
-      text-decoration: none;
-      font-size: 0.85rem;
-      margin-left: 20px;
-      transition: color .2s;
-    }
+    header { background: #111; padding: 0 24px; height: 56px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 200; }
+    .logo { font-size: 1.1rem; font-weight: 700; color: #00D47E; text-decoration: none; letter-spacing: -0.5px; }
+    header nav a { color: #aaa; text-decoration: none; font-size: 0.85rem; margin-left: 20px; transition: color .2s; }
     header nav a:hover { color: #fff; }
     header nav a.active { color: #00D47E; }
 
-    /* ── Main layout ── */
-    main {
-      max-width: 620px;
-      margin: 48px auto;
-      padding: 0 16px 80px;
-    }
+    /* ── Layout ── */
+    main { max-width: 780px; margin: 0 auto; padding: 40px 16px 80px; }
 
-    h1 {
-      font-size: 1.75rem;
-      font-weight: 800;
-      margin-bottom: 6px;
-      line-height: 1.2;
-    }
-    .subtitle {
-      color: #666;
-      font-size: 0.95rem;
-      margin-bottom: 32px;
-    }
+    /* ── Hero ── */
+    .hero { text-align: center; margin-bottom: 32px; }
+    .hero h1 { font-size: 2rem; font-weight: 800; line-height: 1.2; margin-bottom: 8px; }
+    .hero h1 span { color: #00D47E; }
+    .hero p { color: #666; font-size: 1rem; }
 
-    /* ── Card ── */
-    .card {
-      background: #fff;
-      border-radius: 16px;
-      padding: 28px 28px 32px;
-      box-shadow: 0 2px 16px rgba(0,0,0,.08);
-    }
+    /* ── Cards ── */
+    .card { background: #fff; border-radius: 16px; padding: 28px; box-shadow: 0 2px 16px rgba(0,0,0,.07); }
+    .section-card { background: #fff; border-radius: 16px; padding: 24px 28px; box-shadow: 0 2px 16px rgba(0,0,0,.07); margin-top: 20px; }
+    .section-card.hidden { display: none !important; }
+
+    .section-title { font-size: 0.78rem; font-weight: 700; color: #999; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 18px; display: flex; align-items: center; gap: 8px; }
+    .section-title::after { content: ''; flex: 1; height: 1px; background: #f0f0f0; }
 
     /* ── Form ── */
     .field { margin-bottom: 20px; position: relative; }
-    label {
-      display: block;
-      font-size: 0.82rem;
-      font-weight: 600;
-      color: #444;
-      margin-bottom: 6px;
-      text-transform: uppercase;
-      letter-spacing: .04em;
-    }
-    input, select {
-      width: 100%;
-      padding: 12px 14px;
-      border: 1.5px solid #ddd;
-      border-radius: 10px;
-      font-size: 1rem;
-      font-family: inherit;
-      background: #fff;
-      transition: border-color .2s, box-shadow .2s;
-      outline: none;
-      appearance: none;
-      -webkit-appearance: none;
-    }
-    input:focus, select:focus {
-      border-color: #00D47E;
-      box-shadow: 0 0 0 3px rgba(0,212,126,.15);
-    }
-    select {
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23666' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right 14px center;
-      padding-right: 40px;
-      cursor: pointer;
-    }
-
-    /* ── Autocomplete dropdown ── */
-    .autocomplete-list {
-      position: absolute;
-      top: calc(100% + 4px);
-      left: 0;
-      right: 0;
-      background: #fff;
-      border: 1.5px solid #ddd;
-      border-radius: 10px;
-      box-shadow: 0 8px 24px rgba(0,0,0,.12);
-      z-index: 100;
-      overflow: hidden;
-      display: none;
-    }
-    .autocomplete-list.open { display: block; }
-    .autocomplete-item {
-      padding: 11px 14px;
-      cursor: pointer;
-      font-size: 0.9rem;
-      line-height: 1.4;
-      border-bottom: 1px solid #f0f0f0;
-      transition: background .15s;
-    }
-    .autocomplete-item:last-child { border-bottom: none; }
-    .autocomplete-item:hover,
-    .autocomplete-item.active { background: #f0fdf8; }
-    .autocomplete-item .city {
-      font-size: 0.78rem;
-      color: #888;
-      margin-top: 1px;
-    }
-
-    /* ── Row ── */
+    label { display: block; font-size: 0.82rem; font-weight: 600; color: #444; margin-bottom: 6px; text-transform: uppercase; letter-spacing: .04em; }
+    input, select { width: 100%; padding: 12px 14px; border: 1.5px solid #ddd; border-radius: 10px; font-size: 1rem; font-family: inherit; background: #fff; transition: border-color .2s, box-shadow .2s; outline: none; appearance: none; -webkit-appearance: none; }
+    input:focus, select:focus { border-color: #00D47E; box-shadow: 0 0 0 3px rgba(0,212,126,.15); }
+    select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23666' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 40px; cursor: pointer; }
     .row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 
-    /* ── Submit button ── */
-    .btn-submit {
-      width: 100%;
-      padding: 14px;
-      background: #00D47E;
-      color: #fff;
-      border: none;
-      border-radius: 10px;
-      font-size: 1rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: background .2s, transform .1s;
-      margin-top: 8px;
-      font-family: inherit;
-    }
+    /* ── Autocomplete ── */
+    .autocomplete-list { position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: #fff; border: 1.5px solid #ddd; border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,.12); z-index: 100; overflow: hidden; display: none; }
+    .autocomplete-list.open { display: block; }
+    .autocomplete-item { padding: 11px 14px; cursor: pointer; font-size: 0.9rem; line-height: 1.4; border-bottom: 1px solid #f0f0f0; transition: background .15s; }
+    .autocomplete-item:last-child { border-bottom: none; }
+    .autocomplete-item:hover, .autocomplete-item.active { background: #f0fdf8; }
+    .autocomplete-item .city { font-size: 0.78rem; color: #888; margin-top: 1px; }
+
+    /* ── Buttons ── */
+    .btn-submit { width: 100%; padding: 14px; background: #00D47E; color: #fff; border: none; border-radius: 10px; font-size: 1rem; font-weight: 700; cursor: pointer; transition: background .2s, transform .1s; margin-top: 8px; font-family: inherit; }
     .btn-submit:hover { background: #00be70; }
     .btn-submit:active { transform: scale(.99); }
     .btn-submit:disabled { background: #aaa; cursor: not-allowed; transform: none; }
-
-    /* ── Loader ── */
-    .loader {
-      display: none;
-      justify-content: center;
-      align-items: center;
-      padding: 40px 0;
-      gap: 10px;
-      color: #666;
-      font-size: 0.9rem;
-    }
-    .loader.visible { display: flex; }
-    .spinner {
-      width: 22px; height: 22px;
-      border: 2.5px solid #ddd;
-      border-top-color: #00D47E;
-      border-radius: 50%;
-      animation: spin .7s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
+    .btn-reset { padding: 11px 22px; background: transparent; color: #555; border: 1.5px solid #ddd; border-radius: 10px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: border-color .2s, color .2s; font-family: inherit; }
+    .btn-reset:hover { border-color: #aaa; color: #111; }
 
     /* ── Error ── */
-    .error-box {
-      display: none;
-      background: #fff5f5;
-      border: 1.5px solid #fca5a5;
-      color: #b91c1c;
-      border-radius: 10px;
-      padding: 14px 16px;
-      font-size: 0.9rem;
-      margin-top: 16px;
-    }
+    .error-box { display: none; background: #fff5f5; border: 1.5px solid #fca5a5; color: #b91c1c; border-radius: 10px; padding: 14px 16px; font-size: 0.9rem; margin-top: 16px; }
     .error-box.visible { display: block; }
 
-    /* ── Results ── */
-    .results {
-      display: none;
-      margin-top: 28px;
-    }
-    .results.visible { display: block; }
+    /* ── Skeleton ── */
+    .sk { background: linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 6px; }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 
-    .result-price {
-      text-align: center;
-      padding: 28px 20px 24px;
-      background: linear-gradient(135deg, #f0fdf8 0%, #e6faf2 100%);
-      border-radius: 12px;
-      margin-bottom: 20px;
-      border: 1.5px solid #bbf7d0;
-    }
-    .result-price .commune {
-      font-size: 0.82rem;
-      font-weight: 600;
-      color: #059669;
-      text-transform: uppercase;
-      letter-spacing: .06em;
-      margin-bottom: 8px;
-    }
-    .result-price .price-main {
-      font-size: 2.6rem;
-      font-weight: 800;
-      color: #111;
-      line-height: 1;
-      margin-bottom: 6px;
-    }
-    .result-price .price-range {
-      font-size: 0.9rem;
-      color: #555;
-    }
-    .result-price .price-range span {
-      font-weight: 600;
-      color: #111;
-    }
+    /* ── Price hero ── */
+    .price-hero { text-align: center; background: linear-gradient(135deg, #f0fdf8 0%, #e6faf2 100%); border: 1.5px solid #bbf7d0; border-radius: 14px; padding: 32px 24px 28px; margin-bottom: 20px; }
+    .price-hero .commune-name { font-size: 0.85rem; font-weight: 700; color: #059669; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 10px; }
+    .price-hero .price-main { font-size: 3rem; font-weight: 900; color: #111; line-height: 1; margin-bottom: 8px; }
+    .price-hero .price-range { font-size: 0.95rem; color: #666; }
+    .price-hero .price-range strong { color: #111; }
 
-    .result-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-bottom: 20px;
-    }
-    .result-stat {
-      background: #fafafa;
-      border: 1.5px solid #eee;
-      border-radius: 10px;
-      padding: 14px 16px;
-    }
-    .result-stat .stat-label {
-      font-size: 0.75rem;
-      font-weight: 600;
-      color: #888;
-      text-transform: uppercase;
-      letter-spacing: .04em;
-      margin-bottom: 4px;
-    }
-    .result-stat .stat-value {
-      font-size: 1.15rem;
-      font-weight: 700;
-      color: #111;
-    }
-    .result-stat .stat-value.up   { color: #059669; }
-    .result-stat .stat-value.down { color: #dc2626; }
+    /* ── Stats grid ── */
+    .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 16px; }
+    .stat-box { background: #fafafa; border: 1.5px solid #eee; border-radius: 10px; padding: 14px 16px; }
+    .stat-label { font-size: 0.72rem; font-weight: 700; color: #999; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 5px; }
+    .stat-value { font-size: 1.05rem; font-weight: 700; color: #111; line-height: 1.3; }
 
-    /* Stars */
-    .stars { font-size: 1.2rem; letter-spacing: 2px; }
-    .stars .filled { color: #f59e0b; }
-    .stars .empty  { color: #ddd; }
-
-    /* Trend badge */
-    .trend-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      padding: 3px 10px;
-      border-radius: 20px;
-      font-size: 0.82rem;
-      font-weight: 600;
-    }
+    /* ── Trend badge ── */
+    .trend-badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 20px; font-size: 0.82rem; font-weight: 700; }
     .trend-badge.up   { background: #dcfce7; color: #059669; }
     .trend-badge.down { background: #fee2e2; color: #dc2626; }
     .trend-badge.flat { background: #f3f4f6; color: #555; }
 
-    .result-disclaimer {
-      font-size: 0.75rem;
-      color: #aaa;
-      text-align: center;
-      line-height: 1.5;
-    }
+    /* ── Confidence bar ── */
+    .conf-bar-wrap { display: flex; align-items: center; gap: 8px; }
+    .conf-bar { flex: 1; height: 6px; background: #e0e0e0; border-radius: 3px; overflow: hidden; }
+    .conf-bar-fill { height: 100%; border-radius: 3px; background: #00D47E; }
 
-    /* ── New estimate button ── */
-    .btn-reset {
-      display: none;
-      width: 100%;
-      padding: 11px;
-      background: transparent;
-      color: #555;
-      border: 1.5px solid #ddd;
-      border-radius: 10px;
-      font-size: 0.9rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: border-color .2s, color .2s;
-      margin-top: 16px;
-      font-family: inherit;
-    }
-    .btn-reset:hover { border-color: #aaa; color: #111; }
-    .btn-reset.visible { display: block; }
+    /* ── Price range bar ── */
+    .price-bar-track { height: 8px; background: #e8e8e8; border-radius: 4px; overflow: hidden; position: relative; }
+    .price-bar-fill { position: absolute; left: 0; height: 100%; border-radius: 4px; background: linear-gradient(90deg, #00D47E, #00be70); }
+    .price-bar-labels { display: flex; justify-content: space-between; margin-top: 5px; font-size: 0.75rem; color: #888; }
 
-    @media (max-width: 480px) {
-      h1 { font-size: 1.4rem; }
-      .card { padding: 20px 16px 24px; }
-      .result-grid { grid-template-columns: 1fr; }
+    /* ── Score bars ── */
+    .score-bar-row { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+    .score-bar-label { width: 110px; font-size: 0.85rem; font-weight: 600; color: #444; display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+    .score-bar-track { flex: 1; height: 10px; background: #e8e8e8; border-radius: 5px; overflow: hidden; }
+    .score-bar-fill { height: 100%; border-radius: 5px; }
+    .score-bar-num { width: 46px; text-align: right; font-size: 0.85rem; font-weight: 700; color: #111; flex-shrink: 0; }
+
+    /* ── DPE bars ── */
+    .dpe-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .dpe-label { width: 26px; height: 26px; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.85rem; color: white; flex-shrink: 0; }
+    .dpe-bar-track { flex: 1; height: 20px; background: #f0f0f0; border-radius: 4px; overflow: hidden; }
+    .dpe-bar-fill { height: 100%; border-radius: 4px; display: flex; align-items: center; padding-left: 8px; font-size: 0.75rem; font-weight: 700; color: white; min-width: 4px; }
+    .dpe-pct { width: 42px; text-align: right; font-size: 0.82rem; color: #666; font-weight: 600; flex-shrink: 0; }
+
+    /* ── Demo stats ── */
+    .demo-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .demo-stat { text-align: center; background: #fafafa; border: 1.5px solid #eee; border-radius: 10px; padding: 16px 10px; }
+    .demo-value { font-size: 1.25rem; font-weight: 800; color: #111; line-height: 1; margin-bottom: 5px; }
+    .demo-lbl { font-size: 0.7rem; color: #888; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+    .demo-sub { font-size: 0.68rem; color: #bbb; margin-top: 2px; }
+
+    /* ── Wikipedia ── */
+    .wiki-card { display: flex; gap: 20px; }
+    .wiki-img { width: 130px; height: 130px; object-fit: cover; border-radius: 10px; flex-shrink: 0; }
+    .wiki-text p { font-size: 0.9rem; color: #444; line-height: 1.65; margin-bottom: 12px; }
+    .wiki-link { font-size: 0.85rem; color: #00D47E; text-decoration: none; font-weight: 600; }
+    .wiki-link:hover { text-decoration: underline; }
+
+    /* ── CTA ── */
+    .cta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .cta-box { border: 1.5px solid #e0e0e0; border-radius: 12px; padding: 22px 20px; text-align: center; transition: border-color .2s, box-shadow .2s; }
+    .cta-box:hover { border-color: #00D47E; box-shadow: 0 0 0 3px rgba(0,212,126,.1); }
+    .cta-icon { font-size: 1.8rem; margin-bottom: 8px; }
+    .cta-box h3 { font-size: 1rem; font-weight: 700; margin-bottom: 6px; }
+    .cta-box p { font-size: 0.85rem; color: #666; margin-bottom: 14px; line-height: 1.5; }
+    .cta-btn { display: inline-block; padding: 9px 18px; border-radius: 8px; font-size: 0.85rem; font-weight: 700; text-decoration: none; transition: background .2s; }
+    .cta-btn-green { background: #00D47E; color: #fff; }
+    .cta-btn-green:hover { background: #00be70; }
+    .cta-btn-outline { background: transparent; color: #111; border: 1.5px solid #ccc; }
+    .cta-btn-outline:hover { border-color: #888; }
+
+    /* ── Disclaimer ── */
+    .disclaimer { font-size: 0.75rem; color: #aaa; text-align: center; line-height: 1.5; margin-top: 12px; }
+
+    /* ── Footer ── */
+    footer { background: #111; color: #666; text-align: center; padding: 24px 16px; font-size: 0.8rem; border-top: 1px solid #222; }
+    footer a { color: #aaa; text-decoration: none; margin: 0 8px; }
+    footer a:hover { color: #fff; }
+    .footer-green { color: #00D47E !important; }
+    .footer-row { margin-top: 8px; }
+
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      .hero h1 { font-size: 1.5rem; }
+      .card, .section-card { padding: 20px 16px; }
+      .price-hero .price-main { font-size: 2.2rem; }
+      .stats-grid { grid-template-columns: 1fr 1fr; }
       .row { grid-template-columns: 1fr; }
-      .result-price .price-main { font-size: 2rem; }
+      .demo-grid { grid-template-columns: repeat(2, 1fr); }
+      .cta-grid { grid-template-columns: 1fr; }
+      .wiki-card { flex-direction: column; }
+      .wiki-img { width: 100%; height: 160px; }
+      .score-bar-label { width: 85px; font-size: 0.78rem; }
     }
   </style>
 </head>
@@ -326,24 +174,21 @@
 </header>
 
 <main>
-  <h1>Estimer mon bien</h1>
-  <p class="subtitle">Estimation basée sur les transactions DVF officielles</p>
+  <div class="hero">
+    <h1>Estimez votre bien <span>gratuitement</span></h1>
+    <p>Données DVF officielles · DPE · Cadre de vie · Tendances de marché</p>
+  </div>
 
-  <div class="card">
+  <!-- Form -->
+  <div class="card" id="formCard">
     <form id="estimForm" autocomplete="off">
       <div class="field" id="addressField">
         <label for="address">Adresse du bien</label>
-        <input
-          type="text"
-          id="address"
-          placeholder="Ex : 12 rue de la Paix, Paris"
-          autocomplete="off"
-          spellcheck="false"
-        />
+        <input type="text" id="address" placeholder="Ex : 12 rue de la Paix, Paris" autocomplete="off" spellcheck="false" />
         <ul class="autocomplete-list" id="autocompleteList" role="listbox"></ul>
-        <input type="hidden" id="codePostal" />
+        <input type="hidden" id="hiddenCP" />
+        <input type="hidden" id="hiddenInsee" />
       </div>
-
       <div class="row">
         <div class="field">
           <label for="typeBien">Type de bien</label>
@@ -357,314 +202,608 @@
           <input type="number" id="surface" placeholder="ex : 65" min="5" max="2000" />
         </div>
       </div>
-
       <button type="submit" class="btn-submit" id="submitBtn">Estimer mon bien</button>
     </form>
-
-    <div class="loader" id="loader">
-      <div class="spinner"></div>
-      Analyse en cours…
-    </div>
-
     <div class="error-box" id="errorBox"></div>
+  </div>
 
-    <div class="results" id="results"></div>
+  <!-- Price -->
+  <div class="section-card hidden" id="sec-price">
+    <div id="sec-price-content"></div>
+  </div>
 
-    <button class="btn-reset" id="resetBtn">Nouvelle estimation</button>
+  <!-- Market -->
+  <div class="section-card hidden" id="sec-market">
+    <div class="section-title">📊 Marché local</div>
+    <div id="sec-market-content"></div>
+  </div>
+
+  <!-- DPE -->
+  <div class="section-card hidden" id="sec-dpe">
+    <div class="section-title">⚡ Diagnostic énergétique</div>
+    <div id="sec-dpe-content"></div>
+  </div>
+
+  <!-- Cadre de vie -->
+  <div class="section-card hidden" id="sec-vie">
+    <div class="section-title">🏙️ Cadre de vie</div>
+    <div id="sec-vie-content"></div>
+  </div>
+
+  <!-- Démographie -->
+  <div class="section-card hidden" id="sec-demo">
+    <div class="section-title">👥 Démographie</div>
+    <div id="sec-demo-content"></div>
+  </div>
+
+  <!-- Wikipedia -->
+  <div class="section-card hidden" id="sec-wiki">
+    <div class="section-title">📖 À propos de la commune</div>
+    <div id="sec-wiki-content"></div>
+  </div>
+
+  <!-- CTA -->
+  <div class="section-card hidden" id="sec-cta">
+    <div class="section-title">🚀 Aller plus loin</div>
+    <div class="cta-grid">
+      <div class="cta-box">
+        <div class="cta-icon">📋</div>
+        <h3>Rapport complet</h3>
+        <p>Historique des prix, comparatif de marché, projection et analyse sur-mesure.</p>
+        <a href="/pricing" class="cta-btn cta-btn-green">Voir les offres</a>
+      </div>
+      <div class="cta-box">
+        <div class="cta-icon">⚙️</div>
+        <h3>API immobilière</h3>
+        <p>Intégrez nos données dans vos applications avec une API REST documentée.</p>
+        <a href="/api" class="cta-btn cta-btn-outline">Documentation API</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reset -->
+  <div id="resetWrap" style="display:none;text-align:center;margin-top:20px;">
+    <button class="btn-reset" id="resetBtn">← Nouvelle estimation</button>
   </div>
 </main>
+
+<footer>
+  <div>
+    <a href="mailto:contact@intentanalytics.fr">contact@intentanalytics.fr</a>
+    <a href="/pricing" class="footer-green">Accès API professionnel</a>
+  </div>
+  <div class="footer-row">
+    <a href="/legal/mentions-legales">Mentions légales</a>
+    <a href="/legal/cgu">CGU</a>
+    <a href="/legal/cgv">CGV</a>
+    <a href="/legal/politique-confidentialite">Confidentialité</a>
+  </div>
+  <div class="footer-row" style="color:#555;">© 2026 Intent Analytics</div>
+</footer>
 
 <script>
 const SUPA_URL  = "https://wwvdpixzfaviaapixarb.supabase.co";
 const SUPA_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3dmRwaXh6ZmF2aWFhcGl4YXJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3Mzk0NDgsImV4cCI6MjA5MDMxNTQ0OH0.NjOeWzUCo2BJPcxnkEJNm215GJBr1RAHba1eL_EF758";
+const SH = { "apikey": SUPA_ANON, "Authorization": "Bearer " + SUPA_ANON };
 
 const fmtEur = n => new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(n);
 const fmtNum = n => new Intl.NumberFormat("fr-FR").format(n);
+const fmtPct = (n, plus) => n == null ? "" : (plus && n > 0 ? "+" : "") + parseFloat(n).toFixed(1) + "%";
 
-const addressInput    = document.getElementById("address");
-const codePostalInput = document.getElementById("codePostal");
-const acList          = document.getElementById("autocompleteList");
-const form            = document.getElementById("estimForm");
-const loader          = document.getElementById("loader");
-const errorBox        = document.getElementById("errorBox");
-const resultsEl       = document.getElementById("results");
-const resetBtn        = document.getElementById("resetBtn");
+function esc(s) {
+  return String(s ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
 
-let debounceTimer   = null;
-let activeIdx       = -1;
-let suggestions     = [];
-let storedCodePostal = "";
+// ── DOM refs ──────────────────────────────────────────────────────────────────
+const addressInput = document.getElementById("address");
+const acList       = document.getElementById("autocompleteList");
+const form         = document.getElementById("estimForm");
+const errorBox     = document.getElementById("errorBox");
+const submitBtn    = document.getElementById("submitBtn");
+const formCard     = document.getElementById("formCard");
+const resetWrap    = document.getElementById("resetWrap");
+const resetBtn     = document.getElementById("resetBtn");
+
+let storedCP = "", storedInsee = "";
+let debTimer = null, activeIdx = -1, suggestions = [];
 
 // ── Autocomplete ──────────────────────────────────────────────────────────────
 addressInput.addEventListener("input", () => {
-  storedCodePostal = "";
-  clearTimeout(debounceTimer);
+  storedCP = ""; storedInsee = "";
+  clearTimeout(debTimer);
   const q = addressInput.value.trim();
   if (q.length < 3) { closeList(); return; }
-  debounceTimer = setTimeout(() => fetchBAN(q), 300);
+  debTimer = setTimeout(() => fetchBAN(q), 300);
 });
 
 addressInput.addEventListener("keydown", e => {
   const items = acList.querySelectorAll(".autocomplete-item");
   if (!items.length) return;
-  if (e.key === "ArrowDown") {
-    e.preventDefault();
-    activeIdx = Math.min(activeIdx + 1, items.length - 1);
-    updateActive(items);
-  } else if (e.key === "ArrowUp") {
-    e.preventDefault();
-    activeIdx = Math.max(activeIdx - 1, 0);
-    updateActive(items);
-  } else if (e.key === "Enter" && activeIdx >= 0) {
-    e.preventDefault();
-    selectSuggestion(suggestions[activeIdx]);
-  } else if (e.key === "Escape") {
-    closeList();
-  }
+  if (e.key === "ArrowDown") { e.preventDefault(); activeIdx = Math.min(activeIdx + 1, items.length - 1); highlightItem(items); }
+  else if (e.key === "ArrowUp") { e.preventDefault(); activeIdx = Math.max(activeIdx - 1, 0); highlightItem(items); }
+  else if (e.key === "Enter" && activeIdx >= 0) { e.preventDefault(); pickSuggestion(suggestions[activeIdx]); }
+  else if (e.key === "Escape") closeList();
 });
 
 document.addEventListener("click", e => {
   if (!document.getElementById("addressField").contains(e.target)) closeList();
 });
 
-function updateActive(items) {
+function highlightItem(items) {
   items.forEach((el, i) => el.classList.toggle("active", i === activeIdx));
   if (activeIdx >= 0) items[activeIdx].scrollIntoView({ block: "nearest" });
 }
 
 async function fetchBAN(q) {
   try {
-    const url = `https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(q)}&limit=5`;
-    const res = await fetch(url);
-    if (!res.ok) return;
-    const data = await res.json();
-    suggestions = data.features || [];
-    renderList(suggestions);
+    const r = await fetch("https://api-adresse.data.gouv.fr/search/?q=" + encodeURIComponent(q) + "&limit=5");
+    if (!r.ok) return;
+    const d = await r.json();
+    suggestions = d.features || [];
+    renderAC(suggestions);
   } catch (_) {}
 }
 
-function renderList(feats) {
+function renderAC(feats) {
   activeIdx = -1;
   if (!feats.length) { closeList(); return; }
   acList.innerHTML = feats.map((f, i) => {
     const p = f.properties;
-    const label = p.label || "";
-    const city  = `${p.postcode || ""} ${p.city || ""}`.trim();
-    return `<li class="autocomplete-item" role="option" data-idx="${i}">
-      <div>${escHtml(label)}</div>
-      <div class="city">${escHtml(city)}</div>
-    </li>`;
+    return '<li class="autocomplete-item" role="option" data-idx="' + i + '">'
+      + '<div>' + esc(p.label || "") + '</div>'
+      + '<div class="city">' + esc((p.postcode || "") + " " + (p.city || "")) + '</div>'
+      + '</li>';
   }).join("");
   acList.classList.add("open");
   acList.querySelectorAll(".autocomplete-item").forEach(el => {
-    el.addEventListener("mousedown", e => {
-      e.preventDefault();
-      selectSuggestion(suggestions[parseInt(el.dataset.idx)]);
-    });
+    el.addEventListener("mousedown", e => { e.preventDefault(); pickSuggestion(suggestions[+el.dataset.idx]); });
   });
 }
 
-function selectSuggestion(feat) {
+function pickSuggestion(feat) {
   const p = feat.properties;
-  addressInput.value   = p.label || "";
-  storedCodePostal     = p.postcode || "";
-  codePostalInput.value = storedCodePostal;
+  addressInput.value = p.label || "";
+  storedCP    = p.postcode  || "";
+  storedInsee = p.citycode  || "";
   closeList();
 }
 
 function closeList() {
   acList.classList.remove("open");
   acList.innerHTML = "";
-  suggestions = [];
-  activeIdx   = -1;
+  suggestions = []; activeIdx = -1;
 }
 
-function escHtml(s) {
-  return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
-}
-
-// ── Géocodage fallback ────────────────────────────────────────────────────────
-async function geocodeAddress(addr) {
-  const url = `https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(addr)}&limit=1`;
-  const res = await fetch(url);
-  if (!res.ok) return null;
-  const data = await res.json();
-  const feat = (data.features || [])[0];
-  return feat ? feat.properties.postcode : null;
+// ── Geocode fallback ──────────────────────────────────────────────────────────
+async function geocode(addr) {
+  try {
+    const r = await fetch("https://api-adresse.data.gouv.fr/search/?q=" + encodeURIComponent(addr) + "&limit=1");
+    if (!r.ok) return null;
+    const d = await r.json();
+    const f = (d.features || [])[0];
+    return f ? { postcode: f.properties.postcode, citycode: f.properties.citycode } : null;
+  } catch (_) { return null; }
 }
 
 // ── Form submit ───────────────────────────────────────────────────────────────
 form.addEventListener("submit", async e => {
   e.preventDefault();
-
   const surface = parseFloat(document.getElementById("surface").value);
   const type    = document.getElementById("typeBien").value;
 
   if (!surface || isNaN(surface) || surface < 5) {
-    showError("Veuillez saisir une surface valide (min. 5 m²).");
-    return;
+    showError("Veuillez saisir une surface valide (min. 5 m²)."); return;
   }
 
-  let cp = storedCodePostal || codePostalInput.value.trim();
+  let cp = storedCP, ins = storedInsee;
 
   if (!cp) {
     const addr = addressInput.value.trim();
     if (!addr) { showError("Veuillez saisir une adresse."); return; }
     hideError();
-    showLoader(true);
-    cp = await geocodeAddress(addr);
-    if (!cp) {
-      showLoader(false);
-      showError("Impossible de localiser cette adresse. Sélectionnez une suggestion dans la liste.");
-      return;
-    }
-    storedCodePostal      = cp;
-    codePostalInput.value = cp;
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Localisation…";
+    const geo = await geocode(addr);
+    submitBtn.disabled = false;
+    submitBtn.textContent = "Estimer mon bien";
+    if (!geo || !geo.postcode) { showError("Impossible de localiser cette adresse. Sélectionnez une suggestion dans la liste."); return; }
+    cp = geo.postcode; ins = geo.citycode;
+    storedCP = cp; storedInsee = ins;
   }
 
   hideError();
-  showLoader(true);
-  form.style.display = "none";
-
-  try {
-    const res = await fetch(`${SUPA_URL}/rest/v1/rpc/estimate_property`, {
-      method: "POST",
-      headers: {
-        "apikey": SUPA_ANON,
-        "Authorization": `Bearer ${SUPA_ANON}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        p_code_postal: cp,
-        p_surface: surface,
-        p_type_local: type
-      })
-    });
-
-    if (!res.ok) {
-      const txt = await res.text();
-      throw new Error(txt || `Erreur serveur (${res.status})`);
-    }
-
-    const data = await res.json();
-    // La réponse est un tableau — on prend le premier élément
-    const d = Array.isArray(data) ? data[0] : data;
-
-    if (!d || d.prix_estime == null) {
-      throw new Error("Données insuffisantes pour cette zone. Essayez une adresse différente.");
-    }
-
-    renderResults(d, surface);
-
-  } catch (err) {
-    form.style.display = "";
-    showError(err.message || "Une erreur est survenue. Réessayez plus tard.");
-  } finally {
-    showLoader(false);
-  }
+  launch(cp, ins, surface, type);
 });
 
-// ── Render results ────────────────────────────────────────────────────────────
-function renderResults(d, surface) {
-  const prix        = d.prix_estime;
-  const bas         = d.fourchette_basse;
-  const haut        = d.fourchette_haute;
-  const prixM2      = d.prix_m2_reference ?? (prix && surface ? Math.round(prix / surface) : null);
-  const nbTrans     = d.nb_transactions ?? null;
-  const labelTend   = d.label_tendance  ?? null;
-  const evolution   = d.evolution_12m   ?? null;
-  const confiance   = d.niveau_confiance ?? null;
-  const labelConf   = d.label_confiance  ?? null;
-  const commune     = d.nom_commune      ?? "";
+// ── Launch ────────────────────────────────────────────────────────────────────
+function launch(cp, ins, surface, type) {
+  formCard.style.display = "none";
+  resetWrap.style.display = "block";
 
-  let html = "";
+  showSk("sec-price",  skPrice());
+  showSk("sec-market", skBars(3));
+  showSk("sec-dpe",    skDPE());
+  showSk("sec-vie",    skBars(4));
+  showSk("sec-demo",   skDemo());
+  if (ins) showSk("sec-wiki", skWiki());
+  showSection("sec-cta");
 
-  // Prix principal
-  html += `<div class="result-price">`;
-  if (commune) html += `<div class="commune">${escHtml(commune)}</div>`;
-  html += `<div class="price-main">${fmtEur(prix)}</div>`;
+  setTimeout(() => document.getElementById("sec-price").scrollIntoView({ behavior: "smooth", block: "start" }), 50);
+
+  doEstimate(cp, surface, type);
+  doCommune(cp);
+  doDPE(cp);
+  if (ins) doWiki(ins); else hideSection("sec-wiki");
+}
+
+// ── Section helpers ───────────────────────────────────────────────────────────
+function showSection(id) { document.getElementById(id).classList.remove("hidden"); }
+function hideSection(id) { document.getElementById(id).classList.add("hidden"); }
+function showSk(id, html) {
+  const el = document.getElementById(id);
+  el.classList.remove("hidden");
+  const c = document.getElementById(id + "-content");
+  if (c) c.innerHTML = html;
+}
+function setContent(id, html) {
+  const c = document.getElementById(id + "-content");
+  if (c) c.innerHTML = html;
+}
+
+// ── Skeleton templates ────────────────────────────────────────────────────────
+function skPrice() {
+  return '<div style="text-align:center;padding:32px 20px 24px;background:#f9f9f9;border-radius:14px;margin-bottom:16px;">'
+    + '<div class="sk" style="height:12px;width:30%;margin:0 auto 14px;border-radius:6px;"></div>'
+    + '<div class="sk" style="height:52px;width:55%;margin:0 auto 12px;border-radius:8px;"></div>'
+    + '<div class="sk" style="height:12px;width:65%;margin:0 auto;border-radius:6px;"></div>'
+    + '</div>'
+    + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">'
+    + '<div class="sk" style="height:56px;border-radius:10px;"></div>'
+    + '<div class="sk" style="height:56px;border-radius:10px;"></div>'
+    + '<div class="sk" style="height:56px;border-radius:10px;"></div>'
+    + '<div class="sk" style="height:56px;border-radius:10px;"></div>'
+    + '</div>';
+}
+function skBars(n) {
+  let s = '<div class="sk" style="height:14px;width:35%;border-radius:6px;margin-bottom:18px;"></div>';
+  for (let i = 0; i < n; i++) {
+    const w = [80,70,60,50][i % 4];
+    s += '<div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">'
+      + '<div class="sk" style="width:100px;height:10px;border-radius:5px;flex-shrink:0;"></div>'
+      + '<div class="sk" style="flex:1;height:10px;border-radius:5px;"></div>'
+      + '<div class="sk" style="width:36px;height:10px;border-radius:5px;flex-shrink:0;"></div>'
+      + '</div>';
+  }
+  return s;
+}
+function skDPE() {
+  let s = "";
+  for (let i = 0; i < 7; i++) {
+    s += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:9px;">'
+      + '<div class="sk" style="width:26px;height:26px;border-radius:5px;flex-shrink:0;"></div>'
+      + '<div class="sk" style="flex:1;height:20px;border-radius:4px;"></div>'
+      + '<div class="sk" style="width:36px;height:12px;border-radius:4px;flex-shrink:0;"></div>'
+      + '</div>';
+  }
+  return s;
+}
+function skDemo() {
+  return '<div class="demo-grid">'
+    + Array(4).fill('<div class="sk" style="height:72px;border-radius:10px;"></div>').join("")
+    + '</div>';
+}
+function skWiki() {
+  return '<div style="display:flex;gap:20px;">'
+    + '<div class="sk" style="width:130px;height:130px;border-radius:10px;flex-shrink:0;"></div>'
+    + '<div style="flex:1;">'
+    + '<div class="sk" style="height:13px;width:50%;border-radius:5px;margin-bottom:10px;"></div>'
+    + '<div class="sk" style="height:10px;width:90%;border-radius:5px;margin-bottom:8px;"></div>'
+    + '<div class="sk" style="height:10px;width:80%;border-radius:5px;margin-bottom:8px;"></div>'
+    + '<div class="sk" style="height:10px;width:70%;border-radius:5px;"></div>'
+    + '</div></div>';
+}
+
+// ── Fetch: estimate_property ──────────────────────────────────────────────────
+async function doEstimate(cp, surface, type) {
+  try {
+    const r = await fetch(SUPA_URL + "/rest/v1/rpc/estimate_property", {
+      method: "POST",
+      headers: { ...SH, "Content-Type": "application/json" },
+      body: JSON.stringify({ p_code_postal: cp, p_surface: surface, p_type_local: type })
+    });
+    if (!r.ok) throw new Error("Erreur serveur (" + r.status + ")");
+    const data = await r.json();
+    const d = Array.isArray(data) ? data[0] : data;
+    if (!d || d.prix_estime == null) throw new Error("Données insuffisantes pour cette zone. Essayez une adresse différente.");
+    renderPrice(d, surface);
+  } catch (err) {
+    setContent("sec-price", '<div class="error-box visible">' + esc(err.message) + '</div>');
+  }
+}
+
+// ── Fetch: mv_commune_complete ────────────────────────────────────────────────
+async function doCommune(cp) {
+  try {
+    const r = await fetch(SUPA_URL + "/rest/v1/mv_commune_complete?code_postal=eq." + encodeURIComponent(cp) + "&select=*&limit=1", { headers: SH });
+    if (!r.ok) throw new Error();
+    const data = await r.json();
+    const d = Array.isArray(data) ? data[0] : data;
+    if (d) {
+      renderMarket(d);
+      renderVie(d);
+      renderDemo(d);
+    } else {
+      hideSection("sec-market");
+      hideSection("sec-vie");
+      hideSection("sec-demo");
+    }
+  } catch (_) {
+    hideSection("sec-market");
+    hideSection("sec-vie");
+    hideSection("sec-demo");
+  }
+}
+
+// ── Fetch: dpe_commune_agg ────────────────────────────────────────────────────
+async function doDPE(cp) {
+  try {
+    const r = await fetch(SUPA_URL + "/rest/v1/dpe_commune_agg?code_postal=eq." + encodeURIComponent(cp) + "&select=*&limit=1", { headers: SH });
+    if (!r.ok) throw new Error();
+    const data = await r.json();
+    const d = Array.isArray(data) ? data[0] : data;
+    if (d) renderDPE(d); else hideSection("sec-dpe");
+  } catch (_) { hideSection("sec-dpe"); }
+}
+
+// ── Fetch: commune_context ────────────────────────────────────────────────────
+async function doWiki(ins) {
+  try {
+    const r = await fetch(SUPA_URL + "/rest/v1/commune_context?code_insee=eq." + encodeURIComponent(ins) + "&select=*&limit=1", { headers: SH });
+    if (!r.ok) throw new Error();
+    const data = await r.json();
+    const d = Array.isArray(data) ? data[0] : data;
+    if (d && d.resume) renderWiki(d); else hideSection("sec-wiki");
+  } catch (_) { hideSection("sec-wiki"); }
+}
+
+// ── Render: price ─────────────────────────────────────────────────────────────
+function renderPrice(d, surface) {
+  const prix    = d.prix_estime;
+  const bas     = d.fourchette_basse;
+  const haut    = d.fourchette_haute;
+  const prixM2  = d.prix_m2_reference ?? (prix && surface ? Math.round(prix / surface) : null);
+  const nbTrans = d.nb_transactions   ?? null;
+  const evo     = d.evolution_12m     ?? null;
+  const tend    = d.label_tendance    ?? d.tendance ?? null;
+  const conf    = d.niveau_confiance  ?? null;
+  const confLbl = d.label_confiance   ?? null;
+  const commune = d.nom_commune       ?? "";
+
+  let h = '<div class="price-hero">';
+  if (commune) h += '<div class="commune-name">' + esc(commune) + '</div>';
+  h += '<div class="price-main">' + fmtEur(prix) + '</div>';
   if (bas != null && haut != null) {
-    html += `<div class="price-range">Fourchette : <span>${fmtEur(bas)}</span> – <span>${fmtEur(haut)}</span></div>`;
+    h += '<div class="price-range">Fourchette : <strong>' + fmtEur(bas) + '</strong> – <strong>' + fmtEur(haut) + '</strong></div>';
   }
-  html += `</div>`;
+  h += '</div>';
 
-  // Stats grid
-  html += `<div class="result-grid">`;
-  if (prixM2 != null)   html += stat("Prix au m²",        `${fmtEur(prixM2)}/m²`);
-  if (nbTrans != null)  html += stat("Transactions DVF",  fmtNum(nbTrans));
-  if (labelTend != null) html += stat("Tendance marché",  buildTrend(labelTend, evolution));
-  if (confiance != null) {
-    const confLabel = labelConf ? `<br><small style="font-size:0.7rem;color:#888;">${escHtml(labelConf)}</small>` : "";
-    html += stat("Confiance", buildStars(confiance) + confLabel);
-  }
-  html += `</div>`;
+  h += '<div class="stats-grid">';
+  if (prixM2 != null)   h += statBox("Prix au m²",       fmtEur(prixM2) + "/m²");
+  if (nbTrans != null)  h += statBox("Transactions DVF", fmtNum(nbTrans));
+  if (tend != null)     h += statBox("Tendance",         trendBadge(tend, evo));
+  if (conf != null)     h += statBox("Confiance",        confBar(conf, confLbl));
+  h += '</div>';
+  h += '<p class="disclaimer">Estimation indicative basée sur les données DVF. Ne constitue pas une évaluation professionnelle.</p>';
 
-  html += `<p class="result-disclaimer">Estimation indicative basée sur les données DVF. Ne constitue pas une évaluation professionnelle.</p>`;
-
-  resultsEl.innerHTML    = html;
-  resultsEl.style.display = "block";
-  resultsEl.classList.add("visible");
-  resetBtn.style.display  = "block";
-  resetBtn.classList.add("visible");
+  setContent("sec-price", h);
 }
 
-function stat(label, valueHtml) {
-  return `<div class="result-stat"><div class="stat-label">${label}</div><div class="stat-value">${valueHtml}</div></div>`;
+function statBox(label, valueHtml) {
+  return '<div class="stat-box"><div class="stat-label">' + label + '</div><div class="stat-value">' + valueHtml + '</div></div>';
 }
 
-function buildStars(score) {
-  const n = Math.round(Math.min(Math.max(score, 0), 5));
-  let s = '<span class="stars">';
-  for (let i = 1; i <= 5; i++) s += i <= n ? '<span class="filled">★</span>' : '<span class="empty">★</span>';
-  return s + '</span>';
-}
-
-function buildTrend(label, evolution) {
+function trendBadge(label, evo) {
   const t = (label || "").toLowerCase();
   let cls = "flat", icon = "→";
-  if (t.includes("hau") || t.includes("up"))   { cls = "up";   icon = "↑"; }
-  if (t.includes("rec") || t.includes("down"))  { cls = "down"; icon = "↓"; }
-  const pct = evolution != null ? ` (${evolution > 0 ? "+" : ""}${evolution}%)` : "";
-  return `<span class="trend-badge ${cls}">${icon} ${escHtml(label)}${escHtml(pct)}</span>`;
+  if (t.includes("hau") || t.includes("up"))  { cls = "up";   icon = "↑"; }
+  if (t.includes("rec") || t.includes("bai") || t.includes("down")) { cls = "down"; icon = "↓"; }
+  const pct = evo != null ? " " + fmtPct(evo, true) : "";
+  return '<span class="trend-badge ' + cls + '">' + icon + ' ' + esc(label) + esc(pct) + '</span>';
+}
+
+function confBar(score, label) {
+  const n = Math.min(Math.max(Math.round(score), 0), 5);
+  const pct = (n / 5 * 100).toFixed(0);
+  let h = '<div class="conf-bar-wrap"><div class="conf-bar"><div class="conf-bar-fill" style="width:' + pct + '%"></div></div>'
+        + '<span style="font-size:.82rem;font-weight:700;">' + n + '/5</span></div>';
+  if (label) h += '<div style="font-size:.7rem;color:#999;margin-top:3px;">' + esc(label) + '</div>';
+  return h;
+}
+
+// ── Render: market ────────────────────────────────────────────────────────────
+function renderMarket(d) {
+  const median  = d.prix_median_m2   ?? null;
+  const min     = d.prix_min_m2      ?? null;
+  const max     = d.prix_max_m2      ?? null;
+  const evo     = d.evolution_12m    ?? null;
+  const tend    = d.label_tendance   ?? d.tendance ?? null;
+  const ventes  = d.nb_ventes_market ?? d.nb_ventes ?? null;
+  const score   = d.score_global     ?? null;
+
+  let h = "";
+
+  if (median != null) {
+    const lo = min ?? median * 0.75;
+    const hi = max ?? median * 1.25;
+    const range = hi - lo;
+    const pct = range > 0 ? ((median - lo) / range * 100).toFixed(1) : 50;
+    h += '<div style="margin-bottom:20px;">';
+    h += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">';
+    h += '<div style="font-size:1.5rem;font-weight:800;">' + fmtEur(median) + '<span style="font-size:.85rem;font-weight:500;color:#666;"> /m²</span></div>';
+    if (tend != null || evo != null) {
+      const lbl = tend ?? (evo > 0 ? "Hausse" : evo < 0 ? "Recul" : "Stable");
+      h += trendBadge(lbl, evo);
+    }
+    h += '</div>';
+    h += '<div class="price-bar-track"><div class="price-bar-fill" style="width:' + pct + '%"></div></div>';
+    h += '<div class="price-bar-labels">';
+    h += '<span>' + (min != null ? fmtEur(min) + "/m²" : "") + '</span>';
+    h += '<span style="color:#059669;font-weight:700;">médian</span>';
+    h += '<span>' + (max != null ? fmtEur(max) + "/m²" : "") + '</span>';
+    h += '</div></div>';
+  }
+
+  h += '<div class="stats-grid" style="grid-template-columns:repeat(auto-fit,minmax(130px,1fr));">';
+  if (ventes != null) h += statBox("Transactions", fmtNum(ventes));
+  if (score  != null) {
+    const c = score >= 70 ? "#00D47E" : score >= 40 ? "#FFCC00" : "#FF4444";
+    h += statBox("Score commune", '<span style="color:' + c + ';font-size:1.2rem;">' + score + '</span><span style="font-size:.75rem;color:#aaa;">/100</span>');
+  }
+  h += '</div>';
+
+  setContent("sec-market", h);
+}
+
+// ── Render: DPE ───────────────────────────────────────────────────────────────
+const DPE_CLR = { A:"#2EA61F", B:"#4FBB2A", C:"#C8D62A", D:"#F0C932", E:"#ECA132", F:"#E5602E", G:"#D02320" };
+
+function renderDPE(d) {
+  const classes = ["A","B","C","D","E","F","G"];
+  const vals = classes.map(c => {
+    const v = d["pct_" + c.toLowerCase()] ?? d["pct" + c] ?? null;
+    return v != null ? parseFloat(v) : null;
+  });
+  if (!vals.some(v => v != null)) { hideSection("sec-dpe"); return; }
+
+  let h = '<div class="dpe-bars" style="margin-bottom:16px;">';
+  vals.forEach((v, i) => {
+    const c   = classes[i];
+    const val = v ?? 0;
+    const clr = DPE_CLR[c];
+    h += '<div class="dpe-row">';
+    h += '<div class="dpe-label" style="background:' + clr + '">' + c + '</div>';
+    h += '<div class="dpe-bar-track"><div class="dpe-bar-fill" style="width:' + val.toFixed(1) + '%;background:' + clr + '">'
+       + (val > 8 ? val.toFixed(1) + "%" : "") + '</div></div>';
+    h += '<div class="dpe-pct">' + (v != null ? val.toFixed(1) + "%" : "–") + '</div>';
+    h += '</div>';
+  });
+  h += '</div>';
+
+  const passoire = d.pct_passoire ?? d.pct_passoires ?? null;
+  const conso    = d.conso_moy   ?? d.conso_moyenne  ?? null;
+  const scoreE   = d.score_energie ?? null;
+
+  if (passoire != null || conso != null || scoreE != null) {
+    h += '<div class="stats-grid" style="grid-template-columns:repeat(auto-fit,minmax(130px,1fr));">';
+    if (passoire != null) {
+      const high = parseFloat(passoire) > 20;
+      h += statBox("Passoires thermiques", '<span style="color:' + (high ? "#FF4444" : "#059669") + '">' + parseFloat(passoire).toFixed(1) + '%</span>');
+    }
+    if (conso != null) h += statBox("Conso. moyenne", Math.round(conso) + " kWh/m²");
+    if (scoreE != null) {
+      const c = scoreE >= 70 ? "#00D47E" : scoreE >= 40 ? "#FFCC00" : "#FF4444";
+      h += statBox("Score énergie", '<span style="color:' + c + '">' + scoreE + '/100</span>');
+    }
+    h += '</div>';
+  }
+
+  setContent("sec-dpe", h);
+}
+
+// ── Render: cadre de vie ──────────────────────────────────────────────────────
+function renderVie(d) {
+  const scores = [
+    { key: "score_transport", label: "Transport",  icon: "🚌" },
+    { key: "score_education", label: "Éducation",  icon: "🎓" },
+    { key: "score_sante",     label: "Santé",      icon: "🏥" },
+    { key: "score_commerce",  label: "Commerce",   icon: "🛒" },
+  ].filter(s => d[s.key] != null);
+
+  if (!scores.length) { hideSection("sec-vie"); return; }
+
+  let h = "";
+  scores.forEach(s => {
+    const val = Math.min(Math.max(d[s.key], 0), 100);
+    const clr = val >= 70 ? "#00D47E" : val >= 40 ? "#FFCC00" : "#FF4444";
+    h += '<div class="score-bar-row">';
+    h += '<div class="score-bar-label">' + s.icon + ' ' + s.label + '</div>';
+    h += '<div class="score-bar-track"><div class="score-bar-fill" style="width:' + val + '%;background:' + clr + '"></div></div>';
+    h += '<div class="score-bar-num">' + val + '<span style="font-size:.7rem;color:#aaa;">/100</span></div>';
+    h += '</div>';
+  });
+
+  const equip = d.nb_equipements ?? null;
+  const global = d.score_global  ?? null;
+  if (equip != null || global != null) {
+    h += '<div class="stats-grid" style="margin-top:4px;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));">';
+    if (equip  != null) h += statBox("Équipements",  fmtNum(equip));
+    if (global != null) h += statBox("Score global", global + "/100");
+    h += '</div>';
+  }
+
+  setContent("sec-vie", h);
+}
+
+// ── Render: démographie ───────────────────────────────────────────────────────
+function renderDemo(d) {
+  const pop    = d.population                    ?? null;
+  const revenu = d.iris_revenu_median            ?? d.revenu_median          ?? null;
+  const proprio = d.iris_part_proprietaires      ?? d.part_proprietaires     ?? null;
+  const chomage = d.iris_taux_chomage            ?? d.taux_chomage           ?? null;
+
+  const fields = [
+    { lbl: "Population",     val: pop     != null ? fmtNum(pop)                     : null, sub: "habitants"  },
+    { lbl: "Revenu médian",  val: revenu  != null ? fmtEur(revenu)                  : null, sub: "par an"     },
+    { lbl: "Propriétaires",  val: proprio != null ? parseFloat(proprio).toFixed(1) + "%" : null, sub: "du parc" },
+    { lbl: "Chômage",        val: chomage != null ? parseFloat(chomage).toFixed(1) + "%" : null, sub: ""        },
+  ].filter(f => f.val != null);
+
+  if (!fields.length) { hideSection("sec-demo"); return; }
+
+  let h = '<div class="demo-grid" style="grid-template-columns:repeat(auto-fit,minmax(120px,1fr));">';
+  fields.forEach(f => {
+    h += '<div class="demo-stat">'
+       + '<div class="demo-value">' + f.val + '</div>'
+       + '<div class="demo-lbl">'  + f.lbl + '</div>'
+       + (f.sub ? '<div class="demo-sub">' + f.sub + '</div>' : '')
+       + '</div>';
+  });
+  h += '</div>';
+  setContent("sec-demo", h);
+}
+
+// ── Render: wikipedia ─────────────────────────────────────────────────────────
+function renderWiki(d) {
+  const resume  = d.resume       ?? d.description ?? "";
+  const imgUrl  = d.image_url    ?? d.image        ?? null;
+  const wikiUrl = d.url_wikipedia ?? d.wikipedia_url ?? d.url ?? null;
+
+  let h = '<div class="wiki-card">';
+  if (imgUrl) {
+    h += '<img class="wiki-img" src="' + esc(imgUrl) + '" alt="Photo" loading="lazy" onerror="this.style.display=\'none\'" />';
+  }
+  h += '<div class="wiki-text">';
+  const txt = resume.length > 500 ? resume.substring(0, 500) + "…" : resume;
+  h += '<p>' + esc(txt) + '</p>';
+  if (wikiUrl) h += '<a class="wiki-link" href="' + esc(wikiUrl) + '" target="_blank" rel="noopener">Lire l\'article complet →</a>';
+  h += '</div></div>';
+  setContent("sec-wiki", h);
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
-function showLoader(on) { loader.classList.toggle("visible", on); }
-
-function showError(msg) {
-  errorBox.textContent = msg;
-  errorBox.classList.add("visible");
-}
-
-function hideError() {
-  errorBox.classList.remove("visible");
-  errorBox.textContent = "";
-}
+function showError(msg) { errorBox.textContent = msg; errorBox.classList.add("visible"); }
+function hideError()    { errorBox.classList.remove("visible"); errorBox.textContent = ""; }
 
 // ── Reset ─────────────────────────────────────────────────────────────────────
 resetBtn.addEventListener("click", () => {
   form.reset();
-  storedCodePostal      = "";
-  codePostalInput.value = "";
-  resultsEl.innerHTML   = "";
-  resultsEl.style.display = "none";
-  resultsEl.classList.remove("visible");
-  resetBtn.style.display  = "none";
-  resetBtn.classList.remove("visible");
+  storedCP = ""; storedInsee = "";
   hideError();
-  form.style.display = "";
+  formCard.style.display = "";
+  resetWrap.style.display = "none";
+  ["sec-price","sec-market","sec-dpe","sec-vie","sec-demo","sec-wiki","sec-cta"].forEach(hideSection);
+  formCard.scrollIntoView({ behavior: "smooth", block: "start" });
 });
 </script>
-
-<footer style="background:#111;color:#666;text-align:center;padding:20px 16px;font-size:0.8rem;border-top:1px solid #222;">
-  <p><a href="mailto:contact@intentanalytics.fr" style="color:#aaa;text-decoration:none;">contact@intentanalytics.fr</a> — <a href="/pricing" style="color:#00D47E;text-decoration:none;">Accès API professionnel</a></p>
-  <p style="margin-top:6px;">
-    <a href="/legal/mentions-legales" style="color:#666;text-decoration:none;margin:0 8px;">Mentions légales</a>
-    <a href="/legal/cgu" style="color:#666;text-decoration:none;margin:0 8px;">CGU</a>
-    <a href="/legal/cgv" style="color:#666;text-decoration:none;margin:0 8px;">CGV</a>
-    <a href="/legal/politique-confidentialite" style="color:#666;text-decoration:none;margin:0 8px;">Confidentialité</a>
-  </p>
-  <p style="margin-top:6px;">© 2026 Intent Analytics</p>
-</footer>
 </body>
 </html>
