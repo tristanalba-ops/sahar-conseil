@@ -118,9 +118,8 @@
     "@type": "BreadcrumbList",
     "itemListElement": [
       {"@type": "ListItem", "position": 1, "name": "Accueil", "item": "https://intentanalytics.fr/"},
-      {"@type": "ListItem", "position": 2, "name": "Outils", "item": "https://intentanalytics.fr/#outils"},
-      {"@type": "ListItem", "position": 3, "name": "Blog", "item": "https://intentanalytics.fr/blog/"},
-      {"@type": "ListItem", "position": 4, "name": "Contact", "item": "https://intentanalytics.fr/#contact"}
+      {"@type": "ListItem", "position": 2, "name": "Estimer", "item": "https://intentanalytics.fr/estimation"},
+      {"@type": "ListItem", "position": 3, "name": "Contact", "item": "https://intentanalytics.fr/#contact"}
     ]
   }
   </script>
@@ -1598,17 +1597,9 @@
 <nav>
   <a href="/" class="nav-logo" onclick="if(location.pathname.endsWith('index.html')||location.pathname==='/'||location.pathname.endsWith('site_final.html')){event.preventDefault();window.scrollTo({top:0,behavior:'smooth'});}">Intent Analytics</a>
   <ul class="nav-links">
-    <li><a href="#outils">Outils</a></li>
-    <li><a href="/estimation" style="color:#00DC82;font-weight:600;">🏠 Estimer</a></li>
-    <li><a href="#rapport">Rapport</a></li>
-    <li><a href="#domaines">Domaines</a></li>
-    <li><a href="#blog">Blog &amp; Podcast</a></li>
+    <li><a href="/estimation" style="color:#00DC82;font-weight:600;">Estimer</a></li>
     <li><a href="#contact">Contact</a></li>
   </ul>
-  <div class="nav-actions">
-    <a href="app/compte.html" class="nav-compte" id="nav-compte-link">Mon espace</a>
-    <a href="#contact" class="nav-cta">Nous contacter</a>
-  </div>
   <!-- Hamburger (mobile) -->
   <button class="hamburger" id="hamburger-btn" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="mobile-drawer">
     <span></span><span></span><span></span>
@@ -1620,13 +1611,7 @@
 <nav class="mobile-nav-drawer" id="mobile-drawer" aria-label="Menu mobile">
   <button class="mobile-nav-close" id="mobile-close" aria-label="Fermer le menu">✕</button>
   <a href="/estimation" class="mobile-nav-link mobile-nav-cta" style="background:#00DC82;color:#0D0D0D;font-weight:700;">🏠 Estimer mon bien</a>
-  <a href="#outils" class="mobile-nav-link">📊 Outils</a>
-  <a href="#rapport" class="mobile-nav-link">📄 Rapport</a>
-  <a href="#domaines" class="mobile-nav-link">🏠 Domaines</a>
-  <a href="#blog" class="mobile-nav-link">📰 Blog &amp; Podcast</a>
   <a href="#contact" class="mobile-nav-link">✉️ Contact</a>
-  <a href="app/compte.html" class="mobile-nav-compte" id="mobile-compte-link">👤 Mon espace</a>
-  <a href="#contact" class="mobile-nav-cta">Nous contacter →</a>
 </nav>
 
 <!-- HERO -->
@@ -1949,7 +1934,7 @@
   <div class="blog-podcast-grid">
     <div>
       <div class="blog-cards">
-        <a href="blog/" class="blog-card" aria-label="Lire l'article : Prix immobilier 2026 — les villes qui montent">
+        <a href="#contact" class="blog-card" aria-label="Lire l'article : Prix immobilier 2026 — les villes qui montent">
           <div class="blog-card-emoji" role="img" aria-hidden="true" style="background:rgba(0,220,130,0.1)">📊</div>
           <div class="blog-card-content">
             <div class="blog-card-tag">Analyse DVF</div>
@@ -1958,7 +1943,7 @@
           </div>
           <span class="blog-card-arrow" aria-hidden="true">→</span>
         </a>
-        <a href="blog/" class="blog-card gated-content" id="gated-card-1" aria-label="Lire l'article : Passoires thermiques — le guide artisan RGE">
+        <a href="#contact" class="blog-card gated-content" id="gated-card-1" aria-label="Lire l'article : Passoires thermiques — le guide artisan RGE">
           <div class="blog-card-emoji" role="img" aria-hidden="true" style="background:rgba(123,97,255,0.1)">⚡</div>
           <div class="blog-card-content">
             <div class="blog-card-tag">DPE ADEME</div>
@@ -1967,7 +1952,7 @@
           </div>
           <span class="blog-card-arrow" aria-hidden="true">→</span>
         </a>
-        <a href="blog/" class="blog-card gated-content" id="gated-card-2" aria-label="Lire l'article : Ouvrir une franchise — le score zone à connaître">
+        <a href="#contact" class="blog-card gated-content" id="gated-card-2" aria-label="Lire l'article : Ouvrir une franchise — le score zone à connaître">
           <div class="blog-card-emoji" role="img" aria-hidden="true" style="background:rgba(255,107,107,0.1)">🏪</div>
           <div class="blog-card-content">
             <div class="blog-card-tag">INSEE · SIRENE</div>
@@ -1985,11 +1970,11 @@
               <strong>+2 articles disponibles</strong>
               <span>Créez un espace gratuit pour accéder à tous les contenus.</span>
             </div>
-            <a href="app/compte.html" class="gating-cta">Créer mon espace →</a>
+            <a href="mailto:contact@intentanalytics.fr" class="gating-cta">Nous contacter →</a>
           </div>
         </div>
       </div>
-      <a href="blog/" class="blog-view-all">Voir tous les articles <span>→</span></a>
+      <a href="#contact" class="blog-view-all">Voir tous les articles <span>→</span></a>
     </div>
     <div class="podcast-box">
       <div class="podcast-header">
@@ -2094,20 +2079,16 @@
 <footer>
   <div>
     <div class="footer-logo">Intent Analytics</div>
-    <p>Open data → décisions professionnelles</p>
+    <p><a href="mailto:contact@intentanalytics.fr" style="color:var(--accent-green);">contact@intentanalytics.fr</a></p>
   </div>
   <ul class="footer-links">
-    <li><a href="#outils">Outils</a></li>
-    <li><a href="/estimation" style="color:#00DC82;font-weight:600;">🏠 Estimer</a></li>
-    <li><a href="blog/">Blog</a></li>
-    <li><a href="app/compte.html">Mon espace</a></li>
-    <li><a href="#contact">Contact</a></li>
     <li><a href="legal/mentions-legales.html">Mentions légales</a></li>
-    <li><a href="legal/politique-confidentialite.html">Confidentialité</a></li>
     <li><a href="legal/cgu.html">CGU</a></li>
+    <li><a href="legal/cgv.html">CGV</a></li>
+    <li><a href="legal/politique-confidentialite.html">Confidentialité</a></li>
   </ul>
   <div>
-    <p style="font-size: 0.75rem; opacity: 0.6">© 2025-2026 Intent Analytics</p>
+    <p style="font-size: 0.75rem; opacity: 0.6">© 2026 Intent Analytics</p>
   </div>
 </footer>
 
