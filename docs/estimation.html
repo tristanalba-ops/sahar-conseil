@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Estimer mon bien — SAHAR Conseil</title>
+  <title>Estimer mon bien — Intent Analytics</title>
   <meta name="description" content="Estimez la valeur de votre bien immobilier gratuitement. Modèle économétrique basé sur les données DVF, DPE et POI." />
-  <link rel="canonical" href="https://sahar-conseil.fr/estimation" />
+  <link rel="canonical" href="https://intentanalytics.fr/estimation" />
   <meta name="robots" content="index, follow" />
 
   <!-- Open Graph -->
-  <meta property="og:title" content="Estimateur immobilier gratuit — SAHAR Conseil" />
+  <meta property="og:title" content="Estimateur immobilier gratuit — Intent Analytics" />
   <meta property="og:description" content="Obtenez une estimation de votre bien en quelques secondes. Données DVF + DPE + équipements de proximité." />
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://sahar-conseil.fr/estimation" />
+  <meta property="og:url" content="https://intentanalytics.fr/estimation" />
   <meta property="og:locale" content="fr_FR" />
 
   <!-- JSON-LD -->
@@ -20,12 +20,12 @@
   {
     "@context": "https://schema.org",
     "@type": "WebApplication",
-    "name": "Estimateur Immobilier SAHAR Conseil",
-    "url": "https://sahar-conseil.fr/estimation",
+    "name": "Estimateur Immobilier Intent Analytics",
+    "url": "https://intentanalytics.fr/estimation",
     "description": "Estimation de valeur immobilière basée sur les données publiques françaises (DVF, DPE, BAN, POI).",
     "applicationCategory": "BusinessApplication",
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" },
-    "provider": { "@type": "Organization", "name": "SAHAR Conseil", "url": "https://sahar-conseil.fr" }
+    "provider": { "@type": "Organization", "name": "Intent Analytics", "url": "https://intentanalytics.fr" }
   }
   </script>
 
@@ -509,7 +509,7 @@
 
 <!-- Navbar -->
 <nav>
-  <a class="nav-logo" href="/"><span>SAHAR</span> Conseil</a>
+  <a class="nav-logo" href="/"><span>Intent Analytics</span> Conseil</a>
   <div class="nav-links">
     <a href="/#outils">Outils</a>
     <a href="/#secteurs">Secteurs</a>
@@ -694,7 +694,7 @@
       <span class="trust-logo">DPE — ADEME</span>
       <span class="trust-logo">BAN — data.gouv.fr</span>
       <span class="trust-logo">POI — OpenStreetMap</span>
-      <span class="trust-logo">Modèle hédonique SAHAR</span>
+      <span class="trust-logo">Modèle hédonique Intent Analytics</span>
     </div>
   </div>
 
@@ -735,10 +735,10 @@
 <!-- Footer -->
 <footer>
   <p>
-    © 2026 SAHAR Conseil —
+    © 2026 Intent Analytics —
     <a href="/mentions-legales.html">Mentions légales</a> ·
     <a href="/politique-confidentialite.html">Confidentialité</a> ·
-    <a href="mailto:contact@sahar-conseil.fr">contact@sahar-conseil.fr</a>
+    <a href="mailto:contact@intentanalytics.fr">contact@intentanalytics.fr</a>
   </p>
   <p style="margin-top:.5rem;font-size:.72rem;color:#555;">
     Estimation à titre indicatif. Ne constitue pas une expertise immobilière certifiée.
@@ -863,7 +863,7 @@ function evolution12m(evo) {
 
 // ── Modèle hédonique ─────────────────────────────────────────────────────────
 const DPE_COEF   = { A:.10, B:.06, C:.03, D:0, E:-.05, F:-.10, G:-.15 };
-const ETATECOEF  = { excellent:.07, tres_bon:.04, bon:0, moyen:-.06, mauvais:-.15 };
+const ETAT_COEF  = { excellent:.07, tres_bon:.04, bon:0, moyen:-.06, mauvais:-.15 };
 
 function applyHedonic(pm2base, dpe, etat, parking, balcony, garden, view, poi) {
   let adj = 1;
@@ -1048,7 +1048,7 @@ function showAnalyse(geo, rows, stats, evo, poi, scoreImmo) {
       <tr><th>Date</th><th>Adresse</th><th>Surface</th><th>Prix/m²</th></tr>
       ${comps.map(r => `<tr>
         <td>${(r.date_mutation || "").slice(0, 7)}</td>
-        <td style="max-width:110px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">$x(r.adresse_nom_voie || "—").slice(0, 20)}</td>
+        <td style="max-width:110px;overflow:hidden;white-space:nowraw;text-overflow:ellipsis">${(r.adresse_nom_voie || "—").slice(0, 20)}</td>
         <td>${Math.round(r.surface_reelle_bati)} m²</td>
         <td><b>${fmtN(Math.round(r.valeur_fonciere / r.surface_reelle_bati))} €</b></td>
       </tr>`).join("")}
