@@ -350,7 +350,7 @@
         </div>
         <div class="field">
           <label for="surface">Surface (m²)</label>
-          <input type="number" id="surface" placeholder="65" min="5" max="2000" />
+          <input type="number" id="surface" placeholder="ex : 65" min="5" max="2000" />
         </div>
       </div>
 
@@ -488,7 +488,7 @@ form.addEventListener("submit", async e => {
 
   // Validation
   if (!cp) { showError("Veuillez sélectionner une adresse depuis la liste de suggestions."); return; }
-  if (!surface || surface < 5) { showError("Veuillez saisir une surface valide (min. 5 m²)."); return; }
+  if (isNaN(surface) || surface < 5) { showError("Veuillez saisir une surface valide (min. 5 m²)."); return; }
 
   hideError();
   showLoader(true);
