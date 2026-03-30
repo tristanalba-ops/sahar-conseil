@@ -40,6 +40,7 @@
       transition: color .2s;
     }
     header nav a:hover { color: #fff; }
+    header nav a.active { color: #00D47E; }
 
     /* ── Main layout ── */
     main {
@@ -317,7 +318,8 @@
 <header>
   <a class="logo" href="/">Intent Analytics</a>
   <nav>
-    <a href="/estimation">Estimer</a>
+    <a href="/estimation" class="active">Estimer</a>
+    <a href="/pricing">API</a>
     <a href="mailto:contact@intentanalytics.fr">Contact</a>
   </nav>
 </header>

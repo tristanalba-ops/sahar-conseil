@@ -16,6 +16,20 @@
   </url>
 
   <url>
+    <loc>https://intentanalytics.fr/pricing</loc>
+    <lastmod>2026-03-30</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://intentanalytics.fr/api</loc>
+    <lastmod>2026-03-30</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
     <loc>https://intentanalytics.fr/legal/mentions-legales</loc>
     <lastmod>2026-03-30</lastmod>
     <changefreq>yearly</changefreq>
