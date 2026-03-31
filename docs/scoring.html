@@ -1,0 +1,1170 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Scoring fichier clients – Intent Analytics</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%2300D47E'/><text y='.9em' font-size='75' x='12'>S</text></svg>" />
+
+  <!-- PapaParse -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+  <!-- SheetJS -->
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f0eb; color: #1a1a1a; min-height: 100vh; }
+
+    /* ── Header ── */
+    header { background: #111; padding: 0 24px; height: 56px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 500; }
+    .logo { font-size: 1.1rem; font-weight: 800; color: #00D47E; text-decoration: none; letter-spacing: -0.5px; }
+    nav a { color: #aaa; text-decoration: none; font-size: 0.85rem; margin-left: 20px; transition: color .2s; }
+    nav a:hover { color: #fff; }
+    nav a.active { color: #00D47E; font-weight: 700; }
+
+    /* ══════════════════════════════════════════
+       LOGIN SCREEN
+    ══════════════════════════════════════════ */
+    #login-screen {
+      position: fixed; inset: 0;
+      background: #f5f0eb;
+      display: flex; align-items: center; justify-content: center;
+      z-index: 900;
+    }
+    .login-box {
+      background: #fff;
+      border-radius: 20px;
+      padding: 44px 40px;
+      box-shadow: 0 8px 40px rgba(0,0,0,.12);
+      width: min(400px, calc(100vw - 40px));
+      text-align: center;
+    }
+    .login-logo { font-size: 1.2rem; font-weight: 800; color: #00D47E; margin-bottom: 8px; }
+    .login-box h2 { font-size: 1.4rem; font-weight: 800; margin-bottom: 6px; }
+    .login-box p { color: #888; font-size: .88rem; margin-bottom: 28px; }
+    .login-field { position: relative; margin-bottom: 14px; }
+    .login-field input {
+      width: 100%; padding: 13px 16px;
+      border: 1.5px solid #ddd; border-radius: 10px;
+      font-size: 1rem; font-family: inherit; outline: none;
+      transition: border-color .2s, box-shadow .2s;
+      text-align: center; letter-spacing: 4px;
+    }
+    .login-field input:focus { border-color: #00D47E; box-shadow: 0 0 0 3px rgba(0,212,126,.15); }
+    .login-field input::placeholder { letter-spacing: 1px; color: #bbb; }
+    .login-btn {
+      width: 100%; padding: 14px;
+      background: #00D47E; color: #fff;
+      border: none; border-radius: 10px;
+      font-size: 1rem; font-weight: 700;
+      cursor: pointer; transition: background .2s;
+    }
+    .login-btn:hover { background: #00bf70; }
+    .login-error { color: #e53e3e; font-size: .85rem; margin-top: 10px; display: none; }
+
+    /* ══════════════════════════════════════════
+       APP (hidden until auth)
+    ══════════════════════════════════════════ */
+    #app { display: none; }
+
+    /* ── Layout ── */
+    main { max-width: 1000px; margin: 0 auto; padding: 40px 16px 80px; }
+
+    /* ── Hero ── */
+    .hero { text-align: center; margin-bottom: 32px; }
+    .hero h1 { font-size: 2rem; font-weight: 800; line-height: 1.2; margin-bottom: 10px; }
+    .hero h1 span { color: #00D47E; }
+    .hero p { color: #666; font-size: 1rem; max-width: 680px; margin: 0 auto; line-height: 1.6; }
+
+    /* ── Card ── */
+    .card { background: #fff; border-radius: 16px; padding: 28px; box-shadow: 0 2px 16px rgba(0,0,0,.07); margin-bottom: 20px; }
+    .hidden { display: none !important; }
+    .sec-title { font-size: .75rem; font-weight: 700; color: #999; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 18px; display: flex; align-items: center; gap: 8px; }
+    .sec-title::after { content: ''; flex: 1; height: 1px; background: #f0f0f0; }
+
+    /* ── Upload zone ── */
+    .upload-zone {
+      border: 2px dashed #d0c8c0; border-radius: 14px;
+      padding: 48px 24px; text-align: center; cursor: pointer;
+      transition: border-color .2s, background .2s; position: relative;
+    }
+    .upload-zone:hover, .upload-zone.drag-over { border-color: #00D47E; background: #f0fdf8; }
+    .upload-zone input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+    .upload-icon { font-size: 2.5rem; margin-bottom: 12px; }
+    .upload-zone h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 6px; }
+    .upload-zone p { color: #888; font-size: .88rem; }
+    .btn-choose { display: inline-block; margin-top: 16px; padding: 10px 24px; background: #111; color: #fff; border-radius: 8px; font-size: .88rem; font-weight: 600; cursor: pointer; transition: background .2s; border: none; }
+    .btn-choose:hover { background: #333; }
+
+    /* ── File info ── */
+    .file-info { display: flex; align-items: center; gap: 12px; padding: 14px 18px; background: #f0fdf8; border: 1.5px solid #00D47E; border-radius: 10px; margin-top: 16px; }
+    .file-info-name { font-weight: 700; font-size: .95rem; }
+    .file-info-meta { color: #666; font-size: .82rem; margin-top: 2px; }
+
+    /* ── Mapping ── */
+    .mapping-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    @media (max-width: 580px) { .mapping-grid { grid-template-columns: 1fr; } }
+    label { display: block; font-size: .8rem; font-weight: 600; color: #444; margin-bottom: 6px; text-transform: uppercase; letter-spacing: .04em; }
+    select, input[type="text"], input[type="password"] {
+      width: 100%; padding: 10px 14px;
+      border: 1.5px solid #ddd; border-radius: 8px;
+      font-size: .95rem; font-family: inherit; background: #fff;
+      outline: none; appearance: none; cursor: pointer;
+    }
+    select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23666' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 12px center; padding-right: 36px;
+    }
+    select:focus { border-color: #00D47E; box-shadow: 0 0 0 3px rgba(0,212,126,.15); }
+
+    /* ── Buttons ── */
+    .btn-green { padding: 13px 28px; background: #00D47E; color: #fff; border: none; border-radius: 10px; font-size: 1rem; font-weight: 700; cursor: pointer; transition: background .2s, transform .1s; }
+    .btn-green:hover { background: #00bf70; }
+    .btn-green:active { transform: scale(.98); }
+    .btn-green:disabled { background: #ccc; cursor: not-allowed; }
+    .btn-outline { padding: 9px 18px; border: 1.5px solid #00D47E; color: #00D47E; background: transparent; border-radius: 8px; font-size: .85rem; font-weight: 600; cursor: pointer; transition: all .2s; }
+    .btn-outline:hover { background: #00D47E; color: #fff; }
+    .btn-secondary { padding: 9px 18px; border: 1.5px solid #ddd; color: #555; background: #fff; border-radius: 8px; font-size: .85rem; font-weight: 600; cursor: pointer; transition: all .2s; }
+    .btn-secondary:hover { border-color: #999; color: #111; }
+    .btn-ghost { padding: 9px 18px; border: none; color: #888; background: transparent; border-radius: 8px; font-size: .85rem; font-weight: 600; cursor: pointer; transition: color .2s; }
+    .btn-ghost:hover { color: #111; }
+
+    /* ── Progress ── */
+    .progress-wrap { margin-top: 12px; }
+    .progress-label { font-size: .88rem; color: #555; margin-bottom: 8px; display: flex; justify-content: space-between; }
+    .progress-bar { height: 8px; background: #eee; border-radius: 4px; overflow: hidden; }
+    .progress-fill { height: 100%; background: #00D47E; border-radius: 4px; transition: width .3s ease; width: 0%; }
+
+    /* ══════════════════════════════════════════
+       CLIENTS À CIBLER
+    ══════════════════════════════════════════ */
+    .cibler-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 20px; }
+    @media (max-width: 640px) { .cibler-grid { grid-template-columns: 1fr; } }
+    .cibler-box { border-radius: 12px; padding: 18px 20px; }
+    .cibler-box.green { background: #d1fae5; border: 1.5px solid #6ee7b7; }
+    .cibler-box.orange { background: #fef3c7; border: 1.5px solid #fcd34d; }
+    .cibler-box.blue { background: #eff6ff; border: 1.5px solid #93c5fd; }
+    .cibler-num { font-size: 2rem; font-weight: 900; line-height: 1; }
+    .cibler-box.green .cibler-num { color: #065f46; }
+    .cibler-box.orange .cibler-num { color: #92400e; }
+    .cibler-box.blue .cibler-num { color: #1e40af; }
+    .cibler-lbl { font-size: .8rem; font-weight: 600; margin-top: 4px; }
+    .cibler-box.green .cibler-lbl { color: #065f46; }
+    .cibler-box.orange .cibler-lbl { color: #92400e; }
+    .cibler-box.blue .cibler-lbl { color: #1e40af; }
+
+    /* ══════════════════════════════════════════
+       FILTERS
+    ══════════════════════════════════════════ */
+    .filters-row { display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-end; margin-bottom: 18px; padding: 16px 20px; background: #fafaf8; border-radius: 12px; border: 1px solid #eee; }
+    .filter-group { display: flex; flex-direction: column; gap: 5px; min-width: 140px; }
+    .filter-group label { font-size: .72rem; font-weight: 700; color: #999; text-transform: uppercase; letter-spacing: .07em; margin-bottom: 0; }
+    .filter-group select { padding: 7px 12px; font-size: .85rem; }
+    .filter-slider-wrap { display: flex; align-items: center; gap: 8px; }
+    input[type="range"] {
+      -webkit-appearance: none; height: 4px; background: #ddd;
+      border-radius: 2px; outline: none; cursor: pointer; flex: 1;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 16px; height: 16px;
+      background: #00D47E; border-radius: 50%; cursor: pointer;
+    }
+    .slider-val { font-size: .82rem; font-weight: 700; color: #00D47E; min-width: 32px; }
+    .filter-reset { align-self: flex-end; }
+
+    /* ══════════════════════════════════════════
+       RESULTS TABLE
+    ══════════════════════════════════════════ */
+    .table-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid #eee; }
+    table { width: 100%; border-collapse: collapse; font-size: .82rem; }
+    thead th {
+      background: #fafafa; padding: 10px 12px;
+      text-align: left; font-size: .72rem; font-weight: 700;
+      color: #666; text-transform: uppercase; letter-spacing: .05em;
+      border-bottom: 1px solid #eee; white-space: nowrap; user-select: none;
+    }
+    thead th.sortable { cursor: pointer; }
+    thead th.sortable:hover { color: #111; }
+    thead th.sort-asc::after { content: ' ↑'; color: #00D47E; }
+    thead th.sort-desc::after { content: ' ↓'; color: #00D47E; }
+    tbody tr.data-row { border-bottom: 1px solid #f5f5f5; cursor: pointer; transition: background .1s; }
+    tbody tr.data-row:hover { background: #faf8f5; }
+    tbody tr.data-row.expanded { background: #f0fdf8; }
+    tbody td { padding: 9px 12px; vertical-align: middle; }
+    td.addr-cell { max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+    .cp-tag { display: inline-block; padding: 2px 7px; background: #f3f4f6; border-radius: 4px; font-size: .78rem; font-weight: 600; color: #555; }
+    .prix-val { font-weight: 700; }
+    .expand-icon { float: right; color: #bbb; font-size: .8rem; transition: transform .2s; }
+    tr.expanded .expand-icon { transform: rotate(90deg); }
+
+    /* ── Detail row ── */
+    tbody tr.detail-row { display: none; }
+    tbody tr.detail-row.open { display: table-row; }
+    tbody tr.detail-row td { padding: 0; border-bottom: 1px solid #e8f5ee; background: #f8fffe; }
+    .detail-inner { padding: 18px 20px; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; }
+    .detail-block h4 { font-size: .72rem; font-weight: 700; color: #999; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 8px; }
+    .detail-item { display: flex; justify-content: space-between; align-items: center; font-size: .82rem; padding: 4px 0; border-bottom: 1px solid #f0f0f0; }
+    .detail-item:last-child { border-bottom: none; }
+    .detail-item .dk { color: #666; }
+    .detail-item .dv { font-weight: 600; color: #1a1a1a; }
+    .detail-item .dv.good { color: #059669; }
+    .detail-item .dv.warn { color: #d97706; }
+    .detail-item .dv.bad  { color: #dc2626; }
+
+    /* ══════════════════════════════════════════
+       CIRCULAR GAUGE
+    ══════════════════════════════════════════ */
+    .gauge-wrap { display: flex; align-items: center; justify-content: flex-start; }
+
+    /* ── Export row ── */
+    .export-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 18px; }
+
+    /* ── Limit banner ── */
+    .limit-banner {
+      background: linear-gradient(135deg, #111 0%, #1a2a1f 100%);
+      color: #fff; border-radius: 14px; padding: 24px 28px;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 16px; margin-top: 20px;
+    }
+    .limit-banner h3 { font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
+    .limit-banner p { font-size: .88rem; color: #aaa; }
+    .limit-banner a { display: inline-block; padding: 10px 22px; background: #00D47E; color: #111; border-radius: 8px; font-weight: 700; text-decoration: none; font-size: .9rem; transition: background .2s; }
+    .limit-banner a:hover { background: #00bf70; }
+
+    /* ── Error ── */
+    .error-box { background: #fff0f0; border: 1px solid #fca5a5; color: #b91c1c; padding: 10px 14px; border-radius: 8px; font-size: .88rem; margin-top: 12px; }
+
+    /* ── Footer ── */
+    footer { background: #111; color: #888; text-align: center; padding: 24px 16px; font-size: .8rem; }
+    footer a { color: #888; text-decoration: none; margin: 0 8px; }
+    footer a:hover { color: #fff; }
+    .footer-copy { margin-top: 8px; }
+
+    .fade-in { animation: fadeIn .4s ease forwards; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .no-results { text-align: center; padding: 32px; color: #999; font-size: .9rem; }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════
+     LOGIN SCREEN
+══════════════════════════════════════════ -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">Intent Analytics</div>
+    <h2>Accès réservé</h2>
+    <p>Entrez le mot de passe pour accéder à l'outil de scoring.</p>
+    <form id="login-form">
+      <div class="login-field">
+        <input type="password" id="pw-input" placeholder="Mot de passe" autocomplete="current-password" />
+      </div>
+      <button type="submit" class="login-btn">Accéder</button>
+    </form>
+    <div class="login-error" id="login-error">Mot de passe incorrect.</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     APP
+══════════════════════════════════════════ -->
+<div id="app">
+
+<header>
+  <a href="/" class="logo">Intent Analytics</a>
+  <nav>
+    <a href="/estimation">Estimer</a>
+    <a href="/pricing">Prix</a>
+    <a href="/api">API</a>
+    <a href="/contact">Contact</a>
+  </nav>
+</header>
+
+<main>
+
+  <!-- Hero -->
+  <div class="hero">
+    <h1>Scorez votre <span>fichier clients</span></h1>
+    <p>Uploadez un fichier CSV ou Excel contenant des adresses. Nous enrichissons chaque ligne avec les données DVF, DPE, POI et calculons un score de probabilité de vente et de potentiel rénovation.</p>
+  </div>
+
+  <!-- Upload card -->
+  <div class="card" id="upload-card">
+    <div class="sec-title">Votre fichier</div>
+    <div class="upload-zone" id="upload-zone">
+      <input type="file" id="file-input" accept=".csv,.txt,.xls,.xlsx" />
+      <div class="upload-icon">📂</div>
+      <h3>Glissez-déposez votre fichier ici</h3>
+      <p>Formats acceptés : CSV, TXT, XLS, XLSX</p>
+      <button class="btn-choose" onclick="document.getElementById('file-input').click(); event.stopPropagation();">Choisir un fichier</button>
+    </div>
+    <div id="file-info" class="file-info hidden">
+      <span style="font-size:1.6rem">📄</span>
+      <div>
+        <div class="file-info-name" id="file-name">—</div>
+        <div class="file-info-meta" id="file-meta">—</div>
+      </div>
+    </div>
+    <div id="upload-error" class="error-box hidden"></div>
+  </div>
+
+  <!-- Mapping card -->
+  <div class="card hidden" id="mapping-card">
+    <div class="sec-title">Correspondance des colonnes</div>
+    <p style="font-size:.88rem;color:#666;margin-bottom:18px;">Indiquez quelle colonne correspond à chaque champ.</p>
+    <div class="mapping-grid">
+      <div>
+        <label>Adresse <span style="color:#e53e3e">*</span></label>
+        <select id="map-address"><option value="">— Sélectionner —</option></select>
+      </div>
+      <div>
+        <label>Code postal <span style="color:#aaa;font-weight:400;text-transform:none">(optionnel)</span></label>
+        <select id="map-cp"><option value="">— Sélectionner —</option></select>
+      </div>
+      <div>
+        <label>Surface m² <span style="color:#aaa;font-weight:400;text-transform:none">(optionnel)</span></label>
+        <select id="map-surface"><option value="">— Sélectionner —</option></select>
+      </div>
+      <div>
+        <label>Type de bien <span style="color:#aaa;font-weight:400;text-transform:none">(optionnel)</span></label>
+        <select id="map-type"><option value="">— Sélectionner —</option></select>
+      </div>
+    </div>
+    <div style="margin-top:20px;display:flex;gap:12px;flex-wrap:wrap;align-items:center;">
+      <button class="btn-green" id="btn-score" disabled>Lancer le scoring</button>
+      <span id="row-limit-info" style="font-size:.82rem;color:#888;"></span>
+    </div>
+    <div id="mapping-error" class="error-box hidden"></div>
+  </div>
+
+  <!-- Progress card -->
+  <div class="card hidden" id="progress-card">
+    <div class="sec-title">Scoring en cours</div>
+    <div class="progress-wrap">
+      <div class="progress-label">
+        <span id="progress-text">Initialisation…</span>
+        <span id="progress-pct">0%</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+    </div>
+    <div style="margin-top:16px;">
+      <button class="btn-ghost" id="btn-cancel">Annuler</button>
+    </div>
+  </div>
+
+  <!-- Results card -->
+  <div class="card hidden fade-in" id="results-card">
+    <div class="sec-title">Résultats</div>
+
+    <!-- Clients à cibler -->
+    <div class="cibler-grid" id="cibler-grid"></div>
+
+    <!-- Export -->
+    <div class="export-row">
+      <button class="btn-outline" id="btn-export-prioritaires">⭐ Exporter les prioritaires (score > 50)</button>
+      <button class="btn-secondary" id="btn-export-csv">⬇ CSV complet</button>
+      <button class="btn-secondary" id="btn-export-xlsx">⬇ Excel</button>
+      <button class="btn-ghost" id="btn-reset" style="margin-left:auto;">← Nouveau fichier</button>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters-row">
+      <div class="filter-group" style="flex:1;min-width:180px;">
+        <label>Score minimum</label>
+        <div class="filter-slider-wrap">
+          <input type="range" id="filter-score" min="0" max="100" value="0" />
+          <span class="slider-val" id="filter-score-val">0</span>
+        </div>
+      </div>
+      <div class="filter-group">
+        <label>Type de bien</label>
+        <select id="filter-type">
+          <option value="">Tous</option>
+          <option value="Appartement">Appartement</option>
+          <option value="Maison">Maison</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>Département</label>
+        <select id="filter-dept"><option value="">Tous</option></select>
+      </div>
+      <div class="filter-group filter-reset">
+        <button class="btn-ghost" id="btn-filter-reset" style="padding:7px 14px;font-size:.82rem;">Réinitialiser</button>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-wrap">
+      <table id="results-table">
+        <thead>
+          <tr>
+            <th style="width:24px;"></th>
+            <th>Adresse</th>
+            <th>CP</th>
+            <th>Commune</th>
+            <th>Type</th>
+            <th>Surface</th>
+            <th>Prix estimé</th>
+            <th class="sortable" data-col="score_vente">Score vente</th>
+            <th class="sortable" data-col="score_renov">Score rénov.</th>
+            <th class="sortable" data-col="score_qualite">Qualité</th>
+          </tr>
+        </thead>
+        <tbody id="results-tbody"></tbody>
+      </table>
+      <div id="no-results" class="no-results hidden">Aucune ligne ne correspond aux filtres actifs.</div>
+    </div>
+  </div>
+
+  <!-- CTA Pro -->
+  <div class="limit-banner hidden" id="cta-pro">
+    <div>
+      <h3>Passez au plan Pro</h3>
+      <p>Scorez plus de 100 lignes et accédez aux données détaillées (DVF récent, DPE individuel, démographie).</p>
+    </div>
+    <a href="/pricing">Voir les offres →</a>
+  </div>
+
+</main>
+
+<footer>
+  <div>
+    <a href="/mentions-legales">Mentions légales</a>
+    <a href="/cgu">CGU</a>
+    <a href="/cgv">CGV</a>
+    <a href="/confidentialite">Confidentialité</a>
+    <a href="mailto:contact@intentanalytics.fr">contact@intentanalytics.fr</a>
+  </div>
+  <div class="footer-copy">© 2026 Intent Analytics</div>
+</footer>
+
+</div><!-- #app -->
+
+<script>
+/* ══════════════════════════════════════════
+   AUTH
+══════════════════════════════════════════ */
+const PWD = 'intent2026';
+
+function checkAuth() {
+  if (sessionStorage.getItem('ia_scoring_auth') === '1') {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+  }
+}
+
+document.getElementById('login-form').addEventListener('submit', e => {
+  e.preventDefault();
+  const val = document.getElementById('pw-input').value;
+  if (val === PWD) {
+    sessionStorage.setItem('ia_scoring_auth', '1');
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+  } else {
+    const err = document.getElementById('login-error');
+    err.style.display = 'block';
+    document.getElementById('pw-input').value = '';
+    document.getElementById('pw-input').focus();
+    setTimeout(() => { err.style.display = 'none'; }, 3000);
+  }
+});
+
+checkAuth();
+
+/* ══════════════════════════════════════════
+   CONFIG
+══════════════════════════════════════════ */
+const SUPA_URL  = 'https://wwvdpixzfaviaapixarb.supabase.co';
+const SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3dmRwaXh6ZmF2aWFhcGl4YXJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3Mzk0NDgsImV4cCI6MjA5MDMxNTQ0OH0.NjOeWzUCo2BJPcxnkEJNm215GJBr1RAHba1eL_EF758';
+const SH = { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON, 'Content-Type': 'application/json' };
+const MAX_ROWS_FREE = 100;
+const MAX_PARALLEL  = 3;
+
+/* ══════════════════════════════════════════
+   STATE
+══════════════════════════════════════════ */
+let parsedRows  = [];
+let scoredRows  = [];
+let cancelFlag  = false;
+let sortState   = { col: null, dir: 'desc' };
+let activeFilters = { score: 0, type: '', dept: '' };
+
+/* ══════════════════════════════════════════
+   SUPABASE / GEO
+══════════════════════════════════════════ */
+async function supaRPC(fn, body) {
+  try {
+    const r = await fetch(`${SUPA_URL}/rest/v1/rpc/${fn}`, {
+      method: 'POST', headers: SH, body: JSON.stringify(body)
+    });
+    return r.ok ? r.json() : null;
+  } catch { return null; }
+}
+
+async function supaGet(endpoint) {
+  try {
+    const r = await fetch(`${SUPA_URL}/rest/v1/${endpoint}`, { headers: SH });
+    return r.ok ? r.json() : null;
+  } catch { return null; }
+}
+
+async function geocode(query) {
+  try {
+    const r = await fetch(`https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(query)}&limit=1`);
+    const j = await r.json();
+    const f = j?.features?.[0];
+    if (!f) return null;
+    return {
+      code_postal: f.properties.postcode,
+      commune: f.properties.city,
+      score: f.properties.score
+    };
+  } catch { return null; }
+}
+
+/* ══════════════════════════════════════════
+   SCORING LOGIC
+══════════════════════════════════════════ */
+function computeScoreVente(estim, commune) {
+  let score = 0;
+  const evol  = estim?.evolution_12m    ?? 0;
+  const nbTx  = estim?.nb_transactions  ?? 0;
+  const cadre = commune?.score_cadre_vie ?? 50;
+
+  // Dynamique prix (max 40 pts)
+  if (evol > 10)      score += 40;
+  else if (evol > 5)  score += 32;
+  else if (evol > 2)  score += 24;
+  else if (evol > 0)  score += 16;
+  else if (evol > -3) score += 8;
+
+  // Rotation marché (max 35 pts)
+  if (nbTx > 100)     score += 35;
+  else if (nbTx > 60) score += 27;
+  else if (nbTx > 30) score += 19;
+  else if (nbTx > 10) score += 10;
+  else                score += 3;
+
+  // Stabilité/ancienneté via cadre de vie (max 25 pts)
+  score += Math.round((cadre / 100) * 25);
+
+  return Math.min(100, Math.max(0, score));
+}
+
+function computeScoreRenovation(dpe, surface, typeBien) {
+  let score = 0;
+  const classe = dpe?.classe_mode;
+  const dpeMap = { G: 50, F: 44, E: 36, D: 24, C: 14, B: 6, A: 2 };
+  score += dpeMap[classe] ?? 18;
+
+  const surf = parseFloat(surface) || 0;
+  if (surf > 200)      score += 30;
+  else if (surf > 120) score += 24;
+  else if (surf > 80)  score += 18;
+  else if (surf > 50)  score += 12;
+  else if (surf > 0)   score += 6;
+  else                 score += 10;
+
+  const t = (typeBien || '').toLowerCase();
+  if (t.includes('maison'))      score += 20;
+  else if (t.includes('appart')) score += 12;
+  else                           score += 10;
+
+  return Math.min(100, Math.max(0, score));
+}
+
+function computeScoreQualite(geo, estim, dpe, commune) {
+  let score = 0;
+  if (geo?.code_postal)              score += 25;
+  if ((estim?.prix_m2_reference||0) > 0) score += 25;
+  if (commune?.nom_commune)          score += 25;
+  if (dpe?.classe_mode)              score += 25;
+  return score;
+}
+
+/* ══════════════════════════════════════════
+   SCORE EXPLANATIONS
+══════════════════════════════════════════ */
+function scoreVenteExplanation(estim, commune) {
+  const evol  = estim?.evolution_12m   ?? null;
+  const nbTx  = estim?.nb_transactions ?? null;
+  const cadre = commune?.score_cadre_vie ?? null;
+  return [
+    {
+      label: 'Dynamique prix 12m',
+      value: evol != null ? (evol > 0 ? '+' : '') + evol.toFixed(1) + '%' : '—',
+      quality: evol == null ? null : evol > 5 ? 'good' : evol > 0 ? null : 'bad'
+    },
+    {
+      label: 'Rotation du marché',
+      value: nbTx != null ? nbTx + ' ventes' : '—',
+      quality: nbTx == null ? null : nbTx > 60 ? 'good' : nbTx > 20 ? null : 'warn'
+    },
+    {
+      label: 'Cadre de vie / Ancienneté',
+      value: cadre != null ? cadre + '/100' : '—',
+      quality: cadre == null ? null : cadre > 65 ? 'good' : cadre > 40 ? null : 'warn'
+    }
+  ];
+}
+
+function scoreRenovExplanation(dpe, surface, typeBien) {
+  const classe = dpe?.classe_mode ?? null;
+  const dpeQual = classe == null ? null : ['F','G'].includes(classe) ? 'bad' : ['D','E'].includes(classe) ? 'warn' : 'good';
+  const surf = parseFloat(surface) || 0;
+  return [
+    {
+      label: 'Classe DPE zone',
+      value: classe ? 'Classe ' + classe : '—',
+      quality: dpeQual
+    },
+    {
+      label: 'Surface',
+      value: surf > 0 ? surf + ' m²' : '—',
+      quality: surf > 120 ? 'good' : surf > 60 ? null : surf > 0 ? 'warn' : null
+    },
+    {
+      label: 'Type de bien',
+      value: typeBien || '—',
+      quality: (typeBien||'').toLowerCase().includes('maison') ? 'good' : null
+    }
+  ];
+}
+
+/* ══════════════════════════════════════════
+   SCORE ONE ROW
+══════════════════════════════════════════ */
+async function scoreRow(row, colMap) {
+  const adresse = String(row[colMap.address] || '').trim();
+  let   cp      = String(row[colMap.cp]      || '').trim().replace(/\s/g, '');
+  const surface = row[colMap.surface] || '';
+  const type    = String(row[colMap.type]    || '').trim();
+
+  if (cp && !/^\d{5}$/.test(cp)) cp = '';
+
+  let geo = null;
+  const geoQuery = adresse + (cp ? ' ' + cp : '');
+  if (geoQuery) {
+    geo = await geocode(geoQuery);
+    if (geo && !cp) cp = geo.code_postal || '';
+  }
+
+  if (!cp) {
+    return {
+      _orig: row, adresse, cp: '', commune: '', type, surface,
+      prix_estime: null, prix_m2: null,
+      score_vente: null, score_renov: null, score_qualite: 0,
+      _estim: null, _commune: null, _dpe: null, _geo: geo
+    };
+  }
+
+  const [estimArr, communeArr, dpeArr] = await Promise.allSettled([
+    supaRPC('estimate_property', {
+      p_code_postal: cp,
+      p_surface: parseFloat(surface) || 65,
+      p_type_local: type || 'Appartement'
+    }),
+    supaGet(`mv_commune_complete?code_postal=eq.${cp}&limit=1`),
+    supaGet(`dpe_commune_agg?code_postal=eq.${cp}&limit=1`)
+  ]);
+
+  const estim   = Array.isArray(estimArr.value)   ? estimArr.value[0]   : null;
+  const commune = Array.isArray(communeArr.value)  ? communeArr.value[0] : null;
+  const dpe     = Array.isArray(dpeArr.value)      ? dpeArr.value[0]     : null;
+
+  const nomCommune = geo?.commune || commune?.nom_commune || '';
+  const surf       = parseFloat(surface) || 0;
+  const prixM2     = estim?.prix_m2_reference || 0;
+  const prixEst    = surf > 0 && prixM2 > 0 ? Math.round(surf * prixM2) : null;
+
+  return {
+    _orig: row, adresse, cp, commune: nomCommune,
+    type: type || '', surface: surf || '',
+    prix_estime: prixEst, prix_m2: prixM2 || null,
+    score_vente:   computeScoreVente(estim, commune),
+    score_renov:   computeScoreRenovation(dpe, surf, type),
+    score_qualite: computeScoreQualite(geo, estim, dpe, commune),
+    _estim: estim, _commune: commune, _dpe: dpe, _geo: geo
+  };
+}
+
+/* ══════════════════════════════════════════
+   CONCURRENCY
+══════════════════════════════════════════ */
+function makeSemaphore(max) {
+  let running = 0;
+  const queue = [];
+  function next() {
+    if (running < max && queue.length) {
+      running++;
+      const { fn, resolve } = queue.shift();
+      Promise.resolve(fn()).then(v => { running--; resolve(v); next(); });
+    }
+  }
+  return fn => new Promise(resolve => { queue.push({ fn, resolve }); next(); });
+}
+
+/* ══════════════════════════════════════════
+   FILE PARSING
+══════════════════════════════════════════ */
+function parseFile(file) {
+  return new Promise((resolve, reject) => {
+    const ext = file.name.split('.').pop().toLowerCase();
+    if (ext === 'csv' || ext === 'txt') {
+      Papa.parse(file, {
+        header: true, skipEmptyLines: true,
+        complete: r => resolve({ data: r.data, fields: r.meta.fields }),
+        error: reject
+      });
+    } else if (ext === 'xls' || ext === 'xlsx') {
+      const reader = new FileReader();
+      reader.onload = e => {
+        try {
+          const wb = XLSX.read(e.target.result, { type: 'array' });
+          const ws = wb.Sheets[wb.SheetNames[0]];
+          const data = XLSX.utils.sheet_to_json(ws, { defval: '' });
+          resolve({ data, fields: data.length ? Object.keys(data[0]) : [] });
+        } catch (err) { reject(err); }
+      };
+      reader.onerror = reject;
+      reader.readAsArrayBuffer(file);
+    } else {
+      reject(new Error('Format non supporté. Utilisez CSV, TXT, XLS ou XLSX.'));
+    }
+  });
+}
+
+function autoDetect(fields) {
+  const lower = fields.map(f => f.toLowerCase());
+  const detect = patterns => {
+    for (const p of patterns) {
+      const i = lower.findIndex(f => f.includes(p));
+      if (i !== -1) return fields[i];
+    }
+    return '';
+  };
+  return {
+    address: detect(['adresse', 'address', 'addr', 'rue', 'voie', 'libelle']),
+    cp:      detect(['code_postal', 'codepostal', 'cp', 'postal', 'zip']),
+    surface: detect(['surface', 'surf', 'area', 'sqm', 'm2', 'm²', 'superficie']),
+    type:    detect(['type', 'nature', 'bien', 'typebien', 'categorie'])
+  };
+}
+
+function populateSelects(fields, detected) {
+  const ids  = ['map-address', 'map-cp', 'map-surface', 'map-type'];
+  const keys = ['address', 'cp', 'surface', 'type'];
+  ids.forEach((id, i) => {
+    const sel = document.getElementById(id);
+    sel.innerHTML = '<option value="">— Sélectionner —</option>';
+    fields.forEach(f => {
+      const opt = document.createElement('option');
+      opt.value = f; opt.textContent = f;
+      if (f === detected[keys[i]]) opt.selected = true;
+      sel.appendChild(opt);
+    });
+  });
+}
+
+/* ══════════════════════════════════════════
+   CIRCULAR GAUGE SVG
+══════════════════════════════════════════ */
+function circleGauge(score) {
+  if (score == null) {
+    return `<svg width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="16" fill="none" stroke="#e5e7eb" stroke-width="4"/><text x="20" y="24" text-anchor="middle" font-size="9" fill="#9ca3af" font-family="system-ui">—</text></svg>`;
+  }
+  const r = 16, circ = 2 * Math.PI * r;
+  const pct = Math.max(0, Math.min(100, score)) / 100;
+  const offset = circ * (1 - pct);
+  const color = score >= 60 ? '#00D47E' : score >= 40 ? '#f59e0b' : '#ef4444';
+  return `<svg width="40" height="40" viewBox="0 0 40 40">
+    <circle cx="20" cy="20" r="${r}" fill="none" stroke="#f0f0f0" stroke-width="4"/>
+    <circle cx="20" cy="20" r="${r}" fill="none" stroke="${color}" stroke-width="4"
+      stroke-dasharray="${circ.toFixed(1)}" stroke-dashoffset="${offset.toFixed(1)}"
+      stroke-linecap="round" transform="rotate(-90 20 20)"/>
+    <text x="20" y="24" text-anchor="middle" font-size="10" font-weight="700" fill="${color}" font-family="system-ui">${score}</text>
+  </svg>`;
+}
+
+/* ══════════════════════════════════════════
+   FORMAT HELPERS
+══════════════════════════════════════════ */
+function fmtNum(n) {
+  if (n == null || isNaN(n)) return '—';
+  return new Intl.NumberFormat('fr-FR').format(Math.round(n));
+}
+function fmtPrice(n) {
+  if (!n || isNaN(n)) return '—';
+  if (n >= 1000000) return (n/1000000).toFixed(2).replace('.', ',') + ' M€';
+  return fmtNum(n) + ' €';
+}
+
+/* ══════════════════════════════════════════
+   RENDER CIBLER
+══════════════════════════════════════════ */
+function renderCibler(rows) {
+  const hot   = rows.filter(r => (r.score_vente ?? 0) > 60).length;
+  const renov = rows.filter(r => (r.score_renov  ?? 0) > 50).length;
+  const avgV  = rows.filter(r => r.score_vente != null);
+  const moy   = avgV.length ? Math.round(avgV.reduce((s,r) => s + r.score_vente, 0) / avgV.length) : '—';
+
+  document.getElementById('cibler-grid').innerHTML = `
+    <div class="cibler-box green">
+      <div class="cibler-num">${hot}</div>
+      <div class="cibler-lbl">Prospects prioritaires<br><small style="font-weight:400">score vente > 60</small></div>
+    </div>
+    <div class="cibler-box orange">
+      <div class="cibler-num">${renov}</div>
+      <div class="cibler-lbl">Potentiel rénovation<br><small style="font-weight:400">score rénov. > 50</small></div>
+    </div>
+    <div class="cibler-box blue">
+      <div class="cibler-num">${moy}</div>
+      <div class="cibler-lbl">Score vente moyen<br><small style="font-weight:400">sur ${rows.length} lignes</small></div>
+    </div>
+  `;
+}
+
+/* ══════════════════════════════════════════
+   RENDER TABLE
+══════════════════════════════════════════ */
+function renderTable(rows) {
+  const tbody = document.getElementById('results-tbody');
+  tbody.innerHTML = '';
+
+  // Apply filters
+  let filtered = rows.filter(r => {
+    if (activeFilters.score > 0 && (r.score_vente ?? 0) < activeFilters.score && (r.score_renov ?? 0) < activeFilters.score) return false;
+    if (activeFilters.type && r.type && !r.type.toLowerCase().includes(activeFilters.type.toLowerCase())) return false;
+    if (activeFilters.dept) {
+      const dept = r.cp ? r.cp.substring(0, 2) : '';
+      if (dept !== activeFilters.dept) return false;
+    }
+    return true;
+  });
+
+  // Sort
+  if (sortState.col) {
+    filtered.sort((a, b) => {
+      const va = a[sortState.col] ?? -1, vb = b[sortState.col] ?? -1;
+      return sortState.dir === 'asc' ? va - vb : vb - va;
+    });
+  }
+
+  document.getElementById('no-results').classList.toggle('hidden', filtered.length > 0);
+
+  filtered.forEach((r, idx) => {
+    const rowId = `row-${idx}`;
+
+    // Main row
+    const tr = document.createElement('tr');
+    tr.className = 'data-row';
+    tr.dataset.id = rowId;
+    tr.innerHTML = `
+      <td style="color:#bbb;font-size:.8rem;text-align:center">▶</td>
+      <td class="addr-cell" title="${r.adresse}">${r.adresse || '—'}</td>
+      <td>${r.cp ? `<span class="cp-tag">${r.cp}</span>` : '—'}</td>
+      <td>${r.commune || '—'}</td>
+      <td style="font-size:.82rem">${r.type || '—'}</td>
+      <td style="font-size:.82rem">${r.surface ? r.surface + ' m²' : '—'}</td>
+      <td><span class="prix-val">${fmtPrice(r.prix_estime)}</span></td>
+      <td><div class="gauge-wrap">${circleGauge(r.score_vente)}</div></td>
+      <td><div class="gauge-wrap">${circleGauge(r.score_renov)}</div></td>
+      <td><div class="gauge-wrap">${circleGauge(r.score_qualite)}</div></td>
+    `;
+
+    // Detail row
+    const trDetail = document.createElement('tr');
+    trDetail.className = 'detail-row';
+    trDetail.id = 'detail-' + rowId;
+
+    const venteExp = scoreVenteExplanation(r._estim, r._commune);
+    const renovExp = scoreRenovExplanation(r._dpe, r.surface, r.type);
+
+    const fmtItems = items => items.map(i => `
+      <div class="detail-item">
+        <span class="dk">${i.label}</span>
+        <span class="dv ${i.quality || ''}">${i.value}</span>
+      </div>`).join('');
+
+    trDetail.innerHTML = `<td colspan="10"><div class="detail-inner">
+      <div class="detail-block">
+        <h4>Score vente – détail</h4>
+        ${fmtItems(venteExp)}
+      </div>
+      <div class="detail-block">
+        <h4>Score rénovation – détail</h4>
+        ${fmtItems(renovExp)}
+      </div>
+      <div class="detail-block">
+        <h4>Estimation de prix</h4>
+        <div class="detail-item"><span class="dk">Prix estimé</span><span class="dv">${fmtPrice(r.prix_estime)}</span></div>
+        <div class="detail-item"><span class="dk">Prix/m²</span><span class="dv">${r.prix_m2 ? fmtNum(r.prix_m2) + ' €/m²' : '—'}</span></div>
+        <div class="detail-item"><span class="dk">Surface</span><span class="dv">${r.surface ? r.surface + ' m²' : '—'}</span></div>
+      </div>
+      <div class="detail-block">
+        <h4>Profil commune</h4>
+        <div class="detail-item"><span class="dk">Commune</span><span class="dv">${r.commune || '—'}</span></div>
+        <div class="detail-item"><span class="dk">Département</span><span class="dv">${r.cp ? r.cp.substring(0,2) : '—'}</span></div>
+        <div class="detail-item"><span class="dk">Score cadre de vie</span><span class="dv">${r._commune?.score_cadre_vie != null ? r._commune.score_cadre_vie + '/100' : '—'}</span></div>
+        <div class="detail-item"><span class="dk">Revenu médian</span><span class="dv">${r._commune?.iris_revenu_median ? fmtNum(r._commune.iris_revenu_median) + ' €/an' : '—'}</span></div>
+        <div class="detail-item"><span class="dk">Tendance marché</span><span class="dv ${r._estim?.evolution_12m > 0 ? 'good' : r._estim?.evolution_12m < 0 ? 'bad' : ''}">${r._estim?.evolution_12m != null ? (r._estim.evolution_12m > 0 ? '+' : '') + r._estim.evolution_12m.toFixed(1) + '%' : '—'}</span></div>
+      </div>
+    </div></td>`;
+
+    // Toggle on click
+    tr.addEventListener('click', () => {
+      const isOpen = trDetail.classList.contains('open');
+      trDetail.classList.toggle('open', !isOpen);
+      tr.classList.toggle('expanded', !isOpen);
+      const icon = tr.querySelector('td:first-child');
+      if (icon) icon.style.transform = isOpen ? '' : 'rotate(90deg)';
+    });
+
+    tbody.appendChild(tr);
+    tbody.appendChild(trDetail);
+  });
+}
+
+/* ══════════════════════════════════════════
+   DEPT FILTER POPULATE
+══════════════════════════════════════════ */
+function populateDeptFilter(rows) {
+  const depts = [...new Set(rows.map(r => r.cp ? r.cp.substring(0,2) : '').filter(Boolean))].sort();
+  const sel = document.getElementById('filter-dept');
+  sel.innerHTML = '<option value="">Tous</option>';
+  depts.forEach(d => {
+    const opt = document.createElement('option');
+    opt.value = d; opt.textContent = 'Dép. ' + d;
+    sel.appendChild(opt);
+  });
+}
+
+/* ══════════════════════════════════════════
+   EXPORT
+══════════════════════════════════════════ */
+const EXTRA_COLS = ['cp', 'commune', 'prix_estime', 'score_vente', 'score_renov', 'score_qualite'];
+
+function buildExportRows(rows) {
+  return rows.map(r => {
+    const obj = { ...r._orig };
+    EXTRA_COLS.forEach(k => { obj[k] = r[k] ?? ''; });
+    return obj;
+  });
+}
+
+function exportCSV(rows) {
+  const csv = Papa.unparse(buildExportRows(rows), { header: true });
+  downloadBlob(new Blob([csv], { type: 'text/csv;charset=utf-8;' }), 'scoring-intent-analytics.csv');
+}
+
+function exportXLSX(rows) {
+  const ws = XLSX.utils.json_to_sheet(buildExportRows(rows));
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Scoring');
+  XLSX.writeFile(wb, 'scoring-intent-analytics.xlsx');
+}
+
+function downloadBlob(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+/* ══════════════════════════════════════════
+   RESET
+══════════════════════════════════════════ */
+function resetAll() {
+  parsedRows = []; scoredRows = []; cancelFlag = false;
+  activeFilters = { score: 0, type: '', dept: '' };
+  document.getElementById('filter-score').value = 0;
+  document.getElementById('filter-score-val').textContent = '0';
+  document.getElementById('filter-type').value = '';
+  document.getElementById('filter-dept').value = '';
+  document.getElementById('file-input').value = '';
+  document.getElementById('file-info').classList.add('hidden');
+  document.getElementById('upload-error').classList.add('hidden');
+  document.getElementById('mapping-card').classList.add('hidden');
+  document.getElementById('progress-card').classList.add('hidden');
+  document.getElementById('results-card').classList.add('hidden');
+  document.getElementById('cta-pro').classList.add('hidden');
+  document.getElementById('upload-card').classList.remove('hidden');
+}
+
+/* ══════════════════════════════════════════
+   MAIN SCORING LOOP
+══════════════════════════════════════════ */
+async function runScoring() {
+  const colMap = {
+    address: document.getElementById('map-address').value,
+    cp:      document.getElementById('map-cp').value,
+    surface: document.getElementById('map-surface').value,
+    type:    document.getElementById('map-type').value,
+  };
+  if (!colMap.address) {
+    showError('mapping-error', 'Veuillez sélectionner la colonne Adresse.');
+    return;
+  }
+
+  const rows = parsedRows.slice(0, MAX_ROWS_FREE);
+  const total = rows.length;
+  cancelFlag = false; scoredRows = [];
+
+  document.getElementById('mapping-card').classList.add('hidden');
+  document.getElementById('progress-card').classList.remove('hidden');
+  document.getElementById('results-card').classList.add('hidden');
+
+  const semaphore = makeSemaphore(MAX_PARALLEL);
+  let done = 0;
+
+  const tasks = rows.map(row =>
+    semaphore(async () => {
+      if (cancelFlag) return null;
+      const result = await scoreRow(row, colMap);
+      done++;
+      const pct = Math.round((done / total) * 100);
+      document.getElementById('progress-fill').style.width = pct + '%';
+      document.getElementById('progress-pct').textContent = pct + '%';
+      document.getElementById('progress-text').textContent = `Scoring en cours… ${done}/${total} lignes`;
+      return result;
+    })
+  );
+
+  const results = await Promise.all(tasks);
+  if (cancelFlag) { resetAll(); return; }
+  scoredRows = results.filter(Boolean);
+
+  populateDeptFilter(scoredRows);
+  renderCibler(scoredRows);
+  renderTable(scoredRows);
+
+  document.getElementById('progress-card').classList.add('hidden');
+  document.getElementById('results-card').classList.remove('hidden');
+
+  if (parsedRows.length >= MAX_ROWS_FREE) {
+    document.getElementById('cta-pro').classList.remove('hidden');
+  }
+}
+
+/* ══════════════════════════════════════════
+   ERROR HELPER
+══════════════════════════════════════════ */
+function showError(id, msg) {
+  const el = document.getElementById(id);
+  el.textContent = msg; el.classList.remove('hidden');
+}
+
+/* ══════════════════════════════════════════
+   FILE HANDLING
+══════════════════════════════════════════ */
+async function handleFile(file) {
+  document.getElementById('upload-error').classList.add('hidden');
+  document.getElementById('file-info').classList.add('hidden');
+  try {
+    const { data, fields } = await parseFile(file);
+    if (!data.length) throw new Error('Le fichier est vide.');
+    parsedRows = data;
+    document.getElementById('file-name').textContent = file.name;
+    document.getElementById('file-meta').textContent =
+      `${data.length} ligne${data.length > 1 ? 's' : ''} · ${fields.length} colonnes`;
+    document.getElementById('file-info').classList.remove('hidden');
+
+    const detected = autoDetect(fields);
+    populateSelects(fields, detected);
+
+    const eff = Math.min(data.length, MAX_ROWS_FREE);
+    const info = document.getElementById('row-limit-info');
+    if (data.length > MAX_ROWS_FREE) {
+      info.textContent = `⚠ Mode gratuit : ${MAX_ROWS_FREE} premières lignes seulement.`;
+      info.style.color = '#c05000';
+    } else {
+      info.textContent = `${eff} ligne${eff > 1 ? 's' : ''} à scorer.`;
+      info.style.color = '#888';
+    }
+
+    document.getElementById('btn-score').disabled = !detected.address;
+    document.getElementById('mapping-card').classList.remove('hidden');
+  } catch (err) {
+    showError('upload-error', err.message || 'Erreur de lecture du fichier.');
+  }
+}
+
+/* ══════════════════════════════════════════
+   EVENTS
+══════════════════════════════════════════ */
+
+// Drag & drop
+const zone = document.getElementById('upload-zone');
+zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+zone.addEventListener('drop', e => { e.preventDefault(); zone.classList.remove('drag-over'); const f = e.dataTransfer.files[0]; if (f) handleFile(f); });
+document.getElementById('file-input').addEventListener('change', e => { if (e.target.files[0]) handleFile(e.target.files[0]); });
+
+// Address select
+document.getElementById('map-address').addEventListener('change', e => {
+  document.getElementById('btn-score').disabled = !e.target.value;
+  document.getElementById('mapping-error').classList.add('hidden');
+});
+
+// Score button
+document.getElementById('btn-score').addEventListener('click', runScoring);
+
+// Cancel
+document.getElementById('btn-cancel').addEventListener('click', () => {
+  cancelFlag = true;
+  document.getElementById('progress-card').classList.add('hidden');
+  document.getElementById('mapping-card').classList.remove('hidden');
+});
+
+// Exports
+document.getElementById('btn-export-csv').addEventListener('click', () => exportCSV(scoredRows));
+document.getElementById('btn-export-xlsx').addEventListener('click', () => exportXLSX(scoredRows));
+document.getElementById('btn-export-prioritaires').addEventListener('click', () => {
+  const prio = scoredRows.filter(r => (r.score_vente ?? 0) > 50 || (r.score_renov ?? 0) > 50);
+  if (!prio.length) { alert('Aucun prospect avec score > 50.'); return; }
+  exportCSV(prio);
+});
+
+// Reset
+document.getElementById('btn-reset').addEventListener('click', resetAll);
+
+// Sortable headers
+document.querySelectorAll('thead th.sortable').forEach(th => {
+  th.addEventListener('click', () => {
+    const col = th.dataset.col;
+    if (sortState.col === col) sortState.dir = sortState.dir === 'desc' ? 'asc' : 'desc';
+    else { sortState.col = col; sortState.dir = 'desc'; }
+    document.querySelectorAll('thead th').forEach(h => h.classList.remove('sort-asc', 'sort-desc'));
+    th.classList.add(sortState.dir === 'asc' ? 'sort-asc' : 'sort-desc');
+    renderTable(scoredRows);
+  });
+});
+
+// Filters
+document.getElementById('filter-score').addEventListener('input', e => {
+  activeFilters.score = parseInt(e.target.value);
+  document.getElementById('filter-score-val').textContent = e.target.value;
+  renderTable(scoredRows);
+});
+document.getElementById('filter-type').addEventListener('change', e => {
+  activeFilters.type = e.target.value;
+  renderTable(scoredRows);
+});
+document.getElementById('filter-dept').addEventListener('change', e => {
+  activeFilters.dept = e.target.value;
+  renderTable(scoredRows);
+});
+document.getElementById('btn-filter-reset').addEventListener('click', () => {
+  activeFilters = { score: 0, type: '', dept: '' };
+  document.getElementById('filter-score').value = 0;
+  document.getElementById('filter-score-val').textContent = '0';
+  document.getElementById('filter-type').value = '';
+  document.getElementById('filter-dept').value = '';
+  renderTable(scoredRows);
+});
+</script>
+</body>
+</html>
