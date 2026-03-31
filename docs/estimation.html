@@ -10,6 +10,9 @@
   <meta property="og:description" content="Estimez votre bien en quelques secondes : prix DVF, DPE, cadre de vie, démographie et tendances de marché local." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://intentanalytics.fr/estimation" />
+  <!-- Leaflet -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f0eb; color: #1a1a1a; min-height: 100vh; }
@@ -169,6 +172,78 @@
     /* ── Disclaimer ── */
     .disclaimer { font-size: 0.75rem; color: #aaa; text-align: center; line-height: 1.5; margin-top: 12px; }
 
+    /* ── Leaflet map ── */
+    #map { width: 100%; height: 320px; border-radius: 12px; z-index: 1; }
+    .leaflet-container { font-family: inherit; }
+
+    /* ── Score text qualificatif ── */
+    .score-qual-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 4px; }
+    .score-qual-card { background: #f9fafb; border: 1.5px solid #e8e8e8; border-radius: 12px; padding: 14px 16px; }
+    .score-qual-icon { font-size: 1.4rem; margin-bottom: 6px; }
+    .score-qual-label { font-size: 0.72rem; font-weight: 700; color: #999; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 4px; }
+    .score-qual-val { font-size: 1rem; font-weight: 800; color: #111; }
+    .score-qual-badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 0.72rem; font-weight: 700; margin-top: 4px; }
+    .badge-excellent { background: #dcfce7; color: #059669; }
+    .badge-bon       { background: #d1fae5; color: #047857; }
+    .badge-correct   { background: #fef3c7; color: #d97706; }
+    .badge-renforcer { background: #fee2e2; color: #dc2626; }
+
+    /* ── POI accordion ── */
+    .poi-category { border: 1.5px solid #eee; border-radius: 12px; overflow: hidden; margin-bottom: 10px; }
+    .poi-cat-header { display: flex; align-items: center; justify-content: space-between; padding: 13px 16px; background: #fafafa; cursor: pointer; user-select: none; }
+    .poi-cat-title { font-size: 0.92rem; font-weight: 700; color: #222; display: flex; align-items: center; gap: 8px; }
+    .poi-cat-count { font-size: 0.75rem; color: #888; font-weight: 500; }
+    .poi-cat-chevron { font-size: 0.8rem; color: #aaa; transition: transform .2s; }
+    .poi-cat-header[aria-expanded="true"] .poi-cat-chevron { transform: rotate(180deg); }
+    .poi-cat-body { display: none; padding: 10px 16px 14px; }
+    .poi-cat-body.open { display: block; }
+    .poi-item { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; border-bottom: 1px solid #f5f5f5; }
+    .poi-item:last-child { border-bottom: none; }
+    .poi-item-icon { width: 28px; height: 28px; background: #f0fdf8; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; flex-shrink: 0; }
+    .poi-item-name { font-size: 0.88rem; font-weight: 600; color: #222; }
+    .poi-item-dist { font-size: 0.75rem; color: #888; margin-top: 1px; }
+
+    /* ── DPE simulator ── */
+    .sim-wrap { padding: 4px 0; }
+    .sim-row { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; flex-wrap: wrap; }
+    .sim-label { font-size: 0.82rem; font-weight: 700; color: #444; text-transform: uppercase; letter-spacing: .04em; min-width: 120px; }
+    .sim-slider { flex: 1; min-width: 160px; -webkit-appearance: none; appearance: none; height: 6px; background: #e0e0e0; border-radius: 3px; outline: none; cursor: pointer; }
+    .sim-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: #00D47E; cursor: pointer; }
+    .sim-val { font-size: 0.85rem; font-weight: 700; color: #111; min-width: 80px; }
+    .sim-dpe-select { padding: 8px 12px; border: 1.5px solid #ddd; border-radius: 8px; font-size: 0.9rem; font-family: inherit; background: #fff; cursor: pointer; outline: none; }
+    .sim-dpe-select:focus { border-color: #00D47E; }
+    .sim-result { margin-top: 4px; }
+    .sim-aide-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid #f0f0f0; }
+    .sim-aide-row:last-of-type { border-bottom: none; }
+    .sim-aide-label { flex: 1; font-size: 0.88rem; color: #333; }
+    .sim-aide-montant { font-size: 0.88rem; font-weight: 800; color: #059669; flex-shrink: 0; }
+    .sim-empty { font-size: 0.88rem; color: #888; text-align: center; padding: 16px 0; }
+
+    /* ── Facettes ── */
+    .facette-row { display: flex; align-items: center; gap: 12px; margin-bottom: 13px; }
+    .facette-label { width: 145px; font-size: 0.83rem; font-weight: 600; color: #444; display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+    .facette-track { flex: 1; height: 9px; background: #e8e8e8; border-radius: 5px; overflow: hidden; }
+    .facette-fill { height: 100%; border-radius: 5px; }
+    .facette-num { width: 46px; text-align: right; font-size: 0.83rem; font-weight: 700; color: #111; flex-shrink: 0; }
+
+    /* ── Satisfaction popup ── */
+    .survey-overlay { display: none; position: fixed; inset: 0; z-index: 9990; pointer-events: none; }
+    .survey-panel { position: fixed; bottom: 80px; right: 20px; width: 320px; background: #fff; border-radius: 16px; box-shadow: 0 8px 40px rgba(0,0,0,.18); padding: 24px; z-index: 9991; transform: translateX(380px); transition: transform .4s cubic-bezier(.34,1.56,.64,1); }
+    .survey-panel.open { transform: translateX(0); }
+    .survey-close { position: absolute; top: 12px; right: 14px; background: none; border: none; font-size: 1.1rem; cursor: pointer; color: #999; padding: 4px 6px; }
+    .survey-title { font-size: 1rem; font-weight: 800; color: #111; margin-bottom: 4px; }
+    .survey-sub { font-size: 0.82rem; color: #666; margin-bottom: 14px; }
+    .star-row { display: flex; gap: 8px; margin-bottom: 14px; }
+    .star-btn { font-size: 1.5rem; background: none; border: none; cursor: pointer; opacity: 0.3; transition: opacity .15s, transform .15s; padding: 2px; }
+    .star-btn.active { opacity: 1; transform: scale(1.15); }
+    .survey-profile { width: 100%; padding: 9px 12px; border: 1.5px solid #ddd; border-radius: 8px; font-size: 0.88rem; font-family: inherit; margin-bottom: 10px; outline: none; }
+    .survey-profile:focus { border-color: #00D47E; }
+    .survey-prix { width: 100%; padding: 9px 12px; border: 1.5px solid #ddd; border-radius: 8px; font-size: 0.88rem; font-family: inherit; margin-bottom: 14px; outline: none; }
+    .survey-prix:focus { border-color: #00D47E; }
+    .survey-submit { width: 100%; padding: 11px; background: #00D47E; color: #fff; border: none; border-radius: 8px; font-size: 0.9rem; font-weight: 700; cursor: pointer; font-family: inherit; transition: background .2s; }
+    .survey-submit:hover { background: #00be70; }
+    .survey-thanks { text-align: center; padding: 16px 0 8px; font-size: 0.95rem; color: #059669; font-weight: 700; }
+
     /* ── Footer ── */
     footer { background: #111; color: #666; text-align: center; padding: 24px 16px; font-size: 0.8rem; border-top: 1px solid #222; }
     footer a { color: #aaa; text-decoration: none; margin: 0 8px; }
@@ -188,6 +263,10 @@
       .wiki-card { flex-direction: column; }
       .wiki-img { width: 100%; height: 160px; }
       .score-bar-label { width: 85px; font-size: 0.78rem; }
+      .score-qual-grid { grid-template-columns: 1fr 1fr; }
+      .facette-label { width: 110px; font-size: 0.78rem; }
+      .survey-panel { width: calc(100vw - 24px); right: 12px; bottom: 70px; }
+      #map { height: 240px; }
     }
   </style>
 </head>
@@ -237,6 +316,12 @@
     <div class="error-box" id="errorBox"></div>
   </div>
 
+  <!-- Map -->
+  <div class="section-card hidden" id="sec-map">
+    <div class="section-title">🗺️ Localisation & ventes à proximité</div>
+    <div id="map"></div>
+  </div>
+
   <!-- Price -->
   <div class="section-card hidden" id="sec-price">
     <div id="sec-price-content"></div>
@@ -272,6 +357,24 @@
     <div id="sec-vie-content"></div>
   </div>
 
+  <!-- Top scores texte -->
+  <div class="section-card hidden" id="sec-scores-text">
+    <div class="section-title">⭐ Points forts de la zone</div>
+    <div id="sec-scores-text-content"></div>
+  </div>
+
+  <!-- POI accordéon -->
+  <div class="section-card hidden" id="sec-poi">
+    <div class="section-title">📍 Points d'intérêt à proximité</div>
+    <div id="sec-poi-content"></div>
+  </div>
+
+  <!-- Facettes -->
+  <div class="section-card hidden" id="sec-facettes">
+    <div class="section-title">📐 Évaluation détaillée</div>
+    <div id="sec-facettes-content"></div>
+  </div>
+
   <!-- Démographie -->
   <div class="section-card hidden" id="sec-demo">
     <div class="section-title">👥 Démographie</div>
@@ -284,10 +387,26 @@
     <div id="sec-wiki-content"></div>
   </div>
 
-  <!-- Aides rénovation -->
+  <!-- Simulateur aides DPE -->
   <div class="section-card hidden" id="sec-aides">
-    <div class="section-title">🔧 Aides rénovation disponibles</div>
+    <div class="section-title">🔧 Simulateur d'aides rénovation</div>
     <div id="sec-aides-content"></div>
+    <div class="sim-wrap" id="sim-wrap" style="display:none">
+      <div class="sim-row">
+        <span class="sim-label">Revenu fiscal</span>
+        <input type="range" class="sim-slider" id="sim-rfr" min="0" max="3" step="1" value="0" />
+        <span class="sim-val" id="sim-rfr-lbl">Très modeste</span>
+      </div>
+      <div class="sim-row">
+        <span class="sim-label">Classe DPE visée</span>
+        <select class="sim-dpe-select" id="sim-dpe">
+          <option value="B">B</option>
+          <option value="C" selected>C</option>
+          <option value="D">D</option>
+        </select>
+      </div>
+      <div class="sim-result" id="sim-result"></div>
+    </div>
   </div>
 
   <!-- CTA -->
@@ -352,8 +471,9 @@ const formCard     = document.getElementById("formCard");
 const resetWrap    = document.getElementById("resetWrap");
 const resetBtn     = document.getElementById("resetBtn");
 
-let storedCP = "", storedInsee = "";
+let storedCP = "", storedInsee = "", storedLat = null, storedLon = null;
 let debTimer = null, activeIdx = -1, suggestions = [];
+let leafletMap = null;
 
 // ── Autocomplete ──────────────────────────────────────────────────────────────
 addressInput.addEventListener("input", () => {
@@ -413,6 +533,10 @@ function pickSuggestion(feat) {
   addressInput.value = p.label || "";
   storedCP    = p.postcode  || "";
   storedInsee = p.citycode  || "";
+  if (feat.geometry && feat.geometry.coordinates) {
+    storedLon = feat.geometry.coordinates[0];
+    storedLat = feat.geometry.coordinates[1];
+  }
   closeList();
 }
 
@@ -477,15 +601,19 @@ function launch(cp, ins, surface, type) {
   showSk("sec-demo",    skDemo());
   if (ins) showSk("sec-wiki", skWiki());
   showSection("sec-cta");
+  if (storedLat && storedLon) showSection("sec-map");
 
   setTimeout(() => document.getElementById("sec-price").scrollIntoView({ behavior: "smooth", block: "start" }), 50);
 
   doEstimate(cp, surface, type);
-  doCommune(cp);
+  doCommune(cp, ins);
   doChart(cp);
-  doVentes(cp, type);
+  doVentes(cp, type, storedLat, storedLon);
   doDPE(cp, ins);
   if (ins) doWiki(ins); else hideSection("sec-wiki");
+  if (storedLat && storedLon) initMap(storedLat, storedLon, cp, ins);
+  doPOI(ins);
+  scheduleSurvey();
 }
 
 // ── Section helpers ───────────────────────────────────────────────────────────
@@ -593,7 +721,7 @@ async function doEstimate(cp, surface, type) {
 }
 
 // ── Fetch: mv_commune_complete ────────────────────────────────────────────────
-async function doCommune(cp) {
+async function doCommune(cp, ins) {
   try {
     const r = await fetch(SUPA_URL + "/rest/v1/mv_commune_complete?code_postal=eq." + encodeURIComponent(cp) + "&select=*&limit=1", { headers: SH });
     if (!r.ok) throw new Error();
@@ -602,15 +730,21 @@ async function doCommune(cp) {
     if (d) {
       renderMarket(d);
       renderVie(d);
+      renderScoresText(d);
+      renderFacettes(d);
       renderDemo(d);
     } else {
       hideSection("sec-market");
       hideSection("sec-vie");
+      hideSection("sec-scores-text");
+      hideSection("sec-facettes");
       hideSection("sec-demo");
     }
   } catch (_) {
     hideSection("sec-market");
     hideSection("sec-vie");
+    hideSection("sec-scores-text");
+    hideSection("sec-facettes");
     hideSection("sec-demo");
   }
 }
@@ -673,7 +807,11 @@ async function doDPE(cp, ins) {
     if (d) {
       renderDPE(d);
       const passoire = parseFloat(d.pct_passoire ?? d.pct_passoires ?? 0);
-      if (passoire > 15 && ins) doAides(ins); else hideSection("sec-aides");
+      if (passoire > 15 && ins) {
+        showSection("sec-aides");
+        setContent("sec-aides", "");
+        setupSimulator(ins);
+      } else hideSection("sec-aides");
     } else {
       hideSection("sec-dpe");
       hideSection("sec-aides");
@@ -735,6 +873,7 @@ function renderPrice(d, surface) {
   h += '<p class="disclaimer">Estimation indicative basée sur les données DVF. Ne constitue pas une évaluation professionnelle.</p>';
 
   setContent("sec-price", h);
+  storeSurveyContext(storedInsee, prix);
 }
 
 function statBox(label, valueHtml) {
@@ -1083,6 +1222,305 @@ function renderAidesDefault() {
   setContent("sec-aides", h);
 }
 
+// ── Render: top-3 scores texte ────────────────────────────────────────────────
+function renderScoresText(d) {
+  const cats = [
+    { key: "score_transport", label: "Transport",    icon: "🚌" },
+    { key: "score_education", label: "Éducation",    icon: "🏫" },
+    { key: "score_sante",     label: "Santé",        icon: "🏥" },
+    { key: "score_commerce",  label: "Commerce",     icon: "🛒" },
+  ].filter(c => d[c.key] != null)
+   .sort((a, b) => d[b.key] - d[a.key])
+   .slice(0, 3);
+
+  if (!cats.length) { hideSection("sec-scores-text"); return; }
+
+  function qualif(v) {
+    if (v >= 75) return { label: "Excellent",     cls: "badge-excellent" };
+    if (v >= 50) return { label: "Bon",           cls: "badge-bon" };
+    if (v >= 30) return { label: "Correct",       cls: "badge-correct" };
+    return              { label: "À renforcer",   cls: "badge-renforcer" };
+  }
+
+  let h = '<div class="score-qual-grid">';
+  cats.forEach(c => {
+    const val = Math.round(d[c.key]);
+    const q = qualif(val);
+    h += `<div class="score-qual-card">
+      <div class="score-qual-icon">${c.icon}</div>
+      <div class="score-qual-label">${c.label}</div>
+      <div class="score-qual-val">${val}<span style="font-size:.7rem;color:#aaa;font-weight:500">/100</span></div>
+      <span class="score-qual-badge ${q.cls}">${q.label}</span>
+    </div>`;
+  });
+  h += '</div>';
+  setContent("sec-scores-text", h);
+  showSection("sec-scores-text");
+}
+
+// ── Fetch + Render: POI accordion ─────────────────────────────────────────────
+async function doPOI(ins) {
+  if (!ins) { hideSection("sec-poi"); return; }
+  try {
+    const r = await fetch(SUPA_URL + "/rest/v1/commune_poi?code_insee=eq." + encodeURIComponent(ins) + "&select=*&limit=60", { headers: SH });
+    if (!r.ok) throw new Error();
+    const data = await r.json();
+    if (Array.isArray(data) && data.length) renderPOI(data);
+    else hideSection("sec-poi");
+  } catch (_) { hideSection("sec-poi"); }
+}
+
+function renderPOI(rows) {
+  const catMap = {
+    transport:  { label: "Transport",  icon: "🚉", emoji: "🚇" },
+    education:  { label: "Éducation",  icon: "🏫", emoji: "📚" },
+    sante:      { label: "Santé",      icon: "🏥", emoji: "⚕️" },
+    commerce:   { label: "Commerce",   icon: "🛒", emoji: "🏪" },
+  };
+  const grouped = {};
+  rows.forEach(p => {
+    const cat = (p.categorie || p.category || "autre").toLowerCase();
+    if (!grouped[cat]) grouped[cat] = [];
+    grouped[cat].push(p);
+  });
+
+  const order = ["transport", "education", "sante", "commerce"];
+  const allCats = [...order.filter(c => grouped[c]), ...Object.keys(grouped).filter(c => !order.includes(c))];
+
+  let h = "";
+  allCats.forEach((cat, idx) => {
+    const items = grouped[cat] || [];
+    const meta = catMap[cat] || { label: cat.charAt(0).toUpperCase() + cat.slice(1), icon: "📌" };
+    const headId = "poi-h-" + idx;
+    const bodyId = "poi-b-" + idx;
+    h += `<div class="poi-category">
+      <div class="poi-cat-header" id="${headId}" role="button" tabindex="0" aria-expanded="false" aria-controls="${bodyId}" onclick="togglePOI('${headId}','${bodyId}')">
+        <span class="poi-cat-title">${meta.icon} ${meta.label}</span>
+        <span style="display:flex;align-items:center;gap:8px">
+          <span class="poi-cat-count">${items.length} établissement${items.length > 1 ? "s" : ""}</span>
+          <span class="poi-cat-chevron">▾</span>
+        </span>
+      </div>
+      <div class="poi-cat-body" id="${bodyId}">`;
+    items.slice(0, 10).forEach(p => {
+      const name = esc(p.nom || p.name || "Établissement");
+      const dist = p.distance_m != null ? Math.round(p.distance_m) + " m" : (p.distance_km != null ? parseFloat(p.distance_km).toFixed(1) + " km" : "");
+      h += `<div class="poi-item">
+        <div class="poi-item-icon">${meta.emoji || meta.icon}</div>
+        <div><div class="poi-item-name">${name}</div>${dist ? `<div class="poi-item-dist">${dist}</div>` : ""}</div>
+      </div>`;
+    });
+    h += `</div></div>`;
+  });
+
+  setContent("sec-poi", h);
+  showSection("sec-poi");
+}
+
+function togglePOI(headId, bodyId) {
+  const body = document.getElementById(bodyId);
+  const head = document.getElementById(headId);
+  const isOpen = body.classList.contains("open");
+  body.classList.toggle("open", !isOpen);
+  head.setAttribute("aria-expanded", String(!isOpen));
+}
+
+// ── Render: facettes ──────────────────────────────────────────────────────────
+function renderFacettes(d) {
+  const facettes = [
+    { label: "💰 Prix zone",           val: d.score_prix_zone      ?? d.score_global     ?? null },
+    { label: "📈 Tendance marché",      val: d.score_tendance       ?? null },
+    { label: "🔄 Densité transactions", val: d.score_volume         ?? d.score_liquidite  ?? null },
+    { label: "⚡ Qualité énergie",      val: d.score_energie        ?? null },
+    { label: "🌳 Cadre de vie",         val: d.score_cadre_vie      ?? d.score_global     ?? null },
+    { label: "💶 Revenus zone",         val: d.score_revenus        ?? d.score_richesse   ?? null },
+  ].filter(f => f.val != null);
+
+  if (!facettes.length) { hideSection("sec-facettes"); return; }
+
+  let h = "";
+  facettes.forEach(f => {
+    const val = Math.min(Math.max(Math.round(f.val), 0), 100);
+    const clr = val >= 70 ? "#00D47E" : val >= 40 ? "#FFCC00" : "#FF4444";
+    h += `<div class="facette-row">
+      <div class="facette-label">${f.label}</div>
+      <div class="facette-track"><div class="facette-fill" style="width:${val}%;background:${clr}"></div></div>
+      <div class="facette-num">${val}<span style="font-size:.7rem;color:#aaa">/100</span></div>
+    </div>`;
+  });
+  setContent("sec-facettes", h);
+  showSection("sec-facettes");
+}
+
+// ── Leaflet map ───────────────────────────────────────────────────────────────
+function initMap(lat, lon, cp, ins) {
+  if (!window.L) return;
+  try {
+    if (leafletMap) { leafletMap.remove(); leafletMap = null; }
+    leafletMap = L.map("map").setView([lat, lon], 14);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: '© <a href="https://openstreetmap.org">OpenStreetMap</a>',
+      maxZoom: 19
+    }).addTo(leafletMap);
+
+    // Marqueur estimation (rouge)
+    const redIcon = L.divIcon({ html: '<div style="width:14px;height:14px;background:#e53e3e;border-radius:50%;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.4)"></div>', className: "", iconAnchor: [7,7] });
+    L.marker([lat, lon], { icon: redIcon }).addTo(leafletMap).bindPopup("<b>Bien estimé</b>").openPopup();
+
+    // DVF markers (bleus) depuis dvf_mutations avec lat/lon
+    fetch(SUPA_URL + "/rest/v1/dvf_mutations?code_postal=eq." + encodeURIComponent(cp)
+      + "&latitude=not.is.null&longitude=not.is.null&surface_reelle_bati=gt.0&valeur_fonciere=gt.0"
+      + "&select=latitude,longitude,valeur_fonciere,surface_reelle_bati,type_local,date_mutation&order=date_mutation.desc&limit=30", { headers: SH })
+    .then(r => r.ok ? r.json() : [])
+    .then(rows => {
+      if (!Array.isArray(rows)) return;
+      const blueIcon = L.divIcon({ html: '<div style="width:10px;height:10px;background:#3182ce;border-radius:50%;border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.4)"></div>', className: "", iconAnchor: [5,5] });
+      rows.forEach(v => {
+        if (!v.latitude || !v.longitude) return;
+        const prix = parseFloat(v.valeur_fonciere);
+        const surf = parseFloat(v.surface_reelle_bati);
+        const m2 = surf > 0 && prix > 0 ? Math.round(prix / surf) : null;
+        const popup = `<b>${v.type_local || "Vente"}</b><br>${fmtEur(prix)}${m2 ? " · " + fmtEur(m2) + "/m²" : ""}`;
+        L.marker([parseFloat(v.latitude), parseFloat(v.longitude)], { icon: blueIcon })
+          .addTo(leafletMap).bindPopup(popup);
+      });
+    }).catch(() => {});
+
+    // POI markers (verts) depuis commune_poi
+    if (ins) {
+      fetch(SUPA_URL + "/rest/v1/commune_poi?code_insee=eq." + encodeURIComponent(ins)
+        + "&latitude=not.is.null&longitude=not.is.null&select=nom,categorie,latitude,longitude&limit=40", { headers: SH })
+      .then(r => r.ok ? r.json() : [])
+      .then(rows => {
+        if (!Array.isArray(rows)) return;
+        const greenIcon = L.divIcon({ html: '<div style="width:10px;height:10px;background:#38a169;border-radius:50%;border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.4)"></div>', className: "", iconAnchor: [5,5] });
+        rows.forEach(p => {
+          if (!p.latitude || !p.longitude) return;
+          L.marker([parseFloat(p.latitude), parseFloat(p.longitude)], { icon: greenIcon })
+            .addTo(leafletMap).bindPopup(esc(p.nom || "POI"));
+        });
+      }).catch(() => {});
+    }
+  } catch(e) { hideSection("sec-map"); }
+}
+
+// ── DPE Simulator ─────────────────────────────────────────────────────────────
+const RFR_LABELS = ["Très modeste", "Modeste", "Intermédiaire", "Supérieur"];
+const RFR_KEYS   = ["tres_modeste", "modeste", "intermediaire", "superieur"];
+let simInsee = "";
+
+function setupSimulator(ins) {
+  simInsee = ins;
+  const wrap = document.getElementById("sim-wrap");
+  const slider = document.getElementById("sim-rfr");
+  const lbl = document.getElementById("sim-rfr-lbl");
+  const dpeSelect = document.getElementById("sim-dpe");
+  if (!wrap) return;
+  wrap.style.display = "";
+
+  function runSim() {
+    const rfrIdx = parseInt(slider.value);
+    lbl.textContent = RFR_LABELS[rfrIdx];
+    const rfrKey = RFR_KEYS[rfrIdx];
+    const dpe = dpeSelect.value;
+    loadSimAides(ins, rfrKey, dpe);
+  }
+
+  slider.addEventListener("input", runSim);
+  dpeSelect.addEventListener("change", runSim);
+  runSim();
+}
+
+async function loadSimAides(ins, revenusClasse, dpeCible) {
+  const result = document.getElementById("sim-result");
+  if (!result) return;
+  result.innerHTML = '<div class="sim-empty">Chargement…</div>';
+  try {
+    const url = SUPA_URL + "/rest/v1/ref_renovation_aids?code_insee=eq." + encodeURIComponent(ins)
+      + "&revenu_classe=eq." + encodeURIComponent(revenusClasse)
+      + "&dpe_cible=eq." + encodeURIComponent(dpeCible)
+      + "&select=geste_label,mpr_montant,cee_montant,ptz_eligible&limit=8";
+    const r = await fetch(url, { headers: SH });
+    if (!r.ok) throw new Error();
+    const data = await r.json();
+    if (Array.isArray(data) && data.length) {
+      let h = "";
+      data.forEach(a => {
+        const mpr = a.mpr_montant != null ? fmtEur(a.mpr_montant) + " MaPrimeRénov'" : null;
+        const cee = a.cee_montant != null ? fmtEur(a.cee_montant) + " CEE" : null;
+        const montants = [mpr, cee].filter(Boolean).join(" + ");
+        h += `<div class="sim-aide-row">
+          <div class="sim-aide-label">🔹 ${esc(a.geste_label || "Geste de rénovation")}</div>
+          ${montants ? `<div class="sim-aide-montant">${esc(montants)}</div>` : ""}
+        </div>`;
+      });
+      h += '<a class="aide-cta" href="https://france-renov.gouv.fr/aides/maprimerenov" target="_blank" rel="noopener" style="margin-top:14px">🌿 Simuler sur France Rénov</a>';
+      result.innerHTML = h;
+    } else {
+      result.innerHTML = '<div class="sim-empty">Aucune aide trouvée pour ces critères.</div>'
+        + '<a class="aide-cta" href="https://france-renov.gouv.fr/aides/maprimerenov" target="_blank" rel="noopener" style="margin-top:14px">🌿 Simuler sur France Rénov</a>';
+    }
+  } catch (_) {
+    result.innerHTML = '<div class="sim-empty">Données d\'aides non disponibles pour cette commune.</div>';
+  }
+}
+
+// ── Satisfaction survey ────────────────────────────────────────────────────────
+let surveyTimer = null, surveyRating = 0, surveyInsee = "", surveyEstimatedPrice = null;
+
+function scheduleSurvey() {
+  if (localStorage.getItem("survey_done")) return;
+  clearTimeout(surveyTimer);
+  surveyTimer = setTimeout(openSurvey, 30000);
+}
+
+function openSurvey() {
+  const panel = document.getElementById("survey-panel");
+  if (!panel || localStorage.getItem("survey_done")) return;
+  panel.classList.add("open");
+}
+
+document.getElementById("survey-close").addEventListener("click", () => {
+  document.getElementById("survey-panel").classList.remove("open");
+  clearTimeout(surveyTimer);
+});
+
+document.getElementById("star-row").addEventListener("click", e => {
+  const btn = e.target.closest(".star-btn");
+  if (!btn) return;
+  surveyRating = parseInt(btn.dataset.v);
+  document.querySelectorAll(".star-btn").forEach(b => b.classList.toggle("active", parseInt(b.dataset.v) <= surveyRating));
+});
+
+document.getElementById("survey-submit").addEventListener("click", async () => {
+  const profile = document.getElementById("survey-profile").value;
+  const prixReel = document.getElementById("survey-prix").value;
+  const payload = {
+    note: surveyRating || null,
+    profil: profile || null,
+    prix_reel: prixReel ? parseFloat(prixReel) : null,
+    prix_estime: surveyEstimatedPrice,
+    code_insee: surveyInsee || null,
+    created_at: new Date().toISOString()
+  };
+  try {
+    await fetch(SUPA_URL + "/rest/v1/app_estimation_feedback", {
+      method: "POST",
+      headers: { ...SH, "Content-Type": "application/json", "Prefer": "return=minimal" },
+      body: JSON.stringify(payload)
+    });
+  } catch (_) {}
+  localStorage.setItem("survey_done", "1");
+  document.getElementById("survey-body").innerHTML = '<div class="survey-thanks">Merci pour votre retour ! 🙏</div>';
+  setTimeout(() => document.getElementById("survey-panel").classList.remove("open"), 2000);
+});
+
+// Store estimation context for survey
+function storeSurveyContext(ins, prix) {
+  surveyInsee = ins || "";
+  surveyEstimatedPrice = prix || null;
+}
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function showError(msg) { errorBox.textContent = msg; errorBox.classList.add("visible"); }
 function hideError()    { errorBox.classList.remove("visible"); errorBox.textContent = ""; }
@@ -1090,13 +1528,54 @@ function hideError()    { errorBox.classList.remove("visible"); errorBox.textCon
 // ── Reset ─────────────────────────────────────────────────────────────────────
 resetBtn.addEventListener("click", () => {
   form.reset();
-  storedCP = ""; storedInsee = "";
+  storedCP = ""; storedInsee = ""; storedLat = null; storedLon = null;
   hideError();
+  clearTimeout(surveyTimer);
   formCard.style.display = "";
   resetWrap.style.display = "none";
-  ["sec-price","sec-market","sec-chart","sec-ventes","sec-dpe","sec-aides","sec-vie","sec-demo","sec-wiki","sec-cta"].forEach(hideSection);
+  if (leafletMap) { leafletMap.remove(); leafletMap = null; }
+  ["sec-map","sec-price","sec-market","sec-chart","sec-ventes","sec-dpe","sec-aides",
+   "sec-vie","sec-scores-text","sec-poi","sec-facettes","sec-demo","sec-wiki","sec-cta"].forEach(hideSection);
   formCard.scrollIntoView({ behavior: "smooth", block: "start" });
 });
 </script>
+
+<!-- SATISFACTION SURVEY POPUP -->
+<div class="survey-overlay" id="survey-overlay"></div>
+<div class="survey-panel" id="survey-panel">
+  <button class="survey-close" id="survey-close" aria-label="Fermer">✕</button>
+  <div id="survey-body">
+    <div class="survey-title">Comment s'est passée votre estimation ?</div>
+    <div class="survey-sub">30 secondes pour nous aider à améliorer l'outil</div>
+    <div class="star-row" id="star-row">
+      <button class="star-btn" data-v="1" aria-label="1 étoile">⭐</button>
+      <button class="star-btn" data-v="2" aria-label="2 étoiles">⭐</button>
+      <button class="star-btn" data-v="3" aria-label="3 étoiles">⭐</button>
+      <button class="star-btn" data-v="4" aria-label="4 étoiles">⭐</button>
+      <button class="star-btn" data-v="5" aria-label="5 étoiles">⭐</button>
+    </div>
+    <select class="survey-profile" id="survey-profile">
+      <option value="">Votre profil (optionnel)</option>
+      <option value="particulier">Particulier acheteur/vendeur</option>
+      <option value="agent">Agent immobilier</option>
+      <option value="investisseur">Investisseur</option>
+      <option value="notaire">Notaire / juriste</option>
+      <option value="autre">Autre professionnel</option>
+    </select>
+    <input type="number" class="survey-prix" id="survey-prix" placeholder="Prix réel constaté en € (optionnel)" min="0" />
+    <button class="survey-submit" id="survey-submit">Envoyer →</button>
+  </div>
+</div>
+
+<!-- COOKIE BANNER -->
+<div id="cookie-banner" style="position:fixed;bottom:0;left:0;right:0;background:#0D0D0D;color:#fff;padding:1rem 1.5rem;z-index:9999;display:none;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;border-top:1px solid rgba(255,255,255,0.15)">
+  <p style="margin:0;font-size:0.875rem;flex:1;min-width:200px">Ce site utilise des cookies pour améliorer votre expérience. En continuant, vous acceptez notre <a href="/legal/politique-confidentialite" style="color:#00D47E;text-decoration:underline">politique de cookies</a>.</p>
+  <div style="display:flex;gap:0.75rem;align-items:center;flex-shrink:0">
+    <a href="/legal/politique-confidentialite" style="font-size:0.8rem;color:rgba(255,255,255,0.6);text-decoration:underline">En savoir plus</a>
+    <button onclick="document.getElementById('cookie-banner').style.display='none';localStorage.setItem('cookie_consent','accepted')" style="background:#00D47E;color:#0D0D0D;border:none;padding:0.5rem 1.25rem;border-radius:4px;font-weight:600;cursor:pointer;font-size:0.875rem">Accepter</button>
+  </div>
+</div>
+<script>if(!localStorage.getItem('cookie_consent')){var b=document.getElementById('cookie-banner');b.style.display='flex';}</script>
+
 </body>
 </html>

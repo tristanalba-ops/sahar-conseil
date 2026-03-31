@@ -616,5 +616,15 @@ document.querySelectorAll('.faq-question').forEach(function(btn) {
 
 </script>
 
+<!-- COOKIE BANNER -->
+<div id="cookie-banner" style="position:fixed;bottom:0;left:0;right:0;background:#0D0D0D;color:#fff;padding:1rem 1.5rem;z-index:9999;display:none;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;border-top:1px solid rgba(255,255,255,0.15)">
+  <p style="margin:0;font-size:0.875rem;flex:1;min-width:200px">Ce site utilise des cookies pour améliorer votre expérience. En continuant, vous acceptez notre <a href="/legal/politique-confidentialite" style="color:#00D47E;text-decoration:underline">politique de cookies</a>.</p>
+  <div style="display:flex;gap:0.75rem;align-items:center;flex-shrink:0">
+    <a href="/legal/politique-confidentialite" style="font-size:0.8rem;color:rgba(255,255,255,0.6);text-decoration:underline">En savoir plus</a>
+    <button onclick="document.getElementById('cookie-banner').style.display='none';localStorage.setItem('cookie_consent','accepted')" style="background:#00D47E;color:#0D0D0D;border:none;padding:0.5rem 1.25rem;border-radius:4px;font-weight:600;cursor:pointer;font-size:0.875rem">Accepter</button>
+  </div>
+</div>
+<script>if(!localStorage.getItem('cookie_consent')){var b=document.getElementById('cookie-banner');b.style.display='flex';}</script>
+
 </body>
 </html>
