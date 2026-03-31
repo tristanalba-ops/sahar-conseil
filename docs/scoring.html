@@ -69,7 +69,7 @@
     #app { display: none; }
 
     /* ── Layout ── */
-    main { max-width: 1000px; margin: 0 auto; padding: 40px 16px 80px; }
+    main { max-width: 1100px; margin: 0 auto; padding: 40px 16px 80px; }
 
     /* ── Hero ── */
     .hero { text-align: center; margin-bottom: 32px; }
@@ -101,6 +101,12 @@
     .file-info { display: flex; align-items: center; gap: 12px; padding: 14px 18px; background: #f0fdf8; border: 1.5px solid #00D47E; border-radius: 10px; margin-top: 16px; }
     .file-info-name { font-weight: 700; font-size: .95rem; }
     .file-info-meta { color: #666; font-size: .82rem; margin-top: 2px; }
+
+    /* ── Sheet pills ── */
+    .sheet-pill { display:inline-flex;flex-direction:column;padding:8px 14px;background:#f5f5f5;border-radius:8px;border:1.5px solid #eee;font-size:.82rem;cursor:pointer;transition:all .2s; }
+    .sheet-pill.active { background:#f0fdf8;border-color:#00D47E; }
+    .sheet-pill strong { color:#111;font-weight:700; }
+    .sheet-pill span { color:#888;font-size:.75rem;margin-top:2px; }
 
     /* ── Mapping ── */
     .mapping-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
@@ -188,6 +194,12 @@
     thead th.sortable:hover { color: #111; }
     thead th.sort-asc::after { content: ' ↑'; color: #00D47E; }
     thead th.sort-desc::after { content: ' ↓'; color: #00D47E; }
+
+    /* Column styling */
+    thead th.col-orig { background:#fafafa;color:#aaa; }
+    thead th.col-enrich { background:#f0fdf8;color:#059669;font-weight:700; }
+    tbody td.col-orig { color:#999;font-size:.79rem;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
+
     tbody tr.data-row { border-bottom: 1px solid #f5f5f5; cursor: pointer; transition: background .1s; }
     tbody tr.data-row:hover { background: #faf8f5; }
     tbody tr.data-row.expanded { background: #f0fdf8; }
@@ -240,6 +252,10 @@
     footer a { color: #888; text-decoration: none; margin: 0 8px; }
     footer a:hover { color: #fff; }
     .footer-copy { margin-top: 8px; }
+
+    /* Transfo badge */
+    .transfo-badge { display:inline-block;padding:3px 8px;border-radius:6px;font-size:.73rem;font-weight:700;line-height:1.3;text-align:center;white-space:nowrap; }
+    .transfo-badge small { font-weight:400;display:block;font-size:.68rem;opacity:.85; }
 
     .fade-in { animation: fadeIn .4s ease forwards; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -309,6 +325,22 @@
     <div id="upload-error" class="error-box hidden"></div>
   </div>
 
+  <!-- Sheet selector card -->
+  <div class="card hidden" id="sheet-card">
+    <div class="sec-title">Feuilles disponibles</div>
+    <p style="font-size:.88rem;color:#666;margin-bottom:18px;">
+      Ce fichier contient plusieurs feuilles. Choisissez celle à scorer.
+    </p>
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px;">
+      <div style="flex:1;min-width:200px;">
+        <label>Feuille à utiliser</label>
+        <select id="sheet-select"></select>
+      </div>
+      <button class="btn-green" id="btn-load-sheet" style="margin-top:22px;">Charger cette feuille</button>
+    </div>
+    <div id="sheet-list" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
+  </div>
+
   <!-- Mapping card -->
   <div class="card hidden" id="mapping-card">
     <div class="sec-title">Correspondance des colonnes</div>
@@ -329,6 +361,10 @@
       <div>
         <label>Type de bien <span style="color:#aaa;font-weight:400;text-transform:none">(optionnel)</span></label>
         <select id="map-type"><option value="">— Sélectionner —</option></select>
+      </div>
+      <div>
+        <label>Date achat <span style="color:#aaa;font-weight:400;text-transform:none">(optionnel)</span></label>
+        <select id="map-date-achat"><option value="">— Sélectionner —</option></select>
       </div>
     </div>
     <div style="margin-top:20px;display:flex;gap:12px;flex-wrap:wrap;align-items:center;">
@@ -484,11 +520,30 @@ const MAX_PARALLEL  = 3;
 /* ══════════════════════════════════════════
    STATE
 ══════════════════════════════════════════ */
-let parsedRows  = [];
-let scoredRows  = [];
-let cancelFlag  = false;
-let sortState   = { col: null, dir: 'desc' };
+let parsedRows    = [];
+let scoredRows    = [];
+let cancelFlag    = false;
+let sortState     = { col: null, dir: 'desc' };
 let activeFilters = { score: 0, type: '', dept: '' };
+let parsedWorkbook = null;   // { wb, file }
+let originalFields = [];
+let totalCols      = 10;
+let activeColMap   = {};
+
+/* ══════════════════════════════════════════
+   ENRICHED HEADERS
+══════════════════════════════════════════ */
+const ENRICHED_HEADERS = [
+  { key: 'cp',           label: 'CP géo',          sortable: false },
+  { key: 'commune',      label: 'Commune',          sortable: false },
+  { key: 'type',         label: 'Type',             sortable: false },
+  { key: 'surface',      label: 'Surface',          sortable: false },
+  { key: 'prix_estime',  label: 'Prix estimé',      sortable: false },
+  { key: 'score_vente',  label: 'Score vente',      sortable: true  },
+  { key: 'score_renov',  label: 'Score rénov.',     sortable: true  },
+  { key: 'score_qualite',label: 'Qualité',          sortable: true  },
+  { key: 'transfo',      label: 'Fenêtre transfo',  sortable: false },
+];
 
 /* ══════════════════════════════════════════
    SUPABASE / GEO
@@ -509,18 +564,126 @@ async function supaGet(endpoint) {
   } catch { return null; }
 }
 
-async function geocode(query) {
+function normalizeAddress(str) {
+  if (!str) return '';
+  let s = str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase();
+  s = s
+    .replace(/\bAV\.\s*/g, 'AVENUE ')
+    .replace(/\bAVE\.\s*/g, 'AVENUE ')
+    .replace(/\bBD\b/g, 'BOULEVARD')
+    .replace(/\bBVD\b/g, 'BOULEVARD')
+    .replace(/\bR\.\s+/g, 'RUE ')
+    .replace(/\bPL\.\s*/g, 'PLACE ')
+    .replace(/\bIMP\.\s*/g, 'IMPASSE ')
+    .replace(/\bIMP\b/g, 'IMPASSE')
+    .replace(/\bALL\.\s*/g, 'ALLEE ')
+    .replace(/\bCRS\b/g, 'COURS')
+    .replace(/,/g, ' ')
+    .replace(/--+/g, ' ')
+    .replace(/\.{2,}/g, ' ')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
+  return s;
+}
+
+async function geocode(query, postcode) {
   try {
-    const r = await fetch(`https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(query)}&limit=1`);
+    let url = `https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(query)}&limit=1`;
+    if (postcode) url += `&postcode=${encodeURIComponent(postcode)}`;
+    const r = await fetch(url);
     const j = await r.json();
     const f = j?.features?.[0];
     if (!f) return null;
     return {
       code_postal: f.properties.postcode,
       commune: f.properties.city,
-      score: f.properties.score
+      code_insee: f.properties.citycode,
+      ban_score: f.properties.score,
+      lat: f.geometry?.coordinates?.[1],
+      lon: f.geometry?.coordinates?.[0]
     };
   } catch { return null; }
+}
+
+async function geocodeWithFallback(adresse, cp) {
+  const normAddr = normalizeAddress(adresse);
+  const query = cp ? `${normAddr} ${cp}` : normAddr;
+  let geo = await geocode(query, cp || undefined);
+  if (geo && geo.ban_score >= 0.5) return geo;
+  if (cp) {
+    const fallback = await geocode(cp);
+    if (fallback) return { ...fallback, ban_score: fallback.ban_score || 0.2, is_fallback: true };
+  }
+  return geo;
+}
+
+/* ══════════════════════════════════════════
+   ENRICHMENT FETCHERS
+══════════════════════════════════════════ */
+async function fetchSurfaceDVF(cp, type) {
+  const typeLocal = (type || '').toLowerCase().includes('maison') ? 'Maison' : 'Appartement';
+  const data = await supaGet(`dvf_mutations?code_postal=eq.${cp}&type_local=eq.${typeLocal}&select=surface_reelle_bati&limit=10&order=date_mutation.desc`);
+  if (!data?.length) return null;
+  const surfs = data.map(d => parseFloat(d.surface_reelle_bati)).filter(s => s > 0).sort((a,b)=>a-b);
+  if (!surfs.length) return null;
+  const mid = Math.floor(surfs.length / 2);
+  return surfs.length % 2 === 0 ? (surfs[mid-1]+surfs[mid])/2 : surfs[mid];
+}
+
+async function fetchAides(code_insee) {
+  if (!code_insee) return null;
+  return supaGet(`ref_renovation_aids?code_insee=eq.${code_insee}&revenu_classe=eq.modeste&limit=5`);
+}
+
+async function fetchAnneeConstruction(cp) {
+  const data = await supaGet(`dpe_diagnostics?code_postal=eq.${cp}&select=periode_construction&limit=20&order=date_etablissement_dpe.desc`);
+  if (!data?.length) return null;
+  const counts = {};
+  data.forEach(d => { if (d.periode_construction) counts[d.periode_construction] = (counts[d.periode_construction]||0)+1; });
+  const entries = Object.entries(counts);
+  if (!entries.length) return null;
+  return entries.sort((a,b)=>b[1]-a[1])[0][0];
+}
+
+/* ══════════════════════════════════════════
+   TRANSFORMATION WINDOW
+══════════════════════════════════════════ */
+function computeTransfoWindow(r) {
+  const dpeClasse = r._dpe?.classe_mode;
+  const evol = r._estim?.evolution_12m;
+  const dateAchat = r._dateAchat;
+
+  let main = { label: 'Fenêtre inconnue', period: '—', color: 'gray' };
+  const notes = [];
+
+  if (dateAchat) {
+    const ancYear = (Date.now() - new Date(dateAchat).getTime()) / (365.25*24*3600*1000);
+    if (ancYear > 7) {
+      main = { label: 'Transformation probable', period: '0-12 mois', color: 'green' };
+      notes.push(`Propriétaire depuis ${Math.floor(ancYear)} ans`);
+    } else if (ancYear >= 5) {
+      main = { label: 'Transformation possible', period: '6-18 mois', color: 'orange' };
+      notes.push(`Propriétaire depuis ${Math.floor(ancYear)} ans`);
+    } else if (ancYear >= 3) {
+      main = { label: 'À moyen terme', period: '12-24 mois', color: 'orange' };
+      notes.push(`Propriétaire depuis ${Math.floor(ancYear)} ans`);
+    } else {
+      main = { label: 'Peu probable', period: '> 24 mois', color: 'gray' };
+      notes.push(`Propriétaire depuis ${Math.floor(ancYear*12)} mois seulement`);
+    }
+  }
+
+  if (dpeClasse && ['F','G'].includes(dpeClasse)) {
+    notes.push(`+6 mois (DPE ${dpeClasse} – contrainte réglementaire 2025/2028)`);
+    if (main.color === 'green') main.color = 'orange';
+  }
+
+  if (evol != null && evol > 5) {
+    notes.push(`Marché porteur (+${evol.toFixed(1)}%) → incitation à vendre`);
+    if (main.color === 'gray' && dateAchat) main.color = 'orange';
+  }
+
+  return { ...main, notes };
 }
 
 /* ══════════════════════════════════════════
@@ -532,23 +695,19 @@ function computeScoreVente(estim, commune) {
   const nbTx  = estim?.nb_transactions  ?? 0;
   const cadre = commune?.score_cadre_vie ?? 50;
 
-  // Dynamique prix (max 40 pts)
   if (evol > 10)      score += 40;
   else if (evol > 5)  score += 32;
   else if (evol > 2)  score += 24;
   else if (evol > 0)  score += 16;
   else if (evol > -3) score += 8;
 
-  // Rotation marché (max 35 pts)
   if (nbTx > 100)     score += 35;
   else if (nbTx > 60) score += 27;
   else if (nbTx > 30) score += 19;
   else if (nbTx > 10) score += 10;
   else                score += 3;
 
-  // Stabilité/ancienneté via cadre de vie (max 25 pts)
   score += Math.round((cadre / 100) * 25);
-
   return Math.min(100, Math.max(0, score));
 }
 
@@ -636,57 +795,90 @@ function scoreRenovExplanation(dpe, surface, typeBien) {
    SCORE ONE ROW
 ══════════════════════════════════════════ */
 async function scoreRow(row, colMap) {
-  const adresse = String(row[colMap.address] || '').trim();
-  let   cp      = String(row[colMap.cp]      || '').trim().replace(/\s/g, '');
-  const surface = row[colMap.surface] || '';
-  const type    = String(row[colMap.type]    || '').trim();
+  const adresse   = String(row[colMap.address]   || '').trim();
+  let   cp        = String(row[colMap.cp]        || '').trim().replace(/\s/g, '');
+  const surface   = row[colMap.surface] || '';
+  const type      = String(row[colMap.type]      || '').trim();
+  const dateAchat = colMap.dateAchat ? String(row[colMap.dateAchat] || '').trim() : '';
 
   if (cp && !/^\d{5}$/.test(cp)) cp = '';
 
   let geo = null;
-  const geoQuery = adresse + (cp ? ' ' + cp : '');
-  if (geoQuery) {
-    geo = await geocode(geoQuery);
+  if (adresse || cp) {
+    geo = await geocodeWithFallback(adresse, cp || undefined);
     if (geo && !cp) cp = geo.code_postal || '';
+    else if (geo && cp && !geo.code_postal) geo.code_postal = cp;
   }
 
   if (!cp) {
+    const transfo = computeTransfoWindow({ _dpe: null, _estim: null, _dateAchat: dateAchat || null });
     return {
       _orig: row, adresse, cp: '', commune: '', type, surface,
       prix_estime: null, prix_m2: null,
       score_vente: null, score_renov: null, score_qualite: 0,
-      _estim: null, _commune: null, _dpe: null, _geo: geo
+      _estim: null, _commune: null, _dpe: null, _geo: geo,
+      _dateAchat: dateAchat || null,
+      ban_score: geo?.ban_score ?? null,
+      lat: geo?.lat ?? null,
+      lon: geo?.lon ?? null,
+      code_insee: geo?.code_insee ?? null,
+      is_fallback_geo: geo?.is_fallback || false,
+      dpe_pct_passoire: null, dpe_conso_moy: null, dpe_score_energie: null,
+      surface_dvf: null, annee_construction: null, aides_total: null, _aides: null,
+      transfo
     };
   }
 
-  const [estimArr, communeArr, dpeArr] = await Promise.allSettled([
+  const [estimRes, communeRes, dpeRes, surfDvfRes, anneeRes, aidesRes] = await Promise.allSettled([
     supaRPC('estimate_property', {
       p_code_postal: cp,
       p_surface: parseFloat(surface) || 65,
       p_type_local: type || 'Appartement'
     }),
     supaGet(`mv_commune_complete?code_postal=eq.${cp}&limit=1`),
-    supaGet(`dpe_commune_agg?code_postal=eq.${cp}&limit=1`)
+    supaGet(`dpe_commune_agg?code_postal=eq.${cp}&limit=1`),
+    fetchSurfaceDVF(cp, type),
+    fetchAnneeConstruction(cp),
+    fetchAides(geo?.code_insee || null)
   ]);
 
-  const estim   = Array.isArray(estimArr.value)   ? estimArr.value[0]   : null;
-  const commune = Array.isArray(communeArr.value)  ? communeArr.value[0] : null;
-  const dpe     = Array.isArray(dpeArr.value)      ? dpeArr.value[0]     : null;
+  const estim   = Array.isArray(estimRes.value)   ? estimRes.value[0]   : null;
+  const commune = Array.isArray(communeRes.value)  ? communeRes.value[0] : null;
+  const dpe     = Array.isArray(dpeRes.value)      ? dpeRes.value[0]     : null;
+  const surface_dvf       = surfDvfRes.value  ?? null;
+  const annee_construction = anneeRes.value   ?? null;
+  const aidesArr          = Array.isArray(aidesRes.value) ? aidesRes.value : null;
+  const aides_total       = aidesArr ? aidesArr.reduce((s,a) => s + (parseFloat(a.montant_max)||0), 0) : null;
 
   const nomCommune = geo?.commune || commune?.nom_commune || '';
   const surf       = parseFloat(surface) || 0;
   const prixM2     = estim?.prix_m2_reference || 0;
   const prixEst    = surf > 0 && prixM2 > 0 ? Math.round(surf * prixM2) : null;
 
-  return {
+  const rowData = {
     _orig: row, adresse, cp, commune: nomCommune,
     type: type || '', surface: surf || '',
     prix_estime: prixEst, prix_m2: prixM2 || null,
     score_vente:   computeScoreVente(estim, commune),
     score_renov:   computeScoreRenovation(dpe, surf, type),
     score_qualite: computeScoreQualite(geo, estim, dpe, commune),
-    _estim: estim, _commune: commune, _dpe: dpe, _geo: geo
+    _estim: estim, _commune: commune, _dpe: dpe, _geo: geo,
+    _dateAchat: dateAchat || null,
+    ban_score: geo?.ban_score ?? null,
+    lat: geo?.lat ?? null,
+    lon: geo?.lon ?? null,
+    code_insee: geo?.code_insee ?? null,
+    is_fallback_geo: geo?.is_fallback || false,
+    dpe_pct_passoire:  dpe?.pct_passoire ?? null,
+    dpe_conso_moy:     dpe?.conso_moy_kwh_m2 ?? null,
+    dpe_score_energie: dpe?.score_energie ?? null,
+    surface_dvf,
+    annee_construction,
+    aides_total,
+    _aides: aidesArr
   };
+  rowData.transfo = computeTransfoWindow(rowData);
+  return rowData;
 }
 
 /* ══════════════════════════════════════════
@@ -708,33 +900,76 @@ function makeSemaphore(max) {
 /* ══════════════════════════════════════════
    FILE PARSING
 ══════════════════════════════════════════ */
-function parseFile(file) {
+function parseCSVFile(file) {
   return new Promise((resolve, reject) => {
-    const ext = file.name.split('.').pop().toLowerCase();
-    if (ext === 'csv' || ext === 'txt') {
-      Papa.parse(file, {
-        header: true, skipEmptyLines: true,
-        complete: r => resolve({ data: r.data, fields: r.meta.fields }),
-        error: reject
-      });
-    } else if (ext === 'xls' || ext === 'xlsx') {
-      const reader = new FileReader();
-      reader.onload = e => {
-        try {
-          const wb = XLSX.read(e.target.result, { type: 'array' });
-          const ws = wb.Sheets[wb.SheetNames[0]];
-          const data = XLSX.utils.sheet_to_json(ws, { defval: '' });
-          resolve({ data, fields: data.length ? Object.keys(data[0]) : [] });
-        } catch (err) { reject(err); }
-      };
-      reader.onerror = reject;
-      reader.readAsArrayBuffer(file);
-    } else {
-      reject(new Error('Format non supporté. Utilisez CSV, TXT, XLS ou XLSX.'));
-    }
+    Papa.parse(file, {
+      header: true, skipEmptyLines: true,
+      complete: r => resolve({ data: r.data, fields: r.meta.fields }),
+      error: reject
+    });
   });
 }
 
+function sheetToData(wb, sheetName) {
+  const ws = wb.Sheets[sheetName];
+  const data = XLSX.utils.sheet_to_json(ws, { defval: '' });
+  return { data, fields: data.length ? Object.keys(data[0]) : [] };
+}
+
+/* ══════════════════════════════════════════
+   SHEET SELECTOR
+══════════════════════════════════════════ */
+function showSheetSelector(wb, file) {
+  parsedWorkbook = { wb, file };
+  const sheetSelect = document.getElementById('sheet-select');
+  const sheetList   = document.getElementById('sheet-list');
+  sheetSelect.innerHTML = '';
+  sheetList.innerHTML   = '';
+
+  wb.SheetNames.forEach((name, i) => {
+    const ws   = wb.Sheets[name];
+    const ref  = ws['!ref'];
+    let rowCount = 0;
+    if (ref) {
+      const range = XLSX.utils.decode_range(ref);
+      rowCount = Math.max(0, range.e.r - range.s.r); // exclude header
+    }
+    const label = `${name} (${rowCount} lignes)`;
+
+    const opt = document.createElement('option');
+    opt.value = i; opt.textContent = label;
+    sheetSelect.appendChild(opt);
+
+    const pill = document.createElement('div');
+    pill.className = 'sheet-pill' + (i === 0 ? ' active' : '');
+    pill.dataset.idx = i;
+    pill.innerHTML = `<strong>${name}</strong><span>${rowCount} lignes</span>`;
+    pill.addEventListener('click', () => {
+      sheetSelect.value = i;
+      document.querySelectorAll('.sheet-pill').forEach(p => p.classList.toggle('active', p.dataset.idx == i));
+    });
+    sheetList.appendChild(pill);
+  });
+
+  sheetSelect.addEventListener('change', () => {
+    const idx = parseInt(sheetSelect.value);
+    document.querySelectorAll('.sheet-pill').forEach(p => p.classList.toggle('active', parseInt(p.dataset.idx) === idx));
+  });
+
+  document.getElementById('sheet-card').classList.remove('hidden');
+}
+
+function loadSheetData(wb, sheetName, file) {
+  const { data, fields } = sheetToData(wb, sheetName);
+  if (!data.length) throw new Error('La feuille sélectionnée est vide.');
+  parsedRows = data;
+  showFileMeta(file.name, data.length, fields.length);
+  setupMapping(fields);
+}
+
+/* ══════════════════════════════════════════
+   AUTO DETECT
+══════════════════════════════════════════ */
 function autoDetect(fields) {
   const lower = fields.map(f => f.toLowerCase());
   const detect = patterns => {
@@ -745,16 +980,17 @@ function autoDetect(fields) {
     return '';
   };
   return {
-    address: detect(['adresse', 'address', 'addr', 'rue', 'voie', 'libelle']),
-    cp:      detect(['code_postal', 'codepostal', 'cp', 'postal', 'zip']),
-    surface: detect(['surface', 'surf', 'area', 'sqm', 'm2', 'm²', 'superficie']),
-    type:    detect(['type', 'nature', 'bien', 'typebien', 'categorie'])
+    address:   detect(['adresse', 'address', 'addr', 'rue', 'voie', 'libelle']),
+    cp:        detect(['code_postal', 'codepostal', 'cp', 'postal', 'zip']),
+    surface:   detect(['surface', 'surf', 'area', 'sqm', 'm2', 'm²', 'superficie']),
+    type:      detect(['type', 'nature', 'bien', 'typebien', 'categorie']),
+    dateAchat: detect(['date_achat', 'dateachat', 'date_acquisition', 'acquisition', 'achat'])
   };
 }
 
 function populateSelects(fields, detected) {
-  const ids  = ['map-address', 'map-cp', 'map-surface', 'map-type'];
-  const keys = ['address', 'cp', 'surface', 'type'];
+  const ids  = ['map-address', 'map-cp', 'map-surface', 'map-type', 'map-date-achat'];
+  const keys = ['address', 'cp', 'surface', 'type', 'dateAchat'];
   ids.forEach((id, i) => {
     const sel = document.getElementById(id);
     sel.innerHTML = '<option value="">— Sélectionner —</option>';
@@ -765,6 +1001,86 @@ function populateSelects(fields, detected) {
       sel.appendChild(opt);
     });
   });
+}
+
+/* ══════════════════════════════════════════
+   SETUP MAPPING
+══════════════════════════════════════════ */
+function showFileMeta(name, rowCount, colCount) {
+  document.getElementById('file-name').textContent = name;
+  document.getElementById('file-meta').textContent =
+    `${rowCount} ligne${rowCount > 1 ? 's' : ''} · ${colCount} colonnes`;
+  document.getElementById('file-info').classList.remove('hidden');
+}
+
+function setupMapping(fields) {
+  originalFields = fields;
+  const detected = autoDetect(fields);
+  populateSelects(fields, detected);
+
+  const eff = Math.min(parsedRows.length, MAX_ROWS_FREE);
+  const info = document.getElementById('row-limit-info');
+  if (parsedRows.length > MAX_ROWS_FREE) {
+    info.textContent = `⚠ Mode gratuit : ${MAX_ROWS_FREE} premières lignes seulement.`;
+    info.style.color = '#c05000';
+  } else {
+    info.textContent = `${eff} ligne${eff > 1 ? 's' : ''} à scorer.`;
+    info.style.color = '#888';
+  }
+
+  document.getElementById('btn-score').disabled = !detected.address;
+  document.getElementById('mapping-card').classList.remove('hidden');
+}
+
+/* ══════════════════════════════════════════
+   RENDER TABLE HEADER
+══════════════════════════════════════════ */
+function renderTableHeader() {
+  const thead = document.querySelector('#results-table thead');
+  let html = '<tr>';
+  html += '<th style="width:24px;"></th>';
+
+  // Original columns
+  originalFields.forEach(f => {
+    html += `<th class="col-orig" style="max-width:120px;">${f}</th>`;
+  });
+
+  // Enriched columns
+  ENRICHED_HEADERS.forEach(h => {
+    const sortable = h.sortable ? ' sortable' : '';
+    const dataCol  = h.sortable ? ` data-col="${h.key}"` : '';
+    html += `<th class="col-enrich${sortable}"${dataCol}>${h.label}</th>`;
+  });
+
+  html += '</tr>';
+  thead.innerHTML = html;
+  totalCols = 1 + originalFields.length + ENRICHED_HEADERS.length;
+
+  // Re-attach sort handlers
+  thead.querySelectorAll('th.sortable').forEach(th => {
+    th.addEventListener('click', () => {
+      const col = th.dataset.col;
+      if (sortState.col === col) sortState.dir = sortState.dir === 'desc' ? 'asc' : 'desc';
+      else { sortState.col = col; sortState.dir = 'desc'; }
+      thead.querySelectorAll('th').forEach(h => h.classList.remove('sort-asc', 'sort-desc'));
+      th.classList.add(sortState.dir === 'asc' ? 'sort-asc' : 'sort-desc');
+      renderTable(scoredRows);
+    });
+  });
+}
+
+/* ══════════════════════════════════════════
+   TRANSFO BADGE
+══════════════════════════════════════════ */
+function transfoBadge(transfo) {
+  if (!transfo || transfo.label === 'Fenêtre inconnue') return '<span style="color:#bbb;font-size:.75rem">—</span>';
+  const styles = {
+    green:  'background:#d1fae5;color:#065f46',
+    orange: 'background:#fef3c7;color:#92400e',
+    gray:   'background:#f3f4f6;color:#6b7280'
+  };
+  const s = styles[transfo.color] || styles.gray;
+  return `<span class="transfo-badge" style="${s}">${transfo.label}<br><small>${transfo.period}</small></span>`;
 }
 
 /* ══════════════════════════════════════════
@@ -860,18 +1176,39 @@ function renderTable(rows) {
     const tr = document.createElement('tr');
     tr.className = 'data-row';
     tr.dataset.id = rowId;
-    tr.innerHTML = `
-      <td style="color:#bbb;font-size:.8rem;text-align:center">▶</td>
-      <td class="addr-cell" title="${r.adresse}">${r.adresse || '—'}</td>
-      <td>${r.cp ? `<span class="cp-tag">${r.cp}</span>` : '—'}</td>
-      <td>${r.commune || '—'}</td>
-      <td style="font-size:.82rem">${r.type || '—'}</td>
-      <td style="font-size:.82rem">${r.surface ? r.surface + ' m²' : '—'}</td>
-      <td><span class="prix-val">${fmtPrice(r.prix_estime)}</span></td>
-      <td><div class="gauge-wrap">${circleGauge(r.score_vente)}</div></td>
-      <td><div class="gauge-wrap">${circleGauge(r.score_renov)}</div></td>
-      <td><div class="gauge-wrap">${circleGauge(r.score_qualite)}</div></td>
-    `;
+
+    let innerHtml = `<td style="color:#bbb;font-size:.8rem;text-align:center">▶</td>`;
+
+    // Original columns
+    originalFields.forEach(f => {
+      const val = r._orig[f] != null ? String(r._orig[f]) : '';
+      innerHtml += `<td class="col-orig" title="${val.replace(/"/g,'&quot;')}">${val.substring(0, 30)}${val.length > 30 ? '…' : ''}</td>`;
+    });
+
+    // Enriched columns
+    ENRICHED_HEADERS.forEach(h => {
+      if (h.key === 'cp') {
+        innerHtml += `<td class="col-enrich">${r.cp ? `<span class="cp-tag">${r.cp}</span>` : '—'}</td>`;
+      } else if (h.key === 'commune') {
+        innerHtml += `<td class="col-enrich">${r.commune || '—'}</td>`;
+      } else if (h.key === 'type') {
+        innerHtml += `<td class="col-enrich" style="font-size:.82rem">${r.type || '—'}</td>`;
+      } else if (h.key === 'surface') {
+        innerHtml += `<td class="col-enrich" style="font-size:.82rem">${r.surface ? r.surface + ' m²' : '—'}</td>`;
+      } else if (h.key === 'prix_estime') {
+        innerHtml += `<td class="col-enrich"><span class="prix-val">${fmtPrice(r.prix_estime)}</span></td>`;
+      } else if (h.key === 'score_vente') {
+        innerHtml += `<td class="col-enrich"><div class="gauge-wrap">${circleGauge(r.score_vente)}</div></td>`;
+      } else if (h.key === 'score_renov') {
+        innerHtml += `<td class="col-enrich"><div class="gauge-wrap">${circleGauge(r.score_renov)}</div></td>`;
+      } else if (h.key === 'score_qualite') {
+        innerHtml += `<td class="col-enrich"><div class="gauge-wrap">${circleGauge(r.score_qualite)}</div></td>`;
+      } else if (h.key === 'transfo') {
+        innerHtml += `<td class="col-enrich">${transfoBadge(r.transfo)}</td>`;
+      }
+    });
+
+    tr.innerHTML = innerHtml;
 
     // Detail row
     const trDetail = document.createElement('tr');
@@ -887,7 +1224,56 @@ function renderTable(rows) {
         <span class="dv ${i.quality || ''}">${i.value}</span>
       </div>`).join('');
 
-    trDetail.innerHTML = `<td colspan="10"><div class="detail-inner">
+    const aidesHtml = r._aides && r._aides.length
+      ? r._aides.map(a => `<div class="detail-item"><span class="dk">${a.nom_aide || a.name || '—'}</span><span class="dv">${a.montant_max ? fmtNum(a.montant_max) + ' €' : '—'}</span></div>`).join('')
+      : '<div class="detail-item"><span class="dk">Aucune aide trouvée</span><span class="dv">—</span></div>';
+
+    const transfoNotesHtml = r.transfo?.notes?.length
+      ? r.transfo.notes.map(n => `<div style="font-size:.8rem;color:#555;padding:3px 0;border-bottom:1px solid #f0f0f0">${n}</div>`).join('')
+      : '<div style="font-size:.8rem;color:#aaa">Aucune note</div>';
+
+    // Données client (original fields)
+    const origFieldsHtml = originalFields.map(f => {
+      const val = r._orig[f] != null ? String(r._orig[f]) : '—';
+      return `<div class="detail-item"><span class="dk">${f}</span><span class="dv" style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${val}">${val}</span></div>`;
+    }).join('');
+
+    trDetail.innerHTML = `<td colspan="${totalCols}"><div class="detail-inner">
+      <div class="detail-block">
+        <h4>Données client</h4>
+        ${origFieldsHtml}
+      </div>
+      <div class="detail-block">
+        <h4>Adresse enrichie</h4>
+        <div class="detail-item"><span class="dk">Adresse</span><span class="dv">${r.adresse || '—'}</span></div>
+        <div class="detail-item"><span class="dk">CP géo</span><span class="dv">${r.cp || '—'}</span></div>
+        <div class="detail-item"><span class="dk">Commune</span><span class="dv">${r.commune || '—'}</span></div>
+        <div class="detail-item"><span class="dk">Lat / Lon</span><span class="dv">${r.lat != null ? r.lat.toFixed(4) + ', ' + r.lon.toFixed(4) : '—'}</span></div>
+        <div class="detail-item"><span class="dk">BAN score</span><span class="dv ${r.ban_score != null ? (r.ban_score >= 0.7 ? 'good' : r.ban_score >= 0.4 ? 'warn' : 'bad') : ''}">${r.ban_score != null ? r.ban_score.toFixed(2) : '—'}</span></div>
+        ${r.is_fallback_geo ? '<div class="detail-item"><span class="dk">Géo</span><span class="dv warn">Fallback CP</span></div>' : ''}
+      </div>
+      <div class="detail-block">
+        <h4>DPE zone</h4>
+        <div class="detail-item"><span class="dk">Classe mode</span><span class="dv">${r._dpe?.classe_mode || '—'}</span></div>
+        <div class="detail-item"><span class="dk">% passoire</span><span class="dv ${r.dpe_pct_passoire != null ? (r.dpe_pct_passoire > 30 ? 'bad' : r.dpe_pct_passoire > 15 ? 'warn' : 'good') : ''}">${r.dpe_pct_passoire != null ? r.dpe_pct_passoire.toFixed(1) + ' %' : '—'}</span></div>
+        <div class="detail-item"><span class="dk">Conso moy.</span><span class="dv">${r.dpe_conso_moy != null ? fmtNum(r.dpe_conso_moy) + ' kWh/m²' : '—'}</span></div>
+        <div class="detail-item"><span class="dk">Score énergie</span><span class="dv">${r.dpe_score_energie != null ? r.dpe_score_energie : '—'}</span></div>
+        <div class="detail-item"><span class="dk">Année construction</span><span class="dv">${r.annee_construction || '—'}</span></div>
+      </div>
+      <div class="detail-block">
+        <h4>Marché</h4>
+        <div class="detail-item"><span class="dk">Prix/m²</span><span class="dv">${r.prix_m2 ? fmtNum(r.prix_m2) + ' €/m²' : '—'}</span></div>
+        <div class="detail-item"><span class="dk">Prix estimé</span><span class="dv">${fmtPrice(r.prix_estime)}</span></div>
+        <div class="detail-item"><span class="dk">Évolution 12m</span><span class="dv ${r._estim?.evolution_12m != null ? (r._estim.evolution_12m > 0 ? 'good' : 'bad') : ''}">${r._estim?.evolution_12m != null ? (r._estim.evolution_12m > 0 ? '+' : '') + r._estim.evolution_12m.toFixed(1) + '%' : '—'}</span></div>
+        <div class="detail-item"><span class="dk">Nb transactions</span><span class="dv">${r._estim?.nb_transactions != null ? r._estim.nb_transactions : '—'}</span></div>
+      </div>
+      <div class="detail-block">
+        <h4>Commune</h4>
+        <div class="detail-item"><span class="dk">Population</span><span class="dv">${r._commune?.population != null ? fmtNum(r._commune.population) : '—'}</span></div>
+        <div class="detail-item"><span class="dk">Revenu médian</span><span class="dv">${r._commune?.iris_revenu_median ? fmtNum(r._commune.iris_revenu_median) + ' €/an' : '—'}</span></div>
+        <div class="detail-item"><span class="dk">Score cadre de vie</span><span class="dv">${r._commune?.score_cadre_vie != null ? r._commune.score_cadre_vie + '/100' : '—'}</span></div>
+        <div class="detail-item"><span class="dk">Tendance</span><span class="dv ${r._estim?.evolution_12m > 0 ? 'good' : r._estim?.evolution_12m < 0 ? 'bad' : ''}">${r._estim?.evolution_12m != null ? (r._estim.evolution_12m > 0 ? 'Hausse' : 'Baisse') : '—'}</span></div>
+      </div>
       <div class="detail-block">
         <h4>Score vente – détail</h4>
         ${fmtItems(venteExp)}
@@ -897,18 +1283,14 @@ function renderTable(rows) {
         ${fmtItems(renovExp)}
       </div>
       <div class="detail-block">
-        <h4>Estimation de prix</h4>
-        <div class="detail-item"><span class="dk">Prix estimé</span><span class="dv">${fmtPrice(r.prix_estime)}</span></div>
-        <div class="detail-item"><span class="dk">Prix/m²</span><span class="dv">${r.prix_m2 ? fmtNum(r.prix_m2) + ' €/m²' : '—'}</span></div>
-        <div class="detail-item"><span class="dk">Surface</span><span class="dv">${r.surface ? r.surface + ' m²' : '—'}</span></div>
+        <h4>Aides rénovation</h4>
+        <div class="detail-item"><span class="dk">Total aides</span><span class="dv good">${r.aides_total != null ? fmtNum(r.aides_total) + ' €' : '—'}</span></div>
+        ${aidesHtml}
       </div>
       <div class="detail-block">
-        <h4>Profil commune</h4>
-        <div class="detail-item"><span class="dk">Commune</span><span class="dv">${r.commune || '—'}</span></div>
-        <div class="detail-item"><span class="dk">Département</span><span class="dv">${r.cp ? r.cp.substring(0,2) : '—'}</span></div>
-        <div class="detail-item"><span class="dk">Score cadre de vie</span><span class="dv">${r._commune?.score_cadre_vie != null ? r._commune.score_cadre_vie + '/100' : '—'}</span></div>
-        <div class="detail-item"><span class="dk">Revenu médian</span><span class="dv">${r._commune?.iris_revenu_median ? fmtNum(r._commune.iris_revenu_median) + ' €/an' : '—'}</span></div>
-        <div class="detail-item"><span class="dk">Tendance marché</span><span class="dv ${r._estim?.evolution_12m > 0 ? 'good' : r._estim?.evolution_12m < 0 ? 'bad' : ''}">${r._estim?.evolution_12m != null ? (r._estim.evolution_12m > 0 ? '+' : '') + r._estim.evolution_12m.toFixed(1) + '%' : '—'}</span></div>
+        <h4>Fenêtre transfo</h4>
+        <div style="margin-bottom:10px">${transfoBadge(r.transfo)}</div>
+        ${transfoNotesHtml}
       </div>
     </div></td>`;
 
@@ -943,12 +1325,27 @@ function populateDeptFilter(rows) {
 /* ══════════════════════════════════════════
    EXPORT
 ══════════════════════════════════════════ */
-const EXTRA_COLS = ['cp', 'commune', 'prix_estime', 'score_vente', 'score_renov', 'score_qualite'];
-
 function buildExportRows(rows) {
   return rows.map(r => {
     const obj = { ...r._orig };
-    EXTRA_COLS.forEach(k => { obj[k] = r[k] ?? ''; });
+    obj['cp_geo']                  = r.cp           ?? '';
+    obj['commune']                 = r.commune       ?? '';
+    obj['ban_score']               = r.ban_score     ?? '';
+    obj['lat']                     = r.lat           ?? '';
+    obj['lon']                     = r.lon           ?? '';
+    obj['type']                    = r.type          ?? '';
+    obj['surface_retenue']         = r.surface       ?? '';
+    obj['prix_estime']             = r.prix_estime   ?? '';
+    obj['prix_m2']                 = r.prix_m2       ?? '';
+    obj['dpe_pct_passoire']        = r.dpe_pct_passoire  ?? '';
+    obj['dpe_conso_moy_kwh_m2']    = r.dpe_conso_moy     ?? '';
+    obj['annee_construction_est']  = r.annee_construction ?? '';
+    obj['aides_renov_total']       = r.aides_total   ?? '';
+    obj['score_vente']             = r.score_vente   ?? '';
+    obj['score_renov']             = r.score_renov   ?? '';
+    obj['score_qualite']           = r.score_qualite ?? '';
+    obj['fenetre_transfo']         = r.transfo?.label  ?? '';
+    obj['fenetre_periode']         = r.transfo?.period ?? '';
     return obj;
   });
 }
@@ -979,7 +1376,9 @@ function downloadBlob(blob, filename) {
 ══════════════════════════════════════════ */
 function resetAll() {
   parsedRows = []; scoredRows = []; cancelFlag = false;
+  parsedWorkbook = null; originalFields = []; totalCols = 10;
   activeFilters = { score: 0, type: '', dept: '' };
+  sortState = { col: null, dir: 'desc' };
   document.getElementById('filter-score').value = 0;
   document.getElementById('filter-score-val').textContent = '0';
   document.getElementById('filter-type').value = '';
@@ -987,6 +1386,7 @@ function resetAll() {
   document.getElementById('file-input').value = '';
   document.getElementById('file-info').classList.add('hidden');
   document.getElementById('upload-error').classList.add('hidden');
+  document.getElementById('sheet-card').classList.add('hidden');
   document.getElementById('mapping-card').classList.add('hidden');
   document.getElementById('progress-card').classList.add('hidden');
   document.getElementById('results-card').classList.add('hidden');
@@ -998,13 +1398,14 @@ function resetAll() {
    MAIN SCORING LOOP
 ══════════════════════════════════════════ */
 async function runScoring() {
-  const colMap = {
-    address: document.getElementById('map-address').value,
-    cp:      document.getElementById('map-cp').value,
-    surface: document.getElementById('map-surface').value,
-    type:    document.getElementById('map-type').value,
+  activeColMap = {
+    address:   document.getElementById('map-address').value,
+    cp:        document.getElementById('map-cp').value,
+    surface:   document.getElementById('map-surface').value,
+    type:      document.getElementById('map-type').value,
+    dateAchat: document.getElementById('map-date-achat').value,
   };
-  if (!colMap.address) {
+  if (!activeColMap.address) {
     showError('mapping-error', 'Veuillez sélectionner la colonne Adresse.');
     return;
   }
@@ -1023,7 +1424,7 @@ async function runScoring() {
   const tasks = rows.map(row =>
     semaphore(async () => {
       if (cancelFlag) return null;
-      const result = await scoreRow(row, colMap);
+      const result = await scoreRow(row, activeColMap);
       done++;
       const pct = Math.round((done / total) * 100);
       document.getElementById('progress-fill').style.width = pct + '%';
@@ -1037,6 +1438,7 @@ async function runScoring() {
   if (cancelFlag) { resetAll(); return; }
   scoredRows = results.filter(Boolean);
 
+  renderTableHeader();
   populateDeptFilter(scoredRows);
   renderCibler(scoredRows);
   renderTable(scoredRows);
@@ -1063,30 +1465,40 @@ function showError(id, msg) {
 async function handleFile(file) {
   document.getElementById('upload-error').classList.add('hidden');
   document.getElementById('file-info').classList.add('hidden');
+  document.getElementById('sheet-card').classList.add('hidden');
+  document.getElementById('mapping-card').classList.add('hidden');
+
   try {
-    const { data, fields } = await parseFile(file);
-    if (!data.length) throw new Error('Le fichier est vide.');
-    parsedRows = data;
-    document.getElementById('file-name').textContent = file.name;
-    document.getElementById('file-meta').textContent =
-      `${data.length} ligne${data.length > 1 ? 's' : ''} · ${fields.length} colonnes`;
-    document.getElementById('file-info').classList.remove('hidden');
+    const ext = file.name.split('.').pop().toLowerCase();
 
-    const detected = autoDetect(fields);
-    populateSelects(fields, detected);
+    if (ext === 'csv' || ext === 'txt') {
+      const { data, fields } = await parseCSVFile(file);
+      if (!data.length) throw new Error('Le fichier est vide.');
+      parsedRows = data;
+      originalFields = fields;
+      showFileMeta(file.name, data.length, fields.length);
+      setupMapping(fields);
+    } else if (ext === 'xls' || ext === 'xlsx') {
+      const buffer = await file.arrayBuffer();
+      const wb = XLSX.read(buffer, { type: 'array' });
 
-    const eff = Math.min(data.length, MAX_ROWS_FREE);
-    const info = document.getElementById('row-limit-info');
-    if (data.length > MAX_ROWS_FREE) {
-      info.textContent = `⚠ Mode gratuit : ${MAX_ROWS_FREE} premières lignes seulement.`;
-      info.style.color = '#c05000';
+      showFileMeta(file.name, 0, 0); // show file name immediately
+      document.getElementById('file-meta').textContent = `${wb.SheetNames.length} feuille${wb.SheetNames.length > 1 ? 's' : ''}`;
+      document.getElementById('file-info').classList.remove('hidden');
+
+      if (wb.SheetNames.length > 1) {
+        showSheetSelector(wb, file);
+      } else {
+        const { data, fields } = sheetToData(wb, wb.SheetNames[0]);
+        if (!data.length) throw new Error('Le fichier est vide.');
+        parsedRows = data;
+        originalFields = fields;
+        document.getElementById('file-meta').textContent = `${data.length} ligne${data.length > 1 ? 's' : ''} · ${fields.length} colonnes`;
+        setupMapping(fields);
+      }
     } else {
-      info.textContent = `${eff} ligne${eff > 1 ? 's' : ''} à scorer.`;
-      info.style.color = '#888';
+      throw new Error('Format non supporté. Utilisez CSV, TXT, XLS ou XLSX.');
     }
-
-    document.getElementById('btn-score').disabled = !detected.address;
-    document.getElementById('mapping-card').classList.remove('hidden');
   } catch (err) {
     showError('upload-error', err.message || 'Erreur de lecture du fichier.');
   }
@@ -1094,7 +1506,7 @@ async function handleFile(file) {
 
 /* ══════════════════════════════════════════
    EVENTS
-══════════════════════════════════════════ */
+═════════════════���════════════════════════ */
 
 // Drag & drop
 const zone = document.getElementById('upload-zone');
@@ -1102,6 +1514,19 @@ zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add(
 zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
 zone.addEventListener('drop', e => { e.preventDefault(); zone.classList.remove('drag-over'); const f = e.dataTransfer.files[0]; if (f) handleFile(f); });
 document.getElementById('file-input').addEventListener('change', e => { if (e.target.files[0]) handleFile(e.target.files[0]); });
+
+// Load sheet button
+document.getElementById('btn-load-sheet').addEventListener('click', () => {
+  if (!parsedWorkbook) return;
+  const idx = parseInt(document.getElementById('sheet-select').value) || 0;
+  const sheetName = parsedWorkbook.wb.SheetNames[idx];
+  try {
+    document.getElementById('sheet-card').classList.add('hidden');
+    loadSheetData(parsedWorkbook.wb, sheetName, parsedWorkbook.file);
+  } catch (err) {
+    showError('upload-error', err.message || 'Erreur de lecture de la feuille.');
+  }
+});
 
 // Address select
 document.getElementById('map-address').addEventListener('change', e => {
@@ -1130,18 +1555,6 @@ document.getElementById('btn-export-prioritaires').addEventListener('click', () 
 
 // Reset
 document.getElementById('btn-reset').addEventListener('click', resetAll);
-
-// Sortable headers
-document.querySelectorAll('thead th.sortable').forEach(th => {
-  th.addEventListener('click', () => {
-    const col = th.dataset.col;
-    if (sortState.col === col) sortState.dir = sortState.dir === 'desc' ? 'asc' : 'desc';
-    else { sortState.col = col; sortState.dir = 'desc'; }
-    document.querySelectorAll('thead th').forEach(h => h.classList.remove('sort-asc', 'sort-desc'));
-    th.classList.add(sortState.dir === 'asc' ? 'sort-asc' : 'sort-desc');
-    renderTable(scoredRows);
-  });
-});
 
 // Filters
 document.getElementById('filter-score').addEventListener('input', e => {
