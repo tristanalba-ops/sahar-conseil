@@ -653,6 +653,8 @@
     <li><a href="/donnees">Données</a></li>
     <li><a href="/methodologie">Méthodologie</a></li>
     <li><a href="/explorations">Explorations</a></li>
+    <li><a href="/estimation">Estimation</a></li>
+    <li><a href="/radiographie">Radiographie</a></li>
     <li><a href="/documentation">Documentation</a></li>
     <li><a href="/a-propos">À propos</a></li>
   </ul>
@@ -830,6 +832,36 @@
   <div class="analyse-section" id="permis-section">
     <div class="analyse-title">🏗️ Activité de construction</div>
     <div id="permis-content"></div>
+  </div>
+
+  <!-- Fiscalité locale -->
+  <div class="analyse-section" id="fiscalite-section">
+    <div class="analyse-title">🏛️ Fiscalité locale</div>
+    <div id="fiscalite-content"></div>
+  </div>
+
+  <!-- Équipements & Services -->
+  <div class="analyse-section" id="poi-section">
+    <div class="analyse-title">📍 Équipements & Services</div>
+    <div id="poi-content"></div>
+  </div>
+
+  <!-- Environnement & Climat -->
+  <div class="analyse-section" id="environnement-section">
+    <div class="analyse-title">🌿 Environnement & Climat</div>
+    <div id="environnement-content"></div>
+  </div>
+
+  <!-- Sécurité -->
+  <div class="analyse-section" id="securite-section">
+    <div class="analyse-title">🛡️ Sécurité</div>
+    <div id="securite-content"></div>
+  </div>
+
+  <!-- Indice de confiance détaillé -->
+  <div class="analyse-section" id="confiance-section">
+    <div class="analyse-title">📊 Indice de confiance détaillé</div>
+    <div id="confiance-content"></div>
   </div>
 
   <!-- Sources -->
@@ -1188,6 +1220,14 @@ function showAnalysisSection(geo, dvfRows, estimatedPrice, surface) {
   const analysisSection = document.getElementById('analyse-section');
   analysisSection.classList.add('visible');
 
+  // Calculate stats needed for indicators
+  const validDVF = dvfRows.filter(r => r.surface_reelle_bati > 0 && r.valeur_fonciere > 0);
+  const prices = validDVF.map(r => r.valeur_fonciere / r.surface_reelle_bati).sort((a, b) => a - b);
+  const medianPrixM2 = prices.length > 0 ? prices[Math.floor(prices.length / 2)] : estimatedPrice / surface;
+  const q1 = prices.length > 0 ? prices[Math.floor(prices.length * 0.25)] : medianPrixM2 * 0.9;
+  const q3 = prices.length > 0 ? prices[Math.floor(prices.length * 0.75)] : medianPrixM2 * 1.1;
+  const confidence = Math.min(100, (validDVF.length / 10) * 100);
+
   // Initialize map
   setTimeout(() => {
     if (!leafletMap) {
@@ -1242,7 +1282,313 @@ function showAnalysisSection(geo, dvfRows, estimatedPrice, surface) {
   }
   recoEl.innerHTML = `<div class="reco-box">${recommendation}</div>`;
 
+  // Error margin calculation
+  const iqr = q3 - q1;
+  const errorMarginPct = (iqr / 2 / medianPrixM2 * 100);
+  let errorColor = '#22c55e'; // green
+  if (errorMarginPct > 20) errorColor = '#ef4444'; // red
+  else if (errorMarginPct > 10) errorColor = '#eab308'; // yellow
+
+  const errorMarginHTML = `
+    <div style="margin-top: 1rem; padding: 0.75rem; background: rgba(255,255,255,0.05); border-radius: 8px; border-left: 3px solid ${errorColor}">
+      <div style="font-size:0.8rem; color: var(--text-gray); margin-bottom: 0.3rem">Marge d'erreur estimée</div>
+      <div style="font-size:1.1rem; font-weight:700; color: ${errorColor}">±${Math.round(errorMarginPct)}%</div>
+      <div style="font-size:0.75rem; color: var(--text-gray); margin-top: 0.3rem">Basée sur l'écart interquartile de ${validDVF.length} transactions</div>
+    </div>
+  `;
+
+  // Append error margin to reco-box-wrap
+  if (recoEl.lastChild) {
+    recoEl.lastChild.innerHTML += errorMarginHTML;
+  }
+
+  // Load all additional indicators
+  showAllIndicators(geo, validDVF, estimatedPrice, surface, medianPrixM2, q1, q3, confidence);
+
   analysisSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ── Comprehensive Data Indicators ─────────────────────────────────────────────────
+async function showAllIndicators(geo, dvfRows, estimatedPrice, surface, medianPrixM2, q1, q3, confidence) {
+  // Fetch all data in parallel
+  const [dpeData, loyerData, permisData, fiscoData, poiData, climatData, eauData, secuData] = await Promise.all([
+    supaFetch("dpe_commune_agg", { "code_postal": `eq.${geo.cp}`, "select": "*" }).catch(() => []),
+    supaFetch("data_loyers_observes", { "code_postal": `eq.${geo.cp}`, "select": "*", "limit": "1" }).catch(() => []),
+    supaFetch("data_permis_construire", { "code_insee": `eq.${geo.citycode}`, "select": "*", "order": "date_autorisation.desc", "limit": "10" }).catch(() => []),
+    supaFetch("data_fiscalite_locale", { "code_insee": `eq.${geo.citycode}`, "select": "*", "limit": "1" }).catch(() => []),
+    supaFetch("poi_scores_commune", { "code_commune": `eq.${geo.citycode}`, "select": "*", "limit": "1" }).catch(() => []),
+    supaFetch("data_climat", { "code_insee": `eq.${geo.citycode}`, "select": "*", "limit": "1" }).catch(() => []),
+    supaFetch("data_qualite_eau", { "code_insee": `eq.${geo.citycode}`, "select": "*", "limit": "1" }).catch(() => []),
+    supaFetch("data_securite", { "code_departement": `eq.${geo.citycode.substring(0, 2)}`, "order": "annee.desc", "limit": "1", "select": "*" }).catch(() => [])
+  ]);
+
+  // 1. DPE Section
+  const dpeSection = document.getElementById('dpe-section');
+  if (dpeData.length > 0) {
+    const dpe = dpeData[0];
+    const dpeClasses = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
+    const dpeColors = ['#319834', '#33cc31', '#cbfc34', '#fcfc32', '#fccc32', '#fc9834', '#fc0000'];
+
+    let dpeBarHTML = '<div style="margin-bottom: 1rem">';
+    dpeClasses.forEach((cls, idx) => {
+      const pctKey = `pct_${cls.toLowerCase()}`;
+      const pct = dpe[pctKey] || 0;
+      dpeBarHTML += `
+        <div class="kpi-bar-row">
+          <div class="kpi-bar-name">Classe ${cls}</div>
+          <div class="kpi-bar-track">
+            <div class="kpi-bar-fill" style="width: ${pct}%; background: ${dpeColors[idx]}; transition: width 0.6s ease;"></div>
+          </div>
+          <div class="kpi-bar-val">${Math.round(pct)}%</div>
+        </div>
+      `;
+    });
+    dpeBarHTML += '</div>';
+
+    const passoires = (dpe.pct_f || 0) + (dpe.pct_g || 0);
+    const passWarning = passoires > 20 ? '⚠️ Forte concentration de passoires énergétiques' : '✅ Bon parc énergétique';
+
+    dpeBarHTML += `
+      <div style="background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 8px; margin-top: 1rem">
+        <div style="font-size:0.9rem; margin-bottom: 0.5rem">${passWarning}</div>
+        <div style="font-size:0.8rem; color: var(--text-gray)">
+          <div>Conso moyenne: ${Math.round(dpe.conso_moy_kwh_m2)} kWh/m²/an</div>
+          <div>GES moyen: ${Math.round(dpe.ges_moy_kg_co2_m2)} kg CO₂/m²/an</div>
+          <div style="margin-top:0.5rem; font-weight:700">Score énergie: ${Math.round(dpe.score_energie_0_100 || 50)}/100</div>
+        </div>
+      </div>
+    `;
+
+    document.getElementById('dpe-content').innerHTML = dpeBarHTML;
+    dpeSection.classList.add('visible');
+  } else {
+    document.getElementById('dpe-content').innerHTML = '<p style="color: var(--text-gray); font-size:0.9rem">Données DPE non disponibles pour cette commune</p>';
+  }
+
+  // 2. Rendement Section
+  const rendementSection = document.getElementById('rendement-section');
+  if (loyerData.length > 0) {
+    const loyer = loyerData[0];
+    const loyerMedian = loyer.loyer_median_m2 || 0;
+    const rendementBrut = (loyerMedian * 12) / medianPrixM2 * 100;
+
+    document.getElementById('rendement-content').innerHTML = `
+      <div class="kpi-bar-row">
+        <div class="kpi-bar-name">Loyer médian</div>
+        <div style="flex:1; font-weight:700; color:var(--accent-green)">${loyerMedian.toFixed(2)}€/m²</div>
+      </div>
+      <div class="kpi-bar-row">
+        <div class="kpi-bar-name">Loyer moyen</div>
+        <div style="flex:1; font-weight:700">${(loyer.loyer_moyen_m2 || 0).toFixed(2)}€/m²</div>
+      </div>
+      <div style="background: rgba(0, 220, 130, 0.1); padding: 1rem; border-radius: 8px; margin-top: 1rem; border: 1px solid rgba(0, 220, 130, 0.3)">
+        <div style="font-size:0.8rem; color: var(--text-gray); margin-bottom: 0.3rem">Rendement brut estimé</div>
+        <div style="font-size:1.5rem; font-weight:700; color: var(--accent-green)">${rendementBrut.toFixed(2)}%</div>
+        <div style="font-size:0.75rem; color: var(--text-gray); margin-top: 0.3rem">Basé sur loyer médian et prix de marché</div>
+      </div>
+    `;
+    rendementSection.classList.add('visible');
+  } else {
+    document.getElementById('rendement-content').innerHTML = '<p style="color: var(--text-gray); font-size:0.9rem">Données de loyer non disponibles pour cette commune</p>';
+  }
+
+  // 3. Permis Section
+  const permisSection = document.getElementById('permis-section');
+  if (permisData.length > 0) {
+    const permisList = permisData.slice(0, 10);
+    let permisHTML = `<div style="color: var(--text-gray); font-size:0.9rem; margin-bottom: 1rem">${permisList.length} permis de construire récents</div>`;
+
+    permisHTML += '<table class="comparables-table" style="width:100%; font-size:0.8rem">';
+    permisHTML += '<thead style="border-bottom:1px solid var(--border-color)"><tr><th style="text-align:left;padding:0.5rem">Date</th><th style="text-align:left;padding:0.5rem">Type</th><th style="text-align:right;padding:0.5rem">Surface</th></tr></thead><tbody>';
+
+    permisList.forEach(p => {
+      const date = p.date_autorisation ? new Date(p.date_autorisation).toLocaleDateString('fr-FR') : '—';
+      const type = p.type_permis || '—';
+      const surface = p.surface ? `${fmtN(Math.round(p.surface))}m²` : '—';
+      permisHTML += `<tr style="border-bottom:1px solid rgba(255,255,255,0.05)"><td style="padding:0.5rem">${date}</td><td style="padding:0.5rem">${type}</td><td style="text-align:right;padding:0.5rem;color:var(--accent-green)">${surface}</td></tr>`;
+    });
+
+    permisHTML += '</tbody></table>';
+    document.getElementById('permis-content').innerHTML = permisHTML;
+    permisSection.classList.add('visible');
+  } else {
+    document.getElementById('permis-content').innerHTML = '<p style="color: var(--text-gray); font-size:0.9rem">Pas d\'activité de construction récente</p>';
+  }
+
+  // 4. Fiscalité Section
+  const fiscoSection = document.getElementById('fiscalite-section');
+  if (fiscoData.length > 0) {
+    const fisco = fiscoData[0];
+    document.getElementById('fiscalite-content').innerHTML = `
+      <div class="kpi-bar-row">
+        <div class="kpi-bar-name">Taxe foncière</div>
+        <div style="flex:1; font-weight:700">${fisco.taxe_fonciere ? fisco.taxe_fonciere.toFixed(2) : '—'}€</div>
+      </div>
+      <div class="kpi-bar-row">
+        <div class="kpi-bar-name">Taxe habitation</div>
+        <div style="flex:1; font-weight:700">${fisco.taxe_habitation ? fisco.taxe_habitation.toFixed(2) : '—'}€</div>
+      </div>
+      <div class="kpi-bar-row">
+        <div class="kpi-bar-name">CFE</div>
+        <div style="flex:1; font-weight:700">${fisco.cfe ? fisco.cfe.toFixed(2) : '—'}€</div>
+      </div>
+      <div style="background: rgba(255,255,255,0.05); padding:1rem; border-radius:8px; margin-top:1rem; font-size:0.8rem; color:var(--text-gray)">
+        <div>Budget par habitant: ${fisco.budget_par_habitant ? fmtN(Math.round(fisco.budget_par_habitant)) : '—'}</div>
+        <div>Dette par habitant: ${fisco.dette_par_habitant ? fmtN(Math.round(fisco.dette_par_habitant)) : '—'}</div>
+      </div>
+    `;
+    fiscoSection.classList.add('visible');
+  } else {
+    document.getElementById('fiscalite-content').innerHTML = '<p style="color: var(--text-gray); font-size:0.9rem">Données de fiscalité non disponibles</p>';
+  }
+
+  // 5. POI Section
+  const poiSection = document.getElementById('poi-section');
+  if (poiData.length > 0) {
+    const poi = poiData[0];
+    const scores = [
+      { label: 'Transport', val: poi.score_transport || 0 },
+      { label: 'Éducation', val: poi.score_education || 0 },
+      { label: 'Santé', val: poi.score_sante || 0 },
+      { label: 'Commerce', val: poi.score_commerce || 0 },
+      { label: 'Global', val: poi.score_global || 0 }
+    ];
+
+    let poiHTML = '';
+    scores.forEach(s => {
+      const color = s.val >= 70 ? 'var(--accent-green)' : s.val >= 40 ? '#eab308' : '#ef4444';
+      poiHTML += `
+        <div class="kpi-bar-row">
+          <div class="kpi-bar-name">${s.label}</div>
+          <div class="kpi-bar-track">
+            <div class="kpi-bar-fill" style="width: ${s.val}%; background: ${color}; transition: width 0.6s ease;"></div>
+          </div>
+          <div class="kpi-bar-val">${Math.round(s.val)}</div>
+        </div>
+      `;
+    });
+
+    document.getElementById('poi-content').innerHTML = poiHTML;
+    poiSection.classList.add('visible');
+  } else {
+    document.getElementById('poi-content').innerHTML = '<p style="color: var(--text-gray); font-size:0.9rem">Données d\'équipements non disponibles</p>';
+  }
+
+  // 6. Environnement Section
+  const environnementSection = document.getElementById('environnement-section');
+  let environnementHTML = '';
+
+  if (climatData.length > 0) {
+    const climat = climatData[0];
+    environnementHTML += `
+      <div style="margin-bottom:1rem">
+        <div style="font-size:0.85rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-gray); margin-bottom:0.5rem">Climat</div>
+        <div style="font-size:0.8rem; color:var(--text-gray)">
+          <div>Température moyenne: ${climat.temp_moyenne || '—'}°C</div>
+          <div>Ensoleillement: ${climat.ensoleillement || '—'} h/an</div>
+          <div>Précipitations: ${climat.precipitation || '—'} mm/an</div>
+          <div style="margin-top:0.5rem; color:#ef4444">${climat.risque_canicule ? '⚠️ Risque de canicule' : '✅ Faible risque de canicule'}</div>
+        </div>
+      </div>
+    `;
+  }
+
+  if (eauData.length > 0) {
+    const eau = eauData[0];
+    environnementHTML += `
+      <div style="background:rgba(255,255,255,0.05); padding:0.75rem; border-radius:8px; border-top:1px solid var(--border-color); margin-top:1rem">
+        <div style="font-size:0.85rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-gray); margin-bottom:0.5rem">Qualité de l'eau</div>
+        <div style="font-size:0.8rem; color:var(--text-gray)">
+          <div>Conformité globale: ${eau.conformite_globale ? eau.conformite_globale + '%' : '—'}</div>
+          <div>Nitrates: ${eau.nitrates ? eau.nitrates + ' mg/L' : '—'}</div>
+        </div>
+      </div>
+    `;
+  }
+
+  if (environnementHTML) {
+    document.getElementById('environnement-content').innerHTML = environnementHTML;
+    environnementSection.classList.add('visible');
+  } else {
+    document.getElementById('environnement-content').innerHTML = '<p style="color: var(--text-gray); font-size:0.9rem">Données d\'environnement non disponibles</p>';
+  }
+
+  // 7. Sécurité Section
+  const secuSection = document.getElementById('securite-section');
+  if (secuData.length > 0) {
+    const secu = secuData[0];
+    document.getElementById('securite-content').innerHTML = `
+      <div style="font-size:0.85rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-gray); margin-bottom:1rem">Données départementales</div>
+      <div class="kpi-bar-row">
+        <div class="kpi-bar-name">Cambriolages</div>
+        <div style="flex:1; font-weight:700">${(secu.cambriolages_1000 || 0).toFixed(2)}/1000 hab</div>
+      </div>
+      <div class="kpi-bar-row">
+        <div class="kpi-bar-name">Vols</div>
+        <div style="flex:1; font-weight:700">${(secu.vols_1000 || 0).toFixed(2)}/1000 hab</div>
+      </div>
+      <div class="kpi-bar-row">
+        <div class="kpi-bar-name">Violences</div>
+        <div style="flex:1; font-weight:700">${(secu.violences_1000 || 0).toFixed(2)}/1000 hab</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.05); padding:0.75rem; border-radius:8px; margin-top:1rem; font-size:0.8rem; color:var(--text-gray)">
+        Total infractions: ${fmtN(Math.round(secu.total_infractions || 0))}
+      </div>
+    `;
+    secuSection.classList.add('visible');
+  } else {
+    document.getElementById('securite-content').innerHTML = '<p style="color: var(--text-gray); font-size:0.9rem">Données de sécurité non disponibles</p>';
+  }
+
+  // 8. Confiance détaillée Section
+  const confianceSection = document.getElementById('confiance-section');
+  const sources = [
+    { name: 'DVF Transactions', available: dvfRows.length > 0, count: dvfRows.length, weight: 30 },
+    { name: 'Géocodage BAN', available: geo.score >= 50, score: geo.score, weight: 20 },
+    { name: 'DPE ADEME', available: dpeData.length > 0, weight: 10 },
+    { name: 'Loyers observés', available: loyerData.length > 0, weight: 10 },
+    { name: 'Fiscalité DGFiP', available: fiscoData.length > 0, weight: 5 },
+    { name: 'POI/Équipements', available: poiData.length > 0, weight: 10 },
+    { name: 'Climat', available: climatData.length > 0, weight: 5 },
+    { name: 'Qualité eau', available: eauData.length > 0, weight: 5 },
+    { name: 'Sécurité', available: secuData.length > 0, weight: 5 },
+  ];
+
+  let weightedConfidence = 0;
+  let availableSources = 0;
+  sources.forEach(s => {
+    if (s.available) {
+      weightedConfidence += s.weight;
+      availableSources++;
+    }
+  });
+
+  const overallConfidence = Math.min(100, Math.max(0, (weightedConfidence / 100) * 100));
+
+  let confianceHTML = `
+    <div style="background:rgba(0, 220, 130, 0.1); padding:1.25rem; border-radius:10px; border:1px solid rgba(0, 220, 130, 0.3); margin-bottom:1.5rem">
+      <div style="font-size:0.8rem; color:var(--text-gray); margin-bottom:0.5rem">Indice global de confiance</div>
+      <div style="font-size:2rem; font-weight:700; color:var(--accent-green); margin-bottom:0.5rem">${Math.round(overallConfidence)}%</div>
+      <div style="font-size:0.8rem; color:var(--text-gray)">${availableSources}/${sources.length} sources de données disponibles</div>
+    </div>
+
+    <div style="font-size:0.85rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-gray); margin-bottom:0.75rem">Détail des sources</div>
+  `;
+
+  sources.forEach(s => {
+    const status = s.available ? '✅ Disponible' : '❌ Non disponible';
+    const statusColor = s.available ? 'var(--accent-green)' : '#a0a0a0';
+    confianceHTML += `
+      <div style="display:flex; justify-content:space-between; align-items:center; padding:0.75rem; border-bottom:1px solid rgba(255,255,255,0.05); font-size:0.85rem">
+        <div>${s.name}</div>
+        <div style="color:${statusColor}; font-weight:700">${status}</div>
+      </div>
+    `;
+  });
+
+  confianceHTML += '</div>';
+  document.getElementById('confiance-content').innerHTML = confianceHTML;
+  confianceSection.classList.add('visible');
 }
 </script>
 </body>

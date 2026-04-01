@@ -1,0 +1,1638 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Radiographie commune — Intent Analytics</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+
+  <style>
+    :root {
+      --dark-bg: #0D0D0D;
+      --dark-bg-light: #1A1A2E;
+      --accent-green: #00DC82;
+      --text-white: #FFFFFF;
+      --text-gray: #A0A0A0;
+      --border-color: #2A2A3E;
+      --dpe-a: #319834;
+      --dpe-b: #33cc31;
+      --dpe-c: #cbfc34;
+      --dpe-d: #fcfc32;
+      --dpe-e: #fccc32;
+      --dpe-f: #fc9834;
+      --dpe-g: #fc0000;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: var(--dark-bg);
+      color: var(--text-white);
+      font-family: 'Inter', sans-serif;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* Navigation */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background-color: rgba(13, 13, 13, 0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 1rem 2rem;
+    }
+
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-logo {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: 1.2rem;
+      color: var(--text-white);
+      text-decoration: none;
+      letter-spacing: -0.5px;
+    }
+    .nav-links {
+      display: flex;
+      list-style: none;
+      gap: 2rem;
+    }
+    .nav-links a {
+      color: var(--text-gray);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--text-white); }
+
+    @media (max-width: 768px) {
+      nav ul {
+        display: none;
+      }
+    }
+
+    /* Hero Section */
+    .hero {
+      max-width: 1200px;
+      margin: 4rem auto 3rem;
+      padding: 0 2rem;
+      text-align: center;
+    }
+
+    .hero-tag {
+      display: inline-block;
+      background: rgba(0, 220, 130, 0.1);
+      border: 1px solid var(--accent-green);
+      color: var(--accent-green);
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 3.5rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      line-height: 1.2;
+    }
+
+    .hero h1 em {
+      color: var(--accent-green);
+      font-style: normal;
+    }
+
+    .hero p {
+      color: var(--text-gray);
+      font-size: 1.1rem;
+      max-width: 700px;
+      margin: 0 auto 2rem;
+    }
+
+    .badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+      margin-top: 2rem;
+    }
+
+    .badge {
+      background: rgba(26, 26, 46, 0.5);
+      border: 1px solid var(--border-color);
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      color: var(--text-gray);
+    }
+
+    /* Container */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+
+    /* Search Section */
+    .search-section {
+      max-width: 600px;
+      margin: 3rem auto;
+    }
+
+    .search-card {
+      background: rgba(26, 26, 46, 0.5);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      backdrop-filter: blur(10px);
+      padding: 2rem;
+      position: relative;
+    }
+
+    .search-card h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.3rem;
+      margin-bottom: 1.5rem;
+      font-weight: 600;
+    }
+
+    .input-group {
+      position: relative;
+      margin-bottom: 1rem;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 1rem;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      color: var(--text-white);
+      font-size: 1rem;
+      font-family: 'Inter', sans-serif;
+      transition: border-color 0.3s;
+    }
+
+    .input-group input:focus {
+      outline: none;
+      border-color: var(--accent-green);
+    }
+
+    .input-group input::placeholder {
+      color: var(--text-gray);
+    }
+
+    .autocomplete-dropdown {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: rgba(26, 26, 46, 0.95);
+      border: 1px solid var(--border-color);
+      border-top: none;
+      border-radius: 0 0 8px 8px;
+      max-height: 300px;
+      overflow-y: auto;
+      display: none;
+      z-index: 10;
+    }
+
+    .autocomplete-dropdown.active {
+      display: block;
+    }
+
+    .autocomplete-item {
+      padding: 0.75rem 1rem;
+      cursor: pointer;
+      border-bottom: 1px solid var(--border-color);
+      transition: background-color 0.2s;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .autocomplete-item:hover {
+      background: rgba(0, 220, 130, 0.1);
+    }
+
+    .autocomplete-item-name {
+      font-weight: 500;
+    }
+
+    .autocomplete-item-meta {
+      color: var(--text-gray);
+      font-size: 0.85rem;
+    }
+
+    .selected-info {
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border-color);
+      display: none;
+    }
+
+    .selected-info.active {
+      display: block;
+    }
+
+    .selected-commune-name {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .selected-meta {
+      color: var(--text-gray);
+      font-size: 0.9rem;
+    }
+
+    /* Department Filter */
+    .dept-filter {
+      margin-bottom: 1.5rem;
+    }
+
+    .dept-filter label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
+      color: var(--text-gray);
+    }
+
+    .dept-filter select {
+      width: 100%;
+      padding: 0.75rem;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      color: var(--text-white);
+      font-family: 'Inter', sans-serif;
+    }
+
+    /* Results Section */
+    .results-section {
+      display: none;
+      margin: 4rem 0;
+    }
+
+    .results-section.active {
+      display: block;
+    }
+
+    /* Analysis Sections */
+    .analyse-section {
+      background: rgba(26, 26, 46, 0.5);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      backdrop-filter: blur(10px);
+      padding: 2rem;
+      margin-bottom: 2rem;
+      animation: fadeUp 0.6s ease-out;
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .analyse-section h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      color: var(--accent-green);
+    }
+
+    .section-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .metric {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--border-color);
+      padding: 1.5rem;
+      border-radius: 12px;
+    }
+
+    .metric-label {
+      color: var(--text-gray);
+      font-size: 0.85rem;
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .metric-value {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--text-white);
+      margin-bottom: 0.25rem;
+    }
+
+    .metric-change {
+      font-size: 0.85rem;
+      color: var(--text-gray);
+    }
+
+    .metric-change.positive {
+      color: #4ade80;
+    }
+
+    .metric-change.negative {
+      color: #f87171;
+    }
+
+    /* Map */
+    #commune-map {
+      height: 400px;
+      border-radius: 12px;
+      margin: 1.5rem 0;
+      border: 1px solid var(--border-color);
+    }
+
+    .wiki-section {
+      margin: 1.5rem 0;
+      padding: 1.5rem;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 12px;
+    }
+
+    .wiki-image {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+    }
+
+    .wiki-text {
+      color: var(--text-gray);
+      line-height: 1.8;
+      margin-bottom: 1rem;
+    }
+
+    .wiki-link {
+      display: inline-block;
+      color: var(--accent-green);
+      text-decoration: none;
+      font-weight: 600;
+      transition: opacity 0.3s;
+    }
+
+    .wiki-link:hover {
+      opacity: 0.8;
+    }
+
+    /* Score Bars */
+    .score-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    .score-bar {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .score-label {
+      min-width: 150px;
+      font-weight: 500;
+    }
+
+    .score-bar-container {
+      flex: 1;
+      height: 32px;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 8px;
+      overflow: hidden;
+      position: relative;
+      border: 1px solid var(--border-color);
+    }
+
+    .score-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #00DC82, #00B86F);
+      transition: width 0.5s ease-out;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--dark-bg);
+      font-weight: 700;
+      font-size: 0.85rem;
+    }
+
+    .score-value {
+      min-width: 60px;
+      text-align: right;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+    }
+
+    /* DPE Chart */
+    .dpe-chart-container {
+      position: relative;
+      height: 80px;
+      margin: 2rem 0;
+    }
+
+    .dpe-distribution {
+      display: flex;
+      height: 100%;
+      border-radius: 8px;
+      overflow: hidden;
+      gap: 0;
+    }
+
+    .dpe-bar {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--dark-bg);
+      font-weight: 700;
+      font-size: 0.9rem;
+      min-width: 40px;
+    }
+
+    .dpe-bar.dpe-a { background-color: var(--dpe-a); }
+    .dpe-bar.dpe-b { background-color: var(--dpe-b); }
+    .dpe-bar.dpe-c { background-color: var(--dpe-c); }
+    .dpe-bar.dpe-d { background-color: var(--dpe-d); }
+    .dpe-bar.dpe-e { background-color: var(--dpe-e); }
+    .dpe-bar.dpe-f { background-color: var(--dpe-f); }
+    .dpe-bar.dpe-g { background-color: var(--dpe-g); }
+
+    .dpe-legend {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-top: 1rem;
+    }
+
+    .dpe-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+    }
+
+    .dpe-legend-color {
+      width: 20px;
+      height: 20px;
+      border-radius: 4px;
+    }
+
+    /* Warning Box */
+    .warning-box {
+      background: rgba(249, 115, 22, 0.1);
+      border: 1px solid rgba(249, 115, 22, 0.3);
+      padding: 1rem;
+      border-radius: 8px;
+      margin: 1rem 0;
+      color: #FFAA00;
+    }
+
+    .warning-box strong {
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+
+    /* Status Badges */
+    .status-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin: 1.5rem 0;
+    }
+
+    .status-badge {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--border-color);
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .status-badge.yes {
+      background: rgba(74, 222, 128, 0.1);
+      border-color: rgba(74, 222, 128, 0.3);
+      color: #4ade80;
+    }
+
+    .status-badge.no {
+      background: rgba(248, 113, 113, 0.1);
+      border-color: rgba(248, 113, 113, 0.3);
+      color: #f87171;
+    }
+
+    /* Confidence Index */
+    .confidence-section {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--border-color);
+      padding: 1.5rem;
+      border-radius: 12px;
+      margin: 2rem 0;
+    }
+
+    .confidence-section h3 {
+      font-family: 'Space Grotesk', sans-serif;
+      margin-bottom: 1rem;
+      font-weight: 600;
+    }
+
+    .confidence-bar-container {
+      height: 24px;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 8px;
+      overflow: hidden;
+      margin: 1rem 0;
+      border: 1px solid var(--border-color);
+    }
+
+    .confidence-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #00DC82, #00B86F);
+      width: 0%;
+      transition: width 0.5s ease-out;
+    }
+
+    .confidence-text {
+      color: var(--text-gray);
+      font-size: 0.9rem;
+      margin-top: 1rem;
+    }
+
+    .data-source-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+
+    .data-source-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+      color: var(--text-gray);
+    }
+
+    .data-source-item.available {
+      color: #4ade80;
+    }
+
+    /* Sources Section */
+    .sources-section {
+      background: rgba(26, 26, 46, 0.5);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 2rem;
+      margin: 3rem 0;
+    }
+
+    .sources-section h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.3rem;
+      margin-bottom: 1.5rem;
+      font-weight: 600;
+      color: var(--accent-green);
+    }
+
+    .sources-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .source-item {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 1rem;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+    }
+
+    .source-name {
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .source-description {
+      color: var(--text-gray);
+      font-size: 0.85rem;
+    }
+
+    /* How it Works */
+    .how-it-works {
+      background: rgba(26, 26, 46, 0.5);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 2rem;
+      margin: 3rem 0;
+    }
+
+    .how-it-works h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.3rem;
+      margin-bottom: 2rem;
+      font-weight: 600;
+      color: var(--accent-green);
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 2rem;
+    }
+
+    .step {
+      text-align: center;
+    }
+
+    .step-number {
+      width: 48px;
+      height: 48px;
+      background: var(--accent-green);
+      color: var(--dark-bg);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.2rem;
+      margin: 0 auto 1rem;
+      font-family: 'Space Grotesk', sans-serif;
+    }
+
+    .step-title {
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      font-family: 'Space Grotesk', sans-serif;
+    }
+
+    .step-description {
+      color: var(--text-gray);
+      font-size: 0.9rem;
+    }
+
+    /* Footer */
+    footer {
+      background: rgba(13, 13, 13, 0.95);
+      border-top: 1px solid var(--border-color);
+      margin-top: 4rem;
+      padding: 2rem;
+      text-align: center;
+      color: var(--text-gray);
+      font-size: 0.85rem;
+    }
+
+    footer .disclaimer {
+      margin-bottom: 1.5rem;
+      padding: 1rem;
+      background: rgba(249, 115, 22, 0.1);
+      border: 1px solid rgba(249, 115, 22, 0.3);
+      border-radius: 8px;
+      color: #FFAA00;
+    }
+
+    footer ul {
+      list-style: none;
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+    }
+
+    footer a {
+      color: var(--accent-green);
+      text-decoration: none;
+      transition: opacity 0.3s;
+    }
+
+    footer a:hover {
+      opacity: 0.8;
+    }
+
+    .contact-email {
+      margin-top: 1rem;
+    }
+
+    .contact-email a {
+      color: var(--accent-green);
+    }
+
+    /* No Data */
+    .no-data {
+      color: var(--text-gray);
+      padding: 1rem;
+      text-align: center;
+      font-style: italic;
+    }
+
+    /* Loading */
+    .loading {
+      text-align: center;
+      padding: 2rem;
+      color: var(--text-gray);
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 24px;
+      height: 24px;
+      border: 2px solid var(--border-color);
+      border-top-color: var(--accent-green);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-right: 0.5rem;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .hero h1 {
+        font-size: 2.5rem;
+      }
+
+      .section-grid {
+        grid-template-columns: 1fr;
+      }
+
+      nav ul {
+        display: none;
+      }
+
+      .score-bar {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .score-bar-container {
+        width: 100%;
+      }
+
+      .score-value {
+        min-width: unset;
+        text-align: left;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav>
+    <a class="nav-logo" href="/">Intent Analytics</a>
+    <ul class="nav-links">
+      <li><a href="/projet">Le projet</a></li>
+      <li><a href="/donnees">Données</a></li>
+      <li><a href="/explorations">Explorations</a></li>
+      <li><a href="/estimation">Estimation</a></li>
+      <li><a href="/radiographie" style="color:var(--accent-green)">Radiographie</a></li>
+      <li><a href="/a-propos">À propos</a></li>
+    </ul>
+  </nav>
+
+  <!-- Hero Section -->
+  <div class="hero">
+    <div class="hero-tag">Prototype expérimental</div>
+    <h1>Radiographie<br><em>d'une commune</em></h1>
+    <p>Croisement de données publiques françaises : immobilier, énergie, équipements, démographie, fiscalité, environnement.</p>
+    <div class="badges">
+      <div class="badge">DVF</div>
+      <div class="badge">DPE</div>
+      <div class="badge">BPE</div>
+      <div class="badge">BAN</div>
+      <div class="badge">INSEE</div>
+      <div class="badge">ADEME</div>
+    </div>
+  </div>
+
+  <!-- Search Section -->
+  <div class="search-section">
+    <div class="search-card">
+      <h2>Chercher une commune</h2>
+
+      <div class="dept-filter">
+        <label for="dept-select">Filtrer par département (optionnel)</label>
+        <select id="dept-select">
+          <option value="">Tous les départements</option>
+          <!-- Populated via JS -->
+        </select>
+      </div>
+
+      <div class="input-group">
+        <input
+          type="text"
+          id="commune-search"
+          placeholder="Nom de la commune, code postal..."
+          autocomplete="off"
+        >
+        <div class="autocomplete-dropdown" id="autocomplete-dropdown"></div>
+      </div>
+
+      <div class="selected-info" id="selected-info">
+        <div class="selected-commune-name" id="selected-commune-name"></div>
+        <div class="selected-meta" id="selected-meta"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results Section -->
+  <div class="container">
+    <div class="results-section" id="results-section">
+      <!-- Dynamically populated -->
+    </div>
+  </div>
+
+  <!-- Sources Section -->
+  <div class="container">
+    <div class="sources-section">
+      <h2>Sources de données</h2>
+      <div class="sources-grid">
+        <div class="source-item">
+          <div class="source-name">DVF — Cerema</div>
+          <div class="source-description">Transactions immobilières et données de marché</div>
+        </div>
+        <div class="source-item">
+          <div class="source-name">DPE — ADEME</div>
+          <div class="source-description">Diagnostics de performance énergétique</div>
+        </div>
+        <div class="source-item">
+          <div class="source-name">BAN — data.gouv.fr</div>
+          <div class="source-description">Adresses et géolocalisation</div>
+        </div>
+        <div class="source-item">
+          <div class="source-name">BPE — INSEE</div>
+          <div class="source-description">Points d'intérêt et équipements</div>
+        </div>
+        <div class="source-item">
+          <div class="source-name">INSEE</div>
+          <div class="source-description">Données démographiques et économiques</div>
+        </div>
+        <div class="source-item">
+          <div class="source-name">Géographie — IGN</div>
+          <div class="source-description">Données géographiques et climatiques</div>
+        </div>
+        <div class="source-item">
+          <div class="source-name">Santé & Éducation</div>
+          <div class="source-description">Équipements de santé et établissements scolaires</div>
+        </div>
+        <div class="source-item">
+          <div class="source-name">OpenStreetMap</div>
+          <div class="source-description">Points d'intérêt et accessibilité</div>
+        </div>
+        <div class="source-item">
+          <div class="source-name">Qualité eau — ARS</div>
+          <div class="source-description">Conformité bactériologique et chimique</div>
+        </div>
+        <div class="source-item">
+          <div class="source-name">Fiscalité — DGFiP</div>
+          <div class="source-description">Taux de taxation locaux</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- How it Works -->
+  <div class="container">
+    <div class="how-it-works">
+      <h2>Comment fonctionne cette radiographie</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="step-number">1</div>
+          <div class="step-title">Géocodage</div>
+          <div class="step-description">Récupération des coordonnées GPS de la commune via la BAN et réconciliation INSEE</div>
+        </div>
+        <div class="step">
+          <div class="step-number">2</div>
+          <div class="step-title">Croisement multi-sources</div>
+          <div class="step-description">Agrégation des données de 10+ sources publiques pour cette commune spécifique</div>
+        </div>
+        <div class="step">
+          <div class="step-number">3</div>
+          <div class="step-title">Scoring</div>
+          <div class="step-description">Calcul de scores normalisés (0-100) pour comparer les communes entre elles</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <p>
+      © 2025-2026 Intent Analytics — Projet expérimental d'exploration de données publiques<br>
+      <a href="/legal/mentions-legales">Mentions légales</a> ·
+      <a href="/legal/cgu">CGU</a> ·
+      <a href="/legal/politique-confidentialite">Confidentialité</a> ·
+      <a href="mailto:contact@intentanalytics.fr">contact@intentanalytics.fr</a>
+    </p>
+    <p style="margin-top:0.5rem;font-size:0.72rem;color:#666;">
+      Données publiques à titre indicatif uniquement. Ne constitue pas une analyse professionnelle.
+    </p>
+  </footer>
+
+  <script>
+    // ============================================
+    // Supabase Configuration
+    // ============================================
+    const SUPA_URL = "https://wwvdpixzfaviaapixarb.supabase.co";
+    const SUPA_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3dmRwaXh6ZmF2aWFhcGl4YXJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3Mzk0NDgsImV4cCI6MjA5MDMxNTQ0OH0.NjOeWzUCo2BJPcxnkEJNm215GJBr1RAHba1eL_EF758";
+
+    // ============================================
+    // Utility Functions
+    // ============================================
+    function formatNumber(num, decimals = 0) {
+      if (num === null || num === undefined) return "—";
+      return new Intl.NumberFormat("fr-FR", {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals
+      }).format(num);
+    }
+
+    function formatCurrency(num) {
+      if (num === null || num === undefined) return "—";
+      return new Intl.NumberFormat("fr-FR", {
+        style: "currency",
+        currency: "EUR",
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+      }).format(num);
+    }
+
+    async function supaFetch(table, params) {
+      try {
+        const qs = new URLSearchParams(params).toString();
+        const response = await fetch(`${SUPA_URL}/rest/v1/${table}?${qs}`, {
+          headers: {
+            apikey: SUPA_ANON,
+            Authorization: `Bearer ${SUPA_ANON}`,
+            "Content-Type": "application/json"
+          }
+        });
+
+        if (!response.ok) {
+          console.error(`Supabase fetch failed for ${table}:`, response.status);
+          return [];
+        }
+
+        return response.json();
+      } catch (error) {
+        console.error(`Error fetching from ${table}:`, error);
+        return [];
+      }
+    }
+
+    // ============================================
+    // Search & Autocomplete
+    // ============================================
+    let allCommunes = [];
+    let selectedCommune = null;
+
+    async function loadCommunes() {
+      const communes = await supaFetch("commune_wiki", {
+        select: "code_insee,nom,code_postal,departement,population",
+        order: "population.desc.nullslast",
+        limit: "10000"
+      });
+
+      allCommunes = communes || [];
+      populateDepartmentFilter();
+    }
+
+    function populateDepartmentFilter() {
+      const depts = [...new Set(allCommunes.map(c => c.departement))].sort();
+      const select = document.getElementById("dept-select");
+
+      depts.forEach(dept => {
+        const option = document.createElement("option");
+        option.value = dept;
+        option.textContent = dept;
+        select.appendChild(option);
+      });
+    }
+
+    const searchInput = document.getElementById("commune-search");
+    const dropdown = document.getElementById("autocomplete-dropdown");
+    const deptSelect = document.getElementById("dept-select");
+
+    searchInput.addEventListener("input", (e) => {
+      const query = e.target.value.toLowerCase();
+      const selectedDept = deptSelect.value;
+
+      if (query.length < 1) {
+        dropdown.classList.remove("active");
+        return;
+      }
+
+      let filtered = allCommunes.filter(c => {
+        const matchesQuery = c.nom.toLowerCase().includes(query) || (c.code_postal && c.code_postal.includes(query));
+        const matchesDept = !selectedDept || c.departement === selectedDept;
+        return matchesQuery && matchesDept;
+      }).slice(0, 8);
+
+      dropdown.innerHTML = filtered.map(commune => `
+        <div class="autocomplete-item" data-insee="${commune.code_insee}">
+          <div>
+            <div class="autocomplete-item-name">${commune.nom}</div>
+            <div class="autocomplete-item-meta">${commune.code_postal || commune.departement} • ${formatNumber(commune.population)} hab</div>
+          </div>
+        </div>
+      `).join("");
+
+      dropdown.classList.add("active");
+
+      // Add click handlers
+      dropdown.querySelectorAll(".autocomplete-item").forEach(item => {
+        item.addEventListener("click", () => {
+          const insee = item.dataset.insee;
+          const commune = allCommunes.find(c => c.code_insee === insee);
+          selectCommune(commune);
+        });
+      });
+    });
+
+    deptSelect.addEventListener("change", () => {
+      searchInput.dispatchEvent(new Event("input"));
+    });
+
+    function selectCommune(commune) {
+      selectedCommune = commune;
+      searchInput.value = commune.nom;
+      dropdown.classList.remove("active");
+
+      const selectedInfo = document.getElementById("selected-info");
+      document.getElementById("selected-commune-name").textContent = commune.nom;
+      document.getElementById("selected-meta").textContent = `${commune.code_postal || commune.departement} • ${formatNumber(commune.population)} habitants`;
+      selectedInfo.classList.add("active");
+
+      // Fetch and display radiography
+      fetchAndDisplayRadiography(commune.code_insee);
+    }
+
+    // ============================================
+    // Fetch Radiography Data
+    // ============================================
+    async function fetchAndDisplayRadiography(codeInsee) {
+      const resultsSection = document.getElementById("results-section");
+      resultsSection.innerHTML = '<div class="loading"><span class="spinner"></span> Chargement de la radiographie...</div>';
+      resultsSection.classList.add("active");
+
+      try {
+        // Fetch all data in parallel
+        const [
+          commune,
+          context,
+          market,
+          poi,
+          dpe,
+          fiscalite,
+          demographie,
+          climat,
+          eau,
+          securite
+        ] = await Promise.all([
+          supaFetch("commune_wiki", { "code_insee": `eq.${codeInsee}`, "select": "*" }).then(r => r[0] || {}),
+          supaFetch("commune_context", { "code_insee": `eq.${codeInsee}`, "select": "*" }).then(r => r[0] || {}),
+          supaFetch("market_stats", { "code_commune": `eq.${codeInsee}`, "select": "*" }).then(r => r[0] || {}),
+          supaFetch("poi_scores_commune", { "code_commune": `eq.${codeInsee}`, "select": "*" }).then(r => r[0] || {}),
+          supaFetch("dpe_commune_agg", { "code_postal": `eq.${commune.code_postal}`, "select": "*" }).then(r => r[0] || {}),
+          supaFetch("data_fiscalite_locale", { "code_insee": `eq.${codeInsee}`, "select": "*" }).then(r => r[0] || {}),
+          supaFetch("data_demographie_commune", { "code_insee": `eq.${codeInsee}`, "select": "*" }).then(r => r[0] || {}),
+          supaFetch("data_climat", { "code_insee": `eq.${codeInsee}`, "select": "*" }).then(r => r[0] || {}),
+          supaFetch("data_qualite_eau", { "code_insee": `eq.${codeInsee}`, "select": "*" }).then(r => r[0] || {}),
+          supaFetch("data_securite", { "code_departement": `eq.${codeInsee.substring(0, 2)}`, "select": "*" }).then(r => r[0] || {})
+        ]);
+
+        // Generate HTML
+        const html = generateRadiographyHTML(
+          commune, context, market, poi, dpe, fiscalite, demographie, climat, eau, securite, codeInsee
+        );
+        resultsSection.innerHTML = html;
+
+        // Initialize map if data available
+        if (commune.latitude && commune.longitude) {
+          setTimeout(() => initMap(commune.latitude, commune.longitude, commune.nom), 500);
+        }
+
+        // Animate sections
+        document.querySelectorAll(".analyse-section").forEach((el, idx) => {
+          el.style.animationDelay = `${idx * 0.1}s`;
+        });
+
+        // Update confidence
+        updateConfidenceIndex([commune, context, market, poi, dpe, fiscalite, demographie, climat, eau, securite]);
+      } catch (error) {
+        console.error("Error fetching radiography:", error);
+        resultsSection.innerHTML = '<div class="no-data">Erreur lors du chargement des données. Veuillez réessayer.</div>';
+      }
+    }
+
+    // ============================================
+    // Generate HTML
+    // ============================================
+    function generateRadiographyHTML(commune, context, market, poi, dpe, fiscalite, demographie, climat, eau, securite, codeInsee) {
+      let html = "";
+
+      // Section 1: Identity
+      html += `
+        <div class="analyse-section">
+          <h2>Identité de la commune</h2>
+          <div class="section-grid">
+            <div class="metric">
+              <div class="metric-label">Commune</div>
+              <div class="metric-value">${commune.nom || "—"}</div>
+            </div>
+            <div class="metric">
+              <div class="metric-label">Département</div>
+              <div class="metric-value">${commune.departement || codeInsee.substring(0, 2)}</div>
+            </div>
+            <div class="metric">
+              <div class="metric-label">Code postal</div>
+              <div class="metric-value">${commune.code_postal || "—"}</div>
+            </div>
+            <div class="metric">
+              <div class="metric-label">Population</div>
+              <div class="metric-value">${formatNumber(demographie.population_2024 || commune.population || 0)}</div>
+            </div>
+            <div class="metric">
+              <div class="metric-label">Superficie</div>
+              <div class="metric-value">${formatNumber(commune.superficie_km2 || 0, 1)} km²</div>
+            </div>
+            <div class="metric">
+              <div class="metric-label">Densité</div>
+              <div class="metric-value">${formatNumber(demographie.densite_hab_km2 || 0, 0)} hab/km²</div>
+            </div>
+          </div>
+
+          ${commune.latitude && commune.longitude ? `<div id="commune-map"></div>` : ""}
+
+          ${context.wiki_summary ? `
+            <div class="wiki-section">
+              ${context.wiki_image_url ? `<img src="${context.wiki_image_url}" alt="${commune.nom}" class="wiki-image" onerror="this.style.display='none'">` : ""}
+              <div class="wiki-text">${context.wiki_summary}</div>
+              ${context.wiki_url ? `<a href="${context.wiki_url}" target="_blank" rel="noopener" class="wiki-link">Lire l'article complet →</a>` : ""}
+            </div>
+          ` : ""}
+        </div>
+      `;
+
+      // Section 2: Global Scores
+      html += `
+        <div class="analyse-section">
+          <h2>Scores globaux</h2>
+          <div class="score-grid">
+            ${generateScoreBar("Accessibilité", context.score_accessibilite)}
+            ${generateScoreBar("Éducation", context.score_education)}
+            ${generateScoreBar("Santé", context.score_sante)}
+            ${generateScoreBar("Environnement", context.score_environnement)}
+            ${generateScoreBar("Économie", context.score_economie)}
+            ${generateScoreBar("Transport", poi.score_transport)}
+            ${generateScoreBar("Commerce", poi.score_commerce)}
+            ${generateScoreBar("POI Global", poi.score_global)}
+          </div>
+        </div>
+      `;
+
+      // Section 3: Real Estate
+      if (market.prix_median_m2 || market.prix_moyen_m2) {
+        html += `
+          <div class="analyse-section">
+            <h2>Immobilier</h2>
+            <div class="section-grid">
+              <div class="metric">
+                <div class="metric-label">Prix médian au m²</div>
+                <div class="metric-value">${formatCurrency(market.prix_median_m2)}</div>
+              </div>
+              <div class="metric">
+                <div class="metric-label">Prix moyen au m²</div>
+                <div class="metric-value">${formatCurrency(market.prix_moyen_m2)}</div>
+              </div>
+              <div class="metric">
+                <div class="metric-label">Fourchette</div>
+                <div class="metric-value">${formatCurrency(market.prix_min_m2)} - ${formatCurrency(market.prix_max_m2)}</div>
+              </div>
+              <div class="metric">
+                <div class="metric-label">Évolution 12m</div>
+                <div class="metric-value">${market.evolution_12m ? (market.evolution_12m > 0 ? "+" : "") + formatNumber(market.evolution_12m, 1) + "%" : "—"}</div>
+                <div class="metric-change ${market.evolution_12m > 0 ? "positive" : "negative"}">
+                  ${market.evolution_12m > 0 ? "↑ Hausse" : "↓ Baisse"}
+                </div>
+              </div>
+              <div class="metric">
+                <div class="metric-label">Volume</div>
+                <div class="metric-value">${formatNumber(market.volume || 0)} ventes/an</div>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      // Section 4: Energy & DPE
+      if (dpe && dpe.nb_dpe) {
+        const passoire = (dpe.pct_f || 0) + (dpe.pct_g || 0);
+        html += `
+          <div class="analyse-section">
+            <h2>Énergie & Diagnostic de Performance Énergétique</h2>
+            <div class="section-grid">
+              <div class="metric">
+                <div class="metric-label">Conso moyenne</div>
+                <div class="metric-value">${formatNumber(dpe.conso_moy_kwh_m2 || 0, 0)} kWh/m²</div>
+              </div>
+              <div class="metric">
+                <div class="metric-label">GES moyen</div>
+                <div class="metric-value">${formatNumber(dpe.ges_moy_kg_co2_m2 || 0, 1)} kg CO₂/m²</div>
+              </div>
+              <div class="metric">
+                <div class="metric-label">Score énergie</div>
+                <div class="metric-value">${formatNumber(dpe.score_energie || 0, 0)}/100</div>
+              </div>
+              <div class="metric">
+                <div class="metric-label">Passoires (F+G)</div>
+                <div class="metric-value">${formatNumber(passoire, 1)}%</div>
+              </div>
+              <div class="metric">
+                <div class="metric-label">Nb DPE</div>
+                <div class="metric-value">${formatNumber(dpe.nb_dpe || 0)}</div>
+              </div>
+            </div>
+
+            ${passoire > 20 ? `
+              <div class="warning-box">
+                <strong>⚠️ Alerte énergie</strong>
+                Plus de ${formatNumber(passoire, 1)}% de passoires énergétiques. Potentiel de rénovation important.
+              </div>
+            ` : ""}
+
+            <div class="dpe-chart-container">
+              <div class="dpe-distribution">
+                ${["a", "b", "c", "d", "e", "f", "g"].map(cls => `
+                  <div class="dpe-bar dpe-${cls}" style="flex: ${Math.max(0.5, dpe[`pct_${cls}`] || 0)}" title="${cls.toUpperCase()}: ${formatNumber(dpe[`pct_${cls}`] || 0, 1)}%">
+                    ${(dpe[`pct_${cls}`] || 0) > 5 ? formatNumber(dpe[`pct_${cls}`] || 0, 0) + "%" : ""}
+                  </div>
+                `).join("")}
+              </div>
+            </div>
+
+            <div class="dpe-legend">
+              <div class="dpe-legend-item"><div class="dpe-legend-color" style="background-color: var(--dpe-a)"></div> <strong>A</strong> Excellent</div>
+              <div class="dpe-legend-item"><div class="dpe-legend-color" style="background-color: var(--dpe-b)"></div> <strong>B</strong> Très bon</div>
+              <div class="dpe-legend-item"><div class="dpe-legend-color" style="background-color: var(--dpe-c)"></div> <strong>C</strong> Bon</div>
+              <div class="dpe-legend-item"><div class="dpe-legend-color" style="background-color: var(--dpe-d)"></div> <strong>D</strong> Moyen</div>
+              <div class="dpe-legend-item"><div class="dpe-legend-color" style="background-color: var(--dpe-e)"></div> <strong>E</strong> Faible</div>
+              <div class="dpe-legend-item"><div class="dpe-legend-color" style="background-color: var(--dpe-f)"></div> <strong>F</strong> Très faible</div>
+              <div class="dpe-legend-item"><div class="dpe-legend-color" style="background-color: var(--dpe-g)"></div> <strong>G</strong> Passoire</div>
+            </div>
+          </div>
+        `;
+      }
+
+      // Section 5: Taxation
+      if (fiscalite.taux_taxe_fonciere_bati || fiscalite.taux_taxe_habitation) {
+        html += `
+          <div class="analyse-section">
+            <h2>Fiscalité locale</h2>
+            <div class="section-grid">
+              <div class="metric">
+                <div class="metric-label">Taxe foncière bâti</div>
+                <div class="metric-value">${formatNumber(fiscalite.taux_taxe_fonciere_bati, 2)}%</div>
+              </div>
+              <div class="metric">
+                <div class="metric-label">Taxe habitation</div>
+                <div class="metric-value">${formatNumber(fiscalite.taux_taxe_habitation, 2)}%</div>
+              </div>
+              <div class="metric">
+                <div class="metric-label">CFE</div>
+                <div class="metric-value">${formatNumber(fiscalite.cotisation_fonciere_entreprises, 2)}%</div>
+              </div>
+              <div class="metric">
+                <div class="metric-label">Budget/habitant</div>
+                <div class="metric-value">${formatCurrency(fiscalite.budget_commune_par_hab)}</div>
+              </div>
+              <div class="metric">
+                <div class="metric-label">Dette/habitant</div>
+                <div class="metric-value">${formatCurrency(fiscalite.dette_commune_par_hab)}</div>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      // Section 6: Education
+      if (context.nb_ecoles_maternelles || context.nb_colleges) {
+        html += `
+          <div class="analyse-section">
+            <h2>Éducation</h2>
+            <div class="section-grid">
+              <div class="metric">
+                <div class="metric-label">Écoles maternelles</div>
+                <div class="metric-value">${formatNumber(context.nb_ecoles_maternelles || 0)}</div>
+              </div>
+              <div class="metric">
+                <div class="metric-label">Écoles primaires</div>
+                <div class="metric-value">${formatNumber(context.nb_ecoles_primaires || 0)}</div>
+              </div>
+              <div class="metric">
+                <div class="metric-label">Collèges</div>
+                <div class="metric-value">${formatNumber(context.nb_colleges || 0)}</div>
+              </div>
+              <div class="metric">
+                <div class="metric-label">Lycées</div>
+                <div class="metric-value">${formatNumber(context.nb_lycees || 0)}</div>
+              </div>
+              <div class="metric">
+                <div class="metric-label">Universités</div>
+                <div class="metric-value">${formatNumber(context.nb_universites || 0)}</div>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      // Section 7: Health
+      if (context.nb_medecins_generalistes || context.nb_hopitaux) {
+        html += `
+          <div class="analyse-section">
+            <h2>Santé</h2>
+            <div class="section-grid">
+              <div class="metric">
+                <div class="metric-label">Médecins généralistes</div>
+                <div class="metric-value">${formatNumber(context.nb_medecins_generalistes || 0)}</div>
+              </div>
+              <div class="metric">
+                <div class="metric-label">Pharmacies</div>
+                <div class="metric-value">${formatNumber(context.nb_pharmacies || 0)}</div>
+              </div>
+              <div class="metric">
+                <div class="metric-label">Hôpitaux</div>
+                <div class="metric-value">${formatNumber(context.nb_hopitaux || 0)}</div>
+              </div>
+              <div class="metric">
+                <div class="metric-label">Densité médicale</div>
+                <div class="metric-value">${formatNumber(context.densite_medicale || 0, 1)}</div>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      // Section 8: Transport & Accessibility
+      html += `
+        <div class="analyse-section">
+          <h2>Transport & Accessibilité</h2>
+          <div class="status-badges">
+            ${context.gare_sncf ? '<div class="status-badge yes">✓ Gare SNCF</div>' : '<div class="status-badge no">✗ Pas de gare SNCF</div>'}
+            ${context.metro ? '<div class="status-badge yes">✓ Métro</div>' : '<div class="status-badge no">✗ Pas de métro</div>'}
+            ${context.tramway ? '<div class="status-badge yes">✓ Tramway</div>' : '<div class="status-badge no">✗ Pas de tramway</div>'}
+            ${context.bus ? '<div class="status-badge yes">✓ Buses</div>' : '<div class="status-badge no">✗ Pas de bus</div>'}
+          </div>
+
+          <div class="section-grid">
+            ${context.temps_trajet_paris_min ? `
+              <div class="metric">
+                <div class="metric-label">Temps trajet Paris</div>
+                <div class="metric-value">${formatNumber(context.temps_trajet_paris_min)} min</div>
+              </div>
+            ` : ""}
+            <div class="metric">
+              <div class="metric-label">Score accessibilité</div>
+              <div class="metric-value">${formatNumber(context.score_accessibilite || 0, 0)}/100</div>
+            </div>
+            <div class="metric">
+              <div class="metric-label">Équipements</div>
+              <div class="metric-value">${formatNumber(poi.nb_equipements || 0)}</div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      // Section 9: Environment & Risks
+      html += `
+        <div class="analyse-section">
+          <h2>Environnement & Risques</h2>
+
+          ${climat && climat.zone_climatique ? `
+            <div class="section-grid">
+              <div class="metric">
+                <div class="metric-label">Zone climatique</div>
+                <div class="metric-value">${climat.zone_climatique}</div>
+              </div>
+              <div class="metric">
+                <div class="metric-label">Température moyenne</div>
+                <div class="metric-value">${formatNumber(climat.temperature_moy_annuelle, 1)}°C</div>
+              </div>
+              <div class="metric">
+                <div class="metric-label">Ensoleillement</div>
+                <div class="metric-value">${formatNumber(climat.ensoleillement_h_an || 0, 0)} h/an</div>
+              </div>
+              <div class="metric">
+                <div class="metric-label">Précipitations</div>
+                <div class="metric-value">${formatNumber(climat.precipitations_mm_an || 0, 0)} mm/an</div>
+              </div>
+            </div>
+          ` : ""}
+
+          <div class="status-badges">
+            ${context.risque_inondation ? '<div class="status-badge no">⚠️ Risque inondation</div>' : '<div class="status-badge yes">✓ Pas de risque inondation majeur</div>'}
+            ${context.risque_sismique ? '<div class="status-badge no">⚠️ Risque sismique</div>' : '<div class="status-badge yes">✓ Faible risque sismique</div>'}
+            ${context.zone_montagne ? '<div class="status-badge">🏔️ Zone montagne</div>' : ""}
+            ${context.zone_littorale ? '<div class="status-badge">🌊 Zone littorale</div>' : ""}
+            ${context.parc_naturel ? '<div class="status-badge">🌲 Parc naturel</div>' : ""}
+            ${climat.risque_canicule ? '<div class="status-badge no">🌡️ Risque canicule</div>' : ""}
+          </div>
+
+          ${eau && eau.conformite_bacterio ? `
+            <div class="section-grid" style="margin-top: 1.5rem;">
+              <div class="metric">
+                <div class="metric-label">Conformité bactério</div>
+                <div class="metric-value">${formatNumber(eau.conformite_bacterio, 1)}%</div>
+              </div>
+              <div class="metric">
+                <div class="metric-label">Conformité chimique</div>
+                <div class="metric-value">${formatNumber(eau.conformite_chimique, 1)}%</div>
+              </div>
+              <div class="metric">
+                <div class="metric-label">Taux conformité global</div>
+                <div class="metric-value">${formatNumber(eau.taux_conformite_global, 1)}%</div>
+              </div>
+              <div class="metric">
+                <div class="metric-label">Nitrates</div>
+                <div class="metric-value">${formatNumber(eau.nitrates_mg_l, 1)} mg/L</div>
+              </div>
+            </div>
+          ` : ""}
+        </div>
+      `;
+
+      // Section 10: Security
+      if (securite && (securite.cambriolages_pour_1000 || securite.vols_pour_1000)) {
+        html += `
+          <div class="analyse-section">
+            <h2>Sécurité (Données département)</h2>
+            <div class="section-grid">
+              <div class="metric">
+                <div class="metric-label">Cambriolages/1000 hab</div>
+                <div class="metric-value">${formatNumber(securite.cambriolages_pour_1000, 1)}</div>
+              </div>
+              <div class="metric">
+                <div class="metric-label">Vols/1000 hab</div>
+                <div class="metric-value">${formatNumber(securite.vols_pour_1000, 1)}</div>
+              </div>
+              <div class="metric">
+                <div class="metric-label">Violences/1000 hab</div>
+                <div class="metric-value">${formatNumber(securite.violences_pour_1000, 1)}</div>
+              </div>
+              <div class="metric">
+                <div class="metric-label">Total infractions/1000</div>
+                <div class="metric-value">${formatNumber(securite.infractions_total_pour_1000, 1)}</div>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      // Add confidence section at the end
+      html += `<div id="confidence-section"></div>`;
+
+      return html;
+    }
+
+    function generateScoreBar(label, value) {
+      if (value === null || value === undefined) return "";
+      const scoreNum = Math.max(0, Math.min(100, value));
+      return `
+        <div class="score-bar">
+          <div class="score-label">${label}</div>
+          <div class="score-bar-container">
+            <div class="score-bar-fill" style="width: ${scoreNum}%">${scoreNum > 10 ? scoreNum : ""}</div>
+          </div>
+          <div class="score-value">${formatNumber(scoreNum, 0)}</div>
+        </div>
+      `;
+    }
+
+    // ============================================
+    // Map Initialization
+    // ============================================
+    function initMap(lat, lon, communeName) {
+      const mapEl = document.getElementById("commune-map");
+      if (!mapEl) return;
+
+      // Remove existing map if any
+      if (window.currentMap) {
+        window.currentMap.remove();
+      }
+
+      const map = L.map(mapEl).setView([lat, lon], 13);
+
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: "© OpenStreetMap contributors",
+        maxZoom: 19
+      }).addTo(map);
+
+      L.circleMarker([lat, lon], {
+        radius: 8,
+        fillColor: "#00DC82",
+        color: "#00DC82",
+        weight: 2,
+        opacity: 1,
+        fillOpacity: 0.8
+      }).addTo(map).bindPopup(`<strong>${communeName}</strong>`);
+
+      window.currentMap = map;
+    }
+
+    // ============================================
+    // Confidence Index
+    // ============================================
+    function updateConfidenceIndex(dataArray) {
+      const sourceNames = [
+        "Commune",
+        "Contexte",
+        "Marché immobilier",
+        "POI",
+        "DPE",
+        "Fiscalité",
+        "Démographie",
+        "Climat",
+        "Eau",
+        "Sécurité"
+      ];
+
+      let availableCount = 0;
+      const sources = dataArray.map((data, idx) => {
+        const hasData = data && Object.keys(data).length > 1;
+        if (hasData) availableCount++;
+        return {
+          name: sourceNames[idx],
+          available: hasData
+        };
+      });
+
+      const confidence = Math.round((availableCount / sources.length) * 100);
+
+      const html = `
+        <div class="confidence-section">
+          <h3>Indice de confiance: ${availableCount}/${sources.length} sources</h3>
+          <div class="confidence-bar-container">
+            <div class="confidence-bar-fill" style="width: ${confidence}%"></div>
+          </div>
+          <div class="confidence-text">
+            ${availableCount === sources.length ? "✓ Données complètes" : "⚠ Données partielles"}
+          </div>
+          <div class="data-source-list">
+            ${sources.map(s => `
+              <div class="data-source-item ${s.available ? "available" : ""}">
+                ${s.available ? "✓" : "✗"} ${s.name}
+              </div>
+            `).join("")}
+          </div>
+        </div>
+      `;
+
+      const confidenceSection = document.getElementById("confidence-section");
+      if (confidenceSection) {
+        confidenceSection.innerHTML = html;
+      }
+    }
+
+    // ============================================
+    // Initialization
+    // ============================================
+    document.addEventListener("DOMContentLoaded", () => {
+      loadCommunes();
+    });
+  </script>
+</body>
+</html>
