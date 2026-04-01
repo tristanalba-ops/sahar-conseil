@@ -4,9 +4,30 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Exploration statistique — Intent Analytics</title>
-  <meta name="description" content="Outil expérimental d'exploration statistique basé sur les données publiques DVF, DPE et BAN. Résultats indicatifs, non contractuels." />
+  <meta name="description" content="Estimez la valeur de votre bien immobilier gratuitement. Modèle économétrique basé sur les données DVF, DPE et POI." />
   <link rel="canonical" href="https://intentanalytics.fr/estimation" />
-  <meta name="robots" content="noindex, nofollow" />
+  <meta name="robots" content="index, follow" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Exploration statistique d'un bien — Intent Analytics" />
+  <meta property="og:description" content="Obtenez une estimation de votre bien en quelques secondes. Données DVF + DPE + équipements de proximité." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://intentanalytics.fr/estimation" />
+  <meta property="og:locale" content="fr_FR" />
+
+  <!-- JSON-LD -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Exploration statistique — Intent Analytics",
+    "url": "https://intentanalytics.fr/estimation",
+    "description": "Estimation de valeur immobilière basée sur les données publiques françaises (DVF, DPE, BAN, POI).",
+    "applicationCategory": "BusinessApplication",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" },
+    "provider": { "@type": "Organization", "name": "Intent Analytics", "url": "https://intentanalytics.fr" }
+  }
+  </script>
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600;700&display=swap" />
@@ -490,18 +511,18 @@
 <nav>
   <a class="nav-logo" href="/">Intent Analytics</a>
   <div class="nav-links">
-    <a href="/projet">Le projet</a>
-    <a href="/donnees">Données</a>
-    <a href="/methodologie">Méthodologie</a>
-    <a href="/a-propos">À propos</a>
+    <a href="/#outils">Outils</a>
+    <a href="/#secteurs">Secteurs</a>
+    <a href="/blog">Blog</a>
+    <a href="/#contact" class="nav-cta">Contact</a>
   </div>
 </nav>
 
 <!-- Hero -->
 <section class="hero">
-  <span class="hero-tag">Prototype expérimental</span>
-  <h1>Exploration statistique<br><em>d'un bien</em></h1>
-  <p>Modèle économétrique expérimental basé sur les données publiques françaises. Résultats indicatifs, non contractuels.</p>
+  <span class="hero-tag">Outil gratuit</span>
+  <h1>Estimez la valeur de votre<br><em>bien immobilier</em></h1>
+  <p>Modèle économétrique basé sur les données publiques françaises. Résultat en quelques secondes.</p>
   <div class="hero-badges">
     <span class="badge"><strong>DVF</strong> — 6M transactions</span>
     <span class="badge"><strong>DPE</strong> — Impact énergétique</span>
@@ -577,9 +598,22 @@
         <label><input type="checkbox" id="has_view" />    Vue dégagée</label>
       </div>
 
-      <!-- Avertissement expérimental -->
-      <div style="background: rgba(0,220,130,0.08); border: 1px solid rgba(0,220,130,0.2); border-radius: 8px; padding: 1rem; margin-top: 0.5rem; font-size: 0.82rem; color: #73726C; line-height: 1.6;">
-        Cet outil est un prototype expérimental. Les résultats sont des estimations statistiques calculées à partir de données publiques. Ils ne constituent en aucun cas une évaluation officielle ou un conseil professionnel.
+      <div class="lead-section">
+        <p>Recevez votre rapport complet par email (optionnel)</p>
+        <div class="lead-grid">
+          <div class="form-group">
+            <label for="lead_nom">Nom</label>
+            <input type="text" id="lead_nom" placeholder="Jean Dupont" />
+          </div>
+          <div class="form-group">
+            <label for="lead_email">Email</label>
+            <input type="email" id="lead_email" placeholder="jean@exemple.fr" />
+          </div>
+          <div class="form-group">
+            <label for="lead_tel">Téléphone</label>
+            <input type="tel" id="lead_tel" placeholder="06 12 34 56 78" />
+          </div>
+        </div>
       </div>
 
       <button type="submit" class="btn-estimate" id="btn-submit">
@@ -666,7 +700,7 @@
 
   <!-- Comment ça marche -->
   <div class="how-section">
-    <h2>Comment fonctionne l'exploration statistique ?</h2>
+    <h2>Comment fonctionne l'estimation ?</h2>
     <div class="steps">
       <div class="step">
         <div class="step-num">1</div>
@@ -690,8 +724,8 @@
       </div>
       <div class="step">
         <div class="step-num">5</div>
-        <h4>Modèle économétrique expérimental</h4>
-        <p>Régression hédonique combinant tous les facteurs. Résultats indicatifs uniquement.</p>
+        <h4>Modèle économétrique</h4>
+        <p>Régression hédonique combinant tous les facteurs pour estimer la valeur de marché.</p>
       </div>
     </div>
   </div>
@@ -701,10 +735,9 @@
 <!-- Footer -->
 <footer>
   <p>
-    © 2025-2026 Intent Analytics — Projet expérimental d'exploration de données publiques<br>
-    <a href="/legal/mentions-legales">Mentions légales</a> ·
-    <a href="/legal/cgu">CGU</a> ·
-    <a href="/legal/politique-confidentialite">Confidentialité</a> ·
+    © 2026 Intent Analytics —
+    <a href="/mentions-legales.html">Mentions légales</a> ·
+    <a href="/politique-confidentialite.html">Confidentialité</a> ·
     <a href="mailto:contact@intentanalytics.fr">contact@intentanalytics.fr</a>
   </p>
   <p style="margin-top:.5rem;font-size:.72rem;color:#555;">
@@ -1117,3 +1150,40 @@ document.getElementById("estimation-form").addEventListener("submit", async (e) 
     });
 
     // 8. Afficher analyse détaillée
+    showAnalyse(geo, rows, stats, evo, poi, siImmo);
+
+    // 9. Lead capture (Supabase)
+    const nom   = document.getElementById("lead_nom").value.trim();
+    const email = document.getElementById("lead_email").value.trim();
+    const tel   = document.getElementById("lead_tel").value.trim();
+    if (email) {
+      fetch(`${SUPA_URL}/rest/v1/sahar_leads`, {
+        method: "POST",
+        headers: {
+          apikey: SUPA_ANON,
+          Authorization: `Bearer ${SUPA_ANON}`,
+          "Content-Type": "application/json",
+          Prefer: "return=minimal",
+        },
+        body: JSON.stringify({
+          nom, email, tel,
+          source: "estimateur",
+          adresse,
+          commune: geo.commune,
+          prix_estime: prixEstime,
+          created_at: new Date().toISOString(),
+        }),
+      }).catch(() => {}); // silencieux
+    }
+
+  } catch (err) {
+    console.error(err);
+    showError(err.message || "Erreur inattendue. Réessayez dans quelques secondes.");
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Explorer les données";
+  }
+});
+</script>
+</body>
+</html>
