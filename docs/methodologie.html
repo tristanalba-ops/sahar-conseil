@@ -15,7 +15,15 @@
             --border-color: #2A2A3E;
         }
 
+<<<<<<< Updated upstream
         * { margin: 0; padding: 0; box-sizing: border-box; }
+=======
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+>>>>>>> Stashed changes
 
         body {
             background-color: var(--dark-bg);
@@ -26,8 +34,19 @@
             overflow-x: hidden;
         }
 
+<<<<<<< Updated upstream
         a { color: var(--accent-green); text-decoration: none; }
         a:hover { text-decoration: underline; }
+=======
+        a {
+            color: var(--accent-green);
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+>>>>>>> Stashed changes
 
         nav {
             background-color: var(--dark-bg-light);
@@ -41,6 +60,7 @@
             z-index: 100;
         }
 
+<<<<<<< Updated upstream
         .nav-logo { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 1.3rem; color: var(--accent-green); }
         .nav-links { display: flex; list-style: none; gap: 2rem; }
         .nav-links a { color: var(--text-gray); font-weight: 500; transition: color 0.2s; }
@@ -81,6 +101,194 @@
             table { font-size: 0.9rem; }
             th, td { padding: 0.75rem; }
             .intro { font-size: 1rem; }
+=======
+        .nav-logo {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            font-size: 1.3rem;
+            color: var(--accent-green);
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: var(--text-gray);
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent-green);
+            text-decoration: none;
+        }
+
+        main {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+        }
+
+        h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--text-white);
+        }
+
+        .intro {
+            font-size: 1.1rem;
+            color: var(--text-gray);
+            margin-bottom: 3rem;
+            line-height: 1.8;
+        }
+
+        h2 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            font-size: 1.8rem;
+            margin-top: 3rem;
+            margin-bottom: 1.5rem;
+            color: var(--accent-green);
+        }
+
+        section p {
+            margin-bottom: 1.2rem;
+            color: var(--text-gray);
+            line-height: 1.8;
+        }
+
+        ol {
+            margin-left: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        li {
+            margin-bottom: 0.8rem;
+            color: var(--text-gray);
+            line-height: 1.8;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin: 2rem 0;
+            border-radius: 8px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: var(--dark-bg-light);
+            border: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: rgba(0, 220, 130, 0.1);
+            padding: 1rem;
+            text-align: left;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            color: var(--accent-green);
+            border-bottom: 2px solid var(--accent-green);
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-gray);
+        }
+
+        tr:hover {
+            background-color: rgba(0, 220, 130, 0.05);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .section-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .grid-item {
+            background-color: var(--dark-bg-light);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .grid-item h3 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            color: var(--accent-green);
+            margin-bottom: 0.8rem;
+            font-size: 1.1rem;
+        }
+
+        .grid-item p {
+            margin-bottom: 0;
+            font-size: 0.95rem;
+        }
+
+        footer {
+            background-color: var(--dark-bg-light);
+            border-top: 1px solid var(--border-color);
+            padding: 3rem 2rem;
+            margin-top: 6rem;
+            text-align: center;
+            color: var(--text-gray);
+            font-size: 0.9rem;
+            line-height: 1.8;
+        }
+
+        footer a {
+            color: var(--accent-green);
+        }
+
+        @media (max-width: 768px) {
+            nav {
+                flex-direction: column;
+                gap: 1.5rem;
+                text-align: center;
+            }
+
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 1rem;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            h2 {
+                font-size: 1.4rem;
+            }
+
+            main {
+                padding: 2rem 1rem;
+            }
+
+            table {
+                font-size: 0.9rem;
+            }
+
+            th, td {
+                padding: 0.75rem;
+            }
+
+            .intro {
+                font-size: 1rem;
+            }
+>>>>>>> Stashed changes
         }
     </style>
 </head>
@@ -92,8 +300,13 @@
             <li><a href="/donnees">Données</a></li>
             <li><a href="/methodologie">Méthodologie</a></li>
             <li><a href="/explorations">Explorations</a></li>
+<<<<<<< Updated upstream
             <li><a href="/a-propos">À propos</a></li>
             <li><a href="/estimation" class="nav-estimation">Estimation</a></li>
+=======
+            <li><a href="/documentation">Documentation</a></li>
+            <li><a href="/a-propos">À propos</a></li>
+>>>>>>> Stashed changes
         </ul>
     </nav>
 
@@ -118,6 +331,7 @@
             <div class="table-container">
                 <table>
                     <thead>
+<<<<<<< Updated upstream
                         <tr><th>Tentative</th><th>Méthode</th><th>Seuil de confiance</th></tr>
                     </thead>
                     <tbody>
@@ -125,6 +339,35 @@
                         <tr><td>2</td><td>Géocodage inverse (coordonnées GPS)</td><td>≥ 0.90 (bon)</td></tr>
                         <tr><td>3</td><td>Match partiel BAN API</td><td>≥ 0.80 (acceptable)</td></tr>
                         <tr><td>4</td><td>Résolution code postal seul</td><td>≥ 0.50 (faible)</td></tr>
+=======
+                        <tr>
+                            <th>Tentative</th>
+                            <th>Méthode</th>
+                            <th>Seuil de confiance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>Match exact BAN API</td>
+                            <td>≥ 0.95 (très élevé)</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>Géocodage inverse (coordonnées GPS)</td>
+                            <td>≥ 0.90 (bon)</td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td>Match partiel BAN API</td>
+                            <td>≥ 0.80 (acceptable)</td>
+                        </tr>
+                        <tr>
+                            <td>4</td>
+                            <td>Résolution code postal seul</td>
+                            <td>≥ 0.50 (faible)</td>
+                        </tr>
+>>>>>>> Stashed changes
                     </tbody>
                 </table>
             </div>
@@ -159,6 +402,7 @@
             <div class="table-container">
                 <table>
                     <thead>
+<<<<<<< Updated upstream
                         <tr><th>Plage de score</th><th>Interprétation</th><th>Recommandation</th></tr>
                     </thead>
                     <tbody>
@@ -166,6 +410,35 @@
                         <tr><td>60-79</td><td>Fiabilité correcte</td><td>Utiliser avec confiance, vérifier contexte local</td></tr>
                         <tr><td>40-59</td><td>Fiabilité limitée</td><td>Interpréter comme indicateur exploratoire, non décisionnel</td></tr>
                         <tr><td>0-39</td><td>Fiabilité faible</td><td>Données insuffisantes, données approximatives uniquement</td></tr>
+=======
+                        <tr>
+                            <th>Plage de score</th>
+                            <th>Interprétation</th>
+                            <th>Recommandation</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>80-100</td>
+                            <td>Fiabilité très élevée</td>
+                            <td>Utiliser directement pour analyses décisionnelles</td>
+                        </tr>
+                        <tr>
+                            <td>60-79</td>
+                            <td>Fiabilité correcte</td>
+                            <td>Utiliser avec confiance, vérifier contexte local</td>
+                        </tr>
+                        <tr>
+                            <td>40-59</td>
+                            <td>Fiabilité limitée</td>
+                            <td>Interpréter comme indicateur exploratoire, non décisionnel</td>
+                        </tr>
+                        <tr>
+                            <td>0-39</td>
+                            <td>Fiabilité faible</td>
+                            <td>Données insuffisantes, données approximatives uniquement</td>
+                        </tr>
+>>>>>>> Stashed changes
                     </tbody>
                 </table>
             </div>
@@ -183,8 +456,13 @@
             <ul>
                 <li><strong>Complétude :</strong> DVF exclut SCI et donations. DPE couverture depuis 2021 seulement. BPE couverture inégale.</li>
                 <li><strong>Fraîcheur :</strong> DVF délai 6 mois. DPE mise à jour continue mais décalage 1-2 mois possibles. BPE annuelle.</li>
+<<<<<<< Updated upstream
                 <li><strong>Géocodage :</strong> Certaines adresses restent non localisées malgré les 4 niveaux de réconciliation. Un score &lt; 0.50 signale l'impasse.</li>
                 <li><strong>Valeurs aberrantes :</strong> Outliers conservés sauf si &gt; 5 sigma. Mentionnés en warning quand ils biaisent la médiane.</li>
+=======
+                <li><strong>Géocodage :</strong> Certaines adresses restent non localisées malgré les 4 niveaux de réconciliation. Un score < 0.50 signale l'impasse.</li>
+                <li><strong>Valeurs aberrantes :</strong> Outliers conservés sauf si > 5 sigma. Mentionnés en warning quand ils biaisent la médiane.</li>
+>>>>>>> Stashed changes
             </ul>
         </section>
     </main>

@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Exploration statistique — Intent Analytics</title>
+<<<<<<< Updated upstream
   <meta name="description" content="Estimez la valeur de votre bien immobilier gratuitement. Modèle économétrique basé sur les données DVF, DPE et POI." />
   <link rel="canonical" href="https://intentanalytics.fr/estimation" />
   <meta name="robots" content="index, follow" />
@@ -28,6 +29,11 @@
     "provider": { "@type": "Organization", "name": "Intent Analytics", "url": "https://intentanalytics.fr" }
   }
   </script>
+=======
+  <meta name="description" content="Outil expérimental d'exploration statistique basé sur les données publiques DVF, DPE et BAN. Résultats indicatifs, non contractuels." />
+  <link rel="canonical" href="https://intentanalytics.fr/estimation" />
+  <meta name="robots" content="noindex, nofollow" />
+>>>>>>> Stashed changes
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600;700&display=swap" />
@@ -534,18 +540,18 @@
 <nav>
   <a class="nav-logo" href="/">Intent Analytics</a>
   <div class="nav-links">
-    <a href="/#outils">Outils</a>
-    <a href="/#secteurs">Secteurs</a>
-    <a href="/blog">Blog</a>
-    <a href="/#contact" class="nav-cta">Contact</a>
+    <a href="/projet">Le projet</a>
+    <a href="/donnees">Données</a>
+    <a href="/methodologie">Méthodologie</a>
+    <a href="/a-propos">À propos</a>
   </div>
 </nav>
 
 <!-- Hero -->
 <section class="hero">
-  <span class="hero-tag">Outil gratuit</span>
-  <h1>Estimez la valeur de votre<br><em>bien immobilier</em></h1>
-  <p>Modèle économétrique basé sur les données publiques françaises. Résultat en quelques secondes.</p>
+  <span class="hero-tag">Prototype expérimental</span>
+  <h1>Exploration statistique<br><em>d'un bien</em></h1>
+  <p>Modèle économétrique expérimental basé sur les données publiques françaises. Résultats indicatifs, non contractuels.</p>
   <div class="hero-badges">
     <span class="badge"><strong>DVF</strong> — 6M transactions</span>
     <span class="badge"><strong>DPE</strong> — Impact énergétique</span>
@@ -622,22 +628,9 @@
         <label><input type="checkbox" id="has_view" />    Vue dégagée</label>
       </div>
 
-      <div class="lead-section">
-        <p>Recevez votre rapport complet par email (optionnel)</p>
-        <div class="lead-grid">
-          <div class="form-group">
-            <label for="lead_nom">Nom</label>
-            <input type="text" id="lead_nom" placeholder="Jean Dupont" />
-          </div>
-          <div class="form-group">
-            <label for="lead_email">Email</label>
-            <input type="email" id="lead_email" placeholder="jean@exemple.fr" />
-          </div>
-          <div class="form-group">
-            <label for="lead_tel">Téléphone</label>
-            <input type="tel" id="lead_tel" placeholder="06 12 34 56 78" />
-          </div>
-        </div>
+      <!-- Avertissement expérimental -->
+      <div style="background: rgba(0,220,130,0.08); border: 1px solid rgba(0,220,130,0.2); border-radius: 8px; padding: 1rem; margin-top: 0.5rem; font-size: 0.82rem; color: #73726C; line-height: 1.6;">
+        Cet outil est un prototype expérimental. Les résultats sont des estimations statistiques calculées à partir de données publiques. Ils ne constituent en aucun cas une évaluation officielle ou un conseil professionnel.
       </div>
 
       <button type="submit" class="btn-estimate" id="btn-submit">
@@ -742,7 +735,7 @@
 
   <!-- Comment ça marche -->
   <div class="how-section">
-    <h2>Comment fonctionne l'estimation ?</h2>
+    <h2>Comment fonctionne l'exploration statistique ?</h2>
     <div class="steps">
       <div class="step">
         <div class="step-num">1</div>
@@ -766,8 +759,8 @@
       </div>
       <div class="step">
         <div class="step-num">5</div>
-        <h4>Modèle économétrique</h4>
-        <p>Régression hédonique combinant tous les facteurs pour estimer la valeur de marché.</p>
+        <h4>Modèle économétrique expérimental</h4>
+        <p>Régression hédonique combinant tous les facteurs. Résultats indicatifs uniquement.</p>
       </div>
     </div>
   </div>
@@ -777,9 +770,16 @@
 <!-- Footer -->
 <footer>
   <p>
+<<<<<<< Updated upstream
     © 2026 Intent Analytics —
     <a href="/mentions-legales.html">Mentions légales</a> ·
     <a href="/politique-confidentialite.html">Confidentialité</a> ·
+=======
+    © 2025-2026 Intent Analytics — Projet expérimental d'exploration de données publiques<br>
+    <a href="/legal/mentions-legales">Mentions légales</a> ·
+    <a href="/legal/cgu">CGU</a> ·
+    <a href="/legal/politique-confidentialite">Confidentialité</a> ·
+>>>>>>> Stashed changes
     <a href="mailto:contact@intentanalytics.fr">contact@intentanalytics.fr</a>
   </p>
   <p style="margin-top:.5rem;font-size:.72rem;color:#555;">
@@ -1417,6 +1417,7 @@ document.getElementById("estimation-form").addEventListener("submit", async (e) 
       dpe_impact:     dpeImpact,
     });
 
+<<<<<<< Updated upstream
     // 8. Afficher analyse détaillée
     showAnalyse(geo, rows, stats, evo, poi, siImmo);
 
@@ -1467,3 +1468,6 @@ document.getElementById("estimation-form").addEventListener("submit", async (e) 
 </script>
 </body>
 </html>
+=======
+    // 8. Afficher analyse détaillée
+>>>>>>> Stashed changes
