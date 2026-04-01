@@ -792,10 +792,8 @@ async function geocode(adresse) {
 }
 
 // ── DVF fetch ─────────────────────────────────────────────────────────────────
-async function fetchDVF(commune, typeBien) {
-  // Essai 1 : par commune exacte
-  let rows = await supaFetch("dvf_mutations", {
-    "commune": `ilike.*${commune.toUpperCase()}*`,
+async function fetchDVF(commune, typeBien, citycode) {
+  const baseParams = {
     "nature_mutation": "eq.Vente",
     "surface_reelle_bati": "gte.5",
     "valeur_fonciere": "gte.10000",
@@ -803,7 +801,21 @@ async function fetchDVF(commune, typeBien) {
     "select": "*",
     "order": "date_mutation.desc",
     "limit": "2000",
-  });
+  };
+
+  // Essai 1 : par code INSEE (indexé, rapide)
+  let rows = citycode
+    ? await supaFetch("dvf_mutations", { ...baseParams, "code_commune": `eq.${citycode}` })
+    : [];
+
+  // Essai 2 : fallback ilike sur nom commune si code_commune vide ou 0 résultats
+  if (!rows.length && commune) {
+    rows = await supaFetch("dvf_mutations", {
+      ...baseParams,
+      "commune": `ilike.*${commune.toUpperCase()}*`,
+    });
+  }
+
   // Filtre optionnel par type
   if (typeBien && rows.length > 20) {
     const typeFilter = typeBien === "Appartement" ? "Appartement" : "Maison";
@@ -1111,7 +1123,7 @@ document.getElementById("estimation-form").addEventListener("submit", async (e) 
 
     // 2. DVF
     btn.textContent = "Chargement des transactions…";
-    const rows = await fetchDVF(geo.commune, typeBien);
+    const rows = await fetchDVF(geo.commune, typeBien, geo.citycode);
     if (rows.length < 3) throw new Error(`Pas assez de données DVF pour "${geo.commune}". Essayez avec le nom de commune seul.`);
 
     // 3. POI
