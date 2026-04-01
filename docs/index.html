@@ -9,7 +9,7 @@
   <title>Intent Analytics — Exploration de données publiques françaises</title>
   <meta name="description" content="Projet expérimental d'analyse et de visualisation de données ouvertes françaises : transactions immobilières DVF, diagnostics énergétiques DPE, équipements et démographie INSEE." />
   <link rel="canonical" href="https://intentanalytics.fr/" />
-  <meta name="robots" content="index, follow" />
+  <meta name="robots" content="noindex, nofollow" />
 
   <meta name="geo.region" content="FR" />
   <meta name="language" content="fr" />
@@ -368,9 +368,7 @@
     <p class="hero-sub">
       Exploration de données publiques françaises.
       Transactions immobilières (DVF), diagnostics de performance énergétique (DPE ADEME),
-      équipements et démographie (INSEE) : ces données sont publiques, gratuites et riches
-      d'enseignements. Ce projet les rend lisibles et les croise pour en extraire des
-      analyses statistiques.
+      équipements et démographie (INSEE). Ce projet les croise et les rend lisibles.
     </p>
     <a href="/projet" class="hero-link">En savoir plus sur le projet →</a>
   </section>
@@ -385,26 +383,22 @@
       <div class="data-card">
         <div class="data-card-icon">📊</div>
         <div class="data-card-name">DVF</div>
-        <div class="data-card-vol">~5M mutations depuis 2014</div>
-        <div class="data-card-desc">Transactions de ventes immobilières enregistrées par les notaires, publiées par la DGFiP.</div>
+        <div class="data-card-desc">Transactions immobilières</div>
       </div>
       <div class="data-card">
         <div class="data-card-icon">⚡</div>
-        <div class="data-card-name">DPE ADEME</div>
-        <div class="data-card-vol">~2,7M diagnostics</div>
-        <div class="data-card-desc">Diagnostics de performance énergétique : classe énergie, consommation, émissions GES.</div>
+        <div class="data-card-name">DPE</div>
+        <div class="data-card-desc">Diagnostics énergétiques</div>
       </div>
       <div class="data-card">
         <div class="data-card-icon">🏗️</div>
-        <div class="data-card-name">INSEE BPE</div>
-        <div class="data-card-vol">~6 600 équipements</div>
-        <div class="data-card-desc">Inventaire géolocalisé des commerces, services, transports, santé et éducation par commune.</div>
+        <div class="data-card-name">BPE</div>
+        <div class="data-card-desc">Équipements et services</div>
       </div>
       <div class="data-card">
         <div class="data-card-icon">📍</div>
         <div class="data-card-name">BAN</div>
-        <div class="data-card-vol">~142 000 adresses géocodées</div>
-        <div class="data-card-desc">Base Adresse Nationale. Géocodage et normalisation des adresses françaises.</div>
+        <div class="data-card-desc">Adresses géocodées</div>
       </div>
     </div>
   </section>
@@ -446,7 +440,7 @@
     </div>
     <div class="methodo-content">
       <p class="methodo-text">
-        Chaque analyse repose sur un pipeline documenté : récupération depuis les APIs officielles, nettoyage et normalisation géographique (réconciliation INSEE via BAN), agrégation statistique (médiane, quartiles, évolution), et croisement multisources. La confiance de chaque résultat est mesurée et affichée.
+        Les analyses s'appuient sur des données officielles et un indice de confiance accompagne chaque résultat.
       </p>
       <a href="/methodologie" style="color: var(--accent-green); font-weight: 600; text-decoration: none; border-bottom: 2px solid transparent; transition: border-color 0.2s;" onmouseover="this.style.borderColor='var(--accent-green)'" onmouseout="this.style.borderColor='transparent'">Lire la méthodologie complète →</a>
     </div>
@@ -454,7 +448,7 @@
 
   <!-- FOOTER -->
   <footer>
-    <p><strong>Intent Analytics</strong> — Projet expérimental d'exploration de données publiques françaises</p>
+    <p><strong>Intent Analytics</strong> — Exploration de données territoriales</p>
     <span class="footer-email"><a href="mailto:contact@intentanalytics.fr">contact@intentanalytics.fr</a></span>
     <div class="footer-legal">
       <a href="/legal/mentions-legales">Mentions légales</a> •

@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow" />
     <title>Données publiques — Intent Analytics</title>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
     <style>
@@ -40,7 +41,8 @@
         }
 
         nav {
-            background-color: var(--dark-bg-light);
+            background: rgba(13, 13, 13, 0.95);
+            backdrop-filter: blur(10px);
             border-bottom: 1px solid var(--border-color);
             padding: 1.5rem 2rem;
             display: flex;
@@ -65,7 +67,7 @@
         }
 
         .nav-links a {
-            color: var(--text-gray);
+            color: var(--text-white);
             font-weight: 500;
             transition: color 0.2s;
         }
@@ -225,158 +227,58 @@
     </nav>
 
     <main>
-        <h1>Données publiques utilisées</h1>
-        <p class="intro">Intent Analytics exploite exclusivement des jeux de données publiés en open data par des administrations françaises. Cette page documente chaque source : origine, contenu, fréquence de mise à jour, volume traité et limites connues.</p>
+        <h1>Données</h1>
+        <p class="intro">Le projet utilise exclusivement des données publiques françaises en open data.</p>
 
         <div class="datasets-grid">
-            <!-- DVF Card -->
             <div class="dataset-card">
-                <div class="dataset-title">DVF — Demandes de Valeurs Foncières</div>
+                <div class="dataset-title">DVF</div>
                 <div class="dataset-meta">
                     <div class="meta-item"><span class="meta-label">Éditeur :</span> DGFiP</div>
                     <div class="meta-item"><span class="meta-label">Source :</span> <a href="https://data.gouv.fr">data.gouv.fr</a></div>
-                    <div class="meta-item"><span class="meta-label">Licence :</span> Etalab</div>
                 </div>
                 <div class="dataset-content">
-                    <div class="content-section">
-                        <div class="section-title">Volume & Mise à jour</div>
-                        <div class="section-text">~5 millions de mutations depuis 2014 | Mise à jour semestrielle</div>
-                    </div>
-                    <div class="content-section">
-                        <div class="section-title">Contenu</div>
-                        <div class="section-text">Transactions immobilières notariées : prix, type de bien, surface, commune, date</div>
-                    </div>
-                    <div class="content-section">
-                        <div class="section-title">Limites</div>
-                        <div class="section-text">Pas de SCI, donations, viagers. Délai de publication : 6 mois en moyenne.</div>
-                    </div>
+                    <div class="section-text">Transactions immobilières</div>
                 </div>
             </div>
 
-            <!-- DPE Card -->
             <div class="dataset-card">
-                <div class="dataset-title">DPE — Diagnostics de Performance Énergétique</div>
+                <div class="dataset-title">DPE</div>
                 <div class="dataset-meta">
                     <div class="meta-item"><span class="meta-label">Éditeur :</span> ADEME</div>
                     <div class="meta-item"><span class="meta-label">Source :</span> <a href="https://data.ademe.fr">data.ademe.fr</a></div>
-                    <div class="meta-item"><span class="meta-label">Licence :</span> Etalab</div>
                 </div>
                 <div class="dataset-content">
-                    <div class="content-section">
-                        <div class="section-title">Volume & Mise à jour</div>
-                        <div class="section-text">~2,7M diagnostics | Mise à jour continue</div>
-                    </div>
-                    <div class="content-section">
-                        <div class="section-title">Contenu</div>
-                        <div class="section-text">Classe énergie A-G, GES, kWh/m²/an, type de bâtiment, commune</div>
-                    </div>
-                    <div class="content-section">
-                        <div class="section-title">Limites</div>
-                        <div class="section-text">Diagnostics depuis juillet 2021 (nouveau DPE). Couverture progressive.</div>
-                    </div>
+                    <div class="section-text">Diagnostics énergétiques</div>
                 </div>
             </div>
 
-            <!-- INSEE BPE Card -->
             <div class="dataset-card">
-                <div class="dataset-title">INSEE BPE — Base Permanente des Équipements</div>
+                <div class="dataset-title">BPE</div>
                 <div class="dataset-meta">
                     <div class="meta-item"><span class="meta-label">Éditeur :</span> INSEE</div>
                     <div class="meta-item"><span class="meta-label">Source :</span> <a href="https://insee.fr">insee.fr</a></div>
-                    <div class="meta-item"><span class="meta-label">Licence :</span> Etalab</div>
                 </div>
                 <div class="dataset-content">
-                    <div class="content-section">
-                        <div class="section-title">Volume & Mise à jour</div>
-                        <div class="section-text">~6 600 équipements | Mise à jour annuelle</div>
-                    </div>
-                    <div class="content-section">
-                        <div class="section-title">Contenu</div>
-                        <div class="section-text">Commerces, services, transports, santé, éducation géolocalisés</div>
-                    </div>
-                    <div class="content-section">
-                        <div class="section-title">Limites</div>
-                        <div class="section-text">Couverture variable par région. Décalage temporel : ~1 an.</div>
-                    </div>
+                    <div class="section-text">Équipements et services</div>
                 </div>
             </div>
 
-            <!-- BAN Card -->
             <div class="dataset-card">
-                <div class="dataset-title">BAN — Base Adresse Nationale</div>
+                <div class="dataset-title">BAN</div>
                 <div class="dataset-meta">
-                    <div class="meta-item"><span class="meta-label">Éditeur :</span> IGN, La Poste, collectivités</div>
+                    <div class="meta-item"><span class="meta-label">Éditeur :</span> IGN</div>
                     <div class="meta-item"><span class="meta-label">Source :</span> <a href="https://adresse.data.gouv.fr">adresse.data.gouv.fr</a></div>
-                    <div class="meta-item"><span class="meta-label">Licence :</span> Etalab</div>
                 </div>
                 <div class="dataset-content">
-                    <div class="content-section">
-                        <div class="section-title">Volume & Mise à jour</div>
-                        <div class="section-text">~142 000 adresses dans le projet | Mise à jour continue</div>
-                    </div>
-                    <div class="content-section">
-                        <div class="section-title">Contenu</div>
-                        <div class="section-text">Adresses normalisées, coordonnées GPS, code INSEE</div>
-                    </div>
-                    <div class="content-section">
-                        <div class="section-title">Limites</div>
-                        <div class="section-text">Couverture progressive des adresses nouvelles. Géocodage approximatif pour certaines zones.</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Géo API Card -->
-            <div class="dataset-card">
-                <div class="dataset-title">Géo API — Référentiel communes</div>
-                <div class="dataset-meta">
-                    <div class="meta-item"><span class="meta-label">Éditeur :</span> État français</div>
-                    <div class="meta-item"><span class="meta-label">Source :</span> <a href="https://geo.api.gouv.fr">geo.api.gouv.fr</a></div>
-                    <div class="meta-item"><span class="meta-label">Licence :</span> Etalab</div>
-                </div>
-                <div class="dataset-content">
-                    <div class="content-section">
-                        <div class="section-title">Volume & Mise à jour</div>
-                        <div class="section-text">~35 000 communes | Mise à jour annuelle</div>
-                    </div>
-                    <div class="content-section">
-                        <div class="section-title">Contenu</div>
-                        <div class="section-text">Code INSEE, nom, population, superficie, codes postaux</div>
-                    </div>
-                    <div class="content-section">
-                        <div class="section-title">Limites</div>
-                        <div class="section-text">Données de référence stable. Réflète l'état administratif officiel.</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- IRIS Demographics Card -->
-            <div class="dataset-card">
-                <div class="dataset-title">INSEE IRIS — Données démographiques</div>
-                <div class="dataset-meta">
-                    <div class="meta-item"><span class="meta-label">Éditeur :</span> INSEE</div>
-                    <div class="meta-item"><span class="meta-label">Source :</span> <a href="https://insee.fr">insee.fr</a></div>
-                    <div class="meta-item"><span class="meta-label">Licence :</span> Etalab</div>
-                </div>
-                <div class="dataset-content">
-                    <div class="content-section">
-                        <div class="section-title">Volume & Mise à jour</div>
-                        <div class="section-text">~846 zones IRIS | Mise à jour annuelle</div>
-                    </div>
-                    <div class="content-section">
-                        <div class="section-title">Contenu</div>
-                        <div class="section-text">Population, âge moyen, composition socioprofessionnelle, activité</div>
-                    </div>
-                    <div class="content-section">
-                        <div class="section-title">Limites</div>
-                        <div class="section-text">Données issues du dernier recensement. Mise à jour pluriannuelle.</div>
-                    </div>
+                    <div class="section-text">Adresses géocodées</div>
                 </div>
             </div>
         </div>
     </main>
 
     <footer>
-        Intent Analytics — Projet expérimental d'exploration de données publiques françaises<br>
+        Intent Analytics — Exploration de données territoriales<br>
         <a href="mailto:contact@intentanalytics.fr">contact@intentanalytics.fr</a><br>
         <a href="/legal/mentions-legales">Mentions légales</a> • <a href="/legal/cgu">CGU</a> • <a href="/legal/politique-confidentialite">Confidentialité</a><br>
         © 2026 Intent Analytics

@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow" />
     <title>Explorations — Intent Analytics</title>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
     <style>
@@ -40,7 +41,8 @@
         }
 
         nav {
-            background-color: var(--dark-bg-light);
+            background: rgba(13, 13, 13, 0.95);
+            backdrop-filter: blur(10px);
             border-bottom: 1px solid var(--border-color);
             padding: 1.5rem 2rem;
             display: flex;
@@ -65,7 +67,7 @@
         }
 
         .nav-links a {
-            color: var(--text-gray);
+            color: var(--text-white);
             font-weight: 500;
             transition: color 0.2s;
         }
@@ -236,61 +238,34 @@
 
     <main>
         <h1>Explorations</h1>
-        <p class="intro">Cette page rassemble les analyses et visualisations produites dans le cadre du projet. Ce sont des explorations expérimentales mises à jour régulièrement au fur et à mesure de l'avancement du projet.</p>
+        <p class="intro">Analyses expérimentales à partir de données ouvertes.</p>
 
         <div class="explorations-grid">
             <div class="exploration-card">
                 <div class="card-icon">📊</div>
-                <div class="card-title">Distribution des prix au m²</div>
-                <div class="card-description">Analyse de la distribution des prix immobiliers par département. Médiane, quartiles Q1/Q3 et évolution sur 24 mois.</div>
+                <div class="card-title">Prix immobiliers</div>
+                <div class="card-description">Données DVF par territoire.</div>
                 <div class="status-badge">Disponible</div>
-                <div class="card-source"><span class="source-label">Source :</span> DVF (DGFiP)</div>
             </div>
 
             <div class="exploration-card">
                 <div class="card-icon">🔋</div>
-                <div class="card-title">Cartographie énergétique du parc</div>
-                <div class="card-description">Répartition des classes de performance énergétique A-G par commune. Passoires F+G et potentiels de rénovation par région.</div>
+                <div class="card-title">Performance énergétique</div>
+                <div class="card-description">Données DPE par territoire.</div>
                 <div class="status-badge">Disponible</div>
-                <div class="card-source"><span class="source-label">Source :</span> DPE ADEME</div>
             </div>
 
             <div class="exploration-card">
                 <div class="card-icon">🏪</div>
-                <div class="card-title">Score d'équipements</div>
-                <div class="card-description">Proximité des commerces, services, santé, éducation et transports. Indice 0-100 par commune basé sur BPE INSEE.</div>
+                <div class="card-title">Équipements</div>
+                <div class="card-description">Données BPE par territoire.</div>
                 <div class="status-badge coming-soon">En cours</div>
-                <div class="card-source"><span class="source-label">Source :</span> BPE INSEE</div>
-            </div>
-
-            <div class="exploration-card">
-                <div class="card-icon">👥</div>
-                <div class="card-title">Profils démographiques</div>
-                <div class="card-description">Population, composition socioprofessionnelle, âge moyen, évolution. Profil d'une commune en un clin d'oeil.</div>
-                <div class="status-badge coming-soon">En cours</div>
-                <div class="card-source"><span class="source-label">Source :</span> INSEE IRIS</div>
-            </div>
-
-            <div class="exploration-card">
-                <div class="card-icon">🏘️</div>
-                <div class="card-title">Comparateurs territoriaux</div>
-                <div class="card-description">Comparez plusieurs communes sur tous les critères : prix, énergie, équipements, démographie. Tableaux de bord personnalisés.</div>
-                <div class="status-badge coming-soon">En cours</div>
-                <div class="card-source"><span class="source-label">Source :</span> Agrégations multisources</div>
-            </div>
-
-            <div class="exploration-card">
-                <div class="card-icon">📈</div>
-                <div class="card-title">Tendances et patterns</div>
-                <div class="card-description">Identification automatique des communes en hausse, stagnation, baisse. Alertes sur mouvements immobiliers et énergétiques.</div>
-                <div class="status-badge coming-soon">Planifié</div>
-                <div class="card-source"><span class="source-label">Source :</span> Analyse statistique</div>
             </div>
         </div>
     </main>
 
     <footer>
-        Intent Analytics — Projet expérimental d'exploration de données publiques françaises<br>
+        Intent Analytics — Exploration de données territoriales<br>
         <a href="mailto:contact@intentanalytics.fr">contact@intentanalytics.fr</a><br>
         <a href="/legal/mentions-legales">Mentions légales</a> • <a href="/legal/cgu">CGU</a> • <a href="/legal/politique-confidentialite">Confidentialité</a><br>
         © 2026 Intent Analytics

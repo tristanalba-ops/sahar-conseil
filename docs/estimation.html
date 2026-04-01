@@ -9,107 +9,123 @@
   <meta name="robots" content="noindex, nofollow" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600;700&display=swap" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500&display=swap" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --green:  #00DC82;
-      --dark:   #0D0D0D;
-      --gray:   #73726C;
-      --light:  #F5F4F0;
-      --white:  #FFFFFF;
-      --radius: 12px;
+      --dark-bg: #0D0D0D;
+      --dark-bg-light: #1A1A2E;
+      --accent-green: #00DC82;
+      --text-white: #FFFFFF;
+      --text-gray: #A0A0A0;
+      --border-color: #2A2A3E;
     }
 
     body {
       font-family: 'Inter', sans-serif;
-      background: var(--light);
-      color: var(--dark);
+      background: var(--dark-bg);
+      color: var(--text-white);
       min-height: 100vh;
     }
 
     /* ── Navbar ── */
     nav {
-      background: var(--dark);
+      position: sticky;
+      top: 0;
+      background: rgba(13, 13, 13, 0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border-color);
       padding: 1rem 2rem;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      z-index: 1000;
     }
     .nav-logo {
-      font-family: 'DM Serif Display', serif;
-      font-size: 1.4rem;
-      color: var(--white);
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: 1.2rem;
+      color: var(--text-white);
       text-decoration: none;
+      letter-spacing: -0.5px;
     }
-    .nav-logo span { color: var(--green); }
+    .nav-logo span { color: var(--accent-green); }
+    .nav-links {
+      display: flex;
+      list-style: none;
+      gap: 2rem;
+    }
     .nav-links a {
-      color: #ccc;
+      color: var(--text-gray);
       text-decoration: none;
-      font-size: .875rem;
-      margin-left: 1.5rem;
-      transition: color .2s;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: color 0.2s;
     }
-    .nav-links a:hover { color: var(--white); }
+    .nav-links a:hover { color: var(--text-white); }
     .nav-cta {
-      background: var(--green) !important;
-      color: var(--dark) !important;
-      padding: .4rem 1rem;
+      background: var(--accent-green) !important;
+      color: var(--dark-bg) !important;
+      padding: 0.4rem 1rem;
       border-radius: 6px;
       font-weight: 600 !important;
     }
 
     /* ── Hero ── */
     .hero {
-      background: var(--dark);
+      background: var(--dark-bg);
       padding: 3rem 2rem 2.5rem;
       text-align: center;
-      color: var(--white);
+      color: var(--text-white);
     }
     .hero-tag {
       display: inline-block;
-      background: var(--green);
-      color: var(--dark);
-      font-size: .75rem;
+      background: var(--accent-green);
+      color: var(--dark-bg);
+      font-size: 0.75rem;
       font-weight: 700;
       letter-spacing: 1px;
       text-transform: uppercase;
-      padding: .3rem .9rem;
+      padding: 0.3rem 0.9rem;
       border-radius: 20px;
       margin-bottom: 1rem;
     }
     .hero h1 {
-      font-family: 'DM Serif Display', serif;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
       font-size: clamp(1.8rem, 4vw, 2.8rem);
       line-height: 1.2;
-      margin-bottom: .75rem;
+      margin-bottom: 0.75rem;
+      letter-spacing: -0.5px;
     }
-    .hero h1 em { color: var(--green); font-style: normal; }
+    .hero h1 em { color: var(--accent-green); font-style: normal; }
     .hero p {
-      color: #aaa;
+      color: var(--text-gray);
       font-size: 1rem;
       max-width: 560px;
       margin: 0 auto;
+      line-height: 1.6;
     }
     .hero-badges {
       display: flex;
       justify-content: center;
-      gap: .75rem;
+      gap: 0.75rem;
       flex-wrap: wrap;
       margin-top: 1.25rem;
     }
     .badge {
-      background: rgba(255,255,255,.07);
-      border: 1px solid rgba(255,255,255,.12);
-      color: #ccc;
-      font-size: .75rem;
-      padding: .3rem .8rem;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      color: var(--text-gray);
+      font-size: 0.75rem;
+      padding: 0.4rem 0.8rem;
       border-radius: 6px;
+      font-weight: 500;
     }
-    .badge strong { color: var(--green); }
+    .badge strong { color: var(--accent-green); }
 
     /* ── App container ── */
     .app-wrapper {
@@ -120,16 +136,18 @@
 
     /* ── Form ── */
     .form-card {
-      background: var(--white);
-      border-radius: var(--radius);
+      background: rgba(26, 26, 46, 0.5);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
       padding: 2rem 2.5rem;
-      box-shadow: 0 4px 24px rgba(0,0,0,.08);
-      border: 1px solid #e5e7eb;
+      backdrop-filter: blur(10px);
     }
     .form-card h2 {
-      font-family: 'DM Serif Display', serif;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
       font-size: 1.5rem;
       margin-bottom: 1.5rem;
+      letter-spacing: -0.5px;
     }
     .form-grid {
       display: grid;
@@ -137,102 +155,119 @@
       gap: 1rem 1.5rem;
     }
     .form-grid .full { grid-column: 1 / -1; }
-    .form-group { display: flex; flex-direction: column; gap: .3rem; }
+    .form-group { display: flex; flex-direction: column; gap: 0.3rem; position: relative; }
     .form-group label {
-      font-size: .8rem;
+      font-size: 0.8rem;
       font-weight: 600;
-      color: #374151;
+      color: var(--text-gray);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
     .form-group input,
     .form-group select {
-      padding: .6rem .75rem;
-      border: 1px solid #d1d5db;
+      padding: 0.6rem 0.75rem;
+      border: 1px solid var(--border-color);
       border-radius: 8px;
-      font-size: .9rem;
+      font-size: 0.9rem;
       font-family: 'Inter', sans-serif;
-      background: #fafafa;
-      transition: border .2s;
+      background: var(--dark-bg-light);
+      color: var(--text-white);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .form-group input::placeholder {
+      color: #666;
+    }
+    .form-group input:focus,
+    .form-group select:focus {
+      border-color: var(--accent-green);
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(0, 220, 130, 0.15);
     }
     #adresse-suggestions {
       position: absolute;
       top: 100%;
-      left: 0; right: 0;
-      background: #fff;
-      border: 1px solid #d1d5db;
+      left: 0;
+      right: 0;
+      background: var(--dark-bg-light);
+      border: 1px solid var(--border-color);
       border-top: none;
       border-radius: 0 0 8px 8px;
       z-index: 999;
-      box-shadow: 0 4px 12px rgba(0,0,0,.10);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
       display: none;
+      max-height: 240px;
+      overflow-y: auto;
+      margin-top: -4px;
     }
     #adresse-suggestions.open { display: block; }
     #adresse-suggestions .sug-item {
-      padding: .55rem .75rem;
-      font-size: .88rem;
+      padding: 0.65rem 0.75rem;
+      font-size: 0.88rem;
       cursor: pointer;
-      border-bottom: 1px solid #f1f5f9;
-      color: #374151;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      color: var(--text-gray);
+      transition: background-color 0.2s, color 0.2s;
     }
     #adresse-suggestions .sug-item:last-child { border-bottom: none; }
-    #adresse-suggestions .sug-item:hover { background: #f0fdf4; color: #10b981; }
-    .form-group.adresse-wrap { position: relative; }
-    .form-group input:focus,
-    .form-group select:focus {
-      border-color: var(--green);
-      outline: none;
-      box-shadow: 0 0 0 3px rgba(0,220,130,.12);
+    #adresse-suggestions .sug-item:hover {
+      background: rgba(0, 220, 130, 0.1);
+      color: var(--accent-green);
     }
+    .form-group.adresse-wrap { position: relative; }
     .checkbox-row {
       grid-column: 1 / -1;
       display: flex;
       gap: 1.25rem;
       flex-wrap: wrap;
-      padding: .5rem 0;
+      padding: 0.5rem 0;
     }
     .checkbox-row label {
       display: flex;
       align-items: center;
-      gap: .4rem;
-      font-size: .82rem;
-      color: #374151;
+      gap: 0.4rem;
+      font-size: 0.82rem;
+      color: var(--text-gray);
       cursor: pointer;
     }
     .checkbox-row input[type="checkbox"] {
-      width: 18px; height: 18px;
-      accent-color: var(--green);
+      width: 18px;
+      height: 18px;
+      accent-color: var(--accent-green);
+      cursor: pointer;
     }
     .btn-estimate {
       grid-column: 1 / -1;
-      margin-top: .5rem;
-      padding: .85rem 2rem;
-      background: var(--green);
-      color: var(--dark);
+      margin-top: 0.5rem;
+      padding: 0.85rem 2rem;
+      background: var(--accent-green);
+      color: var(--dark-bg);
       border: none;
       border-radius: 8px;
       font-size: 1rem;
       font-weight: 700;
-      font-family: 'Inter', sans-serif;
+      font-family: 'Space Grotesk', sans-serif;
       cursor: pointer;
-      transition: background .2s, transform .1s;
+      transition: background 0.2s, transform 0.1s;
+      letter-spacing: -0.5px;
     }
     .btn-estimate:hover { background: #00c974; }
-    .btn-estimate:active { transform: scale(.98); }
+    .btn-estimate:active { transform: scale(0.98); }
     .btn-estimate:disabled {
-      background: #ccc;
+      background: #555;
       cursor: wait;
     }
 
     /* ── Results ── */
     .result-card {
-      background: var(--white);
-      border-radius: var(--radius);
+      background: rgba(26, 26, 46, 0.5);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
       padding: 2rem 2.5rem;
       margin-top: 1.5rem;
-      box-shadow: 0 4px 24px rgba(0,0,0,.08);
-      border: 1px solid #e5e7eb;
+      backdrop-filter: blur(10px);
       display: none;
     }
-    .result-card.visible { display: block; animation: fadeUp .4s ease-out; }
+    .result-card.visible { display: block; animation: fadeUp 0.4s ease-out; }
     @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 
     .result-header {
@@ -242,38 +277,51 @@
       flex-wrap: wrap;
       margin-bottom: 1.5rem;
       padding-bottom: 1rem;
-      border-bottom: 2px solid var(--light);
+      border-bottom: 1px solid var(--border-color);
     }
     .price-main {
-      font-family: 'DM Serif Display', serif;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
       font-size: clamp(2rem, 5vw, 3rem);
-      color: var(--dark);
+      color: var(--accent-green);
       line-height: 1;
+      letter-spacing: -0.5px;
     }
     .price-m2 {
-      font-size: .95rem;
-      color: var(--gray);
-      padding-bottom: .3rem;
+      font-size: 0.95rem;
+      color: var(--text-gray);
+      padding-bottom: 0.3rem;
     }
     .confidence {
       margin-left: auto;
       text-align: right;
     }
-    .confidence-label { font-size: .75rem; color: var(--gray); text-transform: uppercase; letter-spacing: .5px; }
+    .confidence-label {
+      font-size: 0.75rem;
+      color: var(--text-gray);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
     .confidence-bar {
-      width: 120px; height: 8px;
-      background: #e5e7eb;
+      width: 120px;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.1);
       border-radius: 4px;
       overflow: hidden;
-      margin-top: .3rem;
+      margin-top: 0.3rem;
     }
     .confidence-fill {
       height: 100%;
-      background: var(--green);
+      background: var(--accent-green);
       border-radius: 4px;
-      transition: width .6s ease-out;
+      transition: width 0.6s ease-out;
     }
-    .confidence-val { font-size: .85rem; font-weight: 700; color: var(--dark); margin-top: .2rem; }
+    .confidence-val {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--accent-green);
+      margin-top: 0.2rem;
+    }
 
     .result-grid {
       display: grid;
@@ -282,13 +330,28 @@
       margin-bottom: 1.5rem;
     }
     .metric-box {
-      background: var(--light);
+      background: var(--dark-bg-light);
+      border: 1px solid var(--border-color);
       border-radius: 8px;
       padding: 1rem;
     }
-    .metric-label { font-size: .72rem; color: var(--gray); text-transform: uppercase; letter-spacing: .5px; }
-    .metric-val { font-size: 1.15rem; font-weight: 700; color: var(--dark); margin-top: .2rem; }
-    .metric-sub { font-size: .75rem; color: var(--gray); margin-top: .15rem; }
+    .metric-label {
+      font-size: 0.72rem;
+      color: var(--text-gray);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .metric-val {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text-white);
+      margin-top: 0.2rem;
+    }
+    .metric-sub {
+      font-size: 0.75rem;
+      color: var(--text-gray);
+      margin-top: 0.15rem;
+    }
 
     .scores-row {
       display: flex;
@@ -299,23 +362,26 @@
     .score-pill {
       display: flex;
       align-items: center;
-      gap: .4rem;
-      background: var(--light);
-      padding: .4rem .9rem;
+      gap: 0.4rem;
+      background: var(--dark-bg-light);
+      border: 1px solid var(--border-color);
+      padding: 0.5rem 1rem;
       border-radius: 20px;
-      font-size: .82rem;
+      font-size: 0.82rem;
       font-weight: 600;
     }
     .score-dot {
-      width: 10px; height: 10px;
+      width: 10px;
+      height: 10px;
       border-radius: 50%;
     }
-    .score-green  { background: #22c55e; }
+    .score-green { background: #22c55e; }
     .score-yellow { background: #eab308; }
-    .score-red    { background: #ef4444; }
+    .score-red { background: #ef4444; }
 
     .fourchette {
-      background: var(--light);
+      background: var(--dark-bg-light);
+      border: 1px solid var(--border-color);
       border-radius: 8px;
       padding: 1rem 1.25rem;
       display: flex;
@@ -323,7 +389,12 @@
       gap: 1rem;
       flex-wrap: wrap;
     }
-    .fourchette-label { font-size: .8rem; font-weight: 600; color: var(--gray); }
+    .fourchette-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-gray);
+      text-transform: uppercase;
+    }
     .fourchette-bar {
       flex: 1;
       height: 6px;
@@ -334,28 +405,32 @@
     .fourchette-vals {
       display: flex;
       justify-content: space-between;
-      font-size: .8rem;
+      font-size: 0.8rem;
       font-weight: 600;
       gap: 1.5rem;
+      color: var(--text-white);
     }
 
     /* ── Analyse section ── */
     .analyse-section {
       display: none;
-      background: var(--white);
-      border-radius: var(--radius);
+      background: rgba(26, 26, 46, 0.5);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
       padding: 1.75rem 2rem;
       margin-top: 1.25rem;
-      border: 1px solid #e5e7eb;
+      backdrop-filter: blur(10px);
     }
     .analyse-section.visible { display: block; }
     .analyse-title {
-      font-family: 'DM Serif Display', serif;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
       font-size: 1.25rem;
       margin-bottom: 1.25rem;
       display: flex;
       align-items: center;
-      gap: .6rem;
+      gap: 0.6rem;
+      letter-spacing: -0.5px;
     }
     .analyse-grid {
       display: grid;
@@ -363,54 +438,113 @@
       gap: 1.25rem;
     }
     @media (max-width: 720px) { .analyse-grid { grid-template-columns: 1fr; } }
-    #analyse-map { height: 300px; border-radius: 10px; }
-    #analyse-chart-wrap { position: relative; height: 240px; }
-    .kpi-bar-row { display: flex; align-items: center; gap: .75rem; margin-bottom: .6rem; }
-    .kpi-bar-name { font-size: .8rem; width: 100px; flex-shrink: 0; }
-    .kpi-bar-track { flex: 1; height: 8px; background: #f0f0f0; border-radius: 4px; overflow: hidden; }
-    .kpi-bar-fill { height: 100%; border-radius: 4px; transition: width .6s ease; }
-    .kpi-bar-val { font-size: .8rem; font-weight: 700; width: 36px; text-align: right; }
+    #analyse-map {
+      height: 300px;
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+    }
+    #analyse-chart-wrap {
+      position: relative;
+      height: 240px;
+    }
+    #analyse-chart {
+      filter: brightness(0.9) invert(1);
+    }
+    .kpi-bar-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.6rem;
+    }
+    .kpi-bar-name {
+      font-size: 0.8rem;
+      width: 100px;
+      flex-shrink: 0;
+      color: var(--text-gray);
+    }
+    .kpi-bar-track {
+      flex: 1;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .kpi-bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.6s ease;
+      background: var(--accent-green);
+    }
+    .kpi-bar-val {
+      font-size: 0.8rem;
+      font-weight: 700;
+      width: 36px;
+      text-align: right;
+      color: var(--text-white);
+    }
     .reco-box {
       border-radius: 10px;
+      border: 1px solid var(--border-color);
+      background: rgba(0, 220, 130, 0.08);
       padding: 1rem 1.25rem;
       margin-top: 1rem;
-      font-size: .9rem;
-      font-weight: 600;
+      font-size: 0.9rem;
+      line-height: 1.6;
+      color: var(--text-gray);
     }
-    .comparables-table { width: 100%; border-collapse: collapse; font-size: .8rem; margin-top: .75rem; }
-    .comparables-table th { background: #f8f8f8; padding: .45rem .65rem; text-align: left; font-size: .7rem; color: #666; text-transform: uppercase; }
-    .comparables-table td { padding: .45rem .65rem; border-top: 1px solid #f4f4f4; }
+    .comparables-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+      margin-top: 0.75rem;
+    }
+    .comparables-table th {
+      background: var(--dark-bg-light);
+      border: 1px solid var(--border-color);
+      padding: 0.45rem 0.65rem;
+      text-align: left;
+      font-size: 0.7rem;
+      color: var(--text-gray);
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+    .comparables-table td {
+      padding: 0.45rem 0.65rem;
+      border: 1px solid var(--border-color);
+      color: var(--text-white);
+    }
 
     /* ── Error ── */
     .error-msg {
-      background: #fef2f2;
-      border: 1px solid #fca5a5;
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
       border-radius: 8px;
       padding: 1rem;
       margin-top: 1rem;
-      color: #991b1b;
-      font-size: .85rem;
+      color: #fca5a5;
+      font-size: 0.85rem;
       display: none;
     }
     .error-msg.visible { display: block; }
 
     /* ── Sources / trust ── */
     .trust-section {
-      background: var(--white);
-      border-radius: var(--radius);
+      background: rgba(26, 26, 46, 0.5);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
       padding: 1.5rem 2rem;
       margin-top: 1.5rem;
       display: flex;
       align-items: center;
       gap: 1.5rem;
       flex-wrap: wrap;
-      border: 1px solid #e5e7eb;
+      backdrop-filter: blur(10px);
     }
     .trust-section h3 {
-      font-size: .85rem;
-      color: var(--gray);
+      font-size: 0.85rem;
+      color: var(--text-gray);
       text-transform: uppercase;
-      letter-spacing: .5px;
+      letter-spacing: 0.5px;
       white-space: nowrap;
     }
     .trust-logos {
@@ -420,27 +554,30 @@
       flex-wrap: wrap;
     }
     .trust-logo {
-      background: var(--light);
-      border: 1px solid #e5e7eb;
+      background: var(--dark-bg-light);
+      border: 1px solid var(--border-color);
       border-radius: 6px;
-      padding: .35rem .75rem;
-      font-size: .78rem;
+      padding: 0.35rem 0.75rem;
+      font-size: 0.78rem;
       font-weight: 600;
-      color: #374151;
+      color: var(--text-gray);
     }
 
     /* ── Comment ca marche ── */
     .how-section {
-      background: var(--white);
-      border-radius: var(--radius);
+      background: rgba(26, 26, 46, 0.5);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
       padding: 2rem;
       margin-top: 1.5rem;
-      border: 1px solid #e5e7eb;
+      backdrop-filter: blur(10px);
     }
     .how-section h2 {
-      font-family: 'DM Serif Display', serif;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
       font-size: 1.5rem;
       margin-bottom: 1.25rem;
+      letter-spacing: -0.5px;
     }
     .steps {
       display: grid;
@@ -448,41 +585,61 @@
       gap: 1rem;
     }
     .step {
-      background: var(--light);
+      background: var(--dark-bg-light);
+      border: 1px solid var(--border-color);
       border-radius: 8px;
       padding: 1rem 1.25rem;
     }
     .step-num {
       display: inline-flex;
-      width: 28px; height: 28px;
-      background: var(--green);
-      color: var(--dark);
+      width: 28px;
+      height: 28px;
+      background: var(--accent-green);
+      color: var(--dark-bg);
       font-weight: 800;
-      font-size: .85rem;
+      font-size: 0.85rem;
       border-radius: 50%;
       align-items: center;
       justify-content: center;
-      margin-bottom: .5rem;
+      margin-bottom: 0.5rem;
     }
-    .step h4 { font-size: .9rem; font-weight: 600; margin-bottom: .25rem; }
-    .step p  { font-size: .8rem; color: var(--gray); line-height: 1.5; }
+    .step h4 {
+      font-size: 0.9rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+      color: var(--text-white);
+    }
+    .step p {
+      font-size: 0.8rem;
+      color: var(--text-gray);
+      line-height: 1.5;
+    }
 
     /* ── Footer ── */
     footer {
-      background: var(--dark);
-      color: #888;
+      background: var(--dark-bg);
+      border-top: 1px solid var(--border-color);
+      color: var(--text-gray);
       text-align: center;
-      font-size: .8rem;
+      font-size: 0.8rem;
       padding: 1.5rem;
       margin-top: 2rem;
     }
-    footer a { color: var(--green); text-decoration: none; }
+    footer a {
+      color: var(--accent-green);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    footer a:hover { color: #00c974; }
 
     /* ── Responsive ── */
     @media (max-width: 640px) {
+      nav { padding: 1rem; }
+      .nav-links { gap: 1rem; font-size: 0.8rem; }
       .form-grid { grid-template-columns: 1fr; }
       .confidence { margin-left: 0; text-align: left; }
       .fourchette { flex-direction: column; align-items: stretch; }
+      .app-wrapper { padding: 1rem 0.5rem; }
     }
   </style>
 </head>
@@ -491,14 +648,14 @@
 <!-- Navbar -->
 <nav>
   <a class="nav-logo" href="/">Intent Analytics</a>
-  <div class="nav-links">
-    <a href="/projet">Le projet</a>
-    <a href="/donnees">Données</a>
-    <a href="/methodologie">Méthodologie</a>
-    <a href="/explorations">Explorations</a>
-    <a href="/documentation">Documentation</a>
-    <a href="/a-propos">À propos</a>
-  </div>
+  <ul class="nav-links">
+    <li><a href="/projet">Le projet</a></li>
+    <li><a href="/donnees">Données</a></li>
+    <li><a href="/methodologie">Méthodologie</a></li>
+    <li><a href="/explorations">Explorations</a></li>
+    <li><a href="/documentation">Documentation</a></li>
+    <li><a href="/a-propos">À propos</a></li>
+  </ul>
 </nav>
 
 <!-- Hero -->
@@ -507,10 +664,10 @@
   <h1>Exploration statistique<br><em>d'un bien</em></h1>
   <p>Modèle économétrique expérimental basé sur les données publiques françaises. Résultats indicatifs, non contractuels.</p>
   <div class="hero-badges">
-    <span class="badge"><strong>DVF</strong> — 6M transactions</span>
-    <span class="badge"><strong>DPE</strong> — Impact énergétique</span>
-    <span class="badge"><strong>BAN</strong> — Géocodage précis</span>
-    <span class="badge"><strong>POI</strong> — Équipements 500m</span>
+    <span class="badge"><strong>DVF</strong> — Transactions</span>
+    <span class="badge"><strong>DPE</strong> — Énergie</span>
+    <span class="badge"><strong>BAN</strong> — Géocodage</span>
+    <span class="badge"><strong>POI</strong> — Équipements</span>
   </div>
 </section>
 
@@ -578,12 +735,12 @@
       <div class="checkbox-row">
         <label><input type="checkbox" id="has_parking" /> Parking / garage</label>
         <label><input type="checkbox" id="has_balcony" /> Balcon / terrasse</label>
-        <label><input type="checkbox" id="has_garden" />  Jardin</label>
-        <label><input type="checkbox" id="has_view" />    Vue dégagée</label>
+        <label><input type="checkbox" id="has_garden" /> Jardin</label>
+        <label><input type="checkbox" id="has_view" /> Vue dégagée</label>
       </div>
 
       <!-- Avertissement expérimental -->
-      <div style="background: rgba(0,220,130,0.08); border: 1px solid rgba(0,220,130,0.2); border-radius: 8px; padding: 1rem; margin-top: 0.5rem; font-size: 0.82rem; color: #73726C; line-height: 1.6;">
+      <div style="background: rgba(0, 220, 130, 0.08); border: 1px solid rgba(0, 220, 130, 0.2); border-radius: 8px; padding: 1rem; margin-top: 0.5rem; font-size: 0.82rem; color: var(--text-gray); line-height: 1.6;">
         Cet outil est un prototype expérimental. Les résultats sont des estimations statistiques calculées à partir de données publiques. Ils ne constituent en aucun cas une évaluation officielle ou un conseil professionnel.
       </div>
 
@@ -614,7 +771,7 @@
     <div class="scores-row" id="r-scores"></div>
 
     <div class="fourchette" id="r-fourchette">
-      <div class="fourchette-label">Fourchette</div>
+      <div class="fourchette-label">Fourchette estimée</div>
       <div class="fourchette-bar"></div>
       <div class="fourchette-vals">
         <span id="r-low">—</span>
@@ -630,7 +787,7 @@
     <div id="reco-box-wrap"></div>
 
     <!-- KPI scores -->
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.75rem;margin-bottom:1.25rem" id="kpi-cards"></div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:0.75rem;margin-bottom:1.25rem" id="kpi-cards"></div>
 
     <!-- Scores bars -->
     <div id="score-bars" style="margin-bottom:1.25rem"></div>
@@ -638,20 +795,20 @@
     <div class="analyse-grid">
       <!-- Carte -->
       <div>
-        <div style="font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#888;margin-bottom:.5rem">Transactions DVF sur la zone</div>
+        <div style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-gray);margin-bottom:0.5rem">Transactions DVF sur la zone</div>
         <div id="analyse-map"></div>
-        <div style="font-size:.7rem;color:#aaa;margin-top:.4rem">
+        <div style="font-size:0.7rem;color:var(--text-gray);margin-top:0.4rem">
           <span style="color:#22c55e">●</span> Sous médiane
-          <span style="color:#eab308;margin-left:.6rem">●</span> Dans la médiane
-          <span style="color:#ef4444;margin-left:.6rem">●</span> Au-dessus
+          <span style="color:#eab308;margin-left:0.6rem">●</span> Dans la médiane
+          <span style="color:#ef4444;margin-left:0.6rem">●</span> Au-dessus
         </div>
       </div>
       <!-- Graphique évolution -->
       <div>
-        <div style="font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#888;margin-bottom:.5rem">Évolution prix médian / m²</div>
+        <div style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-gray);margin-bottom:0.5rem">Évolution prix médian / m²</div>
         <div id="analyse-chart-wrap"><canvas id="analyse-chart"></canvas></div>
         <!-- Comparables -->
-        <div style="font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#888;margin:.9rem 0 .4rem">Dernières transactions</div>
+        <div style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-gray);margin:0.9rem 0 0.4rem">Dernières transactions</div>
         <div id="comparables-wrap" style="overflow-x:auto"></div>
       </div>
     </div>
@@ -730,7 +887,7 @@
     <a href="/legal/politique-confidentialite">Confidentialité</a> ·
     <a href="mailto:contact@intentanalytics.fr">contact@intentanalytics.fr</a>
   </p>
-  <p style="margin-top:.5rem;font-size:.72rem;color:#555;">
+  <p style="margin-top:0.5rem;font-size:0.72rem;color:#666;">
     Exploration à titre indicatif. Ne constitue pas une expertise immobilière certifiée.
   </p>
 </footer>
@@ -741,8 +898,11 @@
 const SUPA_URL  = "https://wwvdpixzfaviaapixarb.supabase.co";
 const SUPA_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3dmRwaXh6ZmF2aWFhcGl4YXJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3Mzk0NDgsImV4cCI6MjA5MDMxNTQ0OH0.NjOeWzUCo2BJPcxnkEJNm215GJBr1RAHba1eL_EF758";
 const BAN_URL   = "https://api-adresse.data.gouv.fr/search/";
+
 let leafletMap  = null;
 let chartInst   = null;
+let _selectedGeo = null;
+
 // ── Formatters ────────────────────────────────────────────────────────────────
 const fmt = n => n == null ? "—" :
   new Intl.NumberFormat("fr-FR", { style:"currency", currency:"EUR", maximumFractionDigits:0 }).format(n);
@@ -813,6 +973,276 @@ async function fetchDVF(commune, typeBien, citycode) {
     if (filtered.length >= 8) rows = filtered;
   }
   return rows;
+}
+
+// ── BAN Autocomplete ──────────────────────────────────────────────────────────
+let autocompleteTimeout;
+const adresseInput = document.getElementById('adresse');
+const adresseSuggestions = document.getElementById('adresse-suggestions');
+
+adresseInput.addEventListener('input', async (e) => {
+  clearTimeout(autocompleteTimeout);
+  const query = e.target.value.trim();
+
+  if (query.length < 3) {
+    adresseSuggestions.classList.remove('open');
+    adresseSuggestions.innerHTML = '';
+    return;
+  }
+
+  autocompleteTimeout = setTimeout(async () => {
+    try {
+      const r = await fetch(`${BAN_URL}?q=${encodeURIComponent(query)}&limit=5`);
+      const d = await r.json();
+      const features = d.features || [];
+
+      if (!features.length) {
+        adresseSuggestions.innerHTML = '<div class="sug-item">Aucune adresse trouvée</div>';
+        adresseSuggestions.classList.add('open');
+        return;
+      }
+
+      adresseSuggestions.innerHTML = features.map(f => {
+        const props = f.properties;
+        return `<div class="sug-item" data-label="${props.label}" data-lat="${f.geometry.coordinates[1]}" data-lon="${f.geometry.coordinates[0]}" data-citycode="${props.citycode}" data-city="${props.city}" data-postcode="${props.postcode}">
+          ${props.label}
+        </div>`;
+      }).join('');
+      adresseSuggestions.classList.add('open');
+
+      // Click handlers
+      document.querySelectorAll('#adresse-suggestions .sug-item').forEach(item => {
+        item.addEventListener('click', () => {
+          adresseInput.value = item.dataset.label;
+          adresseSuggestions.classList.remove('open');
+          _selectedGeo = {
+            label: item.dataset.label,
+            lat: parseFloat(item.dataset.lat),
+            lon: parseFloat(item.dataset.lon),
+            citycode: item.dataset.citycode,
+            commune: item.dataset.city,
+            cp: item.dataset.postcode
+          };
+        });
+      });
+    } catch (err) {
+      console.error('Autocomplete error:', err);
+    }
+  }, 300);
+});
+
+// ── Form submit handler ───────────────────────────────────────────────────────
+document.getElementById('estimation-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const btn = document.getElementById('btn-submit');
+  btn.disabled = true;
+  btn.textContent = 'Calcul en cours...';
+
+  const errorBox = document.getElementById('error-box');
+  errorBox.classList.remove('visible');
+
+  try {
+    // Get form data
+    const formData = new FormData(e.target);
+    const adresse = formData.get('adresse');
+    const typeBien = formData.get('type_bien');
+    const surface = parseFloat(formData.get('surface'));
+    const dpe = formData.get('dpe');
+    const etat = formData.get('etat');
+    const has_parking = document.getElementById('has_parking').checked;
+    const has_balcony = document.getElementById('has_balcony').checked;
+    const has_garden = document.getElementById('has_garden').checked;
+    const has_view = document.getElementById('has_view').checked;
+
+    // Geocode
+    const geo = _selectedGeo || await geocode(adresse);
+    if (!geo) throw new Error('Adresse non reconnue. Vérifiez l\'orthographe.');
+
+    // Fetch DVF data
+    const dvfRows = await fetchDVF(geo.commune, typeBien, geo.citycode);
+    if (!dvfRows.length) throw new Error('Pas de transactions DVF pour cette commune.');
+
+    // Compute statistics
+    const validDVF = dvfRows
+      .filter(r => r.surface_reelle_bati > 0 && r.valeur_fonciere > 0)
+      .map(r => ({
+        prixM2: r.valeur_fonciere / r.surface_reelle_bati,
+        prix: r.valeur_fonciere,
+        surface: r.surface_reelle_bati
+      }))
+      .sort((a, b) => a.prixM2 - b.prixM2);
+
+    if (validDVF.length < 3) throw new Error('Données insuffisantes pour cette zone.');
+
+    const medianPrixM2 = validDVF[Math.floor(validDVF.length / 2)].prixM2;
+    const q1 = validDVF[Math.floor(validDVF.length * 0.25)].prixM2;
+    const q3 = validDVF[Math.floor(validDVF.length * 0.75)].prixM2;
+
+    // DPE adjustment
+    const dpeAdjust = {
+      'A': 0.06,
+      'B': 0.04,
+      'C': 0.02,
+      'D': 0,
+      'E': -0.04,
+      'F': -0.08,
+      'G': -0.08
+    }[dpe] || 0;
+
+    // State adjustment
+    const stateAdjust = {
+      'mauvais': -0.10,
+      'moyen': -0.05,
+      'bon': 0,
+      'tres_bon': 0.05,
+      'excellent': 0.10
+    }[etat] || 0;
+
+    // Features bonus
+    let featuresBonus = 0;
+    if (has_parking) featuresBonus += 0.03;
+    if (has_balcony) featuresBonus += 0.02;
+    if (has_garden) featuresBonus += 0.04;
+    if (has_view) featuresBonus += 0.02;
+
+    // Total adjustment
+    const totalAdj = dpeAdjust + stateAdjust + featuresBonus;
+    const estimatedPrixM2 = medianPrixM2 * (1 + totalAdj);
+    const estimatedPrice = estimatedPrixM2 * surface;
+
+    // Confidence score (0-100)
+    let confidence = 50;
+    if (validDVF.length > 50) confidence += 20;
+    else if (validDVF.length > 20) confidence += 15;
+    else if (validDVF.length > 10) confidence += 10;
+    if (geo.score >= 90) confidence += 20;
+    else if (geo.score >= 75) confidence += 10;
+    confidence = Math.min(100, confidence);
+
+    // Range (low/high)
+    const lowPrice = q1 * surface;
+    const highPrice = q3 * surface;
+
+    // Render results
+    document.getElementById('r-prix').textContent = fmt(estimatedPrice);
+    document.getElementById('r-prix-m2').textContent = `${fmtN(estimatedPrixM2.toFixed(0))} €/m²`;
+    document.getElementById('r-conf-bar').style.width = confidence + '%';
+    document.getElementById('r-conf-val').textContent = Math.round(confidence) + '%';
+    document.getElementById('r-low').textContent = fmt(lowPrice);
+    document.getElementById('r-high').textContent = fmt(highPrice);
+
+    // Metrics
+    const metricsHTML = `
+      <div class="metric-box">
+        <div class="metric-label">Commune</div>
+        <div class="metric-val">${geo.commune}</div>
+        <div class="metric-sub">${geo.cp}</div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-label">Prix/m² (marché)</div>
+        <div class="metric-val">${fmtN(medianPrixM2.toFixed(0))} €</div>
+        <div class="metric-sub">${validDVF.length} transactions</div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-label">Votre surface</div>
+        <div class="metric-val">${fmtN(surface)} m²</div>
+        <div class="metric-sub">Type: ${typeBien}</div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-label">DPE Impact</div>
+        <div class="metric-val">${dpe}</div>
+        <div class="metric-sub">${(dpeAdjust * 100).toFixed(0)}% ajustement</div>
+      </div>
+    `;
+    document.getElementById('r-metrics').innerHTML = metricsHTML;
+
+    // Scores
+    const scores = [
+      { label: 'Volume marché', val: Math.min(100, (validDVF.length / 50) * 100) },
+      { label: 'Confiance géo', val: geo.score },
+      { label: 'Potentiel DPE', val: 100 - (Math.abs(dpeAdjust) * 100) }
+    ];
+    const scoresHTML = scores.map(s =>
+      `<div class="score-pill"><span class="score-dot ${scoreColor(s.val)}"></span>${s.label}: ${Math.round(s.val)}/100</div>`
+    ).join('');
+    document.getElementById('r-scores').innerHTML = scoresHTML;
+
+    // Show result card
+    document.getElementById('result-card').classList.add('visible');
+
+    // Show analysis section
+    showAnalysisSection(geo, validDVF, estimatedPrice, surface);
+
+  } catch (err) {
+    errorBox.textContent = '⚠️ ' + err.message;
+    errorBox.classList.add('visible');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Explorer les données';
+  }
+});
+
+// ── Show analysis section ─────────────────────────────────────────────────────
+function showAnalysisSection(geo, dvfRows, estimatedPrice, surface) {
+  const analysisSection = document.getElementById('analyse-section');
+  analysisSection.classList.add('visible');
+
+  // Initialize map
+  setTimeout(() => {
+    if (!leafletMap) {
+      leafletMap = L.map('analyse-map').setView([geo.lat, geo.lon], 14);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors',
+        maxZoom: 19
+      }).addTo(leafletMap);
+    } else {
+      leafletMap.setView([geo.lat, geo.lon], 14);
+      leafletMap.eachLayer(layer => {
+        if (layer instanceof L.Marker || layer instanceof L.Circle) leafletMap.removeLayer(layer);
+      });
+    }
+
+    // Add markers for DVF transactions
+    const pricM2 = estimatedPrice / surface;
+    dvfRows.slice(0, 50).forEach(row => {
+      if (!row.latitude || !row.longitude) return;
+
+      const txPrixM2 = row.valeur_fonciere / (row.surface_reelle_bati || 1);
+      let color = '#22c55e'; // green (below median)
+      if (Math.abs(txPrixM2 - pricM2) < pricM2 * 0.1) color = '#eab308'; // yellow (median)
+      if (txPrixM2 > pricM2 * 1.1) color = '#ef4444'; // red (above)
+
+      L.circleMarker([row.latitude, row.longitude], {
+        radius: 5,
+        color: color,
+        weight: 2,
+        opacity: 0.8,
+        fillOpacity: 0.6
+      }).bindPopup(`<small>${fmt(row.valeur_fonciere)} - ${row.surface_reelle_bati}m²</small>`)
+        .addTo(leafletMap);
+    });
+
+    // Add center marker
+    L.marker([geo.lat, geo.lon], {
+      title: 'Votre adresse'
+    }).addTo(leafletMap);
+  }, 100);
+
+  // Recommendation box
+  const recoEl = document.getElementById('reco-box-wrap');
+  const pricePerM2 = estimatedPrice / surface;
+  let recommendation = '';
+  if (pricePerM2 > 5000) {
+    recommendation = '🔴 Marché très tendu. Vérifier la pertinence de l\'acquisition.';
+  } else if (pricePerM2 > 3000) {
+    recommendation = '🟡 Marché dynamique avec bonne demande. Opportunité intéressante selon localisation.';
+  } else {
+    recommendation = '🟢 Marché accessible. Bon potentiel d\'investissement.';
+  }
+  recoEl.innerHTML = `<div class="reco-box">${recommendation}</div>`;
+
+  analysisSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 </script>
 </body>

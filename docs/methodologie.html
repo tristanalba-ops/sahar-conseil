@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow" />
     <title>Méthodologie — Intent Analytics</title>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
     <style>
@@ -40,7 +41,8 @@
         }
 
         nav {
-            background-color: var(--dark-bg-light);
+            background: rgba(13, 13, 13, 0.95);
+            backdrop-filter: blur(10px);
             border-bottom: 1px solid var(--border-color);
             padding: 1.5rem 2rem;
             display: flex;
@@ -65,7 +67,7 @@
         }
 
         .nav-links a {
-            color: var(--text-gray);
+            color: var(--text-white);
             font-weight: 500;
             transition: color 0.2s;
         }
@@ -255,120 +257,16 @@
 
     <main>
         <h1>Méthodologie</h1>
-        <p class="intro">Cette page documente les méthodes d'analyse appliquées aux données publiques. L'objectif est la transparence totale : chaque score, chaque agrégat, chaque indicateur est reproductible à partir des données d'origine et des formules décrites ici.</p>
 
         <section>
-            <h2>Pipeline de traitement</h2>
-            <ol>
-                <li><strong>Collecte</strong> — Récupération via API ou CSV depuis les portails open data officiels</li>
-                <li><strong>Nettoyage</strong> — Suppression des doublons, traitement des valeurs manquantes et détection des valeurs aberrantes</li>
-                <li><strong>Normalisation</strong> — Réconciliation des codes communes INSEE via BAN avec 4 niveaux de fallback</li>
-                <li><strong>Agrégation</strong> — Calcul des indicateurs par commune : médiane, quartiles, distribution, évolution temporelle</li>
-                <li><strong>Croisement</strong> — Jointure des données via code INSEE pour analyses multisources</li>
-            </ol>
+            <p>Les analyses reposent sur des données publiques officielles. Les données sont collectées, nettoyées et croisées par territoire.</p>
+            <p>Un indice de confiance accompagne chaque résultat.</p>
         </section>
 
-        <section>
-            <h2>Réconciliation géographique</h2>
-            <p>Pour chaque adresse ou localité, une réconciliation INSEE fiable est cruciale. Le pipeline suit 4 tentatives successives, chacune avec un seuil de confiance minimum :</p>
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Tentative</th>
-                            <th>Méthode</th>
-                            <th>Seuil de confiance</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td>Match exact BAN API</td>
-                            <td>≥ 0.95 (très élevé)</td>
-                        </tr>
-                        <tr>
-                            <td>2</td>
-                            <td>Géocodage inverse (coordonnées GPS)</td>
-                            <td>≥ 0.90 (bon)</td>
-                        </tr>
-                        <tr>
-                            <td>3</td>
-                            <td>Match partiel BAN API</td>
-                            <td>≥ 0.80 (acceptable)</td>
-                        </tr>
-                        <tr>
-                            <td>4</td>
-                            <td>Résolution code postal seul</td>
-                            <td>≥ 0.50 (faible)</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <p><strong>Règle critique :</strong> Un score de confiance inférieur à 0.80 déclenche un avertissement visible et rend l'enrichissement approximatif.</p>
-        </section>
-
-        <section>
-            <h2>Indicateurs calculés</h2>
-            <p>Pour chaque commune, les analyses produisent les indicateurs suivants :</p>
-
-            <div class="section-grid">
-                <div class="grid-item">
-                    <h3>Marché immobilier (DVF)</h3>
-                    <p>Prix au m² (médiane, Q1, Q3), évolution sur 12 et 24 mois, volume de transactions, délai médian de vente</p>
-                </div>
-                <div class="grid-item">
-                    <h3>Énergie (DPE)</h3>
-                    <p>Répartition des classes A-G, % passoires (F+G), consommation moyenne, GES moyen, score énergie</p>
-                </div>
-                <div class="grid-item">
-                    <h3>Équipements (BPE)</h3>
-                    <p>Score de proximité (0-100) : transports, commerces, santé, éducation. Walkability index</p>
-                </div>
-                <div class="grid-item">
-                    <h3>Démographie (INSEE)</h3>
-                    <p>Population, composition socioprofessionnelle, âge moyen, densité, évolution annuelle</p>
-                </div>
-            </div>
-        </section>
-
-        <section>
-            <h2>Scores de confiance</h2>
-            <p>Chaque indicateur produit un score de confiance (0-100) basé sur :</p>
-            <ul>
-                <li><strong>Volume de données</strong> — Nombre de transactions ou diagnostics (40 points max)</li>
-                <li><strong>Fraîcheur</strong> — Ancienneté des données les plus récentes (30 points max)</li>
-                <li><strong>Croisement de sources</strong> — Nombre de sources différentes convergentes (30 points max)</li>
-            </ul>
-            <p>Un score < 50 indique des résultats très approximatifs. Un score ≥ 75 indique une confiance raisonnable.</p>
-        </section>
-
-        <section>
-            <h2>Limitations et avertissements</h2>
-            <ul>
-                <li><strong>DVF</strong> — Pas de données de transactions de gré à gré, SCI, donations. Délai de publication : ~6 mois.</li>
-                <li><strong>DPE</strong> — Diagnostic depuis juillet 2021 seulement. Couverture inégale par région.</li>
-                <li><strong>BPE</strong> — Mise à jour annuelle. Couverture variable. Peut être incomplet en zones rurales.</li>
-                <li><strong>Communes < 5 transactions/an</strong> — Résultats approximatifs, signalés avec avertissement.</li>
-                <li><strong>Données anciennes</strong> — Si données > 6 mois : avertissement de fraîcheur.</li>
-            </ul>
-        </section>
-
-        <section>
-            <h2>Reproductibilité</h2>
-            <p>Pour chaque commune, Intent Analytics documente :</p>
-            <ul>
-                <li>Les sources utilisées et leur date de récupération</li>
-                <li>Le nombre de points de données (transactions, diagnostics, etc.)</li>
-                <li>Les formules exactes des agrégats (médiane, quartiles, évolution)</li>
-                <li>Le score de confiance et ses composantes</li>
-                <li>Les avertissements applicables</li>
-            </ul>
-            <p>Tout résultat peut être reproduit par un tiers en appliquant cette documentation.</p>
-        </section>
     </main>
 
     <footer>
-        Intent Analytics — Projet expérimental d'exploration de données publiques françaises<br>
+        Intent Analytics — Exploration de données territoriales<br>
         <a href="mailto:contact@intentanalytics.fr">contact@intentanalytics.fr</a><br>
         <a href="/legal/mentions-legales">Mentions légales</a> • <a href="/legal/cgu">CGU</a> • <a href="/legal/politique-confidentialite">Confidentialité</a><br>
         © 2026 Intent Analytics
