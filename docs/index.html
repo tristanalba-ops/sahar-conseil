@@ -118,8 +118,14 @@
     "@type": "BreadcrumbList",
     "itemListElement": [
       {"@type": "ListItem", "position": 1, "name": "Accueil", "item": "https://intentanalytics.fr/"},
+<<<<<<< HEAD
       {"@type": "ListItem", "position": 2, "name": "Estimer", "item": "https://intentanalytics.fr/estimation"},
       {"@type": "ListItem", "position": 3, "name": "Contact", "item": "https://intentanalytics.fr/#contact"}
+=======
+      {"@type": "ListItem", "position": 2, "name": "Outils", "item": "https://intentanalytics.fr/#outils"},
+      {"@type": "ListItem", "position": 3, "name": "Blog", "item": "https://intentanalytics.fr/blog/"},
+      {"@type": "ListItem", "position": 4, "name": "Contact", "item": "https://intentanalytics.fr/#contact"}
+>>>>>>> 2daa3a5 (fix: DPE counter 876K to 2.7M, add SEO pages, remove legacy pages)
     ]
   }
   </script>
@@ -1001,113 +1007,6 @@
       line-height: 1.7;
     }
 
-    /* PRICING */
-    #tarifs {
-      background: var(--dark-bg);
-    }
-
-    .pricing-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 2rem;
-      max-width: 1100px;
-      margin: 0 auto;
-    }
-
-    .price-card {
-      background: rgba(26, 26, 46, 0.5);
-      border: 2px solid var(--border-color);
-      border-radius: 16px;
-      padding: 2.2rem;
-      position: relative;
-      transition: all 0.3s;
-    }
-
-    .price-card:hover {
-      border-color: var(--accent-green);
-      background: rgba(26, 26, 46, 0.8);
-    }
-
-    .price-card.featured {
-      border-color: var(--accent-green);
-      background: rgba(0, 220, 130, 0.08);
-      box-shadow: 0 0 30px rgba(0, 220, 130, 0.1);
-    }
-
-    .featured-badge {
-      position: absolute;
-      top: -14px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: var(--accent-green);
-      color: #000;
-      font-size: 0.75rem;
-      font-weight: 700;
-      padding: 0.35rem 1rem;
-      border-radius: 100px;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    .price-name {
-      font-family: 'Space Grotesk', sans-serif;
-      font-weight: 700;
-      font-size: 1.15rem;
-      margin-bottom: 0.75rem;
-    }
-
-    .price-amount {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 2.4rem;
-      font-weight: 700;
-      color: var(--accent-green);
-      margin: 1rem 0;
-    }
-
-    .price-amount span {
-      font-size: 0.9rem;
-      font-weight: 400;
-      color: var(--text-gray);
-    }
-
-    .price-desc {
-      font-size: 0.9rem;
-      color: var(--text-gray);
-      margin-bottom: 1.5rem;
-    }
-
-    .price-features {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 0.7rem;
-      margin-bottom: 2rem;
-    }
-
-    .price-features li {
-      font-size: 0.9rem;
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-    }
-
-    .price-features li::before {
-      content: '✓';
-      color: var(--accent-green);
-      font-weight: 700;
-      font-size: 1.1rem;
-      flex-shrink: 0;
-    }
-
-    .price-features li.off::before {
-      content: '—';
-      color: var(--border-color);
-    }
-
-    .price-features li.off {
-      color: var(--text-gray);
-    }
-
     /* CTA */
     /* BLOG + PODCAST */
     .blog-podcast-section {
@@ -1541,7 +1440,7 @@
       .tools-grid { grid-template-columns: 1fr; }
       .rapport-content { flex-direction: column; }
       .rapport-features { grid-template-columns: 1fr; }
-      .pricing-grid { grid-template-columns: 1fr; }
+
       .steps { gap: 1.8rem; }
       .video-banners { grid-template-columns: 1fr; }
       .sectors-grid { grid-template-columns: repeat(2, 1fr); }
@@ -1556,7 +1455,7 @@
     @media (max-width: 480px) {
       .sectors-grid { grid-template-columns: 1fr; }
       .stats-grid { grid-template-columns: 1fr; }
-      .pricing-grid { grid-template-columns: 1fr; }
+
     }
   </style>
 </head>
@@ -1566,9 +1465,17 @@
 <nav>
   <a href="/" class="nav-logo" onclick="if(location.pathname.endsWith('index.html')||location.pathname==='/'||location.pathname.endsWith('site_final.html')){event.preventDefault();window.scrollTo({top:0,behavior:'smooth'});}">Intent Analytics</a>
   <ul class="nav-links">
+<<<<<<< HEAD
     <li><a href="/estimation" style="color:#00DC82;font-weight:600;">Estimer</a></li>
     <li><a href="/pricing">Prix</a></li>
     <li><a href="/api">API</a></li>
+=======
+    <li><a href="#outils">Outils</a></li>
+    <li><a href="/estimation" style="color:#00DC82;font-weight:600;">🏠 Estimer</a></li>
+    <li><a href="#rapport">Rapport</a></li>
+    <li><a href="#domaines">Domaines</a></li>
+    <li><a href="#blog">Blog &amp; Podcast</a></li>
+>>>>>>> 2daa3a5 (fix: DPE counter 876K to 2.7M, add SEO pages, remove legacy pages)
     <li><a href="#contact">Contact</a></li>
   </ul>
   <!-- Hamburger (mobile) -->
@@ -1581,10 +1488,21 @@
 <div class="mobile-nav-overlay" id="mobile-overlay" aria-hidden="true"></div>
 <nav class="mobile-nav-drawer" id="mobile-drawer" aria-label="Menu mobile">
   <button class="mobile-nav-close" id="mobile-close" aria-label="Fermer le menu">✕</button>
+<<<<<<< HEAD
   <a href="/estimation" class="mobile-nav-link mobile-nav-cta" style="background:#00DC82;color:#0D0D0D;font-weight:700;">Estimer mon bien</a>
   <a href="/pricing" class="mobile-nav-link">Prix</a>
   <a href="/api" class="mobile-nav-link">API</a>
   <a href="#contact" class="mobile-nav-link">Contact</a>
+=======
+  <a href="/estimation" class="mobile-nav-link mobile-nav-cta" style="background:#00DC82;color:#0D0D0D;font-weight:700;">🏠 Estimer mon bien</a>
+  <a href="#outils" class="mobile-nav-link">📊 Outils</a>
+  <a href="#rapport" class="mobile-nav-link">📄 Rapport</a>
+  <a href="#domaines" class="mobile-nav-link">🏠 Domaines</a>
+  <a href="#blog" class="mobile-nav-link">📰 Blog &amp; Podcast</a>
+  <a href="#contact" class="mobile-nav-link">✉️ Contact</a>
+  <a href="compte.html" class="mobile-nav-compte" id="mobile-compte-link">👤 Mon espace</a>
+  <a href="#contact" class="mobile-nav-cta">Nous contacter →</a>
+>>>>>>> 2daa3a5 (fix: DPE counter 876K to 2.7M, add SEO pages, remove legacy pages)
 </nav>
 
 <!-- HERO -->
@@ -1638,7 +1556,7 @@
       <div class="stat-label">Mutations DVF en open data</div>
     </div>
     <div>
-      <div class="stat-num">876K</div>
+      <div class="stat-num">2.7M</div>
       <div class="stat-label">DPE ADEME traités et scorés</div>
     </div>
     <div>
@@ -2035,7 +1953,11 @@
     <div class="form-group">
       <label style="display:flex;gap:.75rem;align-items:flex-start;cursor:pointer;font-size:.85rem;line-height:1.5">
         <input type="checkbox" name="consentement_rgpd" required style="margin-top:3px;width:auto;flex-shrink:0;accent-color:#00DC82">
+<<<<<<< HEAD
         <span>J'accepte que mes données soient traitées par Intent Analytics dans le cadre de ma demande, conformément à la <a href="legal/politique-confidentialite.html" style="color:#00DC82;text-decoration:underline">politique de confidentialité</a>. Données conservées 3 ans. Droit d'accès et de suppression : <a href="mailto:contact@intentanalytics.fr" style="color:#00DC82">contact@intentanalytics.fr</a></span>
+=======
+        <span>J'accepte que mes données soient traitées par Intent Analytics dans le cadre de ma demande, conformément à la <a href="politique-confidentialite.html" style="color:#00DC82;text-decoration:underline">politique de confidentialité</a>. Données conservées 3 ans. Droit d'accès et de suppression : <a href="mailto:contact@intentanalytics.fr" style="color:#00DC82">contact@intentanalytics.fr</a></span>
+>>>>>>> 2daa3a5 (fix: DPE counter 876K to 2.7M, add SEO pages, remove legacy pages)
       </label>
     </div>
     <button type="submit" class="btn-primary" style="width:100%;padding:1rem">Envoyer ma demande →</button>
@@ -2050,6 +1972,7 @@
 <footer>
   <div>
     <div class="footer-logo">Intent Analytics</div>
+<<<<<<< HEAD
     <p><a href="mailto:contact@intentanalytics.fr" style="color:var(--accent-green);">contact@intentanalytics.fr</a></p>
   </div>
   <ul class="footer-links">
@@ -2060,6 +1983,22 @@
   </ul>
   <div>
     <p style="font-size: 0.75rem; opacity: 0.6">© 2026 Intent Analytics</p>
+=======
+    <p>Open data → décisions professionnelles</p>
+  </div>
+  <ul class="footer-links">
+    <li><a href="#outils">Outils</a></li>
+    <li><a href="/estimation" style="color:#00DC82;font-weight:600;">🏠 Estimer</a></li>
+    <li><a href="blog/">Blog</a></li>
+    <li><a href="compte.html">Mon espace</a></li>
+    <li><a href="#contact">Contact</a></li>
+    <li><a href="mentions-legales.html">Mentions légales</a></li>
+    <li><a href="politique-confidentialite.html">Confidentialité</a></li>
+    <li><a href="cgu.html">CGU</a></li>
+  </ul>
+  <div>
+    <p style="font-size: 0.75rem; opacity: 0.6">© 2025-2026 Intent Analytics</p>
+>>>>>>> 2daa3a5 (fix: DPE counter 876K to 2.7M, add SEO pages, remove legacy pages)
   </div>
 </footer>
 
@@ -2120,7 +2059,7 @@
   });
 
   // Auto-add reveal class FIRST, then observe all at once
-  document.querySelectorAll('section, .tool-card, .sector-card, .price-card').forEach(function(el){
+  document.querySelectorAll('section, .tool-card, .sector-card').forEach(function(el){
     el.classList.add('reveal');
   });
 
@@ -2199,7 +2138,11 @@
           throw new Error('HTTP ' + res.status);
         }
       } catch(err) {
+<<<<<<< HEAD
         console.error('[IA] Form error:', err);
+=======
+        console.error('[Intent Analytics] Form error:', err);
+>>>>>>> 2daa3a5 (fix: DPE counter 876K to 2.7M, add SEO pages, remove legacy pages)
         if(submitBtn){ submitBtn.textContent = origText; submitBtn.disabled = false; }
         var errDiv = contactForm.querySelector('.form-error');
         if(!errDiv){
@@ -2262,7 +2205,11 @@
     }
   } catch(e) {
     // Supabase indisponible — contenu visible par défaut (fail open)
+<<<<<<< HEAD
     console.warn('[IA] Auth init error:', e.message);
+=======
+    console.warn('[Intent Analytics] Auth init error:', e.message);
+>>>>>>> 2daa3a5 (fix: DPE counter 876K to 2.7M, add SEO pages, remove legacy pages)
   }
 })();
 </script>

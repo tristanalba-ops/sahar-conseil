@@ -3,1036 +3,1187 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Estimation immobilière – Intent Analytics</title>
-  <meta name="description" content="Estimez gratuitement la valeur de votre bien immobilier : prix DVF, DPE, cadre de vie, démographie et tendances de marché." />
-  <link rel="canonical" href="https://intentanalytics.fr/estimation" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <title>Estimer mon bien — SAHAR Conseil</title>
+  <meta name="description" content="Estimez la valeur de votre bien immobilier gratuitement. Modèle économétrique basé sur les données DVF, DPE et POI." />
+  <link rel="canonical" href="https://sahar-conseil.fr/estimation" />
+  <meta name="robots" content="index, follow" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Estimateur immobilier gratuit — SAHAR Conseil" />
+  <meta property="og:description" content="Obtenez une estimation de votre bien en quelques secondes. Données DVF + DPE + équipements de proximité." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://sahar-conseil.fr/estimation" />
+  <meta property="og:locale" content="fr_FR" />
+
+  <!-- JSON-LD -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Estimateur Immobilier SAHAR Conseil",
+    "url": "https://sahar-conseil.fr/estimation",
+    "description": "Estimation de valeur immobilière basée sur les données publiques françaises (DVF, DPE, BAN, POI).",
+    "applicationCategory": "BusinessApplication",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" },
+    "provider": { "@type": "Organization", "name": "SAHAR Conseil", "url": "https://sahar-conseil.fr" }
+  }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600;700&display=swap" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f0eb; color: #1a1a1a; min-height: 100vh; }
 
-    /* ── Header ── */
-    header { background: #111; padding: 0 24px; height: 56px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 500; }
-    .logo { font-size: 1.1rem; font-weight: 800; color: #00D47E; text-decoration: none; letter-spacing: -0.5px; }
-    nav a { color: #aaa; text-decoration: none; font-size: 0.85rem; margin-left: 20px; transition: color .2s; }
-    nav a:hover { color: #fff; }
-    nav a.active { color: #00D47E; }
+    :root {
+      --green:  #00DC82;
+      --dark:   #0D0D0D;
+      --gray:   #73726C;
+      --light:  #F5F4F0;
+      --white:  #FFFFFF;
+      --radius: 12px;
+    }
 
-    /* ── Layout ── */
-    main { max-width: 820px; margin: 0 auto; padding: 40px 16px 80px; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--light);
+      color: var(--dark);
+      min-height: 100vh;
+    }
+
+    /* ── Navbar ── */
+    nav {
+      background: var(--dark);
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-logo {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.4rem;
+      color: var(--white);
+      text-decoration: none;
+    }
+    .nav-logo span { color: var(--green); }
+    .nav-links a {
+      color: #ccc;
+      text-decoration: none;
+      font-size: .875rem;
+      margin-left: 1.5rem;
+      transition: color .2s;
+    }
+    .nav-links a:hover { color: var(--white); }
+    .nav-cta {
+      background: var(--green) !important;
+      color: var(--dark) !important;
+      padding: .4rem 1rem;
+      border-radius: 6px;
+      font-weight: 600 !important;
+    }
 
     /* ── Hero ── */
-    .hero { text-align: center; margin-bottom: 32px; }
-    .hero h1 { font-size: 2rem; font-weight: 800; line-height: 1.2; margin-bottom: 8px; }
-    .hero h1 span { color: #00D47E; }
-    .hero p { color: #666; font-size: 1rem; }
+    .hero {
+      background: var(--dark);
+      padding: 3rem 2rem 2.5rem;
+      text-align: center;
+      color: var(--white);
+    }
+    .hero-tag {
+      display: inline-block;
+      background: var(--green);
+      color: var(--dark);
+      font-size: .75rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: .3rem .9rem;
+      border-radius: 20px;
+      margin-bottom: 1rem;
+    }
+    .hero h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      line-height: 1.2;
+      margin-bottom: .75rem;
+    }
+    .hero h1 em { color: var(--green); font-style: normal; }
+    .hero p {
+      color: #aaa;
+      font-size: 1rem;
+      max-width: 560px;
+      margin: 0 auto;
+    }
+    .hero-badges {
+      display: flex;
+      justify-content: center;
+      gap: .75rem;
+      flex-wrap: wrap;
+      margin-top: 1.25rem;
+    }
+    .badge {
+      background: rgba(255,255,255,.07);
+      border: 1px solid rgba(255,255,255,.12);
+      color: #ccc;
+      font-size: .75rem;
+      padding: .3rem .8rem;
+      border-radius: 6px;
+    }
+    .badge strong { color: var(--green); }
 
-    /* ── Card base ── */
-    .card { background: #fff; border-radius: 16px; padding: 28px; box-shadow: 0 2px 16px rgba(0,0,0,.07); }
-    .sc { background: #fff; border-radius: 16px; padding: 24px 28px; box-shadow: 0 2px 16px rgba(0,0,0,.07); margin-top: 20px; }
-    .hidden { display: none !important; }
-    .sec-title { font-size: .75rem; font-weight: 700; color: #999; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 18px; display: flex; align-items: center; gap: 8px; }
-    .sec-title::after { content: ''; flex: 1; height: 1px; background: #f0f0f0; }
+    /* ── App container ── */
+    .app-wrapper {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+    }
 
     /* ── Form ── */
-    .field { margin-bottom: 20px; position: relative; }
-    label { display: block; font-size: .82rem; font-weight: 600; color: #444; margin-bottom: 6px; text-transform: uppercase; letter-spacing: .04em; }
-    input, select { width: 100%; padding: 12px 14px; border: 1.5px solid #ddd; border-radius: 10px; font-size: 1rem; font-family: inherit; background: #fff; transition: border-color .2s, box-shadow .2s; outline: none; appearance: none; }
-    input:focus, select:focus { border-color: #00D47E; box-shadow: 0 0 0 3px rgba(0,212,126,.15); }
-    select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23666' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 40px; cursor: pointer; }
-    .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    @media (max-width: 480px) { .row2 { grid-template-columns: 1fr; } }
+    .form-card {
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 2rem 2.5rem;
+      box-shadow: 0 4px 24px rgba(0,0,0,.08);
+      border: 1px solid #e5e7eb;
+    }
+    .form-card h2 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem 1.5rem;
+    }
+    .form-grid .full { grid-column: 1 / -1; }
+    .form-group { display: flex; flex-direction: column; gap: .3rem; }
+    .form-group label {
+      font-size: .8rem;
+      font-weight: 600;
+      color: #374151;
+    }
+    .form-group input,
+    .form-group select {
+      padding: .6rem .75rem;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: .9rem;
+      font-family: 'Inter', sans-serif;
+      background: #fafafa;
+      transition: border .2s;
+    }
+    .form-group input:focus,
+    .form-group select:focus {
+      border-color: var(--green);
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(0,220,130,.12);
+    }
+    .checkbox-row {
+      grid-column: 1 / -1;
+      display: flex;
+      gap: 1.25rem;
+      flex-wrap: wrap;
+      padding: .5rem 0;
+    }
+    .checkbox-row label {
+      display: flex;
+      align-items: center;
+      gap: .4rem;
+      font-size: .82rem;
+      color: #374151;
+      cursor: pointer;
+    }
+    .checkbox-row input[type="checkbox"] {
+      width: 18px; height: 18px;
+      accent-color: var(--green);
+    }
+    .lead-section {
+      grid-column: 1 / -1;
+      background: var(--light);
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      margin-top: .5rem;
+    }
+    .lead-section p {
+      font-size: .78rem;
+      color: var(--gray);
+      margin-bottom: .75rem;
+    }
+    .lead-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: .75rem;
+    }
+    .lead-grid .form-group input {
+      background: var(--white);
+    }
+    .btn-estimate {
+      grid-column: 1 / -1;
+      margin-top: .5rem;
+      padding: .85rem 2rem;
+      background: var(--green);
+      color: var(--dark);
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 700;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      transition: background .2s, transform .1s;
+    }
+    .btn-estimate:hover { background: #00c974; }
+    .btn-estimate:active { transform: scale(.98); }
+    .btn-estimate:disabled {
+      background: #ccc;
+      cursor: wait;
+    }
 
-    /* ── Autocomplete ── */
-    .ac-wrap { position: relative; }
-    #ban-list { position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: #fff; border: 1.5px solid #ddd; border-radius: 10px; overflow: hidden; z-index: 300; box-shadow: 0 8px 24px rgba(0,0,0,.12); }
-    #ban-list li { list-style: none; padding: 11px 14px; font-size: .95rem; cursor: pointer; border-bottom: 1px solid #f5f5f5; transition: background .15s; }
-    #ban-list li:last-child { border-bottom: none; }
-    #ban-list li:hover, #ban-list li.active { background: #f0fdf8; color: #00D47E; }
+    /* ── Results ── */
+    .result-card {
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 2rem 2.5rem;
+      margin-top: 1.5rem;
+      box-shadow: 0 4px 24px rgba(0,0,0,.08);
+      border: 1px solid #e5e7eb;
+      display: none;
+    }
+    .result-card.visible { display: block; animation: fadeUp .4s ease-out; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* ── Button ── */
-    .btn-green { width: 100%; padding: 14px; background: #00D47E; color: #fff; border: none; border-radius: 10px; font-size: 1rem; font-weight: 700; cursor: pointer; transition: background .2s, transform .1s; letter-spacing: .01em; }
-    .btn-green:hover { background: #00bf70; }
-    .btn-green:active { transform: scale(.98); }
-    .btn-green:disabled { background: #ccc; cursor: not-allowed; }
-    .btn-outline { padding: 10px 20px; border: 1.5px solid #00D47E; color: #00D47E; background: transparent; border-radius: 8px; font-size: .9rem; font-weight: 600; cursor: pointer; transition: all .2s; }
-    .btn-outline:hover { background: #00D47E; color: #fff; }
+    .result-header {
+      display: flex;
+      align-items: flex-end;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid var(--light);
+    }
+    .price-main {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(2rem, 5vw, 3rem);
+      color: var(--dark);
+      line-height: 1;
+    }
+    .price-m2 {
+      font-size: .95rem;
+      color: var(--gray);
+      padding-bottom: .3rem;
+    }
+    .confidence {
+      margin-left: auto;
+      text-align: right;
+    }
+    .confidence-label { font-size: .75rem; color: var(--gray); text-transform: uppercase; letter-spacing: .5px; }
+    .confidence-bar {
+      width: 120px; height: 8px;
+      background: #e5e7eb;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-top: .3rem;
+    }
+    .confidence-fill {
+      height: 100%;
+      background: var(--green);
+      border-radius: 4px;
+      transition: width .6s ease-out;
+    }
+    .confidence-val { font-size: .85rem; font-weight: 700; color: var(--dark); margin-top: .2rem; }
+
+    .result-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .metric-box {
+      background: var(--light);
+      border-radius: 8px;
+      padding: 1rem;
+    }
+    .metric-label { font-size: .72rem; color: var(--gray); text-transform: uppercase; letter-spacing: .5px; }
+    .metric-val { font-size: 1.15rem; font-weight: 700; color: var(--dark); margin-top: .2rem; }
+    .metric-sub { font-size: .75rem; color: var(--gray); margin-top: .15rem; }
+
+    .scores-row {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.5rem;
+    }
+    .score-pill {
+      display: flex;
+      align-items: center;
+      gap: .4rem;
+      background: var(--light);
+      padding: .4rem .9rem;
+      border-radius: 20px;
+      font-size: .82rem;
+      font-weight: 600;
+    }
+    .score-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+    }
+    .score-green  { background: #22c55e; }
+    .score-yellow { background: #eab308; }
+    .score-red    { background: #ef4444; }
+
+    .fourchette {
+      background: var(--light);
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .fourchette-label { font-size: .8rem; font-weight: 600; color: var(--gray); }
+    .fourchette-bar {
+      flex: 1;
+      height: 6px;
+      background: linear-gradient(to right, #fbbf24, #22c55e, #fbbf24);
+      border-radius: 3px;
+      min-width: 120px;
+    }
+    .fourchette-vals {
+      display: flex;
+      justify-content: space-between;
+      font-size: .8rem;
+      font-weight: 600;
+      gap: 1.5rem;
+    }
+
+    /* ── Analyse section ── */
+    .analyse-section {
+      display: none;
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 1.75rem 2rem;
+      margin-top: 1.25rem;
+      border: 1px solid #e5e7eb;
+    }
+    .analyse-section.visible { display: block; }
+    .analyse-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.25rem;
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+    }
+    .analyse-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+    }
+    @media (max-width: 720px) { .analyse-grid { grid-template-columns: 1fr; } }
+    #analyse-map { height: 300px; border-radius: 10px; }
+    #analyse-chart-wrap { position: relative; height: 240px; }
+    .kpi-bar-row { display: flex; align-items: center; gap: .75rem; margin-bottom: .6rem; }
+    .kpi-bar-name { font-size: .8rem; width: 100px; flex-shrink: 0; }
+    .kpi-bar-track { flex: 1; height: 8px; background: #f0f0f0; border-radius: 4px; overflow: hidden; }
+    .kpi-bar-fill { height: 100%; border-radius: 4px; transition: width .6s ease; }
+    .kpi-bar-val { font-size: .8rem; font-weight: 700; width: 36px; text-align: right; }
+    .reco-box {
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+      margin-top: 1rem;
+      font-size: .9rem;
+      font-weight: 600;
+    }
+    .comparables-table { width: 100%; border-collapse: collapse; font-size: .8rem; margin-top: .75rem; }
+    .comparables-table th { background: #f8f8f8; padding: .45rem .65rem; text-align: left; font-size: .7rem; color: #666; text-transform: uppercase; }
+    .comparables-table td { padding: .45rem .65rem; border-top: 1px solid #f4f4f4; }
 
     /* ── Error ── */
-    #error-box { background: #fff0f0; border: 1px solid #fca5a5; color: #b91c1c; padding: 10px 14px; border-radius: 8px; font-size: .9rem; margin-top: 12px; display: none; }
+    .error-msg {
+      background: #fef2f2;
+      border: 1px solid #fca5a5;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-top: 1rem;
+      color: #991b1b;
+      font-size: .85rem;
+      display: none;
+    }
+    .error-msg.visible { display: block; }
 
-    /* ── Section 1 – Prix estimé ── */
-    .price-main { background: linear-gradient(135deg, #00D47E 0%, #00b86b 100%); border-radius: 16px; padding: 32px; color: #fff; margin-top: 20px; box-shadow: 0 4px 24px rgba(0,212,126,.3); }
-    .price-commune { font-size: .85rem; font-weight: 600; opacity: .85; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 6px; }
-    .price-val { font-size: 2.8rem; font-weight: 900; line-height: 1; margin-bottom: 4px; }
-    .price-range { font-size: 1rem; opacity: .85; margin-bottom: 16px; }
-    .price-meta { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 16px; }
-    .price-chip { background: rgba(255,255,255,.2); border-radius: 8px; padding: 8px 14px; font-size: .88rem; font-weight: 600; }
-    .stars { color: #fff; font-size: 1.1rem; letter-spacing: 2px; }
-    .trend-badge { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 20px; font-size: .85rem; font-weight: 700; background: rgba(255,255,255,.25); }
+    /* ── Sources / trust ── */
+    .trust-section {
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 1.5rem 2rem;
+      margin-top: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      border: 1px solid #e5e7eb;
+    }
+    .trust-section h3 {
+      font-size: .85rem;
+      color: var(--gray);
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      white-space: nowrap;
+    }
+    .trust-logos {
+      display: flex;
+      gap: 1.25rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .trust-logo {
+      background: var(--light);
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      padding: .35rem .75rem;
+      font-size: .78rem;
+      font-weight: 600;
+      color: #374151;
+    }
 
-    /* ── Section 2 – Facettes ── */
-    .facet-row { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
-    .facet-label { font-size: .82rem; color: #555; width: 160px; flex-shrink: 0; }
-    .bar-track { flex: 1; height: 8px; background: #f0f0f0; border-radius: 4px; overflow: hidden; }
-    .bar-fill { height: 100%; border-radius: 4px; transition: width .8s cubic-bezier(.4,0,.2,1); }
-    .facet-pct { font-size: .8rem; color: #888; width: 36px; text-align: right; flex-shrink: 0; }
-
-    /* ── Section 3 – Carte ── */
-    #map { width: 100%; height: 400px; border-radius: 12px; overflow: hidden; z-index: 1; }
-
-    /* ── Section 5 – Accordéon ── */
-    .accordion-item { border: 1px solid #f0f0f0; border-radius: 10px; margin-bottom: 8px; overflow: hidden; }
-    .accordion-header { display: flex; align-items: center; gap: 10px; padding: 14px 16px; font-weight: 600; cursor: pointer; background: #fafafa; user-select: none; transition: background .15s; }
-    .accordion-header:hover { background: #f0f0f0; }
-    .accordion-header .chevron { margin-left: auto; transition: transform .3s; font-style: normal; }
-    .accordion-header.open .chevron { transform: rotate(180deg); }
-    .accordion-body { max-height: 0; overflow: hidden; transition: max-height .3s ease; }
-    .accordion-body.open { max-height: 400px; }
-    .poi-list { padding: 12px 16px; display: flex; flex-wrap: wrap; gap: 8px; }
-    .poi-tag { background: #f5f5f5; border-radius: 6px; padding: 4px 10px; font-size: .82rem; color: #444; }
-
-    /* ── Section 6 – Graphique ── */
-    #chart-canvas { width: 100%; height: 240px; display: block; }
-
-    /* ── Section 7 – Ventes ── */
-    .sale-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
-    .sale-card { background: #fafafa; border-radius: 12px; padding: 16px; border: 1px solid #eee; }
-    .sale-icon { font-size: 1.5rem; margin-bottom: 8px; }
-    .sale-type { font-size: .82rem; font-weight: 600; color: #444; }
-    .sale-price { font-size: 1.1rem; font-weight: 800; color: #1a1a1a; margin: 4px 0; }
-    .sale-detail { font-size: .8rem; color: #888; }
-
-    /* ── Section 8 – Aides ── */
-    .aids-total { font-size: 2rem; font-weight: 900; color: #00D47E; margin: 12px 0 4px; }
-    .aid-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px 0; border-bottom: 1px solid #f5f5f5; }
-    .aid-item:last-child { border-bottom: none; }
-    .aid-icon { font-size: 1.4rem; flex-shrink: 0; }
-    .aid-info h4 { font-size: .9rem; font-weight: 700; }
-    .aid-info p { font-size: .82rem; color: #666; margin-top: 2px; }
-    .aid-amount { margin-left: auto; font-size: .9rem; font-weight: 700; color: #00D47E; flex-shrink: 0; }
-
-    /* ── Section 9 – Démo ── */
-    .demo-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
-    @media (max-width: 480px) { .demo-grid { grid-template-columns: 1fr; } }
-    .demo-stat { background: #fafafa; border-radius: 10px; padding: 14px; border: 1px solid #eee; }
-    .demo-val { font-size: 1.4rem; font-weight: 800; }
-    .demo-lbl { font-size: .78rem; color: #888; margin-top: 2px; }
-    .wiki-box { display: flex; gap: 16px; margin-top: 4px; }
-    .wiki-img { width: 100px; height: 80px; object-fit: cover; border-radius: 8px; flex-shrink: 0; }
-    .wiki-text { font-size: .88rem; color: #444; line-height: 1.6; }
-
-    /* ── CTA ── */
-    .cta-section { background: #111; border-radius: 16px; padding: 32px; text-align: center; margin-top: 24px; color: #fff; }
-    .cta-section h2 { font-size: 1.5rem; font-weight: 800; margin-bottom: 8px; }
-    .cta-section p { color: #aaa; font-size: .95rem; margin-bottom: 20px; }
-    .cta-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
-    .cta-btn { padding: 12px 28px; border-radius: 10px; font-size: .95rem; font-weight: 700; text-decoration: none; transition: all .2s; }
-    .cta-btn.green { background: #00D47E; color: #fff; }
-    .cta-btn.green:hover { background: #00bf70; }
-    .cta-btn.white { background: #fff; color: #111; }
-    .cta-btn.white:hover { background: #eee; }
-
-    /* ── Survey popup ── */
-    #survey { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%) translateY(120%); width: min(440px, 100%); background: #fff; border-radius: 16px 16px 0 0; padding: 24px; box-shadow: 0 -4px 32px rgba(0,0,0,.15); z-index: 900; transition: transform .4s cubic-bezier(.4,0,.2,1); }
-    #survey.show { transform: translateX(-50%) translateY(0); }
-    #survey h3 { font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
-    #survey p { font-size: .85rem; color: #666; margin-bottom: 14px; }
-    .star-row { display: flex; gap: 8px; margin-bottom: 16px; }
-    .star-btn { font-size: 1.8rem; background: none; border: none; cursor: pointer; opacity: .3; transition: opacity .15s, transform .15s; line-height: 1; padding: 0; }
-    .star-btn.lit { opacity: 1; transform: scale(1.1); }
-    .survey-close { position: absolute; top: 12px; right: 16px; background: none; border: none; font-size: 1.2rem; cursor: pointer; color: #888; padding: 4px; }
-    #survey-phase2 { display: none; }
-    #survey-phase2 select, #survey-phase2 input { margin-bottom: 10px; }
-    #survey-thanks { display: none; text-align: center; padding: 8px 0; font-size: .95rem; color: #00D47E; font-weight: 700; }
-
-    /* ── Skeleton ── */
-    .skel { background: linear-gradient(90deg, #e8e0d8 25%, #d8d0c8 50%, #e8e0d8 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; border-radius: 8px; }
-    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-    .skel-price { height: 140px; border-radius: 16px; margin-top: 20px; }
-    .skel-bar { height: 12px; margin: 10px 0; }
-    .skel-block { height: 80px; margin-top: 20px; border-radius: 16px; }
-
-    /* ── Fade in ── */
-    .fade-in { animation: fadeIn .5s ease forwards; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+    /* ── Comment ca marche ── */
+    .how-section {
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 2rem;
+      margin-top: 1.5rem;
+      border: 1px solid #e5e7eb;
+    }
+    .how-section h2 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.5rem;
+      margin-bottom: 1.25rem;
+    }
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+    .step {
+      background: var(--light);
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+    }
+    .step-num {
+      display: inline-flex;
+      width: 28px; height: 28px;
+      background: var(--green);
+      color: var(--dark);
+      font-weight: 800;
+      font-size: .85rem;
+      border-radius: 50%;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: .5rem;
+    }
+    .step h4 { font-size: .9rem; font-weight: 600; margin-bottom: .25rem; }
+    .step p  { font-size: .8rem; color: var(--gray); line-height: 1.5; }
 
     /* ── Footer ── */
-    footer { background: #111; color: #888; text-align: center; padding: 24px 16px; font-size: .8rem; }
-    footer a { color: #888; text-decoration: none; margin: 0 8px; }
-    footer a:hover { color: #fff; }
-    .footer-copy { margin-top: 8px; }
+    footer {
+      background: var(--dark);
+      color: #888;
+      text-align: center;
+      font-size: .8rem;
+      padding: 1.5rem;
+      margin-top: 2rem;
+    }
+    footer a { color: var(--green); text-decoration: none; }
+
+    /* ── Responsive ── */
+    @media (max-width: 640px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .lead-grid { grid-template-columns: 1fr; }
+      .confidence { margin-left: 0; text-align: left; }
+      .fourchette { flex-direction: column; align-items: stretch; }
+    }
   </style>
 </head>
 <body>
 
-<header>
-  <a href="/" class="logo">Intent Analytics</a>
-  <nav>
-    <a href="/estimation" class="active">Estimer</a>
-    <a href="/pricing">Prix</a>
-    <a href="/api">API</a>
-    <a href="/contact">Contact</a>
-  </nav>
-</header>
-
-<main>
-
-  <!-- Hero + Formulaire -->
-  <div class="hero">
-    <h1>Estimez votre bien <span>en quelques secondes</span></h1>
-    <p>Prix DVF, DPE, cadre de vie, démographie et tendances de marché local.</p>
+<!-- Navbar -->
+<nav>
+  <a class="nav-logo" href="/"><span>SAHAR</span> Conseil</a>
+  <div class="nav-links">
+    <a href="/#outils">Outils</a>
+    <a href="/#secteurs">Secteurs</a>
+    <a href="/blog">Blog</a>
+    <a href="/#contact" class="nav-cta">Contact</a>
   </div>
+</nav>
 
-  <div class="card" id="form-card">
-    <form id="estim-form" novalidate>
-      <div class="field ac-wrap">
-        <label for="address">Adresse du bien</label>
-        <input type="text" id="address" placeholder="12 rue de la Paix, Paris" autocomplete="off" required />
-        <ul id="ban-list"></ul>
+<!-- Hero -->
+<section class="hero">
+  <span class="hero-tag">Outil gratuit</span>
+  <h1>Estimez la valeur de votre<br><em>bien immobilier</em></h1>
+  <p>Modèle économétrique basé sur les données publiques françaises. Résultat en quelques secondes.</p>
+  <div class="hero-badges">
+    <span class="badge"><strong>DVF</strong> — 6M transactions</span>
+    <span class="badge"><strong>DPE</strong> — Impact énergétique</span>
+    <span class="badge"><strong>BAN</strong> — Géocodage précis</span>
+    <span class="badge"><strong>POI</strong> — Équipements 500m</span>
+  </div>
+</section>
+
+<!-- Contenu principal -->
+<div class="app-wrapper">
+
+  <!-- Formulaire -->
+  <div class="form-card">
+    <h2>Votre bien</h2>
+    <form id="estimation-form" class="form-grid" autocomplete="off">
+
+      <div class="form-group full">
+        <label for="adresse">Adresse complète</label>
+        <input type="text" id="adresse" name="adresse" placeholder="12 rue de la Paix, 75002 Paris" required minlength="5" />
       </div>
-      <div class="row2">
-        <div class="field">
-          <label for="type-bien">Type de bien</label>
-          <select id="type-bien">
-            <option value="Appartement">Appartement</option>
-            <option value="Maison">Maison</option>
-          </select>
-        </div>
-        <div class="field">
-          <label for="surface">Surface (m²)</label>
-          <input type="number" id="surface" min="5" max="2000" placeholder="65" required />
+
+      <div class="form-group">
+        <label for="type_bien">Type de bien</label>
+        <select id="type_bien" name="type_bien" required>
+          <option value="Appartement">Appartement</option>
+          <option value="Maison">Maison</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="surface">Surface (m²)</label>
+        <input type="number" id="surface" name="surface" placeholder="65" required min="5" max="2000" />
+      </div>
+
+      <div class="form-group">
+        <label for="nb_pieces">Nombre de pièces</label>
+        <input type="number" id="nb_pieces" name="nb_pieces" value="3" min="1" max="20" />
+      </div>
+
+      <div class="form-group">
+        <label for="dpe">DPE</label>
+        <select id="dpe" name="dpe">
+          <option value="A">A</option>
+          <option value="B">B</option>
+          <option value="C">C</option>
+          <option value="D" selected>D</option>
+          <option value="E">E</option>
+          <option value="F">F</option>
+          <option value="G">G</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="annee_construction">Année de construction</label>
+        <input type="number" id="annee_construction" name="annee_construction" value="1980" min="1800" max="2025" />
+      </div>
+
+      <div class="form-group">
+        <label for="etat">État général</label>
+        <select id="etat" name="etat">
+          <option value="mauvais">Mauvais</option>
+          <option value="moyen">Moyen</option>
+          <option value="bon" selected>Bon</option>
+          <option value="tres_bon">Très bon</option>
+          <option value="excellent">Excellent</option>
+        </select>
+      </div>
+
+      <div class="checkbox-row">
+        <label><input type="checkbox" id="has_parking" /> Parking / garage</label>
+        <label><input type="checkbox" id="has_balcony" /> Balcon / terrasse</label>
+        <label><input type="checkbox" id="has_garden" />  Jardin</label>
+        <label><input type="checkbox" id="has_view" />    Vue dégagée</label>
+      </div>
+
+      <div class="lead-section">
+        <p>Recevez votre rapport complet par email (optionnel)</p>
+        <div class="lead-grid">
+          <div class="form-group">
+            <label for="lead_nom">Nom</label>
+            <input type="text" id="lead_nom" placeholder="Jean Dupont" />
+          </div>
+          <div class="form-group">
+            <label for="lead_email">Email</label>
+            <input type="email" id="lead_email" placeholder="jean@exemple.fr" />
+          </div>
+          <div class="form-group">
+            <label for="lead_tel">Téléphone</label>
+            <input type="tel" id="lead_tel" placeholder="06 12 34 56 78" />
+          </div>
         </div>
       </div>
-      <button type="submit" class="btn-green" id="submit-btn">Estimer mon bien</button>
-      <div id="error-box"></div>
+
+      <button type="submit" class="btn-estimate" id="btn-submit">
+        Estimer mon bien
+      </button>
     </form>
-  </div>
 
-  <!-- Skeleton loading -->
-  <div id="skeletons" class="hidden">
-    <div class="skel skel-price"></div>
-    <div class="sc"><div class="skel skel-bar"></div><div class="skel skel-bar"></div><div class="skel skel-bar"></div></div>
-    <div class="skel skel-block"></div>
-  </div>
-
-  <!-- Bouton reset -->
-  <div id="reset-wrap" class="hidden" style="text-align:right; margin-top:12px;">
-    <button class="btn-outline" id="reset-btn">← Nouvelle estimation</button>
+    <div class="error-msg" id="error-box"></div>
   </div>
 
   <!-- Résultats -->
-  <div id="results" class="hidden">
-
-    <!-- S1 – Prix estimé -->
-    <div class="price-main fade-in" id="s1">
-      <div class="price-commune" id="s1-commune">—</div>
-      <div class="price-val" id="s1-prix">—</div>
-      <div class="price-range" id="s1-range">—</div>
-      <div class="price-meta">
-        <div class="price-chip" id="s1-m2">—</div>
-        <div class="price-chip"><span class="stars" id="s1-stars">★★★☆☆</span> <span id="s1-conf-lbl" style="opacity:.8;font-size:.8rem;margin-left:4px;">Confiance</span></div>
-        <div class="trend-badge" id="s1-trend">—</div>
-        <div class="price-chip" id="s1-nb">—</div>
+  <div class="result-card" id="result-card">
+    <div class="result-header">
+      <div>
+        <div class="price-main" id="r-prix">—</div>
+        <div class="price-m2" id="r-prix-m2"></div>
+      </div>
+      <div class="confidence">
+        <div class="confidence-label">Confiance</div>
+        <div class="confidence-bar"><div class="confidence-fill" id="r-conf-bar"></div></div>
+        <div class="confidence-val" id="r-conf-val"></div>
       </div>
     </div>
 
-    <!-- S2 – Facettes -->
-    <div class="sc fade-in" id="s2">
-      <div class="sec-title">Facettes d'évaluation</div>
-      <div id="facets-container"></div>
-    </div>
+    <div class="result-grid" id="r-metrics"></div>
 
-    <!-- S3 – Carte -->
-    <div class="sc fade-in" id="s3">
-      <div class="sec-title">Carte du secteur</div>
-      <div id="map"></div>
-      <div style="display:flex;gap:16px;margin-top:10px;font-size:.8rem;color:#666;flex-wrap:wrap;">
-        <span>🔴 Bien estimé</span><span>🔵 Dernières ventes DVF</span><span>🟢 Équipements proches</span>
+    <div class="scores-row" id="r-scores"></div>
+
+    <div class="fourchette" id="r-fourchette">
+      <div class="fourchette-label">Fourchette</div>
+      <div class="fourchette-bar"></div>
+      <div class="fourchette-vals">
+        <span id="r-low">—</span>
+        <span id="r-high">—</span>
       </div>
     </div>
+  </div>
 
-    <!-- S4 – Texte explicatif -->
-    <div class="sc fade-in" id="s4">
-      <div class="sec-title">Analyse du quartier</div>
-      <p id="s4-text" style="font-size:.95rem;color:#444;line-height:1.7;">—</p>
-    </div>
+  <!-- Analyse détaillée -->
+  <div class="analyse-section" id="analyse-section">
+    <div class="analyse-title">📊 Analyse du marché local</div>
 
-    <!-- S5 – POI accordéon -->
-    <div class="sc fade-in" id="s5">
-      <div class="sec-title">Équipements à proximité</div>
-      <div id="poi-accordion"></div>
-    </div>
+    <div id="reco-box-wrap"></div>
 
-    <!-- S6 – Graphique -->
-    <div class="sc fade-in" id="s6">
-      <div class="sec-title">Évolution des prix au m²</div>
-      <canvas id="chart-canvas"></canvas>
-      <p id="s6-empty" style="color:#888;font-size:.88rem;text-align:center;padding:20px 0;" class="hidden">Données historiques non disponibles pour ce secteur.</p>
-    </div>
+    <!-- KPI scores -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.75rem;margin-bottom:1.25rem" id="kpi-cards"></div>
 
-    <!-- S7 – Dernières ventes -->
-    <div class="sc fade-in" id="s7">
-      <div class="sec-title">Dernières ventes DVF</div>
-      <div class="sale-cards" id="sale-cards"></div>
-      <p id="s7-empty" style="color:#888;font-size:.88rem;text-align:center;padding:16px 0;" class="hidden">Aucune vente récente géolocalisée disponible.</p>
-    </div>
+    <!-- Scores bars -->
+    <div id="score-bars" style="margin-bottom:1.25rem"></div>
 
-    <!-- S8 – Simulateur aides DPE -->
-    <div class="sc fade-in" id="s8">
-      <div class="sec-title">Simulateur aides rénovation énergétique</div>
-      <div class="row2" style="margin-bottom:16px;">
-        <div class="field" style="margin-bottom:0;">
-          <label for="rfr">Revenu fiscal de référence</label>
-          <select id="rfr">
-            <option value="tres_modeste">&lt; 17 000 € (très modeste)</option>
-            <option value="modeste">17 000 – 25 000 € (modeste)</option>
-            <option value="intermediaire">25 000 – 38 000 € (intermédiaire)</option>
-            <option value="superieur">&gt; 38 000 € (supérieur)</option>
-          </select>
-        </div>
-        <div class="field" style="margin-bottom:0;">
-          <label for="dpe-vise">DPE visé</label>
-          <select id="dpe-vise">
-            <option value="A">A</option>
-            <option value="B">B</option>
-            <option value="C" selected>C</option>
-            <option value="D">D</option>
-            <option value="E">E</option>
-            <option value="F">F</option>
-            <option value="G">G</option>
-          </select>
+    <div class="analyse-grid">
+      <!-- Carte -->
+      <div>
+        <div style="font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#888;margin-bottom:.5rem">Transactions DVF sur la zone</div>
+        <div id="analyse-map"></div>
+        <div style="font-size:.7rem;color:#aaa;margin-top:.4rem">
+          <span style="color:#22c55e">●</span> Sous médiane
+          <span style="color:#eab308;margin-left:.6rem">●</span> Dans la médiane
+          <span style="color:#ef4444;margin-left:.6rem">●</span> Au-dessus
         </div>
       </div>
-      <div id="aids-result">
-        <div class="aids-total" id="aids-total">—</div>
-        <div id="aids-phrase" style="font-size:.88rem;color:#666;margin-bottom:16px;"></div>
-        <div id="aids-list"></div>
+      <!-- Graphique évolution -->
+      <div>
+        <div style="font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#888;margin-bottom:.5rem">Évolution prix médian / m²</div>
+        <div id="analyse-chart-wrap"><canvas id="analyse-chart"></canvas></div>
+        <!-- Comparables -->
+        <div style="font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#888;margin:.9rem 0 .4rem">Dernières transactions</div>
+        <div id="comparables-wrap" style="overflow-x:auto"></div>
       </div>
     </div>
+  </div>
 
-    <!-- S9 – Démographie + Wikipédia -->
-    <div class="sc fade-in" id="s9">
-      <div class="sec-title">Démographie & contexte local</div>
-      <div class="demo-grid" id="demo-grid"></div>
-      <div class="wiki-box" id="wiki-box" style="display:none;">
-        <img id="wiki-img" class="wiki-img" src="" alt="" style="display:none;" />
-        <p class="wiki-text" id="wiki-text"></p>
+  <!-- Sources -->
+  <div class="trust-section">
+    <h3>Sources de données</h3>
+    <div class="trust-logos">
+      <span class="trust-logo">DVF — Cerema</span>
+      <span class="trust-logo">DPE — ADEME</span>
+      <span class="trust-logo">BAN — data.gouv.fr</span>
+      <span class="trust-logo">POI — OpenStreetMap</span>
+      <span class="trust-logo">Modèle hédonique SAHAR</span>
+    </div>
+  </div>
+
+  <!-- Comment ça marche -->
+  <div class="how-section">
+    <h2>Comment fonctionne l'estimation ?</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <h4>Géocodage BAN</h4>
+        <p>Votre adresse est transformée en coordonnées GPS précises via la Base Adresse Nationale.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <h4>Marché local DVF</h4>
+        <p>Prix médian, évolution 12 mois et volume de transactions sur votre zone (source Cerema).</p>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <h4>Score équipements</h4>
+        <p>Transport, commerces, écoles, santé dans un rayon de 500m (OpenStreetMap).</p>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <h4>Impact DPE</h4>
+        <p>La classe énergétique influence le prix de ±8% selon les études ADEME / Banque de France.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">5</div>
+        <h4>Modèle économétrique</h4>
+        <p>Régression hédonique combinant tous les facteurs pour estimer la valeur de marché.</p>
       </div>
     </div>
-
-  </div><!-- /results -->
-
-  <!-- CTA -->
-  <div class="cta-section hidden fade-in" id="cta-section">
-    <h2>Allez plus loin avec Intent Analytics</h2>
-    <p>Rapport PDF complet, accès API et données en temps réel pour professionnels.</p>
-    <div class="cta-btns">
-      <a href="/pricing" class="cta-btn green">Rapport complet</a>
-      <a href="/api" class="cta-btn white">API</a>
-    </div>
   </div>
 
-</main>
-
-<!-- Enquête satisfaction -->
-<div id="survey">
-  <button class="survey-close" id="survey-close" aria-label="Fermer">✕</button>
-  <h3>Cette estimation vous semble-t-elle juste ?</h3>
-  <p>Votre avis améliore notre modèle.</p>
-  <div class="star-row" id="star-row">
-    <button class="star-btn" data-v="1">★</button>
-    <button class="star-btn" data-v="2">★</button>
-    <button class="star-btn" data-v="3">★</button>
-    <button class="star-btn" data-v="4">★</button>
-    <button class="star-btn" data-v="5">★</button>
-  </div>
-  <div id="survey-phase2">
-    <div class="field" style="margin-bottom:10px;">
-      <label for="survey-profil">Votre profil</label>
-      <select id="survey-profil">
-        <option value="proprietaire">Propriétaire</option>
-        <option value="acheteur">Acheteur potentiel</option>
-        <option value="agent">Agent immobilier</option>
-        <option value="autre">Autre</option>
-      </select>
-    </div>
-    <div class="field" style="margin-bottom:12px;">
-      <label for="survey-prix">Prix réel (optionnel)</label>
-      <input type="number" id="survey-prix" placeholder="ex: 245000" />
-    </div>
-    <button class="btn-green" id="survey-submit">Envoyer mon avis</button>
-  </div>
-  <div id="survey-thanks">Merci pour votre retour ! 🙏</div>
 </div>
 
+<!-- Footer -->
 <footer>
-  <div>
-    <a href="/mentions-legales">Mentions légales</a>
-    <a href="/cgu">CGU</a>
-    <a href="/cgv">CGV</a>
-    <a href="/confidentialite">Confidentialité</a>
-    <a href="mailto:contact@intentanalytics.fr">contact@intentanalytics.fr</a>
-  </div>
-  <div class="footer-copy">© 2026 Intent Analytics</div>
+  <p>
+    © 2026 SAHAR Conseil —
+    <a href="/mentions-legales.html">Mentions légales</a> ·
+    <a href="/politique-confidentialite.html">Confidentialité</a> ·
+    <a href="mailto:contact@sahar-conseil.fr">contact@sahar-conseil.fr</a>
+  </p>
+  <p style="margin-top:.5rem;font-size:.72rem;color:#555;">
+    Estimation à titre indicatif. Ne constitue pas une expertise immobilière certifiée.
+  </p>
 </footer>
 
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <script>
-'use strict';
+const SUPA_URL  = "https://wwvdpixzfaviaapixarb.supabase.co";
+const SUPA_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3dmRwaXh6ZmF2aWFhcGl4YXJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3Mzk0NDgsImV4cCI6MjA5MDMxNTQ0OH0.NjOeWzUCo2BJPcxnkEJNm215GJBr1RAHba1eL_EF758";
+const BAN_URL   = "https://api-adresse.data.gouv.fr/search/";
+let leafletMap  = null;
+let chartInst   = null;
+// ── Formatters ────────────────────────────────────────────────────────────────
+const fmt = n => n == null ? "—" :
+  new Intl.NumberFormat("fr-FR", { style:"currency", currency:"EUR", maximumFractionDigits:0 }).format(n);
+const fmtN = n => n == null ? "—" : new Intl.NumberFormat("fr-FR").format(n);
 
-/* ══════════════════════════════════════════
-   CONSTANTES
-══════════════════════════════════════════ */
-const SUPA_URL  = 'https://wwvdpixzfaviaapixarb.supabase.co';
-const SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3dmRwaXh6ZmF2aWFhcGl4YXJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3Mzk0NDgsImV4cCI6MjA5MDMxNTQ0OH0.NjOeWzUCo2BJPcxnkEJNm215GJBr1RAHba1eL_EF758';
-const SH = { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON, 'Content-Type': 'application/json' };
-
-/* ══════════════════════════════════════════
-   FORMATTERS
-══════════════════════════════════════════ */
-const fmtEur = n => new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(n);
-const fmtNum = n => new Intl.NumberFormat('fr-FR').format(n);
-const fmtPct = (n, plus) => n == null ? '—' : (plus && n > 0 ? '+' : '') + parseFloat(n).toFixed(1) + ' %';
-const esc    = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-
-/* ══════════════════════════════════════════
-   ÉTAT GLOBAL
-══════════════════════════════════════════ */
-let selectedBAN = null;
-let storedCP = '', storedInsee = '', storedLat = null, storedLon = null;
-let leafletMap = null;
-let surveyTimer = null;
-let surveyNote  = 0;
-
-/* ══════════════════════════════════════════
-   AUTOCOMPLETE BAN
-══════════════════════════════════════════ */
-const addressInput = document.getElementById('address');
-const banList      = document.getElementById('ban-list');
-let debTimer = null, acIdx = -1, acItems = [];
-
-addressInput.addEventListener('input', () => {
-  selectedBAN = null;
-  clearTimeout(debTimer);
-  const q = addressInput.value.trim();
-  if (q.length < 3) { banList.innerHTML = ''; return; }
-  debTimer = setTimeout(() => fetchBAN(q), 300);
-});
-
-addressInput.addEventListener('keydown', e => {
-  const items = banList.querySelectorAll('li');
-  if (!items.length) return;
-  if (e.key === 'ArrowDown')  { e.preventDefault(); acIdx = Math.min(acIdx + 1, items.length - 1); hlItem(items); }
-  else if (e.key === 'ArrowUp') { e.preventDefault(); acIdx = Math.max(acIdx - 1, 0); hlItem(items); }
-  else if (e.key === 'Enter' && acIdx >= 0) { e.preventDefault(); pickBAN(acItems[acIdx]); }
-  else if (e.key === 'Escape') banList.innerHTML = '';
-});
-
-document.addEventListener('click', e => {
-  if (!document.getElementById('form-card').contains(e.target)) banList.innerHTML = '';
-});
-
-async function fetchBAN(q) {
-  try {
-    const r = await fetch(`https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(q)}&limit=5`);
-    const d = await r.json();
-    acItems = d.features || [];
-    acIdx = -1;
-    banList.innerHTML = '';
-    acItems.forEach((f, i) => {
-      const li = document.createElement('li');
-      li.textContent = f.properties.label;
-      li.addEventListener('click', () => pickBAN(f));
-      banList.appendChild(li);
-    });
-  } catch (_) { banList.innerHTML = ''; }
+function scoreColor(v) {
+  if (v >= 70) return "score-green";
+  if (v >= 40) return "score-yellow";
+  return "score-red";
 }
 
-function hlItem(items) {
-  items.forEach((el, i) => el.classList.toggle('active', i === acIdx));
-  if (items[acIdx]) items[acIdx].scrollIntoView({ block: 'nearest' });
-}
-
-function pickBAN(f) {
-  selectedBAN = f;
-  addressInput.value = f.properties.label;
-  banList.innerHTML = '';
-  acIdx = -1;
-}
-
-/* ══════════════════════════════════════════
-   SUPABASE HELPERS
-══════════════════════════════════════════ */
-async function supaRPC(fn, params) {
-  const r = await fetch(`${SUPA_URL}/rest/v1/rpc/${fn}`, { method: 'POST', headers: SH, body: JSON.stringify(params) });
-  if (!r.ok) throw new Error(await r.text());
-  return r.json();
-}
-
-async function supaGet(path) {
-  const r = await fetch(`${SUPA_URL}/rest/v1/${path}`, { headers: SH });
+// ── Supabase fetch (no SDK needed) ────────────────────────────────────────────
+async function supaFetch(table, params) {
+  const qs = new URLSearchParams(params).toString();
+  const r = await fetch(`${SUPA_URL}/rest/v1/${table}?${qs}`, {
+    headers: { apikey: SUPA_ANON, Authorization: `Bearer ${SUPA_ANON}` }
+  });
   if (!r.ok) return [];
   return r.json();
 }
 
-async function supaPost(table, payload) {
-  await fetch(`${SUPA_URL}/rest/v1/${table}`, { method: 'POST', headers: { ...SH, 'Prefer': 'return=minimal' }, body: JSON.stringify(payload) });
-}
-
-/* ══════════════════════════════════════════
-   GEOCODAGE
-══════════════════════════════════════════ */
-async function geocode(q) {
-  const r = await fetch(`https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(q)}&limit=1`);
+// ── BAN Geocoding ─────────────────────────────────────────────────────────────
+async function geocode(adresse) {
+  const r = await fetch(`${BAN_URL}?q=${encodeURIComponent(adresse)}&limit=1`);
   const d = await r.json();
-  if (d.features && d.features.length > 0) return d.features[0];
-  return null;
+  const f = d.features?.[0];
+  if (!f) return null;
+  return {
+    label:     f.properties.label,
+    commune:   f.properties.city,
+    cp:        f.properties.postcode,
+    citycode:  f.properties.citycode,
+    lat:       f.geometry.coordinates[1],
+    lon:       f.geometry.coordinates[0],
+    score:     Math.round(f.properties.score * 100),
+  };
 }
 
-/* ══════════════════════════════════════════
-   SUBMIT
-══════════════════════════════════════════ */
-document.getElementById('estim-form').addEventListener('submit', async e => {
-  e.preventDefault();
-  const surface = parseFloat(document.getElementById('surface').value);
-  const typeLocal = document.getElementById('type-bien').value;
+// ── DVF fetch ─────────────────────────────────────────────────────────────────
+async function fetchDVF(commune, typeBien) {
+  // Essai 1 : par commune exacte
+  let rows = await supaFetch("dvf_mutations", {
+    "commune": `ilike.*${commune.toUpperCase()}*`,
+    "nature_mutation": "eq.Vente",
+    "surface_reelle_bati": "gte.5",
+    "valeur_fonciere": "gte.10000",
+    "date_mutation": "gte.2020-01-01",
+    "select": "*",
+    "order": "date_mutation.desc",
+    "limit": "2000",
+  });
+  // Filtre optionnel par type
+  if (typeBien && rows.length > 20) {
+    const typeFilter = typeBien === "Appartement" ? "Appartement" : "Maison";
+    const filtered = rows.filter(r => (r.type_local || "").includes(typeFilter));
+    if (filtered.length >= 8) rows = filtered;
+  }
+  return rows;
+}
 
-  if (!addressInput.value.trim()) { showError('Veuillez saisir une adresse.'); return; }
-  if (!surface || surface < 5)    { showError('Veuillez saisir une surface valide.'); return; }
+// ── POI fetch ─────────────────────────────────────────────────────────────────
+async function fetchPOI(commune) {
+  const rows = await supaFetch("poi_scores_commune", { "select": "*", "limit": "500" });
+  return rows.find(r => (r.commune || "").toUpperCase().includes(commune.toUpperCase())) || null;
+}
 
-  showError('');
+// ── Stats ─────────────────────────────────────────────────────────────────────
+function computeStats(rows) {
+  const pm2s = rows
+    .filter(r => r.valeur_fonciere > 0 && r.surface_reelle_bati > 5)
+    .map(r => r.valeur_fonciere / r.surface_reelle_bati)
+    .sort((a, b) => a - b);
+  if (pm2s.length < 3) return null;
+  // P10-P90 filter
+  const lo = pm2s[Math.floor(pm2s.length * 0.10)];
+  const hi = pm2s[Math.floor(pm2s.length * 0.90)];
+  const filt = pm2s.filter(v => v >= lo && v <= hi);
+  const med = filt[Math.floor(filt.length / 2)];
+  const q1  = filt[Math.floor(filt.length * 0.25)];
+  const q3  = filt[Math.floor(filt.length * 0.75)];
+  return { median: Math.round(med), q1: Math.round(q1), q3: Math.round(q3), n: filt.length };
+}
 
-  // Récupérer BAN
-  let feature = selectedBAN;
-  if (!feature) {
-    feature = await geocode(addressInput.value.trim());
-    if (!feature) { showError('Adresse introuvable. Essayez d\'être plus précis.'); return; }
+function computeEvolution(rows) {
+  const byYear = {};
+  rows.forEach(r => {
+    const y = (r.date_mutation || "").slice(0, 4);
+    if (!y || isNaN(y) || r.surface_reelle_bati < 5 || r.valeur_fonciere < 1000) return;
+    const pm2 = r.valeur_fonciere / r.surface_reelle_bati;
+    if (!byYear[y]) byYear[y] = [];
+    byYear[y].push(pm2);
+  });
+  const result = {};
+  Object.keys(byYear).sort().forEach(y => {
+    const vals = byYear[y].sort((a,b) => a-b);
+    result[y] = Math.round(vals[Math.floor(vals.length / 2)]);
+  });
+  return result;
+}
+
+function evolution12m(evo) {
+  const years = Object.keys(evo).sort();
+  if (years.length < 2) return null;
+  const y1 = evo[years[years.length - 2]];
+  const y2 = evo[years[years.length - 1]];
+  return y1 > 0 ? Math.round((y2 - y1) / y1 * 1000) / 10 : null;
+}
+
+// ── Modèle hédonique ─────────────────────────────────────────────────────────
+const DPE_COEF   = { A:.10, B:.06, C:.03, D:0, E:-.05, F:-.10, G:-.15 };
+const ETAT_COEF  = { excellent:.07, tres_bon:.04, bon:0, moyen:-.06, mauvais:-.15 };
+
+function applyHedonic(pm2base, dpe, etat, parking, balcony, garden, view, poi) {
+  let adj = 1;
+  adj += DPE_COEF[dpe]  ?? 0;
+  adj += ETAT_COEF[etat] ?? 0;
+  if (parking) adj += 0.04;
+  if (balcony) adj += 0.025;
+  if (garden)  adj += 0.045;
+  if (view)    adj += 0.03;
+  if (poi && poi.score_global > 70) adj += 0.02;
+  return Math.round(pm2base * adj);
+}
+
+function confidence(n) {
+  if (n >= 50) return 90;
+  if (n >= 20) return 75;
+  if (n >= 10) return 60;
+  if (n >= 5)  return 45;
+  return 30;
+}
+
+// ── Affichage résultat ────────────────────────────────────────────────────────
+function showResult(r) {
+  const card = document.getElementById("result-card");
+  card.classList.add("visible");
+
+  document.getElementById("r-prix").textContent = fmt(r.prix_estime);
+  document.getElementById("r-prix-m2").textContent = fmtN(r.pm2_ajuste) + " € / m²";
+
+  const confPct = r.confiance;
+  document.getElementById("r-conf-bar").style.width  = confPct + "%";
+  document.getElementById("r-conf-val").textContent  = confPct + " %";
+
+  // Métriques
+  const metrics = document.getElementById("r-metrics");
+  metrics.innerHTML = "";
+  [
+    { label: "Prix médian zone",     val: fmtN(r.pm2_median) + " €/m²",  sub: `${r.n_transactions} transactions` },
+    { label: "Évolution 12 mois",    val: r.evol12 != null ? (r.evol12 >= 0 ? "+" : "") + r.evol12 + " %" : "—", sub: "" },
+    { label: "DPE sélectionné",      val: document.getElementById("dpe").value, sub: r.dpe_impact },
+    { label: "Score localisation",   val: r.poi_score != null ? r.poi_score + "/100" : "—", sub: "" },
+  ].forEach(k => {
+    const b = document.createElement("div");
+    b.className = "metric-box";
+    b.innerHTML = `<div class="metric-label">${k.label}</div><div class="metric-val">${k.val}</div>${k.sub ? `<div class="metric-sub">${k.sub}</div>` : ""}`;
+    metrics.appendChild(b);
+  });
+
+  // Scores pills
+  const scoresEl = document.getElementById("r-scores");
+  scoresEl.innerHTML = "";
+  [
+    ["Marché", r.s_immo],
+    ["Localisation", r.poi_score],
+    ["Confiance", confPct],
+  ].forEach(([label, v]) => {
+    if (v == null) return;
+    const pill = document.createElement("span");
+    pill.className = "score-pill";
+    pill.innerHTML = `<span class="score-dot ${scoreColor(v)}"></span>${label} : ${v} %`;
+    scoresEl.appendChild(pill);
+  });
+
+  // Fourchette
+  document.getElementById("r-low").textContent  = fmt(r.prix_estime * 0.91);
+  document.getElementById("r-high").textContent = fmt(r.prix_estime * 1.09);
+
+  card.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+// ── Section analyse ───────────────────────────────────────────────────────────
+function showAnalyse(geo, rows, stats, evo, poi, scoreImmo) {
+  const section = document.getElementById("analyse-section");
+  section.classList.add("visible");
+
+  const evol12 = evolution12m(evo);
+  const poiScore = poi ? parseInt(poi.score_global) : null;
+  const scoreGlobal = Math.round(scoreImmo * 0.40 + (poiScore || 50) * 0.35 + Math.min(90, 50 + stats.n) * 0.25);
+
+  // Reco box
+  let recoTxt, recoColor;
+  if (scoreGlobal >= 70) { recoTxt = "💚 Marché attractif — Potentiel de valorisation confirmé."; recoColor = "#d1fae5"; }
+  else if (scoreGlobal >= 50) { recoTxt = "🟡 Marché correct — Vérifier les spécificités locales."; recoColor = "#fef9c3"; }
+  else { recoTxt = "🔴 Points d'attention — Vigilance recommandée."; recoColor = "#fee2e2"; }
+  document.getElementById("reco-box-wrap").innerHTML =
+    `<div class="reco-box" style="background:${recoColor}">${recoTxt} Score global : <strong>${scoreGlobal}/100</strong></div>`;
+
+  // KPI cards
+  const kpiCards = document.getElementById("kpi-cards");
+  kpiCards.innerHTML = "";
+  [
+    ["Prix médian /m²",   fmtN(stats.median) + " €",           "Q1 " + fmtN(stats.q1) + " — Q3 " + fmtN(stats.q3)],
+    ["Évolution 12 mois", evol12 != null ? (evol12 >= 0 ? "+" : "") + evol12 + " %" : "—", ""],
+    ["Transactions",      stats.n,                              "analysées"],
+    ["Score localisation",poiScore != null ? poiScore + "/100" : "—", "équipements"],
+  ].forEach(([lbl, val, sub]) => {
+    const b = document.createElement("div");
+    b.className = "metric-box";
+    b.innerHTML = `<div class="metric-label">${lbl}</div><div class="metric-val">${val}</div>${sub ? `<div class="metric-sub">${sub}</div>` : ""}`;
+    kpiCards.appendChild(b);
+  });
+
+  // Score bars
+  const sbars = document.getElementById("score-bars");
+  sbars.innerHTML = "";
+  const scoreDefs = [
+    ["Immobilier",   scoreImmo,          "#6366f1"],
+    ["Localisation", poiScore || 0,      "#f59e0b"],
+    ["Global",       scoreGlobal,        scoreGlobal >= 70 ? "#10b981" : scoreGlobal >= 50 ? "#f59e0b" : "#ef4444"],
+  ];
+  scoreDefs.forEach(([name, val, color]) => {
+    const row = document.createElement("div");
+    row.className = "kpi-bar-row";
+    row.innerHTML = `
+      <span class="kpi-bar-name">${name}</span>
+      <div class="kpi-bar-track"><div class="kpi-bar-fill" style="width:${val}%;background:${color}"></div></div>
+      <span class="kpi-bar-val" style="color:${color}">${val}</span>`;
+    sbars.appendChild(row);
+  });
+
+  // Carte Leaflet
+  if (geo && geo.lat) {
+    if (leafletMap) { leafletMap.remove(); leafletMap = null; }
+    leafletMap = L.map("analyse-map").setView([geo.lat, geo.lon], 14);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+      { attribution: "© OpenStreetMap", maxZoom: 19 }).addTo(leafletMap);
+    const pinIcon = L.divIcon({
+      html: `<div style="background:#10b981;color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:12px;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.3)">📍</div>`,
+      iconSize: [22, 22], iconAnchor: [11, 11]
+    });
+    L.marker([geo.lat, geo.lon], { icon: pinIcon }).addTo(leafletMap)
+      .bindPopup(`<b>${geo.label || geo.commune}</b>`).openPopup();
+    rows.slice(0, 200).forEach(r => {
+      const lt = r.latitude, ln = r.longitude;
+      const sf = r.surface_reelle_bati, vf = r.valeur_fonciere;
+      if (!lt || !ln || sf < 5 || vf < 1000) return;
+      const pm2 = vf / sf;
+      const ratio = pm2 / stats.median;
+      const c = ratio > 1.15 ? "#ef4444" : ratio < 0.85 ? "#22c55e" : "#eab308";
+      L.circleMarker([lt, ln], { radius: 5, fillColor: c, color: "#fff", weight: 1.5, fillOpacity: 0.85 })
+        .addTo(leafletMap)
+        .bindPopup(`<b>${fmtN(Math.round(pm2))} €/m²</b><br>${Math.round(sf)} m² · ${(r.date_mutation || "").slice(0, 7)}`);
+    });
   }
 
-  storedCP    = feature.properties.postcode || '';
-  storedInsee = feature.properties.citycode  || '';
-  storedLat   = feature.geometry.coordinates[1];
-  storedLon   = feature.geometry.coordinates[0];
+  // Chart évolution
+  const years  = Object.keys(evo).sort();
+  const prices = years.map(y => evo[y]);
+  if (chartInst) { chartInst.destroy(); chartInst = null; }
+  if (years.length > 0) {
+    const ctx = document.getElementById("analyse-chart").getContext("2d");
+    chartInst = new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: years,
+        datasets: [{
+          label: "Prix médian €/m²",
+          data: prices,
+          backgroundColor: prices.map((v, i) => i === prices.length - 1 ? "#10b981" : "#6366f1aa"),
+          borderRadius: 5,
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: c => fmtN(c.raw) + " €/m²" } }
+        },
+        scales: { y: { ticks: { callback: v => fmtN(v) + "€" } } }
+      }
+    });
+  }
 
-  if (!storedCP) { showError('Code postal introuvable pour cette adresse.'); return; }
+  // Comparables
+  const comps = rows
+    .filter(r => r.date_mutation && r.surface_reelle_bati > 5 && r.valeur_fonciere > 0)
+    .sort((a, b) => b.date_mutation.localeCompare(a.date_mutation))
+    .slice(0, 12);
+  const wrap = document.getElementById("comparables-wrap");
+  if (comps.length > 0) {
+    wrap.innerHTML = `<table class="comparables-table">
+      <tr><th>Date</th><th>Adresse</th><th>Surface</th><th>Prix/m²</th></tr>
+      ${comps.map(r => `<tr>
+        <td>${(r.date_mutation || "").slice(0, 7)}</td>
+        <td style="max-width:110px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">${(r.adresse_nom_voie || "—").slice(0, 20)}</td>
+        <td>${Math.round(r.surface_reelle_bati)} m²</td>
+        <td><b>${fmtN(Math.round(r.valeur_fonciere / r.surface_reelle_bati))} €</b></td>
+      </tr>`).join("")}
+    </table>`;
+  }
 
-  // UI loading
-  setLoading(true);
+  section.scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+// ── Score immobilier ──────────────────────────────────────────────────────────
+function scoreImmo(stats, evo) {
+  const evol12 = evolution12m(evo);
+  let s = 50;
+  if (evol12 != null) {
+    if (evol12 > 5)  s += 20;
+    else if (evol12 > 0) s += 8;
+    else if (evol12 < -5) s -= 20;
+  }
+  if (stats.n > 40) s += 15;
+  else if (stats.n < 8) s -= 15;
+  return Math.max(10, Math.min(100, s));
+}
+
+// ── Erreur ────────────────────────────────────────────────────────────────────
+function showError(msg) {
+  const el = document.getElementById("error-box");
+  el.textContent = msg;
+  el.classList.add("visible");
+}
+
+// ── Submit ────────────────────────────────────────────────────────────────────
+document.getElementById("estimation-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const btn     = document.getElementById("btn-submit");
+  const errBox  = document.getElementById("error-box");
+  const resCard = document.getElementById("result-card");
+  const analyseSection = document.getElementById("analyse-section");
+
+  errBox.classList.remove("visible");
+  resCard.classList.remove("visible");
+  analyseSection.classList.remove("visible");
+  btn.disabled = true;
+  btn.textContent = "Analyse en cours…";
 
   try {
-    // Appels parallèles
-    const [
-      estimRes, dpeRes, communeRes, dvfRes, poiRes, marketRes, wikiRes
-    ] = await Promise.allSettled([
-      supaRPC('estimate_property', { p_code_postal: storedCP, p_surface: surface, p_type_local: typeLocal }),
-      supaGet(`dpe_commune_agg?code_postal=eq.${storedCP}`),
-      supaGet(`mv_commune_complete?code_postal=eq.${storedCP}`),
-      supaGet(`dvf_mutations?code_postal=eq.${storedCP}&surface_reelle_bati=gt.0&valeur_fonciere=gt.0&latitude=not.is.null&order=date_mutation.desc&limit=5`),
-      supaGet(`poi_equipements?code_postal=eq.${storedCP}&limit=20`),
-      supaGet(`market_stats?code_postal=eq.${storedCP}&order=annee.asc`),
-      supaGet(`commune_context?code_insee=eq.${storedInsee}`)
-    ]);
+    const adresse = document.getElementById("adresse").value.trim();
+    const surface = parseFloat(document.getElementById("surface").value) || 65;
+    const typeBien = document.getElementById("type_bien").value;
+    const dpe     = document.getElementById("dpe").value;
+    const etat    = document.getElementById("etat").value;
+    const parking = document.getElementById("has_parking").checked;
+    const balcony = document.getElementById("has_balcony").checked;
+    const garden  = document.getElementById("has_garden").checked;
+    const view    = document.getElementById("has_view").checked;
 
-    const estim   = (estimRes.status   === 'fulfilled' && Array.isArray(estimRes.value))   ? estimRes.value[0]   : null;
-    const dpe     = (dpeRes.status     === 'fulfilled' && Array.isArray(dpeRes.value))     ? dpeRes.value[0]     : null;
-    const commune = (communeRes.status === 'fulfilled' && Array.isArray(communeRes.value)) ? communeRes.value[0] : null;
-    const dvf     = (dvfRes.status     === 'fulfilled' && Array.isArray(dvfRes.value))     ? dvfRes.value        : [];
-    const poi     = (poiRes.status     === 'fulfilled' && Array.isArray(poiRes.value))     ? poiRes.value        : [];
-    const market  = (marketRes.status  === 'fulfilled' && Array.isArray(marketRes.value))  ? marketRes.value     : [];
-    const wiki    = (wikiRes.status    === 'fulfilled' && Array.isArray(wikiRes.value))    ? wikiRes.value[0]    : null;
+    // 1. Géocodage
+    btn.textContent = "Géocodage…";
+    const geo = await geocode(adresse);
+    if (!geo) throw new Error("Adresse non reconnue. Vérifiez l'orthographe et réessayez.");
 
-    setLoading(false);
-    showResults();
+    // 2. DVF
+    btn.textContent = "Chargement des transactions…";
+    const rows = await fetchDVF(geo.commune, typeBien);
+    if (rows.length < 3) throw new Error(`Pas assez de données DVF pour "${geo.commune}". Essayez avec le nom de commune seul.`);
 
-    displayS1(estim, feature.properties.city || feature.properties.label);
-    displayS2(estim, dpe, commune);
-    displayS3(storedLat, storedLon, estim, dvf, poi, addressInput.value);
-    displayS4(commune, poi);
-    displayS5(poi);
-    displayS6(market);
-    displayS7(dvf);
-    displayS9(commune, wiki);
+    // 3. POI
+    const poi = await fetchPOI(geo.commune);
 
-    // S8 aides – afficher avec valeurs par défaut
-    loadAids(storedInsee, 'tres_modeste');
-    document.getElementById('rfr').addEventListener('change',    () => loadAids(storedInsee, document.getElementById('rfr').value));
-    document.getElementById('dpe-vise').addEventListener('change', () => loadAids(storedInsee, document.getElementById('rfr').value));
+    // 4. Stats
+    const stats = computeStats(rows);
+    if (!stats) throw new Error("Données insuffisantes pour calculer les statistiques.");
 
-    // Survey après 30s
-    startSurveyTimer();
+    // 5. Évolution
+    const evo = computeEvolution(rows);
+
+    // 6. Modèle hédonique
+    const pm2Ajuste  = applyHedonic(stats.median, dpe, etat, parking, balcony, garden, view, poi);
+    const prixEstime = Math.round(pm2Ajuste * surface);
+    const conf       = confidence(stats.n);
+    const evol12     = evolution12m(evo);
+    const siImmo     = scoreImmo(stats, evo);
+    const poiScore   = poi ? parseInt(poi.score_global) : null;
+
+    // Impact DPE pour affichage
+    const dpeCoef = DPE_COEF[dpe] || 0;
+    const dpeImpact = dpeCoef !== 0 ? (dpeCoef > 0 ? "+" : "") + Math.round(dpeCoef * 100) + "% vs médiane" : "Neutre";
+
+    // 7. Afficher résultat principal
+    showResult({
+      prix_estime:    prixEstime,
+      pm2_ajuste:     pm2Ajuste,
+      pm2_median:     stats.median,
+      n_transactions: stats.n,
+      evol12,
+      confiance:      conf,
+      poi_score:      poiScore,
+      s_immo:         siImmo,
+      dpe_impact:     dpeImpact,
+    });
+
+    // 8. Afficher analyse détaillée
+    showAnalyse(geo, rows, stats, evo, poi, siImmo);
+
+    // 9. Lead capture (Supabase)
+    const nom   = document.getElementById("lead_nom").value.trim();
+    const email = document.getElementById("lead_email").value.trim();
+    const tel   = document.getElementById("lead_tel").value.trim();
+    if (email) {
+      fetch(`${SUPA_URL}/rest/v1/sahar_leads`, {
+        method: "POST",
+        headers: {
+          apikey: SUPA_ANON,
+          Authorization: `Bearer ${SUPA_ANON}`,
+          "Content-Type": "application/json",
+          Prefer: "return=minimal",
+        },
+        body: JSON.stringify({
+          nom, email, tel,
+          source: "estimateur",
+          adresse,
+          commune: geo.commune,
+          prix_estime: prixEstime,
+          created_at: new Date().toISOString(),
+        }),
+      }).catch(() => {}); // silencieux
+    }
 
   } catch (err) {
-    setLoading(false);
-    showError('Erreur lors de l\'estimation. Veuillez réessayer.');
     console.error(err);
+    showError(err.message || "Erreur inattendue. Réessayez dans quelques secondes.");
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Estimer mon bien";
   }
 });
-
-/* ══════════════════════════════════════════
-   UI STATE
-══════════════════════════════════════════ */
-function setLoading(on) {
-  document.getElementById('submit-btn').disabled = on;
-  document.getElementById('submit-btn').textContent = on ? 'Estimation en cours…' : 'Estimer mon bien';
-  document.getElementById('skeletons').classList.toggle('hidden', !on);
-  if (on) document.getElementById('results').classList.add('hidden');
-}
-
-function showResults() {
-  document.getElementById('skeletons').classList.add('hidden');
-  document.getElementById('results').classList.remove('hidden');
-  document.getElementById('cta-section').classList.remove('hidden');
-  document.getElementById('reset-wrap').classList.remove('hidden');
-}
-
-function showError(msg) {
-  const el = document.getElementById('error-box');
-  el.textContent = msg;
-  el.style.display = msg ? 'block' : 'none';
-}
-
-document.getElementById('reset-btn').addEventListener('click', () => {
-  document.getElementById('results').classList.add('hidden');
-  document.getElementById('cta-section').classList.add('hidden');
-  document.getElementById('reset-wrap').classList.add('hidden');
-  addressInput.value = '';
-  document.getElementById('surface').value = '';
-  selectedBAN = null;
-  clearTimeout(surveyTimer);
-  document.getElementById('survey').classList.remove('show');
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-});
-
-/* ══════════════════════════════════════════
-   S1 – PRIX ESTIMÉ
-══════════════════════════════════════════ */
-function displayS1(e, cityName) {
-  if (!e) {
-    document.getElementById('s1').innerHTML = '<p style="color:#fff;opacity:.7;padding:20px;">Estimation indisponible pour ce secteur.</p>';
-    return;
-  }
-  document.getElementById('s1-commune').textContent = esc(e.nom_commune || cityName || '');
-  document.getElementById('s1-prix').textContent    = fmtEur(e.prix_estime);
-  document.getElementById('s1-range').textContent   = `Fourchette : ${fmtEur(e.fourchette_basse)} – ${fmtEur(e.fourchette_haute)}`;
-  document.getElementById('s1-m2').textContent      = `${fmtNum(e.prix_m2_reference)} €/m²`;
-  document.getElementById('s1-stars').textContent   = stars(e.niveau_confiance || 3);
-  document.getElementById('s1-conf-lbl').textContent = `Confiance ${e.niveau_confiance || 3}/5`;
-
-  const evol = e.evolution_12m;
-  const up   = evol >= 0;
-  document.getElementById('s1-trend').innerHTML =
-    `${up ? '▲' : '▼'} ${esc(e.label_tendance || '')} ${fmtPct(evol, true)}`;
-  document.getElementById('s1-trend').style.background = up
-    ? 'rgba(255,255,255,.3)' : 'rgba(220,38,38,.5)';
-
-  document.getElementById('s1-nb').textContent = `${fmtNum(e.nb_transactions)} ventes DVF`;
-}
-
-function stars(n) {
-  const v = Math.max(0, Math.min(5, Math.round(n)));
-  return '★'.repeat(v) + '☆'.repeat(5 - v);
-}
-
-/* ══════════════════════════════════════════
-   S2 – FACETTES
-══════════════════════════════════════════ */
-function displayS2(estim, dpe, commune) {
-  const NATIONAL_M2 = 3500;
-
-  const prix_m2   = estim?.prix_m2_reference || 0;
-  const evol      = estim?.evolution_12m     || 0;
-  const nb_tx     = estim?.nb_transactions   || 0;
-
-  // DPE score : classe A→100, B→85, C→70, D→55, E→40, F→25, G→10
-  const dpeClassMap = { A:100, B:85, C:70, D:55, E:40, F:25, G:10 };
-  const dpeScore = dpe
-    ? (dpe.score_moyen ?? dpe.note_moyenne ?? dpeClassMap[dpe.classe_mode] ?? 50)
-    : null;
-
-  // Cadre de vie
-  const cadreScore = commune?.score_cadre_vie ?? null;
-  // Revenu médian vs national (~22 000 €)
-  const revenu = commune?.iris_revenu_median ?? null;
-  const revenuScore = revenu ? Math.min(100, (revenu / 30000) * 100) : null;
-
-  const facets = [
-    { label: 'Prix zone / nationale', val: Math.min(100, (prix_m2 / NATIONAL_M2) * 100), fmt: `${fmtNum(prix_m2)} €/m²` },
-    { label: 'Tendance marché (12 m)', val: Math.min(100, Math.max(0, 50 + evol * 5)), fmt: fmtPct(evol, true) },
-    { label: 'Densité transactions', val: Math.min(100, (nb_tx / 80) * 100), fmt: fmtNum(nb_tx) + ' ventes' },
-    { label: 'Score énergie DPE', val: dpeScore, fmt: dpe?.classe_mode ? `Classe ${dpe.classe_mode}` : (dpeScore != null ? dpeScore + '/100' : '—') },
-    { label: 'Score cadre de vie', val: cadreScore, fmt: cadreScore != null ? cadreScore + '/100' : '—' },
-    { label: 'Revenus zone', val: revenuScore, fmt: revenu != null ? fmtNum(Math.round(revenu)) + ' €/an' : '—' },
-  ];
-
-  const container = document.getElementById('facets-container');
-  container.innerHTML = facets.map(f => {
-    const pct = f.val != null ? Math.round(f.val) : 0;
-    const color = pct >= 70 ? '#00D47E' : pct >= 40 ? '#f59e0b' : '#ef4444';
-    return `<div class="facet-row">
-      <div class="facet-label">${esc(f.label)}</div>
-      <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${color};"></div></div>
-      <div class="facet-pct">${esc(f.fmt)}</div>
-    </div>`;
-  }).join('');
-}
-
-/* ══════════════════════════════════════════
-   S3 – CARTE LEAFLET
-══════════════════════════════════════════ */
-function displayS3(lat, lon, estim, dvf, poi, label) {
-  if (!lat || !lon) return;
-
-  if (leafletMap) { leafletMap.remove(); leafletMap = null; }
-
-  leafletMap = L.map('map').setView([lat, lon], 14);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap contributors',
-    maxZoom: 19
-  }).addTo(leafletMap);
-
-  // Marqueur rouge – bien estimé
-  const redIcon = L.divIcon({
-    html: `<div style="background:#ef4444;width:18px;height:18px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.4);"></div>`,
-    className: '', iconSize: [18,18], iconAnchor: [9,9]
-  });
-  const redPopup = estim
-    ? `<b>${esc(label)}</b><br>${fmtEur(estim.prix_estime)}<br><small>${fmtEur(estim.fourchette_basse)} – ${fmtEur(estim.fourchette_haute)}</small>`
-    : `<b>${esc(label)}</b>`;
-  L.marker([lat, lon], { icon: redIcon }).addTo(leafletMap).bindPopup(redPopup).openPopup();
-
-  // Marqueurs bleus – DVF
-  dvf.forEach(v => {
-    if (!v.latitude || !v.longitude) return;
-    const priceM2 = v.surface_reelle_bati > 0 ? Math.round(v.valeur_fonciere / v.surface_reelle_bati) : null;
-    L.circleMarker([v.latitude, v.longitude], { radius: 7, color: '#2563EB', fillColor: '#3b82f6', fillOpacity: .8, weight: 2 })
-      .addTo(leafletMap)
-      .bindPopup(`<b>${esc(v.type_local || 'Bien')}</b><br>${fmtEur(v.valeur_fonciere)} · ${v.surface_reelle_bati} m²${priceM2 ? `<br>${fmtNum(priceM2)} €/m²` : ''}<br><small>${esc(v.date_mutation?.slice(0,10) || '')}</small>`);
-  });
-
-  // Marqueurs verts – POI
-  poi.forEach(p => {
-    if (!p.latitude || !p.longitude) return;
-    L.circleMarker([p.latitude, p.longitude], { radius: 5, color: '#00D47E', fillColor: '#00D47E', fillOpacity: .7, weight: 1.5 })
-      .addTo(leafletMap)
-      .bindPopup(`<b>${esc(p.nom || '—')}</b><br><small>${esc(p.categorie || '')}</small>`);
-  });
-}
-
-/* ══════════════════════════════════════════
-   S4 – TEXTE EXPLICATIF
-══════════════════════════════════════════ */
-function displayS4(commune, poi) {
-  // Scores POI depuis commune (score_transport, score_education, score_sante, score_commerce)
-  // ou calculés depuis poi
-  const scores = [];
-  const catLabels = { transport: 'accessibilité transport', education: 'offre éducative', sante: 'équipements de santé', commerce: 'dynamisme commercial' };
-  const catKeys   = ['transport', 'education', 'sante', 'commerce'];
-
-  catKeys.forEach(k => {
-    const v = commune?.[`score_${k}`] ?? scorePOI(poi, k);
-    if (v != null) scores.push({ key: k, label: catLabels[k], score: v });
-  });
-
-  scores.sort((a, b) => b.score - a.score);
-  const top3 = scores.slice(0, 3);
-
-  if (top3.length < 2) {
-    document.getElementById('s4-text').textContent = 'Analyse locale non disponible pour ce secteur.';
-    return;
-  }
-
-  function qualif(s) {
-    if (s > 80) return 'excellent';
-    if (s > 60) return 'bon';
-    if (s > 40) return 'correct';
-    return 'à renforcer';
-  }
-
-  let txt = `Cette zone se distingue par son ${qualif(top3[0].score)} ${top3[0].label} (${Math.round(top3[0].score)}/100)`;
-  if (top3[1]) txt += `, un ${qualif(top3[1].score)} ${top3[1].label} (${Math.round(top3[1].score)}/100)`;
-  if (top3[2]) txt += ` et ${qualif(top3[2].score)} ${top3[2].label} (${Math.round(top3[2].score)}/100)`;
-  txt += '.';
-
-  document.getElementById('s4-text').textContent = txt;
-}
-
-function scorePOI(poi, cat) {
-  const norm = cat.toLowerCase();
-  const hits = poi.filter(p => p.categorie && p.categorie.toLowerCase().includes(norm));
-  if (!hits.length) return null;
-  return Math.min(100, hits.length * 12);
-}
-
-/* ══════════════════════════════════════════
-   S5 – ACCORDÉON POI
-══════════════════════════════════════════ */
-function displayS5(poi) {
-  const groups = {
-    Transport : { icon: '🚉', items: [] },
-    Éducation : { icon: '🏫', items: [] },
-    Santé     : { icon: '🏥', items: [] },
-    Commerce  : { icon: '🛒', items: [] }
-  };
-  const catMap = [
-    { keys: ['transport','train','bus','metro','tramway','gare','station'], group: 'Transport' },
-    { keys: ['école','ecole','college','lycee','université','universite','maternelle','education','scolaire'], group: 'Éducation' },
-    { keys: ['santé','sante','medecin','médecin','pharmacie','clinique','hopital','hôpital','cabinet'], group: 'Santé' },
-    { keys: ['commerce','supermarche','supermarché','boulangerie','restaurant','épicerie','epicerie','marche','marché'], group: 'Commerce' }
-  ];
-
-  poi.forEach(p => {
-    const cat = (p.categorie || '').toLowerCase();
-    const nom = (p.nom       || '').toLowerCase();
-    let found = false;
-    for (const { keys, group } of catMap) {
-      if (keys.some(k => cat.includes(k) || nom.includes(k))) {
-        groups[group].items.push(p.nom || p.categorie || '—');
-        found = true; break;
-      }
-    }
-    if (!found) groups['Commerce'].items.push(p.nom || p.categorie || '—');
-  });
-
-  const acc = document.getElementById('poi-accordion');
-  acc.innerHTML = '';
-  Object.entries(groups).forEach(([name, { icon, items }]) => {
-    const div = document.createElement('div');
-    div.className = 'accordion-item';
-    div.innerHTML = `
-      <div class="accordion-header">
-        <span>${icon}</span>
-        <span>${esc(name)} <span style="color:#aaa;font-weight:400;font-size:.85rem;">(${items.length})</span></span>
-        <i class="chevron">▾</i>
-      </div>
-      <div class="accordion-body">
-        <div class="poi-list">${items.length ? items.map(n => `<span class="poi-tag">${esc(n)}</span>`).join('') : '<span style="color:#aaa;padding:8px;font-size:.85rem;">Aucun équipement référencé</span>'}</div>
-      </div>`;
-    div.querySelector('.accordion-header').addEventListener('click', function() {
-      const body = div.querySelector('.accordion-body');
-      const isOpen = body.classList.contains('open');
-      body.classList.toggle('open', !isOpen);
-      this.classList.toggle('open', !isOpen);
-    });
-    acc.appendChild(div);
-  });
-}
-
-/* ══════════════════════════════════════════
-   S6 – GRAPHIQUE CANVAS
-══════════════════════════════════════════ */
-function displayS6(market) {
-  const canvas  = document.getElementById('chart-canvas');
-  const empty   = document.getElementById('s6-empty');
-  if (!market.length) { canvas.style.display = 'none'; empty.classList.remove('hidden'); return; }
-
-  const data = market.filter(d => d.annee && (d.prix_m2_moyen || d.prix_median_m2));
-  if (!data.length) { canvas.style.display = 'none'; empty.classList.remove('hidden'); return; }
-
-  const W = canvas.offsetWidth || 700;
-  const H = 240;
-  canvas.width  = W;
-  canvas.height = H;
-
-  const prices = data.map(d => d.prix_m2_moyen || d.prix_median_m2);
-  const years  = data.map(d => d.annee);
-  const pad = { top: 20, right: 20, bottom: 38, left: 64 };
-  const minP = Math.min(...prices) * 0.92;
-  const maxP = Math.max(...prices) * 1.08;
-  const xS = i => pad.left + (data.length > 1 ? (i / (data.length - 1)) * (W - pad.left - pad.right) : (W - pad.left - pad.right) / 2);
-  const yS = p => H - pad.bottom - ((p - minP) / (maxP - minP || 1)) * (H - pad.top - pad.bottom);
-
-  const ctx = canvas.getContext('2d');
-  ctx.clearRect(0, 0, W, H);
-
-  // Grille
-  ctx.strokeStyle = '#f0ece8'; ctx.lineWidth = 1;
-  for (let i = 0; i <= 4; i++) {
-    const y = pad.top + (i / 4) * (H - pad.top - pad.bottom);
-    ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(W - pad.right, y); ctx.stroke();
-    const val = maxP - (i / 4) * (maxP - minP);
-    ctx.fillStyle = '#aaa'; ctx.font = '11px system-ui'; ctx.textAlign = 'right';
-    ctx.fillText(fmtNum(Math.round(val)) + ' €', pad.left - 5, y + 4);
-  }
-
-  // Zone remplie
-  ctx.beginPath();
-  data.forEach((d, i) => { const x = xS(i), y = yS(prices[i]); i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y); });
-  ctx.lineTo(xS(data.length - 1), H - pad.bottom);
-  ctx.lineTo(xS(0), H - pad.bottom);
-  ctx.closePath();
-  const grad = ctx.createLinearGradient(0, pad.top, 0, H - pad.bottom);
-  grad.addColorStop(0, 'rgba(0,212,126,.18)'); grad.addColorStop(1, 'rgba(0,212,126,0)');
-  ctx.fillStyle = grad; ctx.fill();
-
-  // Ligne
-  ctx.beginPath(); ctx.strokeStyle = '#00D47E'; ctx.lineWidth = 2.5; ctx.lineJoin = 'round';
-  data.forEach((d, i) => { const x = xS(i), y = yS(prices[i]); i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y); });
-  ctx.stroke();
-
-  // Points + labels
-  data.forEach((d, i) => {
-    const x = xS(i), y = yS(prices[i]);
-    ctx.beginPath(); ctx.arc(x, y, 4, 0, Math.PI * 2);
-    ctx.fillStyle = '#00D47E'; ctx.fill();
-    ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5; ctx.stroke();
-    ctx.fillStyle = '#888'; ctx.font = '11px system-ui'; ctx.textAlign = 'center';
-    ctx.fillText(years[i], x, H - 8);
-  });
-}
-
-/* ══════════════════════════════════════════
-   S7 – DERNIÈRES VENTES
-══════════════════════════════════════════ */
-function displayS7(dvf) {
-  const container = document.getElementById('sale-cards');
-  const empty     = document.getElementById('s7-empty');
-  if (!dvf.length) { empty.classList.remove('hidden'); return; }
-
-  container.innerHTML = dvf.map(v => {
-    const icon = (v.type_local || '').toLowerCase().includes('maison') ? '🏠' : '🏢';
-    const priceM2 = v.surface_reelle_bati > 0 ? Math.round(v.valeur_fonciere / v.surface_reelle_bati) : null;
-    const rue = [v.adresse_numero, v.adresse_nom_voie].filter(Boolean).join(' ') || '—';
-    return `<div class="sale-card">
-      <div class="sale-icon">${icon}</div>
-      <div class="sale-type">${esc(v.type_local || 'Bien')} · ${v.surface_reelle_bati || '?'} m²${v.nombre_pieces_principales ? ` · ${v.nombre_pieces_principales} p.` : ''}</div>
-      <div class="sale-price">${fmtEur(v.valeur_fonciere)}</div>
-      <div class="sale-detail">${priceM2 ? fmtNum(priceM2) + ' €/m²' : '—'}</div>
-      <div class="sale-detail" style="margin-top:4px;">${esc(v.date_mutation?.slice(0,10) || '')}</div>
-      <div class="sale-detail">${esc(rue)}</div>
-    </div>`;
-  }).join('');
-}
-
-/* ══════════════════════════════════════════
-   S8 – AIDES RÉNOVATION
-══════════════════════════════════════════ */
-async function loadAids(codeInsee, revenuClasse) {
-  if (!codeInsee) return;
-  const aids = await supaGet(`ref_renovation_aids?code_insee=eq.${codeInsee}&revenu_classe=eq.${revenuClasse}`);
-  renderAids(aids, revenuClasse);
-}
-
-function renderAids(aids, revenuClasse) {
-  const labels = { tres_modeste: 'très modeste', modeste: 'modeste', intermediaire: 'intermédiaire', superieur: 'supérieur' };
-  const aidsList = document.getElementById('aids-list');
-
-  if (!aids.length) {
-    document.getElementById('aids-total').textContent = '—';
-    document.getElementById('aids-phrase').textContent = 'Données d\'aides non disponibles pour cette commune.';
-    aidsList.innerHTML = '';
-    return;
-  }
-
-  const total = aids.reduce((s, a) => s + (a.montant_max || 0), 0);
-  document.getElementById('aids-total').textContent = fmtEur(total);
-  document.getElementById('aids-phrase').textContent =
-    `Pour un ménage à revenus ${labels[revenuClasse] || revenuClasse}, ${aids.length} aide${aids.length > 1 ? 's sont' : ' est'} cumulable${aids.length > 1 ? 's' : ''} pour un total de ${fmtEur(total)}.`;
-
-  aidsList.innerHTML = aids.map(a => `
-    <div class="aid-item">
-      <div class="aid-icon">${esc(a.icone || '🔧')}</div>
-      <div class="aid-info">
-        <h4>${esc(a.geste || '—')}</h4>
-        <p>${esc(a.description || '')}</p>
-      </div>
-      <div class="aid-amount">jusqu'à ${fmtEur(a.montant_max || 0)}</div>
-    </div>`).join('');
-}
-
-/* ══════════════════════════════════════════
-   S9 – DÉMOGRAPHIE + WIKIPEDIA
-══════════════════════════════════════════ */
-function displayS9(commune, wiki) {
-  const grid = document.getElementById('demo-grid');
-  if (commune) {
-    const stats = [
-      { val: commune.population != null ? fmtNum(Math.round(commune.population)) : '—', lbl: 'Population' },
-      { val: commune.iris_revenu_median != null ? fmtNum(Math.round(commune.iris_revenu_median)) + ' €' : '—', lbl: 'Revenu médian / an' },
-      { val: commune.taux_proprio != null ? Math.round(commune.taux_proprio) + ' %' : '—', lbl: 'Taux de propriétaires' },
-      { val: commune.taux_chomage != null ? Math.round(commune.taux_chomage) + ' %' : '—', lbl: 'Taux de chômage' },
-    ];
-    grid.innerHTML = stats.map(s => `<div class="demo-stat"><div class="demo-val">${esc(s.val)}</div><div class="demo-lbl">${esc(s.lbl)}</div></div>`).join('');
-  } else {
-    grid.innerHTML = '<p style="color:#888;font-size:.88rem;grid-column:1/-1;">Données démographiques non disponibles.</p>';
-  }
-
-  const wikiBox = document.getElementById('wiki-box');
-  if (wiki) {
-    wikiBox.style.display = 'flex';
-    const img  = document.getElementById('wiki-img');
-    const text = document.getElementById('wiki-text');
-    if (wiki.image_wikipedia) { img.src = wiki.image_wikipedia; img.alt = commune?.nom_commune || ''; img.style.display = 'block'; }
-    text.textContent = wiki.resume_wikipedia || '';
-  }
-}
-
-/* ══════════════════════════════════════════
-   SURVEY POPUP
-══════════════════════════════════════════ */
-function startSurveyTimer() {
-  if (localStorage.getItem('ia_survey_shown')) return;
-  clearTimeout(surveyTimer);
-  surveyTimer = setTimeout(() => {
-    document.getElementById('survey').classList.add('show');
-  }, 30000);
-}
-
-// Étoiles
-document.querySelectorAll('.star-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    surveyNote = parseInt(btn.dataset.v);
-    document.querySelectorAll('.star-btn').forEach(b => b.classList.toggle('lit', parseInt(b.dataset.v) <= surveyNote));
-    document.getElementById('survey-phase2').style.display = 'block';
-  });
-  btn.addEventListener('mouseover', () => {
-    const hv = parseInt(btn.dataset.v);
-    document.querySelectorAll('.star-btn').forEach(b => b.classList.toggle('lit', parseInt(b.dataset.v) <= hv));
-  });
-  btn.addEventListener('mouseout', () => {
-    document.querySelectorAll('.star-btn').forEach(b => b.classList.toggle('lit', parseInt(b.dataset.v) <= surveyNote));
-  });
-});
-
-document.getElementById('survey-close').addEventListener('click', () => {
-  document.getElementById('survey').classList.remove('show');
-  localStorage.setItem('ia_survey_shown', '1');
-  clearTimeout(surveyTimer);
-});
-
-document.getElementById('survey-submit').addEventListener('click', async () => {
-  const profil   = document.getElementById('survey-profil').value;
-  const prixReel = document.getElementById('survey-prix').value;
-  try {
-    await supaPost('app_estimation_feedback', {
-      note: surveyNote,
-      profil,
-      prix_reel: prixReel ? parseFloat(prixReel) : null,
-      code_postal: storedCP,
-      adresse: addressInput.value
-    });
-  } catch (_) {}
-  document.getElementById('survey-phase2').style.display = 'none';
-  document.getElementById('star-row').style.display      = 'none';
-  document.getElementById('survey-thanks').style.display = 'block';
-  localStorage.setItem('ia_survey_shown', '1');
-  setTimeout(() => document.getElementById('survey').classList.remove('show'), 2500);
-});
-
-/* ══════════════════════════════════════════
-   RESIZE → redessiner le graphique
-══════════════════════════════════════════ */
-let resizeTimer;
-window.addEventListener('resize', () => {
-  clearTimeout(resizeTimer);
-  resizeTimer = setTimeout(() => {
-    if (!document.getElementById('results').classList.contains('hidden')) {
-      const canvas = document.getElementById('chart-canvas');
-      if (canvas._marketData) displayS6(canvas._marketData);
-    }
-  }, 200);
-});
-
 </script>
 </body>
 </html>
