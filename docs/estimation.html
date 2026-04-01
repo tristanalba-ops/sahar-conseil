@@ -686,6 +686,24 @@
     </div>
   </div>
 
+  <!-- DPE local -->
+  <div class="analyse-section" id="dpe-section">
+    <div class="analyse-title">🏠 Profil énergétique du quartier</div>
+    <div id="dpe-content"></div>
+  </div>
+
+  <!-- Rendement locatif -->
+  <div class="analyse-section" id="rendement-section">
+    <div class="analyse-title">💰 Rendement locatif estimé</div>
+    <div id="rendement-content"></div>
+  </div>
+
+  <!-- Permis de construire -->
+  <div class="analyse-section" id="permis-section">
+    <div class="analyse-title">🏗️ Activité de construction</div>
+    <div id="permis-content"></div>
+  </div>
+
   <!-- Sources -->
   <div class="trust-section">
     <h3>Sources de données</h3>
@@ -829,6 +847,172 @@ async function fetchDVF(commune, typeBien, citycode) {
 async function fetchPOI(commune) {
   const rows = await supaFetch("poi_scores_commune", { "select": "*", "limit": "500" });
   return rows.find(r => (r.commune || "").toUpperCase().includes(commune.toUpperCase())) || null;
+}
+
+// ── DPE local fetch ───────────────────────────────────────────────────────────
+async function fetchDPELocal(cp) {
+  if (!cp) return [];
+  return supaFetch("dpe_diagnostics", {
+    "code_postal": `eq.${cp}`,
+    "date_diagnostic": "gte.2018-01-01",
+    "select": "classe_energie,conso_energie_par_m2",
+    "limit": "3000",
+  });
+}
+
+// ── Loyers fetch ──────────────────────────────────────────────────────────────
+async function fetchLoyers(citycode, typeBien, nbPieces) {
+  if (!citycode) return [];
+  const rows = await supaFetch("data_loyers_observes", {
+    "code_insee": `eq.${citycode}`,
+    "select": "*",
+    "order": "annee.desc",
+    "limit": "50",
+  });
+  return rows;
+}
+
+// ── Permis fetch ──────────────────────────────────────────────────────────────
+async function fetchPermis(citycode) {
+  if (!citycode) return [];
+  return supaFetch("data_permis_construire", {
+    "code_insee": `eq.${citycode}`,
+    "select": "annee,nb_logements_autorises,nb_logements_commences",
+    "order": "annee.desc",
+    "limit": "20",
+  });
+}
+
+// ── Affichage DPE local ───────────────────────────────────────────────────────
+function showDPELocal(dpeRows, dpeChosen) {
+  const section = document.getElementById("dpe-section");
+  const content = document.getElementById("dpe-content");
+  if (!dpeRows || dpeRows.length < 5) { section.classList.remove("visible"); return; }
+
+  const counts = { A:0, B:0, C:0, D:0, E:0, F:0, G:0 };
+  dpeRows.forEach(r => { if (r.classe_energie && counts[r.classe_energie] !== undefined) counts[r.classe_energie]++; });
+  const total = Object.values(counts).reduce((a,b) => a+b, 0);
+  if (!total) { section.classList.remove("visible"); return; }
+
+  const passoires = Math.round((counts.F + counts.G) / total * 100);
+  const colors = { A:"#22c55e", B:"#86efac", C:"#bef264", D:"#fde047", E:"#fb923c", F:"#f87171", G:"#dc2626" };
+
+  const bars = Object.entries(counts).map(([cls, n]) => {
+    const pct = Math.round(n / total * 100);
+    const isChosen = cls === dpeChosen;
+    return `<div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.35rem">
+      <span style="width:20px;font-weight:700;font-size:.85rem;color:${colors[cls]}">${cls}</span>
+      <div style="flex:1;background:#f1f5f9;border-radius:4px;height:18px;overflow:hidden;${isChosen?"outline:2px solid #6366f1":""}"}>
+        <div style="width:${pct}%;height:100%;background:${colors[cls]};border-radius:4px;transition:width .4s"></div>
+      </div>
+      <span style="font-size:.78rem;color:#666;width:38px;text-align:right">${pct}% <span style="color:#999">(${n})</span></span>
+    </div>`;
+  }).join("");
+
+  content.innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr auto;gap:1.5rem;align-items:start">
+      <div>${bars}</div>
+      <div style="text-align:center;padding:.75rem 1rem;background:${passoires > 20 ? "#fee2e2" : passoires > 10 ? "#fef9c3" : "#d1fae5"};border-radius:10px;min-width:110px">
+        <div style="font-size:1.6rem;font-weight:800;color:${passoires > 20 ? "#dc2626" : passoires > 10 ? "#d97706" : "#059669"}">${passoires}%</div>
+        <div style="font-size:.72rem;color:#666;margin-top:.2rem">passoires<br>thermiques (F+G)</div>
+        <div style="font-size:.65rem;color:#999;margin-top:.4rem">${dpeRows.length} DPE analysés</div>
+      </div>
+    </div>
+    ${dpeChosen && (dpeChosen === "F" || dpeChosen === "G") ? `<div style="margin-top:.75rem;padding:.6rem .9rem;background:#fee2e2;border-radius:8px;font-size:.78rem;color:#b91c1c">⚠️ Votre bien est classé <b>${dpeChosen}</b> — passoire thermique. Interdiction de location progressive (2025–2028). Rénovation recommandée avant cession ou mise en location.</div>` : ""}
+    ${dpeChosen && (dpeChosen === "A" || dpeChosen === "B") ? `<div style="margin-top:.75rem;padding:.6rem .9rem;background:#d1fae5;border-radius:8px;font-size:.78rem;color:#065f46">✅ Votre bien est classé <b>${dpeChosen}</b> — excellent atout énergétique, prime de valorisation confirmée.</div>` : ""}
+  `;
+  section.classList.add("visible");
+}
+
+// ── Affichage rendement ───────────────────────────────────────────────────────
+function showRendement(loyersRows, prixEstime, surface, typeBien, nbPieces) {
+  const section = document.getElementById("rendement-section");
+  const content = document.getElementById("rendement-content");
+  if (!loyersRows || !loyersRows.length || !prixEstime || !surface) { section.classList.remove("visible"); return; }
+
+  const typeKey = typeBien === "Appartement" ? "appartement" : "maison";
+  const nb = parseInt(nbPieces) || 3;
+
+  // Cherche correspondance exacte type+pièces, sinon même type, sinon toutes
+  let match = loyersRows.find(r => r.type_bien === typeKey && r.nb_pieces === nb);
+  if (!match) match = loyersRows.filter(r => r.type_bien === typeKey).sort((a,b) => Math.abs(a.nb_pieces - nb) - Math.abs(b.nb_pieces - nb))[0];
+  if (!match) match = loyersRows[0];
+  if (!match) { section.classList.remove("visible"); return; }
+
+  const loyerMois = Math.round(match.loyer_median_m2 * surface);
+  const loyerAnnuel = loyerMois * 12;
+  const rendBrut = (loyerAnnuel / prixEstime * 100).toFixed(2);
+  const rendNet = (rendBrut * 0.75).toFixed(2); // estimation charges ~25%
+
+  const color = rendBrut >= 6 ? "#059669" : rendBrut >= 4 ? "#d97706" : "#dc2626";
+
+  content.innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.75rem;margin-bottom:1rem">
+      <div class="metric-box" style="border-left:3px solid ${color}">
+        <div class="metric-label">Rendement brut</div>
+        <div class="metric-val" style="color:${color}">${rendBrut} %</div>
+        <div class="metric-sub">loyer annuel / prix</div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-label">Rendement net estimé</div>
+        <div class="metric-val">${rendNet} %</div>
+        <div class="metric-sub">après charges ~25%</div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-label">Loyer médian /m²</div>
+        <div class="metric-val">${match.loyer_median_m2} €</div>
+        <div class="metric-sub">${match.loyer_min_m2} – ${match.loyer_max_m2} €/m²</div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-label">Loyer mensuel estimé</div>
+        <div class="metric-val">${fmtN(loyerMois)} €</div>
+        <div class="metric-sub">${match.nb_observations} observations</div>
+      </div>
+    </div>
+    <div style="font-size:.72rem;color:#888">Basé sur ${match.type_bien} ${match.nb_pieces}p · ${match.annee} · Source : ${match.source?.slice(0, 60) || "loyers observés"}</div>
+  `;
+  section.classList.add("visible");
+}
+
+// ── Affichage permis ──────────────────────────────────────────────────────────
+function showPermis(permisRows) {
+  const section = document.getElementById("permis-section");
+  const content = document.getElementById("permis-content");
+  if (!permisRows || !permisRows.length) { section.classList.remove("visible"); return; }
+
+  // Agréger par année
+  const byAnnee = {};
+  permisRows.forEach(r => {
+    if (!byAnnee[r.annee]) byAnnee[r.annee] = { autorises: 0, commences: 0 };
+    byAnnee[r.annee].autorises += r.nb_logements_autorises || 0;
+    byAnnee[r.annee].commences += r.nb_logements_commences || 0;
+  });
+  const annees = Object.keys(byAnnee).sort((a,b) => b - a).slice(0, 4);
+  if (!annees.length) { section.classList.remove("visible"); return; }
+
+  const maxVal = Math.max(...annees.map(a => byAnnee[a].autorises));
+  const rows = annees.map(a => {
+    const d = byAnnee[a];
+    const pct = maxVal > 0 ? Math.round(d.autorises / maxVal * 100) : 0;
+    const txRealisation = d.autorises > 0 ? Math.round(d.commences / d.autorises * 100) : null;
+    return `<div style="margin-bottom:.6rem">
+      <div style="display:flex;justify-content:space-between;font-size:.78rem;margin-bottom:.2rem">
+        <span style="font-weight:600">${a}</span>
+        <span style="color:#666">${d.autorises} autorisés · ${d.commences} commencés ${txRealisation != null ? `<span style="color:#888">(${txRealisation}% réalisé)</span>` : ""}</span>
+      </div>
+      <div style="background:#f1f5f9;border-radius:4px;height:12px;overflow:hidden">
+        <div style="width:${pct}%;height:100%;background:#6366f1;border-radius:4px"></div>
+      </div>
+    </div>`;
+  }).join("");
+
+  const derniere = byAnnee[annees[0]];
+  const signal = derniere.autorises > 50 ? "Fort dynamisme constructif — offre future significative." :
+                 derniere.autorises > 20 ? "Construction modérée." :
+                 derniere.autorises > 0 ? "Faible activité de construction." : "Données insuffisantes.";
+
+  content.innerHTML = `${rows}<div style="font-size:.75rem;color:#888;margin-top:.5rem">📌 ${signal}</div>`;
+  section.classList.add("visible");
 }
 
 // ── Stats ─────────────────────────────────────────────────────────────────────
@@ -1164,7 +1348,19 @@ document.getElementById("estimation-form").addEventListener("submit", async (e) 
     // 8. Afficher analyse détaillée
     showAnalyse(geo, rows, stats, evo, poi, siImmo);
 
-    // 9. Lead capture (Supabase)
+    // 9. DPE local + rendement + permis (en parallèle)
+    btn.textContent = "Chargement indicateurs…";
+    const nbPieces = document.getElementById("nb_pieces").value;
+    const [dpeRows, loyersRows, permisRows] = await Promise.all([
+      fetchDPELocal(geo.cp),
+      fetchLoyers(geo.citycode, typeBien, nbPieces),
+      fetchPermis(geo.citycode),
+    ]);
+    showDPELocal(dpeRows, dpe);
+    showRendement(loyersRows, prixEstime, surface, typeBien, nbPieces);
+    showPermis(permisRows);
+
+    // 10. Lead capture (Supabase)
     const nom   = document.getElementById("lead_nom").value.trim();
     const email = document.getElementById("lead_email").value.trim();
     const tel   = document.getElementById("lead_tel").value.trim();
