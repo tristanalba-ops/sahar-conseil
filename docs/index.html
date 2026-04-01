@@ -3,466 +3,148 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta http-equiv="X-Content-Type-Options" content="nosniff" />
-  <meta http-equiv="X-Frame-Options" content="SAMEORIGIN" />
-  <meta name="referrer" content="strict-origin-when-cross-origin" />
-  <title>Intent Analytics — Exploration de données publiques françaises</title>
-  <meta name="description" content="Projet expérimental d'analyse et de visualisation de données ouvertes françaises : transactions immobilières DVF, diagnostics énergétiques DPE, équipements et démographie INSEE." />
-  <link rel="canonical" href="https://intentanalytics.fr/" />
-  <meta name="robots" content="index, follow" />
-
-  <meta name="geo.region" content="FR" />
-  <meta name="language" content="fr" />
-  <meta name="author" content="Intent Analytics" />
-  <meta name="keywords" content="open data, données publiques, DVF, DPE ADEME, INSEE, exploration données, analyse statistique, data science, France" />
-
-  <meta property="og:title" content="Intent Analytics — Exploration de données publiques françaises" />
-  <meta property="og:description" content="Projet expérimental d'analyse et de visualisation de données ouvertes françaises : DVF, DPE ADEME, INSEE." />
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://intentanalytics.fr/" />
-  <meta property="og:locale" content="fr_FR" />
-  <meta property="og:site_name" content="Intent Analytics" />
-
-  <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="Intent Analytics — Exploration de données publiques" />
-  <meta name="twitter:description" content="Projet expérimental autour des open data françaises : DVF, DPE, INSEE." />
-
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    "name": "Intent Analytics",
-    "url": "https://intentanalytics.fr",
-    "description": "Projet expérimental d'exploration de données publiques françaises."
-  }
-  </script>
-
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%2300DC82'/><text y='.9em' font-size='75' x='12'>IA</text></svg>" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet" />
-
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    :root {
-      --dark-bg: #0D0D0D;
-      --dark-bg-light: #1A1A2E;
-      --accent-green: #00DC82;
-      --text-white: #FFFFFF;
-      --text-gray: #A0A0A0;
-      --border-color: #2A2A3E;
-    }
-
-    body {
-      font-family: 'Inter', sans-serif;
-      background: var(--dark-bg);
-      color: var(--text-white);
-      line-height: 1.6;
-    }
-
-    /* NAV */
-    nav {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 1.2rem 5%;
-      background: rgba(13, 13, 13, 0.95);
-      backdrop-filter: blur(10px);
-      border-bottom: 1px solid var(--border-color);
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-
-    .nav-logo {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 1.35rem;
-      font-weight: 700;
-      color: var(--accent-green);
-      text-decoration: none;
-    }
-
-    .nav-links {
-      display: flex;
-      gap: 2rem;
-      list-style: none;
-      align-items: center;
-    }
-
-    .nav-links a {
-      color: var(--text-white);
-      text-decoration: none;
-      font-size: 0.9rem;
-      transition: color 0.2s;
-    }
-
-    .nav-links a:hover { color: var(--accent-green); }
-
-    /* HERO */
-    .hero {
-      padding: 8rem 5% 6rem;
-      text-align: center;
-      max-width: 900px;
-      margin: 0 auto;
-    }
-
-    .hero h1 {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: clamp(2.5rem, 5vw, 3.8rem);
-      font-weight: 700;
-      line-height: 1.1;
-      margin-bottom: 1.5rem;
-    }
-
-    .hero h1 span { color: var(--accent-green); }
-
-    .hero-sub {
-      font-size: 1.15rem;
-      color: var(--text-gray);
-      max-width: 700px;
-      margin: 0 auto 2.5rem;
-      line-height: 1.8;
-    }
-
-    .hero-link {
-      display: inline-block;
-      color: var(--accent-green);
-      font-weight: 600;
-      text-decoration: none;
-      font-size: 1rem;
-      border-bottom: 2px solid transparent;
-      transition: border-color 0.2s;
-    }
-
-    .hero-link:hover { border-color: var(--accent-green); }
-
-    /* DATA CARDS */
-    .data-section {
-      padding: 5rem 5%;
-      border-top: 1px solid var(--border-color);
-    }
-
-    .section-header {
-      text-align: center;
-      margin-bottom: 3rem;
-    }
-
-    .section-label {
-      font-size: 0.75rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.15em;
-      color: var(--accent-green);
-      margin-bottom: 0.75rem;
-    }
-
-    .section-title {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: clamp(1.8rem, 4vw, 2.5rem);
-      font-weight: 700;
-      margin-bottom: 1rem;
-    }
-
-    .section-sub {
-      font-size: 1rem;
-      color: var(--text-gray);
-      max-width: 600px;
-      margin: 0 auto;
-    }
-
-    .data-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 1.5rem;
-      max-width: 1100px;
-      margin: 0 auto;
-    }
-
-    .data-card {
-      background: rgba(26, 26, 46, 0.5);
-      border: 1px solid var(--border-color);
-      border-radius: 16px;
-      padding: 2rem;
-      transition: all 0.3s;
-    }
-
-    .data-card:hover {
-      border-color: rgba(0, 220, 130, 0.3);
-      background: rgba(26, 26, 46, 0.8);
-    }
-
-    .data-card-icon {
-      font-size: 2rem;
-      margin-bottom: 1rem;
-    }
-
-    .data-card-name {
-      font-family: 'Space Grotesk', sans-serif;
-      font-weight: 700;
-      font-size: 1.05rem;
-      margin-bottom: 0.5rem;
-    }
-
-    .data-card-vol {
-      font-size: 0.8rem;
-      color: var(--accent-green);
-      font-weight: 600;
-      margin-bottom: 0.75rem;
-    }
-
-    .data-card-desc {
-      font-size: 0.88rem;
-      color: var(--text-gray);
-      line-height: 1.6;
-    }
-
-    /* EXPLORATIONS */
-    .explorations-section {
-      padding: 5rem 5%;
-      background: var(--dark-bg-light);
-      border-top: 1px solid var(--border-color);
-      border-bottom: 1px solid var(--border-color);
-    }
-
-    .exploration-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 1.5rem;
-      max-width: 1100px;
-      margin: 0 auto;
-    }
-
-    .exploration-card {
-      background: rgba(13, 13, 13, 0.6);
-      border: 1px solid var(--border-color);
-      border-top: 3px solid var(--accent-green);
-      border-radius: 16px;
-      padding: 2rem;
-      transition: all 0.3s;
-    }
-
-    .exploration-card:hover {
-      transform: translateY(-4px);
-      border-color: rgba(0, 220, 130, 0.3);
-      border-top-color: var(--accent-green);
-    }
-
-    .exploration-badge {
-      display: inline-block;
-      font-size: 0.7rem;
-      font-weight: 700;
-      padding: 0.3rem 0.8rem;
-      border-radius: 100px;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-bottom: 1rem;
-    }
-
-    .badge-live {
-      background: rgba(0, 220, 130, 0.15);
-      color: var(--accent-green);
-    }
-
-    .badge-wip {
-      background: rgba(160, 160, 160, 0.15);
-      color: var(--text-gray);
-    }
-
-    .exploration-title {
-      font-family: 'Space Grotesk', sans-serif;
-      font-weight: 700;
-      font-size: 1.05rem;
-      margin-bottom: 0.75rem;
-    }
-
-    .exploration-desc {
-      font-size: 0.88rem;
-      color: var(--text-gray);
-      line-height: 1.6;
-      margin-bottom: 1rem;
-    }
-
-    .exploration-source {
-      font-size: 0.78rem;
-      color: var(--accent-green);
-      font-weight: 600;
-    }
-
-    /* METHODO PREVIEW */
-    .methodo-section {
-      padding: 5rem 5%;
-    }
-
-    .methodo-content {
-      max-width: 800px;
-      margin: 0 auto;
-      text-align: center;
-    }
-
-    .methodo-text {
-      font-size: 1.05rem;
-      color: var(--text-gray);
-      line-height: 1.8;
-      margin-bottom: 2rem;
-    }
-
-    /* FOOTER */
-    footer {
-      padding: 3rem 5%;
-      border-top: 1px solid var(--border-color);
-      text-align: center;
-      font-size: 0.85rem;
-      color: var(--text-gray);
-    }
-
-    footer a {
-      color: var(--text-gray);
-      text-decoration: none;
-      transition: color 0.2s;
-    }
-
-    footer a:hover { color: var(--accent-green); }
-
-    .footer-email {
-      color: var(--accent-green);
-      margin: 0.75rem 0;
-      display: block;
-    }
-
-    .footer-legal {
-      margin: 0.75rem 0;
-    }
-
-    .footer-copy {
-      margin-top: 1rem;
-      font-size: 0.78rem;
-      color: rgba(160, 160, 160, 0.6);
-    }
-
-    /* MOBILE */
-    @media (max-width: 768px) {
-      .nav-links { display: none; }
-      .hero { padding: 5rem 5% 4rem; }
-      .data-grid, .exploration-grid { grid-template-columns: 1fr; }
-    }
-  </style>
-</head>
-<body>
-
-  <!-- NAV -->
-  <nav>
-    <a href="/" class="nav-logo">Intent Analytics</a>
-    <ul class="nav-links">
-      <li><a href="/projet">Le projet</a></li>
-      <li><a href="/donnees">Données</a></li>
-      <li><a href="/methodologie">Méthodologie</a></li>
-      <li><a href="/explorations">Explorations</a></li>
-      <li><a href="/documentation">Documentation</a></li>
-      <li><a href="/a-propos">À propos</a></li>
-    </ul>
-  </nav>
-
-  <!-- HERO -->
-  <section class="hero">
-    <h1><span>Intent Analytics</span></h1>
-    <p class="hero-sub">
-      Exploration de données publiques françaises.
-      Transactions immobilières (DVF), diagnostics de performance énergétique (DPE ADEME),
-      équipements et démographie (INSEE) : ces données sont publiques, gratuites et riches
-      d'enseignements. Ce projet les rend lisibles et les croise pour en extraire des
-      analyses statistiques.
-    </p>
-    <a href="/projet" class="hero-link">En savoir plus sur le projet →</a>
-  </section>
-
-  <!-- DONNÉES TRAITÉES -->
-  <section class="data-section">
-    <div class="section-header">
-      <div class="section-label">Sources</div>
-      <h2 class="section-title">Données traitées</h2>
-    </div>
-    <div class="data-grid">
-      <div class="data-card">
-        <div class="data-card-icon">📊</div>
-        <div class="data-card-name">DVF</div>
-        <div class="data-card-vol">~5M mutations depuis 2014</div>
-        <div class="data-card-desc">Transactions de ventes immobilières enregistrées par les notaires, publiées par la DGFiP.</div>
-      </div>
-      <div class="data-card">
-        <div class="data-card-icon">⚡</div>
-        <div class="data-card-name">DPE ADEME</div>
-        <div class="data-card-vol">~2,7M diagnostics</div>
-        <div class="data-card-desc">Diagnostics de performance énergétique : classe énergie, consommation, émissions GES.</div>
-      </div>
-      <div class="data-card">
-        <div class="data-card-icon">🏗️</div>
-        <div class="data-card-name">INSEE BPE</div>
-        <div class="data-card-vol">~6 600 équipements</div>
-        <div class="data-card-desc">Inventaire géolocalisé des commerces, services, transports, santé et éducation par commune.</div>
-      </div>
-      <div class="data-card">
-        <div class="data-card-icon">📍</div>
-        <div class="data-card-name">BAN</div>
-        <div class="data-card-vol">~142 000 adresses géocodées</div>
-        <div class="data-card-desc">Base Adresse Nationale. Géocodage et normalisation des adresses françaises.</div>
-      </div>
-    </div>
-  </section>
-
-  <!-- EXPLORATIONS -->
-  <section class="explorations-section">
-    <div class="section-header">
-      <div class="section-label">Prototypes</div>
-      <h2 class="section-title">Explorations disponibles</h2>
-      <p class="section-sub">Ces explorations illustrent ce qu'il est possible d'extraire des données publiques en les croisant et en appliquant des méthodes statistiques documentées.</p>
-    </div>
-    <div class="exploration-grid">
-      <div class="exploration-card">
-        <span class="exploration-badge badge-live">Disponible</span>
-        <div class="exploration-title">Analyse DVF</div>
-        <div class="exploration-desc">Exploration des transactions immobilières par commune. Distribution des prix au m², volume de ventes, évolution temporelle.</div>
-        <div class="exploration-source">Source : DGFiP DVF</div>
-      </div>
-      <div class="exploration-card">
-        <span class="exploration-badge badge-live">Disponible</span>
-        <div class="exploration-title">Scanner DPE</div>
-        <div class="exploration-desc">Exploration du registre des diagnostics énergétiques par commune. Répartition des classes énergie, identification des logements les moins performants.</div>
-        <div class="exploration-source">Source : ADEME DPE</div>
-      </div>
-      <div class="exploration-card">
-        <span class="exploration-badge badge-wip">En cours</span>
-        <div class="exploration-title">Score équipements</div>
-        <div class="exploration-desc">Score de proximité des équipements par commune : transports, commerces, santé, éducation. Échelle 0-100 basée sur le BPE INSEE.</div>
-        <div class="exploration-source">Source : INSEE BPE</div>
-      </div>
-    </div>
-  </section>
-
-  <!-- METHODO PREVIEW -->
-  <section class="methodo-section">
-    <div class="section-header">
-      <div class="section-label">Approche</div>
-      <h2 class="section-title">Méthodologie</h2>
-    </div>
-    <div class="methodo-content">
-      <p class="methodo-text">
-        Chaque analyse repose sur un pipeline documenté : récupération depuis les APIs officielles, nettoyage et normalisation géographique (réconciliation INSEE via BAN), agrégation statistique (médiane, quartiles, évolution), et croisement multisources. La confiance de chaque résultat est mesurée et affichée.
-      </p>
-      <a href="/methodologie" style="color: var(--accent-green); font-weight: 600; text-decoration: none; border-bottom: 2px solid transparent; transition: border-color 0.2s;" onmouseover="this.style.borderColor='var(--accent-green)'" onmouseout="this.style.borderColor='transparent'">Lire la méthodologie complète →</a>
-    </div>
-  </section>
-
-  <!-- FOOTER -->
-  <footer>
-    <p><strong>Intent Analytics</strong> — Projet expérimental d'exploration de données publiques françaises</p>
-    <span class="footer-email"><a href="mailto:contact@intentanalytics.fr">contact@intentanalytics.fr</a></span>
-    <div class="footer-legal">
-      <a href="/legal/mentions-legales">Mentions légales</a> •
-      <a href="/legal/cgu">CGU</a> •
-      <a href="/legal/politique-confidentialite">Politique de confidentialité</a>
-    </div>
-    <div class="footer-copy">© 2026 Intent Analytics</div>
-  </footer>
-
-</body>
-</html>
+  <!-- Security -->
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
