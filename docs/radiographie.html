@@ -1110,9 +1110,12 @@
       resultsSection.classList.add("active");
 
       try {
-        // Fetch all data in parallel
+        // Step 1: fetch commune_wiki first (needed for code_postal → DPE lookup)
+        const commune = await supaFetch("commune_wiki", { "code_insee": `eq.${codeInsee}`, "select": "*" }).then(r => r[0] || {});
+        const cp = commune.code_postal || selectedCommune?.code_postal || '';
+
+        // Step 2: fetch everything else in parallel
         const [
-          commune,
           context,
           market,
           poi,
@@ -1123,16 +1126,15 @@
           eau,
           securite
         ] = await Promise.all([
-          supaFetch("commune_wiki", { "code_insee": `eq.${codeInsee}`, "select": "*" }).then(r => r[0] || {}),
           supaFetch("commune_context", { "code_insee": `eq.${codeInsee}`, "select": "*" }).then(r => r[0] || {}),
           supaFetch("market_stats", { "code_commune": `eq.${codeInsee}`, "select": "*" }).then(r => r[0] || {}),
           supaFetch("poi_scores_commune", { "code_commune": `eq.${codeInsee}`, "select": "*" }).then(r => r[0] || {}),
-          supaFetch("dpe_commune_agg", { "code_postal": `eq.${commune.code_postal}`, "select": "*" }).then(r => r[0] || {}),
+          cp ? supaFetch("dpe_commune_agg", { "code_postal": `eq.${cp}`, "select": "*" }).then(r => r[0] || {}) : Promise.resolve({}),
           supaFetch("data_fiscalite_locale", { "code_insee": `eq.${codeInsee}`, "select": "*" }).then(r => r[0] || {}),
           supaFetch("data_demographie_commune", { "code_insee": `eq.${codeInsee}`, "select": "*" }).then(r => r[0] || {}),
           supaFetch("data_climat", { "code_insee": `eq.${codeInsee}`, "select": "*" }).then(r => r[0] || {}),
           supaFetch("data_qualite_eau", { "code_insee": `eq.${codeInsee}`, "select": "*" }).then(r => r[0] || {}),
-          supaFetch("data_securite", { "code_departement": `eq.${codeInsee.substring(0, 2)}`, "select": "*" }).then(r => r[0] || {})
+          supaFetch("data_securite", { "code_departement": `eq.${codeInsee.substring(0, 2)}`, "select": "*", "order": "annee.desc", "limit": "1" }).then(r => r[0] || {})
         ]);
 
         // Generate HTML

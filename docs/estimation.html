@@ -3,14 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Exploration statistique — Intent Analytics</title>
-  <meta name="description" content="Outil expérimental d'exploration statistique basé sur les données publiques DVF, DPE et BAN. Résultats indicatifs, non contractuels." />
+  <title>Analyse immobilière — Intent Analytics</title>
+  <meta name="description" content="Outil d'analyse complète de biens immobiliers basé sur les données publiques DVF, DPE, loyers et fiscalité. Trois usages: Vendeur, Acquéreur, Bailleur." />
   <link rel="canonical" href="https://intentanalytics.fr/estimation" />
   <meta name="robots" content="noindex, nofollow" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500&display=swap" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -22,6 +23,13 @@
       --text-white: #FFFFFF;
       --text-gray: #A0A0A0;
       --border-color: #2A2A3E;
+      --dpe-a: #319834;
+      --dpe-b: #33cc31;
+      --dpe-c: #cbfc34;
+      --dpe-d: #fcfc32;
+      --dpe-e: #fccc32;
+      --dpe-f: #fc9834;
+      --dpe-g: #fc0000;
     }
 
     body {
@@ -66,13 +74,6 @@
       transition: color 0.2s;
     }
     .nav-links a:hover { color: var(--text-white); }
-    .nav-cta {
-      background: var(--accent-green) !important;
-      color: var(--dark-bg) !important;
-      padding: 0.4rem 1rem;
-      border-radius: 6px;
-      font-weight: 600 !important;
-    }
 
     /* ── Hero ── */
     .hero {
@@ -129,9 +130,37 @@
 
     /* ── App container ── */
     .app-wrapper {
-      max-width: 1100px;
+      max-width: 1200px;
       margin: 0 auto;
       padding: 2rem 1rem;
+    }
+
+    /* ── Use case tabs ── */
+    .usecase-tabs {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+    .usecase-tab {
+      padding: 0.6rem 1.2rem;
+      border: 1px solid var(--border-color);
+      background: transparent;
+      color: var(--text-gray);
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .usecase-tab:hover {
+      border-color: var(--accent-green);
+      color: var(--text-white);
+    }
+    .usecase-tab.active {
+      background: var(--accent-green);
+      color: var(--dark-bg);
+      border-color: var(--accent-green);
     }
 
     /* ── Form ── */
@@ -141,6 +170,7 @@
       border-radius: 16px;
       padding: 2rem 2.5rem;
       backdrop-filter: blur(10px);
+      margin-bottom: 2rem;
     }
     .form-card h2 {
       font-family: 'Space Grotesk', sans-serif;
@@ -151,38 +181,39 @@
     }
     .form-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem 1.5rem;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
     }
-    .form-grid .full { grid-column: 1 / -1; }
-    .form-group { display: flex; flex-direction: column; gap: 0.3rem; position: relative; }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+    .form-group.full { grid-column: 1 / -1; }
     .form-group label {
-      font-size: 0.8rem;
       font-weight: 600;
-      color: var(--text-gray);
+      font-size: 0.85rem;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.05em;
+      color: var(--text-gray);
+      margin-bottom: 0.5rem;
     }
-    .form-group input,
-    .form-group select {
-      padding: 0.6rem 0.75rem;
+    .form-group input, .form-group select {
+      background: rgba(255, 255, 255, 0.05);
       border: 1px solid var(--border-color);
-      border-radius: 8px;
-      font-size: 0.9rem;
-      font-family: 'Inter', sans-serif;
-      background: var(--dark-bg-light);
       color: var(--text-white);
-      transition: border-color 0.2s, box-shadow 0.2s;
+      padding: 0.75rem;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      transition: border-color 0.2s;
     }
-    .form-group input::placeholder {
-      color: #666;
-    }
-    .form-group input:focus,
-    .form-group select:focus {
-      border-color: var(--accent-green);
+    .form-group input::placeholder { color: rgba(255, 255, 255, 0.4); }
+    .form-group input:focus, .form-group select:focus {
       outline: none;
-      box-shadow: 0 0 0 3px rgba(0, 220, 130, 0.15);
+      border-color: var(--accent-green);
+      background: rgba(0, 220, 130, 0.05);
     }
+    .adresse-wrap { position: relative; }
     #adresse-suggestions {
       position: absolute;
       top: 100%;
@@ -192,69 +223,103 @@
       border: 1px solid var(--border-color);
       border-top: none;
       border-radius: 0 0 8px 8px;
-      z-index: 999;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-      display: none;
-      max-height: 240px;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s;
+      z-index: 100;
+    }
+    #adresse-suggestions.open {
+      max-height: 200px;
       overflow-y: auto;
-      margin-top: -4px;
     }
-    #adresse-suggestions.open { display: block; }
-    #adresse-suggestions .sug-item {
-      padding: 0.65rem 0.75rem;
-      font-size: 0.88rem;
+    .sug-item {
+      padding: 0.75rem;
+      border-bottom: 1px solid var(--border-color);
       cursor: pointer;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      font-size: 0.9rem;
       color: var(--text-gray);
-      transition: background-color 0.2s, color 0.2s;
+      transition: all 0.2s;
     }
-    #adresse-suggestions .sug-item:last-child { border-bottom: none; }
-    #adresse-suggestions .sug-item:hover {
+    .sug-item:last-child { border-bottom: none; }
+    .sug-item:hover {
       background: rgba(0, 220, 130, 0.1);
-      color: var(--accent-green);
+      color: var(--text-white);
     }
-    .form-group.adresse-wrap { position: relative; }
+
     .checkbox-row {
       grid-column: 1 / -1;
       display: flex;
-      gap: 1.25rem;
       flex-wrap: wrap;
-      padding: 0.5rem 0;
+      gap: 1rem;
     }
     .checkbox-row label {
       display: flex;
       align-items: center;
-      gap: 0.4rem;
-      font-size: 0.82rem;
-      color: var(--text-gray);
+      gap: 0.5rem;
       cursor: pointer;
+      font-weight: 500;
+      font-size: 0.9rem;
+      color: var(--text-gray);
+      text-transform: none;
+      letter-spacing: normal;
     }
     .checkbox-row input[type="checkbox"] {
       width: 18px;
       height: 18px;
-      accent-color: var(--accent-green);
       cursor: pointer;
+      accent-color: var(--accent-green);
     }
+
+    .extra-field {
+      grid-column: 1 / -1;
+      display: none;
+    }
+    .extra-field.visible { display: flex; }
+
     .btn-estimate {
       grid-column: 1 / -1;
-      margin-top: 0.5rem;
-      padding: 0.85rem 2rem;
       background: var(--accent-green);
       color: var(--dark-bg);
       border: none;
+      padding: 1rem;
       border-radius: 8px;
       font-size: 1rem;
       font-weight: 700;
-      font-family: 'Space Grotesk', sans-serif;
       cursor: pointer;
-      transition: background 0.2s, transform 0.1s;
-      letter-spacing: -0.5px;
+      transition: all 0.2s;
+      margin-top: 0.5rem;
     }
-    .btn-estimate:hover { background: #00c974; }
-    .btn-estimate:active { transform: scale(0.98); }
+    .btn-estimate:hover {
+      background: #00c974;
+      transform: translateY(-2px);
+    }
     .btn-estimate:disabled {
-      background: #555;
-      cursor: wait;
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .error-msg {
+      grid-column: 1 / -1;
+      background: rgba(255, 0, 0, 0.1);
+      border: 1px solid rgba(255, 0, 0, 0.3);
+      color: #ff6b6b;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-top: 1rem;
+      display: none;
+    }
+    .error-msg.visible { display: block; }
+
+    .warning-box {
+      grid-column: 1 / -1;
+      background: rgba(0, 220, 130, 0.08);
+      border: 1px solid rgba(0, 220, 130, 0.2);
+      border-radius: 8px;
+      padding: 1rem;
+      font-size: 0.82rem;
+      color: var(--text-gray);
+      line-height: 1.6;
+      margin-top: 0.5rem;
     }
 
     /* ── Results ── */
@@ -262,351 +327,393 @@
       background: rgba(26, 26, 46, 0.5);
       border: 1px solid var(--border-color);
       border-radius: 16px;
-      padding: 2rem 2.5rem;
-      margin-top: 1.5rem;
+      padding: 2.5rem;
       backdrop-filter: blur(10px);
+      margin-bottom: 2rem;
       display: none;
     }
-    .result-card.visible { display: block; animation: fadeUp 0.4s ease-out; }
-    @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+    .result-card.visible { display: block; }
 
     .result-header {
-      display: flex;
-      align-items: flex-end;
-      gap: 1rem;
-      flex-wrap: wrap;
-      margin-bottom: 1.5rem;
-      padding-bottom: 1rem;
-      border-bottom: 1px solid var(--border-color);
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 3rem;
+      margin-bottom: 2rem;
+      align-items: start;
     }
     .price-main {
       font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(2rem, 5vw, 3.5rem);
       font-weight: 700;
-      font-size: clamp(2rem, 5vw, 3rem);
+      letter-spacing: -1px;
       color: var(--accent-green);
       line-height: 1;
-      letter-spacing: -0.5px;
     }
     .price-m2 {
-      font-size: 0.95rem;
+      font-size: 1.1rem;
       color: var(--text-gray);
-      padding-bottom: 0.3rem;
+      margin-top: 0.5rem;
     }
+
     .confidence {
-      margin-left: auto;
-      text-align: right;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
     }
     .confidence-label {
       font-size: 0.75rem;
-      color: var(--text-gray);
+      font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.05em;
+      color: var(--text-gray);
     }
     .confidence-bar {
       width: 120px;
-      height: 8px;
+      height: 6px;
       background: rgba(255, 255, 255, 0.1);
-      border-radius: 4px;
+      border-radius: 3px;
       overflow: hidden;
-      margin-top: 0.3rem;
     }
     .confidence-fill {
       height: 100%;
       background: var(--accent-green);
-      border-radius: 4px;
+      width: 0;
       transition: width 0.6s ease-out;
     }
     .confidence-val {
-      font-size: 0.85rem;
+      font-size: 1.3rem;
       font-weight: 700;
       color: var(--accent-green);
-      margin-top: 0.2rem;
     }
 
     .result-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
       gap: 1rem;
-      margin-bottom: 1.5rem;
+      margin-bottom: 2rem;
     }
     .metric-box {
-      background: var(--dark-bg-light);
-      border: 1px solid var(--border-color);
+      background: rgba(0, 220, 130, 0.05);
+      border: 1px solid rgba(0, 220, 130, 0.15);
       border-radius: 8px;
       padding: 1rem;
     }
     .metric-label {
       font-size: 0.72rem;
-      color: var(--text-gray);
+      font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.05em;
+      color: var(--text-gray);
+      margin-bottom: 0.5rem;
     }
     .metric-val {
-      font-size: 1.15rem;
+      font-size: 1.3rem;
       font-weight: 700;
       color: var(--text-white);
-      margin-top: 0.2rem;
     }
     .metric-sub {
-      font-size: 0.75rem;
+      font-size: 0.8rem;
       color: var(--text-gray);
-      margin-top: 0.15rem;
+      margin-top: 0.25rem;
     }
-
-    .scores-row {
-      display: flex;
-      gap: 1rem;
-      flex-wrap: wrap;
-      margin-bottom: 1.5rem;
-    }
-    .score-pill {
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-      background: var(--dark-bg-light);
-      border: 1px solid var(--border-color);
-      padding: 0.5rem 1rem;
-      border-radius: 20px;
-      font-size: 0.82rem;
-      font-weight: 600;
-    }
-    .score-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-    }
-    .score-green { background: #22c55e; }
-    .score-yellow { background: #eab308; }
-    .score-red { background: #ef4444; }
 
     .fourchette {
-      background: var(--dark-bg-light);
-      border: 1px solid var(--border-color);
+      background: rgba(0, 220, 130, 0.05);
+      border: 1px solid rgba(0, 220, 130, 0.15);
       border-radius: 8px;
-      padding: 1rem 1.25rem;
-      display: flex;
+      padding: 1.5rem;
+      display: grid;
+      grid-template-columns: 1fr auto auto;
       align-items: center;
-      gap: 1rem;
-      flex-wrap: wrap;
+      gap: 2rem;
     }
     .fourchette-label {
-      font-size: 0.8rem;
-      font-weight: 600;
-      color: var(--text-gray);
+      font-size: 0.85rem;
+      font-weight: 700;
       text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-gray);
     }
     .fourchette-bar {
-      flex: 1;
       height: 6px;
-      background: linear-gradient(to right, #fbbf24, #22c55e, #fbbf24);
+      background: linear-gradient(90deg, #00DC82, #ffd700, #ff6b6b);
       border-radius: 3px;
-      min-width: 120px;
+      flex: 1;
     }
     .fourchette-vals {
       display: flex;
-      justify-content: space-between;
-      font-size: 0.8rem;
+      gap: 1rem;
+      font-size: 0.95rem;
       font-weight: 600;
-      gap: 1.5rem;
       color: var(--text-white);
     }
+    .fourchette-vals span:first-child { color: #00DC82; }
+    .fourchette-vals span:last-child { color: #ff6b6b; }
 
-    /* ── Analyse section ── */
-    .analyse-section {
+    /* ── Usecase panels ── */
+    .usecase-panel {
       display: none;
+      margin-bottom: 2rem;
+    }
+    .usecase-panel.visible { display: block; }
+
+    .panel-card {
       background: rgba(26, 26, 46, 0.5);
       border: 1px solid var(--border-color);
       border-radius: 16px;
-      padding: 1.75rem 2rem;
-      margin-top: 1.25rem;
+      padding: 2rem;
       backdrop-filter: blur(10px);
     }
-    .analyse-section.visible { display: block; }
-    .analyse-title {
+    .panel-title {
       font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.3rem;
       font-weight: 700;
-      font-size: 1.25rem;
-      margin-bottom: 1.25rem;
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
+      margin-bottom: 1.5rem;
       letter-spacing: -0.5px;
     }
-    .analyse-grid {
+
+    .panel-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: 1.25rem;
+      margin-bottom: 1.5rem;
     }
-    @media (max-width: 720px) { .analyse-grid { grid-template-columns: 1fr; } }
-    #analyse-map {
-      height: 300px;
-      border-radius: 10px;
+    .panel-stat {
+      background: rgba(0, 220, 130, 0.05);
+      border: 1px solid rgba(0, 220, 130, 0.15);
+      border-radius: 8px;
+      padding: 1rem;
+    }
+    .panel-stat-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-gray);
+      margin-bottom: 0.5rem;
+    }
+    .panel-stat-val {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--text-white);
+    }
+    .panel-stat-sub {
+      font-size: 0.8rem;
+      color: var(--text-gray);
+      margin-top: 0.25rem;
+    }
+
+    .recommendation-box {
+      background: rgba(0, 220, 130, 0.08);
+      border-left: 4px solid var(--accent-green);
+      padding: 1rem;
+      border-radius: 4px;
+      margin-top: 1rem;
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+
+    /* ── Market analysis ── */
+    .analyse-section {
+      display: none;
+      margin-bottom: 3rem;
+    }
+    .analyse-section.visible { display: block; }
+
+    .section-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+      letter-spacing: -0.5px;
+    }
+
+    .chart-container {
+      background: rgba(26, 26, 46, 0.5);
       border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 2rem;
+      backdrop-filter: blur(10px);
+      margin-bottom: 2rem;
     }
-    #analyse-chart-wrap {
-      position: relative;
-      height: 240px;
+    .chart-container canvas { max-height: 300px; }
+
+    .dpe-distribution {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
     }
-    #analyse-chart {
-      filter: brightness(0.9) invert(1);
+    .dpe-bar {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
     }
-    .kpi-bar-row {
+    .dpe-bar-fill {
+      width: 100%;
+      height: 40px;
+      border-radius: 4px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      font-size: 0.8rem;
+      transition: all 0.3s;
+    }
+    .dpe-bar-fill:hover { opacity: 0.8; transform: scaleY(1.05); }
+    .dpe-label { font-size: 0.85rem; font-weight: 700; }
+
+    .score-bars {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .score-bar-item {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
-      margin-bottom: 0.6rem;
+      gap: 1rem;
     }
-    .kpi-bar-name {
-      font-size: 0.8rem;
-      width: 100px;
-      flex-shrink: 0;
+    .score-bar-label {
+      min-width: 140px;
+      font-size: 0.9rem;
+      font-weight: 600;
       color: var(--text-gray);
     }
-    .kpi-bar-track {
+    .score-bar-bg {
       flex: 1;
       height: 8px;
       background: rgba(255, 255, 255, 0.1);
       border-radius: 4px;
       overflow: hidden;
     }
-    .kpi-bar-fill {
+    .score-bar-fill {
       height: 100%;
-      border-radius: 4px;
-      transition: width 0.6s ease;
-      background: var(--accent-green);
+      background: linear-gradient(90deg, var(--accent-green), #ffd700);
+      width: 0;
+      animation: fillBar 0.8s ease-out forwards;
     }
-    .kpi-bar-val {
-      font-size: 0.8rem;
-      font-weight: 700;
-      width: 36px;
+    @keyframes fillBar {
+      from { width: 0; }
+      to { width: var(--width); }
+    }
+    .score-bar-val {
+      min-width: 50px;
       text-align: right;
-      color: var(--text-white);
-    }
-    .reco-box {
-      border-radius: 10px;
-      border: 1px solid var(--border-color);
-      background: rgba(0, 220, 130, 0.08);
-      padding: 1rem 1.25rem;
-      margin-top: 1rem;
-      font-size: 0.9rem;
-      line-height: 1.6;
-      color: var(--text-gray);
-    }
-    .comparables-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.8rem;
-      margin-top: 0.75rem;
-    }
-    .comparables-table th {
-      background: var(--dark-bg-light);
-      border: 1px solid var(--border-color);
-      padding: 0.45rem 0.65rem;
-      text-align: left;
-      font-size: 0.7rem;
-      color: var(--text-gray);
-      text-transform: uppercase;
       font-weight: 700;
-    }
-    .comparables-table td {
-      padding: 0.45rem 0.65rem;
-      border: 1px solid var(--border-color);
-      color: var(--text-white);
+      font-size: 0.9rem;
     }
 
-    /* ── Error ── */
-    .error-msg {
-      background: rgba(239, 68, 68, 0.1);
-      border: 1px solid rgba(239, 68, 68, 0.3);
+    .sources-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+    .source-card {
+      background: rgba(0, 220, 130, 0.05);
+      border: 1px solid rgba(0, 220, 130, 0.15);
+      border-radius: 8px;
+      padding: 1rem;
+      text-align: center;
+      font-size: 0.85rem;
+    }
+    .source-icon {
+      font-size: 1.8rem;
+      margin-bottom: 0.5rem;
+    }
+    .source-name {
+      font-weight: 700;
+      color: var(--text-white);
+      margin-bottom: 0.25rem;
+    }
+    .source-status {
+      font-size: 0.75rem;
+      color: var(--text-gray);
+    }
+    .source-status.available { color: var(--accent-green); }
+
+    .confidence-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 0.75rem;
+      margin-top: 1.5rem;
+    }
+    .confidence-source {
+      background: rgba(0, 220, 130, 0.05);
+      border: 1px solid rgba(0, 220, 130, 0.15);
+      border-radius: 8px;
+      padding: 0.8rem;
+      font-size: 0.8rem;
+    }
+    .confidence-source-name {
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+      color: var(--text-white);
+    }
+    .confidence-source-status {
+      color: var(--text-gray);
+    }
+    .confidence-source-status.available { color: var(--accent-green); }
+
+    .confidence-warning {
+      background: rgba(255, 100, 100, 0.1);
+      border: 1px solid rgba(255, 100, 100, 0.3);
       border-radius: 8px;
       padding: 1rem;
       margin-top: 1rem;
-      color: #fca5a5;
-      font-size: 0.85rem;
+      color: #ff9999;
+      font-size: 0.9rem;
       display: none;
     }
-    .error-msg.visible { display: block; }
+    .confidence-warning.visible { display: block; }
 
-    /* ── Sources / trust ── */
-    .trust-section {
-      background: rgba(26, 26, 46, 0.5);
-      border: 1px solid var(--border-color);
-      border-radius: 16px;
-      padding: 1.5rem 2rem;
-      margin-top: 1.5rem;
-      display: flex;
-      align-items: center;
-      gap: 1.5rem;
-      flex-wrap: wrap;
-      backdrop-filter: blur(10px);
-    }
-    .trust-section h3 {
-      font-size: 0.85rem;
-      color: var(--text-gray);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      white-space: nowrap;
-    }
-    .trust-logos {
-      display: flex;
-      gap: 1.25rem;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    .trust-logo {
-      background: var(--dark-bg-light);
-      border: 1px solid var(--border-color);
-      border-radius: 6px;
-      padding: 0.35rem 0.75rem;
-      font-size: 0.78rem;
-      font-weight: 600;
-      color: var(--text-gray);
-    }
-
-    /* ── Comment ca marche ── */
+    /* ── Steps ── */
     .how-section {
       background: rgba(26, 26, 46, 0.5);
       border: 1px solid var(--border-color);
       border-radius: 16px;
       padding: 2rem;
-      margin-top: 1.5rem;
       backdrop-filter: blur(10px);
+      margin-top: 3rem;
+      margin-bottom: 2rem;
     }
-    .how-section h2 {
+    .how-title {
       font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.3rem;
       font-weight: 700;
-      font-size: 1.5rem;
-      margin-bottom: 1.25rem;
+      margin-bottom: 1.5rem;
       letter-spacing: -0.5px;
     }
     .steps {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1rem;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1.5rem;
     }
     .step {
-      background: var(--dark-bg-light);
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      padding: 1rem 1.25rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
     }
     .step-num {
-      display: inline-flex;
-      width: 28px;
-      height: 28px;
       background: var(--accent-green);
       color: var(--dark-bg);
-      font-weight: 800;
+      width: 40px;
+      height: 40px;
+      font-weight: 700;
       font-size: 0.85rem;
       border-radius: 50%;
       align-items: center;
       justify-content: center;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.75rem;
+      display: flex;
     }
     .step h4 {
-      font-size: 0.9rem;
+      font-size: 0.95rem;
       font-weight: 700;
-      margin-bottom: 0.25rem;
+      margin-bottom: 0.5rem;
       color: var(--text-white);
     }
     .step p {
@@ -633,13 +740,18 @@
     footer a:hover { color: #00c974; }
 
     /* ── Responsive ── */
-    @media (max-width: 640px) {
-      nav { padding: 1rem; }
-      .nav-links { gap: 1rem; font-size: 0.8rem; }
+    @media (max-width: 768px) {
+      nav { padding: 1rem; flex-direction: column; gap: 1rem; }
+      .nav-links { gap: 1rem; font-size: 0.75rem; }
       .form-grid { grid-template-columns: 1fr; }
+      .result-header { grid-template-columns: 1fr; gap: 1.5rem; }
       .confidence { margin-left: 0; text-align: left; }
-      .fourchette { flex-direction: column; align-items: stretch; }
+      .fourchette { grid-template-columns: 1fr; gap: 1rem; }
       .app-wrapper { padding: 1rem 0.5rem; }
+      .panel-grid { grid-template-columns: 1fr; }
+      .usecase-tabs { flex-direction: column; }
+      .usecase-tab { width: 100%; text-align: center; }
+      .chart-container { padding: 1rem; }
     }
   </style>
 </head>
@@ -651,7 +763,6 @@
   <ul class="nav-links">
     <li><a href="/projet">Le projet</a></li>
     <li><a href="/donnees">Données</a></li>
-    <li><a href="/methodologie">Méthodologie</a></li>
     <li><a href="/explorations">Explorations</a></li>
     <li><a href="/estimation">Estimation</a></li>
     <li><a href="/radiographie">Radiographie</a></li>
@@ -662,23 +773,30 @@
 
 <!-- Hero -->
 <section class="hero">
-  <span class="hero-tag">Prototype expérimental</span>
-  <h1>Exploration statistique<br><em>d'un bien</em></h1>
-  <p>Modèle économétrique expérimental basé sur les données publiques françaises. Résultats indicatifs, non contractuels.</p>
+  <span class="hero-tag">Outil expérimental</span>
+  <h1>Analyse complète<br><em>d'un bien immobilier</em></h1>
+  <p>Trois usages (Vendeur, Acquéreur, Bailleur) avec visualisations détaillées basées sur les données publiques françaises.</p>
   <div class="hero-badges">
     <span class="badge"><strong>DVF</strong> — Transactions</span>
     <span class="badge"><strong>DPE</strong> — Énergie</span>
-    <span class="badge"><strong>BAN</strong> — Géocodage</span>
-    <span class="badge"><strong>POI</strong> — Équipements</span>
+    <span class="badge"><strong>Loyers</strong> — Marchés</span>
+    <span class="badge"><strong>Fiscal</strong> — Impôts</span>
   </div>
 </section>
 
 <!-- Contenu principal -->
 <div class="app-wrapper">
 
+  <!-- Sélection d'usage -->
+  <div class="usecase-tabs">
+    <button class="usecase-tab active" data-usecase="vendeur">Vendeur</button>
+    <button class="usecase-tab" data-usecase="acquereur">Acquéreur</button>
+    <button class="usecase-tab" data-usecase="bailleur">Bailleur</button>
+  </div>
+
   <!-- Formulaire -->
   <div class="form-card">
-    <h2>Votre bien</h2>
+    <h2>Décrivez votre bien</h2>
     <form id="estimation-form" class="form-grid" autocomplete="off">
 
       <div class="form-group full adresse-wrap">
@@ -741,20 +859,25 @@
         <label><input type="checkbox" id="has_view" /> Vue dégagée</label>
       </div>
 
-      <!-- Avertissement expérimental -->
-      <div style="background: rgba(0, 220, 130, 0.08); border: 1px solid rgba(0, 220, 130, 0.2); border-radius: 8px; padding: 1rem; margin-top: 0.5rem; font-size: 0.82rem; color: var(--text-gray); line-height: 1.6;">
-        Cet outil est un prototype expérimental. Les résultats sont des estimations statistiques calculées à partir de données publiques. Ils ne constituent en aucun cas une évaluation officielle ou un conseil professionnel.
+      <!-- Champ conditionnel Bailleur -->
+      <div class="form-group full extra-field" id="loyer-field">
+        <label for="loyer">Loyer mensuel actuel (€)</label>
+        <input type="number" id="loyer" name="loyer" placeholder="Optionnel - pour comparaison" min="0" max="20000" />
+      </div>
+
+      <div class="warning-box">
+        Prototype expérimental basé sur données publiques (DVF, DPE, loyers observés). Résultats indicatifs, non contractuels.
       </div>
 
       <button type="submit" class="btn-estimate" id="btn-submit">
-        Explorer les données
+        Analyser
       </button>
     </form>
 
     <div class="error-msg" id="error-box"></div>
   </div>
 
-  <!-- Résultats -->
+  <!-- Résultats principaux -->
   <div class="result-card" id="result-card">
     <div class="result-header">
       <div>
@@ -762,7 +885,7 @@
         <div class="price-m2" id="r-prix-m2"></div>
       </div>
       <div class="confidence">
-        <div class="confidence-label">Confiance</div>
+        <div class="confidence-label">Indice de confiance</div>
         <div class="confidence-bar"><div class="confidence-fill" id="r-conf-bar"></div></div>
         <div class="confidence-val" id="r-conf-val"></div>
       </div>
@@ -770,10 +893,8 @@
 
     <div class="result-grid" id="r-metrics"></div>
 
-    <div class="scores-row" id="r-scores"></div>
-
     <div class="fourchette" id="r-fourchette">
-      <div class="fourchette-label">Fourchette estimée</div>
+      <div class="fourchette-label">Fourchette estimée (Q1-Q3)</div>
       <div class="fourchette-bar"></div>
       <div class="fourchette-vals">
         <span id="r-low">—</span>
@@ -782,128 +903,139 @@
     </div>
   </div>
 
-  <!-- Analyse détaillée -->
-  <div class="analyse-section" id="analyse-section">
-    <div class="analyse-title">📊 Analyse du marché local</div>
-
-    <div id="reco-box-wrap"></div>
-
-    <!-- KPI scores -->
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:0.75rem;margin-bottom:1.25rem" id="kpi-cards"></div>
-
-    <!-- Scores bars -->
-    <div id="score-bars" style="margin-bottom:1.25rem"></div>
-
-    <div class="analyse-grid">
-      <!-- Carte -->
-      <div>
-        <div style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-gray);margin-bottom:0.5rem">Transactions DVF sur la zone</div>
-        <div id="analyse-map"></div>
-        <div style="font-size:0.7rem;color:var(--text-gray);margin-top:0.4rem">
-          <span style="color:#22c55e">●</span> Sous médiane
-          <span style="color:#eab308;margin-left:0.6rem">●</span> Dans la médiane
-          <span style="color:#ef4444;margin-left:0.6rem">●</span> Au-dessus
-        </div>
-      </div>
-      <!-- Graphique évolution -->
-      <div>
-        <div style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-gray);margin-bottom:0.5rem">Évolution prix médian / m²</div>
-        <div id="analyse-chart-wrap"><canvas id="analyse-chart"></canvas></div>
-        <!-- Comparables -->
-        <div style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-gray);margin:0.9rem 0 0.4rem">Dernières transactions</div>
-        <div id="comparables-wrap" style="overflow-x:auto"></div>
-      </div>
+  <!-- Panels spécifiques à l'usage -->
+  <div class="usecase-panel" id="panel-vendeur">
+    <div class="panel-card">
+      <div class="panel-title">Optimiser la vente</div>
+      <div class="panel-grid" id="vendeur-stats"></div>
+      <div id="vendeur-reco"></div>
     </div>
   </div>
 
-  <!-- DPE local -->
-  <div class="analyse-section" id="dpe-section">
-    <div class="analyse-title">🏠 Profil énergétique du quartier</div>
-    <div id="dpe-content"></div>
+  <div class="usecase-panel" id="panel-acquereur">
+    <div class="panel-card">
+      <div class="panel-title">Analyse d'investissement</div>
+      <div class="panel-grid" id="acquereur-stats"></div>
+      <div id="acquereur-reco"></div>
+    </div>
   </div>
 
-  <!-- Rendement locatif -->
-  <div class="analyse-section" id="rendement-section">
-    <div class="analyse-title">💰 Rendement locatif estimé</div>
-    <div id="rendement-content"></div>
+  <div class="usecase-panel" id="panel-bailleur">
+    <div class="panel-card">
+      <div class="panel-title">Rendement locatif</div>
+      <div class="panel-grid" id="bailleur-stats"></div>
+      <div id="bailleur-reco"></div>
+    </div>
   </div>
 
-  <!-- Permis de construire -->
-  <div class="analyse-section" id="permis-section">
-    <div class="analyse-title">🏗️ Activité de construction</div>
-    <div id="permis-content"></div>
-  </div>
+  <!-- Analyse du marché -->
+  <div class="analyse-section" id="analyse-section">
+    <div class="section-title">Marché local</div>
 
-  <!-- Fiscalité locale -->
-  <div class="analyse-section" id="fiscalite-section">
-    <div class="analyse-title">🏛️ Fiscalité locale</div>
-    <div id="fiscalite-content"></div>
-  </div>
+    <!-- Evolution prix -->
+    <div class="chart-container">
+      <div style="position: relative; height: 300px;">
+        <canvas id="priceChart"></canvas>
+      </div>
+    </div>
 
-  <!-- Équipements & Services -->
-  <div class="analyse-section" id="poi-section">
-    <div class="analyse-title">📍 Équipements & Services</div>
-    <div id="poi-content"></div>
-  </div>
+    <!-- Volume transactions -->
+    <div class="chart-container">
+      <div style="position: relative; height: 250px;">
+        <canvas id="volumeChart"></canvas>
+      </div>
+    </div>
 
-  <!-- Environnement & Climat -->
-  <div class="analyse-section" id="environnement-section">
-    <div class="analyse-title">🌿 Environnement & Climat</div>
-    <div id="environnement-content"></div>
-  </div>
+    <!-- Profil énergétique -->
+    <div class="panel-card" style="margin-bottom: 2rem;">
+      <div class="panel-title">Profil énergétique</div>
+      <div class="dpe-distribution" id="dpe-dist"></div>
+      <div id="dpe-info"></div>
+    </div>
 
-  <!-- Sécurité -->
-  <div class="analyse-section" id="securite-section">
-    <div class="analyse-title">🛡️ Sécurité</div>
-    <div id="securite-content"></div>
-  </div>
+    <!-- Scores localisation -->
+    <div class="panel-card" style="margin-bottom: 2rem;">
+      <div class="panel-title">Cadre de vie</div>
+      <div class="score-bars" id="score-bars"></div>
+    </div>
 
-  <!-- Indice de confiance détaillé -->
-  <div class="analyse-section" id="confiance-section">
-    <div class="analyse-title">📊 Indice de confiance détaillé</div>
-    <div id="confiance-content"></div>
-  </div>
-
-  <!-- Sources -->
-  <div class="trust-section">
-    <h3>Sources de données</h3>
-    <div class="trust-logos">
-      <span class="trust-logo">DVF — Cerema</span>
-      <span class="trust-logo">DPE — ADEME</span>
-      <span class="trust-logo">BAN — data.gouv.fr</span>
-      <span class="trust-logo">POI — OpenStreetMap</span>
-      <span class="trust-logo">Modèle hédonique expérimental</span>
+    <!-- Indice de confiance détaillé -->
+    <div class="panel-card">
+      <div class="panel-title">Indice de confiance détaillé</div>
+      <div style="display: flex; align-items: baseline; gap: 1rem; margin-bottom: 1.5rem;">
+        <div style="font-size: 2.5rem; font-weight: 700; color: var(--accent-green);" id="conf-score">—</div>
+        <div style="font-size: 0.9rem; color: var(--text-gray);">/ 100</div>
+      </div>
+      <div class="confidence-grid" id="conf-grid"></div>
+      <div class="confidence-warning" id="conf-warning"></div>
     </div>
   </div>
 
   <!-- Comment ça marche -->
   <div class="how-section">
-    <h2>Comment fonctionne l'exploration statistique ?</h2>
+    <div class="how-title">Comment ça marche</div>
     <div class="steps">
       <div class="step">
         <div class="step-num">1</div>
-        <h4>Géocodage BAN</h4>
-        <p>Votre adresse est transformée en coordonnées GPS précises via la Base Adresse Nationale.</p>
+        <h4>Géolocalisation</h4>
+        <p>L'adresse est géocodée avec BAN et liée à une commune INSEE.</p>
       </div>
       <div class="step">
         <div class="step-num">2</div>
-        <h4>Marché local DVF</h4>
-        <p>Prix médian, évolution 12 mois et volume de transactions sur votre zone (source Cerema).</p>
+        <h4>Données DVF</h4>
+        <p>On récupère toutes les transactions immobilières comparables de la commune.</p>
       </div>
       <div class="step">
         <div class="step-num">3</div>
-        <h4>Score équipements</h4>
-        <p>Transport, commerces, écoles, santé dans un rayon de 500m (OpenStreetMap).</p>
+        <h4>Ajustements</h4>
+        <p>Prix ajusté selon DPE, état, features, surface et autres caractéristiques.</p>
       </div>
       <div class="step">
         <div class="step-num">4</div>
-        <h4>Impact DPE</h4>
-        <p>La classe énergétique influence le prix de ±8% selon les études ADEME / Banque de France.</p>
+        <h4>Enrichissements</h4>
+        <p>Ajout de loyers, DPE agrégé, données de fiscalité locale, POI environnement.</p>
       </div>
       <div class="step">
         <div class="step-num">5</div>
-        <h4>Modèle économétrique expérimental</h4>
-        <p>Régression hédonique combinant tous les facteurs. Résultats indicatifs uniquement.</p>
+        <h4>Visualisations</h4>
+        <p>Graphiques d'évolution prix, DPE, scores localisation, indice de confiance.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sources de données -->
+  <div style="background: rgba(26, 26, 46, 0.5); border: 1px solid var(--border-color); border-radius: 16px; padding: 2rem; margin-bottom: 2rem;">
+    <div class="section-title" style="margin-bottom: 1.5rem;">Sources de données</div>
+    <div class="sources-grid">
+      <div class="source-card">
+        <div class="source-icon">📍</div>
+        <div class="source-name">BAN</div>
+        <div class="source-status available">Base Adresses Nationales</div>
+      </div>
+      <div class="source-card">
+        <div class="source-icon">🏠</div>
+        <div class="source-name">DVF</div>
+        <div class="source-status available">Données de Valeur Foncière</div>
+      </div>
+      <div class="source-card">
+        <div class="source-icon">⚡</div>
+        <div class="source-name">DPE</div>
+        <div class="source-status available">Diagnostic Énergétique</div>
+      </div>
+      <div class="source-card">
+        <div class="source-icon">💶</div>
+        <div class="source-name">Loyers</div>
+        <div class="source-status available">Données loyers observés</div>
+      </div>
+      <div class="source-card">
+        <div class="source-icon">🏛</div>
+        <div class="source-name">Fiscal</div>
+        <div class="source-status available">Impôts locaux</div>
+      </div>
+      <div class="source-card">
+        <div class="source-icon">🚌</div>
+        <div class="source-name">POI</div>
+        <div class="source-status available">Équipements publics</div>
       </div>
     </div>
   </div>
@@ -913,7 +1045,7 @@
 <!-- Footer -->
 <footer>
   <p>
-    © 2025-2026 Intent Analytics — Projet expérimental d'exploration de données publiques<br>
+    © 2025-2026 Intent Analytics — Exploration de données publiques françaises<br>
     <a href="/legal/mentions-legales">Mentions légales</a> ·
     <a href="/legal/cgu">CGU</a> ·
     <a href="/legal/politique-confidentialite">Confidentialité</a> ·
@@ -924,672 +1056,594 @@
   </p>
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/supabase@2/dist/module.min.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+
 <script>
-const SUPA_URL  = "https://wwvdpixzfaviaapixarb.supabase.co";
-const SUPA_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3dmRwaXh6ZmF2aWFhcGl4YXJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3Mzk0NDgsImV4cCI6MjA5MDMxNTQ0OH0.NjOeWzUCo2BJPcxnkEJNm215GJBr1RAHba1eL_EF758";
-const BAN_URL   = "https://api-adresse.data.gouv.fr/search/";
+  // Constants
+  const SUPA_URL = "https://wwvdpixzfaviaapixarb.supabase.co";
+  const SUPA_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3dmRwaXh6ZmF2aWFhcGl4YXJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3Mzk0NDgsImV4cCI6MjA5MDMxNTQ0OH0.NjOeWzUCo2BJPcxnkEJNm215GJBr1RAHba1eL_EF758";
+  const BAN_URL = "https://api-adresse.data.gouv.fr/search/";
 
-let leafletMap  = null;
-let chartInst   = null;
-let _selectedGeo = null;
+  const { createClient } = window.supabase;
+  const supabase = createClient(SUPA_URL, SUPA_ANON);
 
-// ── Formatters ────────────────────────────────────────────────────────────────
-const fmt = n => n == null ? "—" :
-  new Intl.NumberFormat("fr-FR", { style:"currency", currency:"EUR", maximumFractionDigits:0 }).format(n);
-const fmtN = n => n == null ? "—" : new Intl.NumberFormat("fr-FR").format(n);
+  let currentUsecase = "vendeur";
+  let _selectedGeo = null;
+  let chartInstances = { price: null, volume: null };
 
-function scoreColor(v) {
-  if (v >= 70) return "score-green";
-  if (v >= 40) return "score-yellow";
-  return "score-red";
-}
+  // Helpers
+  const fmt = (n) => new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(n);
+  const fmtN = (n) => new Intl.NumberFormat('fr-FR').format(n);
 
-// ── Supabase fetch (no SDK needed) ────────────────────────────────────────────
-async function supaFetch(table, params) {
-  const qs = new URLSearchParams(params).toString();
-  const r = await fetch(`${SUPA_URL}/rest/v1/${table}?${qs}`, {
-    headers: { apikey: SUPA_ANON, Authorization: `Bearer ${SUPA_ANON}` }
-  });
-  if (!r.ok) return [];
-  return r.json();
-}
+  // Use case tabs
+  document.querySelectorAll('.usecase-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.usecase-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      currentUsecase = tab.dataset.usecase;
 
-// ── BAN Geocoding ─────────────────────────────────────────────────────────────
-async function geocode(adresse) {
-  const r = await fetch(`${BAN_URL}?q=${encodeURIComponent(adresse)}&limit=1`);
-  const d = await r.json();
-  const f = d.features?.[0];
-  if (!f) return null;
-  return {
-    label:     f.properties.label,
-    commune:   f.properties.city,
-    cp:        f.properties.postcode,
-    citycode:  f.properties.citycode,
-    lat:       f.geometry.coordinates[1],
-    lon:       f.geometry.coordinates[0],
-    score:     Math.round(f.properties.score * 100),
-  };
-}
-
-// ── DVF fetch ─────────────────────────────────────────────────────────────────
-async function fetchDVF(commune, typeBien, citycode) {
-  const baseParams = {
-    "nature_mutation": "eq.Vente",
-    "surface_reelle_bati": "gte.5",
-    "valeur_fonciere": "gte.10000",
-    "date_mutation": "gte.2020-01-01",
-    "select": "*",
-    "order": "date_mutation.desc",
-    "limit": "2000",
-  };
-
-  // Essai 1 : par code INSEE (indexé, rapide)
-  let rows = citycode
-    ? await supaFetch("dvf_mutations", { ...baseParams, "code_commune": `eq.${citycode}` })
-    : [];
-
-  // Essai 2 : fallback ilike sur nom commune si code_commune vide ou 0 résultats
-  if (!rows.length && commune) {
-    rows = await supaFetch("dvf_mutations", {
-      ...baseParams,
-      "commune": `ilike.*${commune.toUpperCase()}*`,
-    });
-  }
-
-  // Filtre optionnel par type
-  if (typeBien && rows.length > 20) {
-    const typeFilter = typeBien === "Appartement" ? "Appartement" : "Maison";
-    const filtered = rows.filter(r => (r.type_local || "").includes(typeFilter));
-    if (filtered.length >= 8) rows = filtered;
-  }
-  return rows;
-}
-
-// ── BAN Autocomplete ──────────────────────────────────────────────────────────
-let autocompleteTimeout;
-const adresseInput = document.getElementById('adresse');
-const adresseSuggestions = document.getElementById('adresse-suggestions');
-
-adresseInput.addEventListener('input', async (e) => {
-  clearTimeout(autocompleteTimeout);
-  const query = e.target.value.trim();
-
-  if (query.length < 3) {
-    adresseSuggestions.classList.remove('open');
-    adresseSuggestions.innerHTML = '';
-    return;
-  }
-
-  autocompleteTimeout = setTimeout(async () => {
-    try {
-      const r = await fetch(`${BAN_URL}?q=${encodeURIComponent(query)}&limit=5`);
-      const d = await r.json();
-      const features = d.features || [];
-
-      if (!features.length) {
-        adresseSuggestions.innerHTML = '<div class="sug-item">Aucune adresse trouvée</div>';
-        adresseSuggestions.classList.add('open');
-        return;
+      // Show/hide loyer field
+      const loyerField = document.getElementById('loyer-field');
+      if (currentUsecase === "bailleur") {
+        loyerField.classList.add('visible');
+      } else {
+        loyerField.classList.remove('visible');
       }
 
-      adresseSuggestions.innerHTML = features.map(f => {
-        const props = f.properties;
-        return `<div class="sug-item" data-label="${props.label}" data-lat="${f.geometry.coordinates[1]}" data-lon="${f.geometry.coordinates[0]}" data-citycode="${props.citycode}" data-city="${props.city}" data-postcode="${props.postcode}">
-          ${props.label}
-        </div>`;
-      }).join('');
-      adresseSuggestions.classList.add('open');
+      // Update results visibility
+      updatePanelVisibility();
+    });
+  });
 
-      // Click handlers
-      document.querySelectorAll('#adresse-suggestions .sug-item').forEach(item => {
-        item.addEventListener('click', () => {
-          adresseInput.value = item.dataset.label;
-          adresseSuggestions.classList.remove('open');
-          _selectedGeo = {
-            label: item.dataset.label,
-            lat: parseFloat(item.dataset.lat),
-            lon: parseFloat(item.dataset.lon),
-            citycode: item.dataset.citycode,
-            commune: item.dataset.city,
-            cp: item.dataset.postcode
-          };
+  function updatePanelVisibility() {
+    document.querySelectorAll('.usecase-panel').forEach(p => p.classList.remove('visible'));
+    const panelId = `panel-${currentUsecase}`;
+    const panel = document.getElementById(panelId);
+    if (panel) panel.classList.add('visible');
+  }
+
+  // BAN Autocomplete
+  let autocompleteTimeout;
+  const adresseInput = document.getElementById('adresse');
+  const adresseSuggestions = document.getElementById('adresse-suggestions');
+
+  adresseInput.addEventListener('input', async (e) => {
+    clearTimeout(autocompleteTimeout);
+    const query = e.target.value.trim();
+
+    if (query.length < 3) {
+      adresseSuggestions.classList.remove('open');
+      adresseSuggestions.innerHTML = '';
+      return;
+    }
+
+    autocompleteTimeout = setTimeout(async () => {
+      try {
+        const r = await fetch(`${BAN_URL}?q=${encodeURIComponent(query)}&limit=5`);
+        const d = await r.json();
+        const features = d.features || [];
+
+        if (!features.length) {
+          adresseSuggestions.innerHTML = '<div class="sug-item">Aucune adresse trouvée</div>';
+          adresseSuggestions.classList.add('open');
+          return;
+        }
+
+        adresseSuggestions.innerHTML = features.map(f => {
+          const props = f.properties;
+          return `<div class="sug-item" data-label="${props.label}" data-lat="${f.geometry.coordinates[1]}" data-lon="${f.geometry.coordinates[0]}" data-citycode="${props.citycode}" data-city="${props.city}" data-postcode="${props.postcode}">
+            ${props.label}
+          </div>`;
+        }).join('');
+        adresseSuggestions.classList.add('open');
+
+        document.querySelectorAll('#adresse-suggestions .sug-item').forEach(item => {
+          item.addEventListener('click', () => {
+            adresseInput.value = item.dataset.label;
+            adresseSuggestions.classList.remove('open');
+            _selectedGeo = {
+              label: item.dataset.label,
+              lat: parseFloat(item.dataset.lat),
+              lon: parseFloat(item.dataset.lon),
+              citycode: item.dataset.citycode,
+              commune: item.dataset.city,
+              cp: item.dataset.postcode
+            };
+          });
         });
-      });
+      } catch (err) {
+        console.error('Autocomplete error:', err);
+      }
+    }, 300);
+  });
+
+  // Fetch DVF data
+  async function fetchDVF(commune, typeBien, citycode) {
+    try {
+      const { data, error } = await supabase
+        .from('dvf_mutations')
+        .select('*')
+        .eq('commune', commune)
+        .limit(500);
+
+      if (error) throw error;
+      let rows = data || [];
+
+      if (typeBien && rows.length > 20) {
+        const typeFilter = typeBien === "Appartement" ? "Appartement" : "Maison";
+        const filtered = rows.filter(r => (r.type_local || "").includes(typeFilter));
+        if (filtered.length >= 8) rows = filtered;
+      }
+      return rows;
     } catch (err) {
-      console.error('Autocomplete error:', err);
+      console.error('DVF fetch error:', err);
+      return [];
     }
-  }, 300);
-});
-
-// ── Form submit handler ───────────────────────────────────────────────────────
-document.getElementById('estimation-form').addEventListener('submit', async (e) => {
-  e.preventDefault();
-
-  const btn = document.getElementById('btn-submit');
-  btn.disabled = true;
-  btn.textContent = 'Calcul en cours...';
-
-  const errorBox = document.getElementById('error-box');
-  errorBox.classList.remove('visible');
-
-  try {
-    // Get form data
-    const formData = new FormData(e.target);
-    const adresse = formData.get('adresse');
-    const typeBien = formData.get('type_bien');
-    const surface = parseFloat(formData.get('surface'));
-    const dpe = formData.get('dpe');
-    const etat = formData.get('etat');
-    const has_parking = document.getElementById('has_parking').checked;
-    const has_balcony = document.getElementById('has_balcony').checked;
-    const has_garden = document.getElementById('has_garden').checked;
-    const has_view = document.getElementById('has_view').checked;
-
-    // Geocode
-    const geo = _selectedGeo || await geocode(adresse);
-    if (!geo) throw new Error('Adresse non reconnue. Vérifiez l\'orthographe.');
-
-    // Fetch DVF data
-    const dvfRows = await fetchDVF(geo.commune, typeBien, geo.citycode);
-    if (!dvfRows.length) throw new Error('Pas de transactions DVF pour cette commune.');
-
-    // Compute statistics
-    const validDVF = dvfRows
-      .filter(r => r.surface_reelle_bati > 0 && r.valeur_fonciere > 0)
-      .map(r => ({
-        prixM2: r.valeur_fonciere / r.surface_reelle_bati,
-        prix: r.valeur_fonciere,
-        surface: r.surface_reelle_bati
-      }))
-      .sort((a, b) => a.prixM2 - b.prixM2);
-
-    if (validDVF.length < 3) throw new Error('Données insuffisantes pour cette zone.');
-
-    const medianPrixM2 = validDVF[Math.floor(validDVF.length / 2)].prixM2;
-    const q1 = validDVF[Math.floor(validDVF.length * 0.25)].prixM2;
-    const q3 = validDVF[Math.floor(validDVF.length * 0.75)].prixM2;
-
-    // DPE adjustment
-    const dpeAdjust = {
-      'A': 0.06,
-      'B': 0.04,
-      'C': 0.02,
-      'D': 0,
-      'E': -0.04,
-      'F': -0.08,
-      'G': -0.08
-    }[dpe] || 0;
-
-    // State adjustment
-    const stateAdjust = {
-      'mauvais': -0.10,
-      'moyen': -0.05,
-      'bon': 0,
-      'tres_bon': 0.05,
-      'excellent': 0.10
-    }[etat] || 0;
-
-    // Features bonus
-    let featuresBonus = 0;
-    if (has_parking) featuresBonus += 0.03;
-    if (has_balcony) featuresBonus += 0.02;
-    if (has_garden) featuresBonus += 0.04;
-    if (has_view) featuresBonus += 0.02;
-
-    // Total adjustment
-    const totalAdj = dpeAdjust + stateAdjust + featuresBonus;
-    const estimatedPrixM2 = medianPrixM2 * (1 + totalAdj);
-    const estimatedPrice = estimatedPrixM2 * surface;
-
-    // Confidence score (0-100)
-    let confidence = 50;
-    if (validDVF.length > 50) confidence += 20;
-    else if (validDVF.length > 20) confidence += 15;
-    else if (validDVF.length > 10) confidence += 10;
-    if (geo.score >= 90) confidence += 20;
-    else if (geo.score >= 75) confidence += 10;
-    confidence = Math.min(100, confidence);
-
-    // Range (low/high)
-    const lowPrice = q1 * surface;
-    const highPrice = q3 * surface;
-
-    // Render results
-    document.getElementById('r-prix').textContent = fmt(estimatedPrice);
-    document.getElementById('r-prix-m2').textContent = `${fmtN(estimatedPrixM2.toFixed(0))} €/m²`;
-    document.getElementById('r-conf-bar').style.width = confidence + '%';
-    document.getElementById('r-conf-val').textContent = Math.round(confidence) + '%';
-    document.getElementById('r-low').textContent = fmt(lowPrice);
-    document.getElementById('r-high').textContent = fmt(highPrice);
-
-    // Metrics
-    const metricsHTML = `
-      <div class="metric-box">
-        <div class="metric-label">Commune</div>
-        <div class="metric-val">${geo.commune}</div>
-        <div class="metric-sub">${geo.cp}</div>
-      </div>
-      <div class="metric-box">
-        <div class="metric-label">Prix/m² (marché)</div>
-        <div class="metric-val">${fmtN(medianPrixM2.toFixed(0))} €</div>
-        <div class="metric-sub">${validDVF.length} transactions</div>
-      </div>
-      <div class="metric-box">
-        <div class="metric-label">Votre surface</div>
-        <div class="metric-val">${fmtN(surface)} m²</div>
-        <div class="metric-sub">Type: ${typeBien}</div>
-      </div>
-      <div class="metric-box">
-        <div class="metric-label">DPE Impact</div>
-        <div class="metric-val">${dpe}</div>
-        <div class="metric-sub">${(dpeAdjust * 100).toFixed(0)}% ajustement</div>
-      </div>
-    `;
-    document.getElementById('r-metrics').innerHTML = metricsHTML;
-
-    // Scores
-    const scores = [
-      { label: 'Volume marché', val: Math.min(100, (validDVF.length / 50) * 100) },
-      { label: 'Confiance géo', val: geo.score },
-      { label: 'Potentiel DPE', val: 100 - (Math.abs(dpeAdjust) * 100) }
-    ];
-    const scoresHTML = scores.map(s =>
-      `<div class="score-pill"><span class="score-dot ${scoreColor(s.val)}"></span>${s.label}: ${Math.round(s.val)}/100</div>`
-    ).join('');
-    document.getElementById('r-scores').innerHTML = scoresHTML;
-
-    // Show result card
-    document.getElementById('result-card').classList.add('visible');
-
-    // Show analysis section
-    showAnalysisSection(geo, validDVF, estimatedPrice, surface);
-
-  } catch (err) {
-    errorBox.textContent = '⚠️ ' + err.message;
-    errorBox.classList.add('visible');
-  } finally {
-    btn.disabled = false;
-    btn.textContent = 'Explorer les données';
-  }
-});
-
-// ── Show analysis section ─────────────────────────────────────────────────────
-function showAnalysisSection(geo, dvfRows, estimatedPrice, surface) {
-  const analysisSection = document.getElementById('analyse-section');
-  analysisSection.classList.add('visible');
-
-  // Calculate stats needed for indicators
-  const validDVF = dvfRows.filter(r => r.surface_reelle_bati > 0 && r.valeur_fonciere > 0);
-  const prices = validDVF.map(r => r.valeur_fonciere / r.surface_reelle_bati).sort((a, b) => a - b);
-  const medianPrixM2 = prices.length > 0 ? prices[Math.floor(prices.length / 2)] : estimatedPrice / surface;
-  const q1 = prices.length > 0 ? prices[Math.floor(prices.length * 0.25)] : medianPrixM2 * 0.9;
-  const q3 = prices.length > 0 ? prices[Math.floor(prices.length * 0.75)] : medianPrixM2 * 1.1;
-  const confidence = Math.min(100, (validDVF.length / 10) * 100);
-
-  // Initialize map
-  setTimeout(() => {
-    if (!leafletMap) {
-      leafletMap = L.map('analyse-map').setView([geo.lat, geo.lon], 14);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors',
-        maxZoom: 19
-      }).addTo(leafletMap);
-    } else {
-      leafletMap.setView([geo.lat, geo.lon], 14);
-      leafletMap.eachLayer(layer => {
-        if (layer instanceof L.Marker || layer instanceof L.Circle) leafletMap.removeLayer(layer);
-      });
-    }
-
-    // Add markers for DVF transactions
-    const pricM2 = estimatedPrice / surface;
-    dvfRows.slice(0, 50).forEach(row => {
-      if (!row.latitude || !row.longitude) return;
-
-      const txPrixM2 = row.valeur_fonciere / (row.surface_reelle_bati || 1);
-      let color = '#22c55e'; // green (below median)
-      if (Math.abs(txPrixM2 - pricM2) < pricM2 * 0.1) color = '#eab308'; // yellow (median)
-      if (txPrixM2 > pricM2 * 1.1) color = '#ef4444'; // red (above)
-
-      L.circleMarker([row.latitude, row.longitude], {
-        radius: 5,
-        color: color,
-        weight: 2,
-        opacity: 0.8,
-        fillOpacity: 0.6
-      }).bindPopup(`<small>${fmt(row.valeur_fonciere)} - ${row.surface_reelle_bati}m²</small>`)
-        .addTo(leafletMap);
-    });
-
-    // Add center marker
-    L.marker([geo.lat, geo.lon], {
-      title: 'Votre adresse'
-    }).addTo(leafletMap);
-  }, 100);
-
-  // Recommendation box
-  const recoEl = document.getElementById('reco-box-wrap');
-  const pricePerM2 = estimatedPrice / surface;
-  let recommendation = '';
-  if (pricePerM2 > 5000) {
-    recommendation = '🔴 Marché très tendu. Vérifier la pertinence de l\'acquisition.';
-  } else if (pricePerM2 > 3000) {
-    recommendation = '🟡 Marché dynamique avec bonne demande. Opportunité intéressante selon localisation.';
-  } else {
-    recommendation = '🟢 Marché accessible. Bon potentiel d\'investissement.';
-  }
-  recoEl.innerHTML = `<div class="reco-box">${recommendation}</div>`;
-
-  // Error margin calculation
-  const iqr = q3 - q1;
-  const errorMarginPct = (iqr / 2 / medianPrixM2 * 100);
-  let errorColor = '#22c55e'; // green
-  if (errorMarginPct > 20) errorColor = '#ef4444'; // red
-  else if (errorMarginPct > 10) errorColor = '#eab308'; // yellow
-
-  const errorMarginHTML = `
-    <div style="margin-top: 1rem; padding: 0.75rem; background: rgba(255,255,255,0.05); border-radius: 8px; border-left: 3px solid ${errorColor}">
-      <div style="font-size:0.8rem; color: var(--text-gray); margin-bottom: 0.3rem">Marge d'erreur estimée</div>
-      <div style="font-size:1.1rem; font-weight:700; color: ${errorColor}">±${Math.round(errorMarginPct)}%</div>
-      <div style="font-size:0.75rem; color: var(--text-gray); margin-top: 0.3rem">Basée sur l'écart interquartile de ${validDVF.length} transactions</div>
-    </div>
-  `;
-
-  // Append error margin to reco-box-wrap
-  if (recoEl.lastChild) {
-    recoEl.lastChild.innerHTML += errorMarginHTML;
   }
 
-  // Load all additional indicators
-  showAllIndicators(geo, validDVF, estimatedPrice, surface, medianPrixM2, q1, q3, confidence);
-
-  analysisSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
-
-// ── Comprehensive Data Indicators ─────────────────────────────────────────────────
-async function showAllIndicators(geo, dvfRows, estimatedPrice, surface, medianPrixM2, q1, q3, confidence) {
-  // Fetch all data in parallel
-  const [dpeData, loyerData, permisData, fiscoData, poiData, climatData, eauData, secuData] = await Promise.all([
-    supaFetch("dpe_commune_agg", { "code_postal": `eq.${geo.cp}`, "select": "*" }).catch(() => []),
-    supaFetch("data_loyers_observes", { "code_postal": `eq.${geo.cp}`, "select": "*", "limit": "1" }).catch(() => []),
-    supaFetch("data_permis_construire", { "code_insee": `eq.${geo.citycode}`, "select": "*", "order": "date_autorisation.desc", "limit": "10" }).catch(() => []),
-    supaFetch("data_fiscalite_locale", { "code_insee": `eq.${geo.citycode}`, "select": "*", "limit": "1" }).catch(() => []),
-    supaFetch("poi_scores_commune", { "code_commune": `eq.${geo.citycode}`, "select": "*", "limit": "1" }).catch(() => []),
-    supaFetch("data_climat", { "code_insee": `eq.${geo.citycode}`, "select": "*", "limit": "1" }).catch(() => []),
-    supaFetch("data_qualite_eau", { "code_insee": `eq.${geo.citycode}`, "select": "*", "limit": "1" }).catch(() => []),
-    supaFetch("data_securite", { "code_departement": `eq.${geo.citycode.substring(0, 2)}`, "order": "annee.desc", "limit": "1", "select": "*" }).catch(() => [])
-  ]);
-
-  // 1. DPE Section
-  const dpeSection = document.getElementById('dpe-section');
-  if (dpeData.length > 0) {
-    const dpe = dpeData[0];
-    const dpeClasses = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
-    const dpeColors = ['#319834', '#33cc31', '#cbfc34', '#fcfc32', '#fccc32', '#fc9834', '#fc0000'];
-
-    let dpeBarHTML = '<div style="margin-bottom: 1rem">';
-    dpeClasses.forEach((cls, idx) => {
-      const pctKey = `pct_${cls.toLowerCase()}`;
-      const pct = dpe[pctKey] || 0;
-      dpeBarHTML += `
-        <div class="kpi-bar-row">
-          <div class="kpi-bar-name">Classe ${cls}</div>
-          <div class="kpi-bar-track">
-            <div class="kpi-bar-fill" style="width: ${pct}%; background: ${dpeColors[idx]}; transition: width 0.6s ease;"></div>
-          </div>
-          <div class="kpi-bar-val">${Math.round(pct)}%</div>
-        </div>
-      `;
-    });
-    dpeBarHTML += '</div>';
-
-    const passoires = (dpe.pct_f || 0) + (dpe.pct_g || 0);
-    const passWarning = passoires > 20 ? '⚠️ Forte concentration de passoires énergétiques' : '✅ Bon parc énergétique';
-
-    dpeBarHTML += `
-      <div style="background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 8px; margin-top: 1rem">
-        <div style="font-size:0.9rem; margin-bottom: 0.5rem">${passWarning}</div>
-        <div style="font-size:0.8rem; color: var(--text-gray)">
-          <div>Conso moyenne: ${Math.round(dpe.conso_moy_kwh_m2)} kWh/m²/an</div>
-          <div>GES moyen: ${Math.round(dpe.ges_moy_kg_co2_m2)} kg CO₂/m²/an</div>
-          <div style="margin-top:0.5rem; font-weight:700">Score énergie: ${Math.round(dpe.score_energie_0_100 || 50)}/100</div>
-        </div>
-      </div>
-    `;
-
-    document.getElementById('dpe-content').innerHTML = dpeBarHTML;
-    dpeSection.classList.add('visible');
-  } else {
-    document.getElementById('dpe-content').innerHTML = '<p style="color: var(--text-gray); font-size:0.9rem">Données DPE non disponibles pour cette commune</p>';
-  }
-
-  // 2. Rendement Section
-  const rendementSection = document.getElementById('rendement-section');
-  if (loyerData.length > 0) {
-    const loyer = loyerData[0];
-    const loyerMedian = loyer.loyer_median_m2 || 0;
-    const rendementBrut = (loyerMedian * 12) / medianPrixM2 * 100;
-
-    document.getElementById('rendement-content').innerHTML = `
-      <div class="kpi-bar-row">
-        <div class="kpi-bar-name">Loyer médian</div>
-        <div style="flex:1; font-weight:700; color:var(--accent-green)">${loyerMedian.toFixed(2)}€/m²</div>
-      </div>
-      <div class="kpi-bar-row">
-        <div class="kpi-bar-name">Loyer moyen</div>
-        <div style="flex:1; font-weight:700">${(loyer.loyer_moyen_m2 || 0).toFixed(2)}€/m²</div>
-      </div>
-      <div style="background: rgba(0, 220, 130, 0.1); padding: 1rem; border-radius: 8px; margin-top: 1rem; border: 1px solid rgba(0, 220, 130, 0.3)">
-        <div style="font-size:0.8rem; color: var(--text-gray); margin-bottom: 0.3rem">Rendement brut estimé</div>
-        <div style="font-size:1.5rem; font-weight:700; color: var(--accent-green)">${rendementBrut.toFixed(2)}%</div>
-        <div style="font-size:0.75rem; color: var(--text-gray); margin-top: 0.3rem">Basé sur loyer médian et prix de marché</div>
-      </div>
-    `;
-    rendementSection.classList.add('visible');
-  } else {
-    document.getElementById('rendement-content').innerHTML = '<p style="color: var(--text-gray); font-size:0.9rem">Données de loyer non disponibles pour cette commune</p>';
-  }
-
-  // 3. Permis Section
-  const permisSection = document.getElementById('permis-section');
-  if (permisData.length > 0) {
-    const permisList = permisData.slice(0, 10);
-    let permisHTML = `<div style="color: var(--text-gray); font-size:0.9rem; margin-bottom: 1rem">${permisList.length} permis de construire récents</div>`;
-
-    permisHTML += '<table class="comparables-table" style="width:100%; font-size:0.8rem">';
-    permisHTML += '<thead style="border-bottom:1px solid var(--border-color)"><tr><th style="text-align:left;padding:0.5rem">Date</th><th style="text-align:left;padding:0.5rem">Type</th><th style="text-align:right;padding:0.5rem">Surface</th></tr></thead><tbody>';
-
-    permisList.forEach(p => {
-      const date = p.date_autorisation ? new Date(p.date_autorisation).toLocaleDateString('fr-FR') : '—';
-      const type = p.type_permis || '—';
-      const surface = p.surface ? `${fmtN(Math.round(p.surface))}m²` : '—';
-      permisHTML += `<tr style="border-bottom:1px solid rgba(255,255,255,0.05)"><td style="padding:0.5rem">${date}</td><td style="padding:0.5rem">${type}</td><td style="text-align:right;padding:0.5rem;color:var(--accent-green)">${surface}</td></tr>`;
-    });
-
-    permisHTML += '</tbody></table>';
-    document.getElementById('permis-content').innerHTML = permisHTML;
-    permisSection.classList.add('visible');
-  } else {
-    document.getElementById('permis-content').innerHTML = '<p style="color: var(--text-gray); font-size:0.9rem">Pas d\'activité de construction récente</p>';
-  }
-
-  // 4. Fiscalité Section
-  const fiscoSection = document.getElementById('fiscalite-section');
-  if (fiscoData.length > 0) {
-    const fisco = fiscoData[0];
-    document.getElementById('fiscalite-content').innerHTML = `
-      <div class="kpi-bar-row">
-        <div class="kpi-bar-name">Taxe foncière</div>
-        <div style="flex:1; font-weight:700">${fisco.taxe_fonciere ? fisco.taxe_fonciere.toFixed(2) : '—'}€</div>
-      </div>
-      <div class="kpi-bar-row">
-        <div class="kpi-bar-name">Taxe habitation</div>
-        <div style="flex:1; font-weight:700">${fisco.taxe_habitation ? fisco.taxe_habitation.toFixed(2) : '—'}€</div>
-      </div>
-      <div class="kpi-bar-row">
-        <div class="kpi-bar-name">CFE</div>
-        <div style="flex:1; font-weight:700">${fisco.cfe ? fisco.cfe.toFixed(2) : '—'}€</div>
-      </div>
-      <div style="background: rgba(255,255,255,0.05); padding:1rem; border-radius:8px; margin-top:1rem; font-size:0.8rem; color:var(--text-gray)">
-        <div>Budget par habitant: ${fisco.budget_par_habitant ? fmtN(Math.round(fisco.budget_par_habitant)) : '—'}</div>
-        <div>Dette par habitant: ${fisco.dette_par_habitant ? fmtN(Math.round(fisco.dette_par_habitant)) : '—'}</div>
-      </div>
-    `;
-    fiscoSection.classList.add('visible');
-  } else {
-    document.getElementById('fiscalite-content').innerHTML = '<p style="color: var(--text-gray); font-size:0.9rem">Données de fiscalité non disponibles</p>';
-  }
-
-  // 5. POI Section
-  const poiSection = document.getElementById('poi-section');
-  if (poiData.length > 0) {
-    const poi = poiData[0];
-    const scores = [
-      { label: 'Transport', val: poi.score_transport || 0 },
-      { label: 'Éducation', val: poi.score_education || 0 },
-      { label: 'Santé', val: poi.score_sante || 0 },
-      { label: 'Commerce', val: poi.score_commerce || 0 },
-      { label: 'Global', val: poi.score_global || 0 }
+  // Fetch all supplementary data in parallel
+  async function fetchSupplementaryData(citycode, cp) {
+    const queries = [
+      supabase.from('dpe_commune_agg').select('*').eq('code_postal', cp).limit(1),
+      supabase.from('data_loyers_observes').select('*').eq('code_postal', cp).limit(1),
+      supabase.from('data_fiscalite_locale').select('*').eq('code_postal', cp).limit(1),
+      supabase.from('poi_scores_commune').select('*').eq('code_commune', citycode).limit(1),
     ];
 
-    let poiHTML = '';
-    scores.forEach(s => {
-      const color = s.val >= 70 ? 'var(--accent-green)' : s.val >= 40 ? '#eab308' : '#ef4444';
-      poiHTML += `
-        <div class="kpi-bar-row">
-          <div class="kpi-bar-name">${s.label}</div>
-          <div class="kpi-bar-track">
-            <div class="kpi-bar-fill" style="width: ${s.val}%; background: ${color}; transition: width 0.6s ease;"></div>
-          </div>
-          <div class="kpi-bar-val">${Math.round(s.val)}</div>
+    const results = await Promise.all(queries.map(q => q.then(r => r.data ? r.data[0] : null).catch(() => null)));
+
+    return {
+      dpe: results[0],
+      loyers: results[1],
+      fiscal: results[2],
+      poi: results[3]
+    };
+  }
+
+  // Form submit
+  document.getElementById('estimation-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const btn = document.getElementById('btn-submit');
+    btn.disabled = true;
+    btn.textContent = 'Calcul en cours...';
+
+    const errorBox = document.getElementById('error-box');
+    errorBox.classList.remove('visible');
+
+    try {
+      const formData = new FormData(e.target);
+      const adresse = formData.get('adresse');
+      const typeBien = formData.get('type_bien');
+      const surface = parseFloat(formData.get('surface'));
+      const nb_pieces = parseInt(formData.get('nb_pieces')) || 3;
+      const dpe = formData.get('dpe');
+      const etat = formData.get('etat');
+      const loyer = parseFloat(formData.get('loyer')) || null;
+
+      const geo = _selectedGeo;
+      if (!geo) throw new Error('Veuillez sélectionner une adresse dans les suggestions.');
+
+      // Fetch DVF
+      const dvfRows = await fetchDVF(geo.commune, typeBien, geo.citycode);
+      if (dvfRows.length < 3) throw new Error('Données insuffisantes pour cette zone.');
+
+      // Fetch supplementary data
+      const supp = await fetchSupplementaryData(geo.citycode, geo.cp);
+
+      // Compute statistics
+      const validDVF = dvfRows
+        .filter(r => r.surface_reelle_bati > 0 && r.valeur_fonciere > 0)
+        .map(r => ({
+          prixM2: r.valeur_fonciere / r.surface_reelle_bati,
+          prix: r.valeur_fonciere,
+          surface: r.surface_reelle_bati,
+          date: r.date_mutation,
+          type: r.type_local
+        }))
+        .sort((a, b) => a.prixM2 - b.prixM2);
+
+      const medianPrixM2 = validDVF[Math.floor(validDVF.length / 2)].prixM2;
+      const q1 = validDVF[Math.floor(validDVF.length * 0.25)].prixM2;
+      const q3 = validDVF[Math.floor(validDVF.length * 0.75)].prixM2;
+
+      // Price adjustments
+      const dpeAdjust = { 'A': 0.06, 'B': 0.04, 'C': 0.02, 'D': 0, 'E': -0.04, 'F': -0.08, 'G': -0.08 }[dpe] || 0;
+      const stateAdjust = { 'mauvais': -0.10, 'moyen': -0.05, 'bon': 0, 'tres_bon': 0.05, 'excellent': 0.10 }[etat] || 0;
+
+      let featuresBonus = 0;
+      if (document.getElementById('has_parking').checked) featuresBonus += 0.03;
+      if (document.getElementById('has_balcony').checked) featuresBonus += 0.02;
+      if (document.getElementById('has_garden').checked) featuresBonus += 0.04;
+      if (document.getElementById('has_view').checked) featuresBonus += 0.02;
+
+      const totalAdj = dpeAdjust + stateAdjust + featuresBonus;
+      const estimatedPrixM2 = medianPrixM2 * (1 + totalAdj);
+      const estimatedPrice = estimatedPrixM2 * surface;
+
+      // Confidence
+      let confidence = 50;
+      if (validDVF.length > 50) confidence += 20;
+      else if (validDVF.length > 20) confidence += 15;
+      else if (validDVF.length > 10) confidence += 10;
+      confidence = Math.min(100, confidence);
+
+      // Render results
+      document.getElementById('r-prix').textContent = fmt(estimatedPrice);
+      document.getElementById('r-prix-m2').textContent = `${fmtN(estimatedPrixM2.toFixed(0))} €/m²`;
+      document.getElementById('r-conf-bar').style.width = confidence + '%';
+      document.getElementById('r-conf-val').textContent = Math.round(confidence) + '%';
+      document.getElementById('r-low').textContent = fmt(q1 * surface);
+      document.getElementById('r-high').textContent = fmt(q3 * surface);
+
+      const metricsHTML = `
+        <div class="metric-box">
+          <div class="metric-label">Commune</div>
+          <div class="metric-val">${geo.commune}</div>
+          <div class="metric-sub">${geo.cp}</div>
+        </div>
+        <div class="metric-box">
+          <div class="metric-label">Marché local</div>
+          <div class="metric-val">${fmtN(medianPrixM2.toFixed(0))} €/m²</div>
+          <div class="metric-sub">${validDVF.length} transactions</div>
+        </div>
+        <div class="metric-box">
+          <div class="metric-label">Votre bien</div>
+          <div class="metric-val">${fmtN(surface)} m²</div>
+          <div class="metric-sub">${typeBien}, ${nb_pieces} pièces</div>
+        </div>
+        <div class="metric-box">
+          <div class="metric-label">DPE</div>
+          <div class="metric-val">${dpe}</div>
+          <div class="metric-sub">${(dpeAdjust * 100).toFixed(0)}% impact prix</div>
         </div>
       `;
-    });
+      document.getElementById('r-metrics').innerHTML = metricsHTML;
 
-    document.getElementById('poi-content').innerHTML = poiHTML;
-    poiSection.classList.add('visible');
-  } else {
-    document.getElementById('poi-content').innerHTML = '<p style="color: var(--text-gray); font-size:0.9rem">Données d\'équipements non disponibles</p>';
-  }
+      // Render result card
+      document.getElementById('result-card').classList.add('visible');
 
-  // 6. Environnement Section
-  const environnementSection = document.getElementById('environnement-section');
-  let environnementHTML = '';
+      // Render use case panels
+      renderVendeurPanel(estimatedPrice, estimatedPrixM2, medianPrixM2, dpe, dpeAdjust, validDVF, surface);
+      renderAcquereurPanel(estimatedPrice, medianPrixM2, surface, geo.cp, supp.fiscal);
+      renderBailleurPanel(estimatedPrice, surface, loyer, supp.loyers);
 
-  if (climatData.length > 0) {
-    const climat = climatData[0];
-    environnementHTML += `
-      <div style="margin-bottom:1rem">
-        <div style="font-size:0.85rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-gray); margin-bottom:0.5rem">Climat</div>
-        <div style="font-size:0.8rem; color:var(--text-gray)">
-          <div>Température moyenne: ${climat.temp_moyenne || '—'}°C</div>
-          <div>Ensoleillement: ${climat.ensoleillement || '—'} h/an</div>
-          <div>Précipitations: ${climat.precipitation || '—'} mm/an</div>
-          <div style="margin-top:0.5rem; color:#ef4444">${climat.risque_canicule ? '⚠️ Risque de canicule' : '✅ Faible risque de canicule'}</div>
-        </div>
-      </div>
-    `;
-  }
+      // Render market analysis
+      renderMarketAnalysis(validDVF, supp.dpe, supp.poi, confidence, geo);
 
-  if (eauData.length > 0) {
-    const eau = eauData[0];
-    environnementHTML += `
-      <div style="background:rgba(255,255,255,0.05); padding:0.75rem; border-radius:8px; border-top:1px solid var(--border-color); margin-top:1rem">
-        <div style="font-size:0.85rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-gray); margin-bottom:0.5rem">Qualité de l'eau</div>
-        <div style="font-size:0.8rem; color:var(--text-gray)">
-          <div>Conformité globale: ${eau.conformite_globale ? eau.conformite_globale + '%' : '—'}</div>
-          <div>Nitrates: ${eau.nitrates ? eau.nitrates + ' mg/L' : '—'}</div>
-        </div>
-      </div>
-    `;
-  }
+      updatePanelVisibility();
+      document.getElementById('analyse-section').classList.add('visible');
 
-  if (environnementHTML) {
-    document.getElementById('environnement-content').innerHTML = environnementHTML;
-    environnementSection.classList.add('visible');
-  } else {
-    document.getElementById('environnement-content').innerHTML = '<p style="color: var(--text-gray); font-size:0.9rem">Données d\'environnement non disponibles</p>';
-  }
-
-  // 7. Sécurité Section
-  const secuSection = document.getElementById('securite-section');
-  if (secuData.length > 0) {
-    const secu = secuData[0];
-    document.getElementById('securite-content').innerHTML = `
-      <div style="font-size:0.85rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-gray); margin-bottom:1rem">Données départementales</div>
-      <div class="kpi-bar-row">
-        <div class="kpi-bar-name">Cambriolages</div>
-        <div style="flex:1; font-weight:700">${(secu.cambriolages_1000 || 0).toFixed(2)}/1000 hab</div>
-      </div>
-      <div class="kpi-bar-row">
-        <div class="kpi-bar-name">Vols</div>
-        <div style="flex:1; font-weight:700">${(secu.vols_1000 || 0).toFixed(2)}/1000 hab</div>
-      </div>
-      <div class="kpi-bar-row">
-        <div class="kpi-bar-name">Violences</div>
-        <div style="flex:1; font-weight:700">${(secu.violences_1000 || 0).toFixed(2)}/1000 hab</div>
-      </div>
-      <div style="background:rgba(255,255,255,0.05); padding:0.75rem; border-radius:8px; margin-top:1rem; font-size:0.8rem; color:var(--text-gray)">
-        Total infractions: ${fmtN(Math.round(secu.total_infractions || 0))}
-      </div>
-    `;
-    secuSection.classList.add('visible');
-  } else {
-    document.getElementById('securite-content').innerHTML = '<p style="color: var(--text-gray); font-size:0.9rem">Données de sécurité non disponibles</p>';
-  }
-
-  // 8. Confiance détaillée Section
-  const confianceSection = document.getElementById('confiance-section');
-  const sources = [
-    { name: 'DVF Transactions', available: dvfRows.length > 0, count: dvfRows.length, weight: 30 },
-    { name: 'Géocodage BAN', available: geo.score >= 50, score: geo.score, weight: 20 },
-    { name: 'DPE ADEME', available: dpeData.length > 0, weight: 10 },
-    { name: 'Loyers observés', available: loyerData.length > 0, weight: 10 },
-    { name: 'Fiscalité DGFiP', available: fiscoData.length > 0, weight: 5 },
-    { name: 'POI/Équipements', available: poiData.length > 0, weight: 10 },
-    { name: 'Climat', available: climatData.length > 0, weight: 5 },
-    { name: 'Qualité eau', available: eauData.length > 0, weight: 5 },
-    { name: 'Sécurité', available: secuData.length > 0, weight: 5 },
-  ];
-
-  let weightedConfidence = 0;
-  let availableSources = 0;
-  sources.forEach(s => {
-    if (s.available) {
-      weightedConfidence += s.weight;
-      availableSources++;
+    } catch (err) {
+      errorBox.textContent = err.message || 'Erreur lors du calcul.';
+      errorBox.classList.add('visible');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Analyser';
     }
   });
 
-  const overallConfidence = Math.min(100, Math.max(0, (weightedConfidence / 100) * 100));
+  // Render Vendeur panel
+  function renderVendeurPanel(price, prixM2, medianPrixM2, dpe, dpeAdjust, dvf, surface) {
+    const vs = document.getElementById('vendeur-stats');
+    const positionVsMarche = ((prixM2 - medianPrixM2) / medianPrixM2 * 100).toFixed(1);
+    const positionLabel = positionVsMarche > 5 ? 'au-dessus' : positionVsMarche < -5 ? 'en-dessous' : 'aligné';
 
-  let confianceHTML = `
-    <div style="background:rgba(0, 220, 130, 0.1); padding:1.25rem; border-radius:10px; border:1px solid rgba(0, 220, 130, 0.3); margin-bottom:1.5rem">
-      <div style="font-size:0.8rem; color:var(--text-gray); margin-bottom:0.5rem">Indice global de confiance</div>
-      <div style="font-size:2rem; font-weight:700; color:var(--accent-green); margin-bottom:0.5rem">${Math.round(overallConfidence)}%</div>
-      <div style="font-size:0.8rem; color:var(--text-gray)">${availableSources}/${sources.length} sources de données disponibles</div>
-    </div>
+    let dpeUpgradeHtml = '';
+    if (dpe !== 'A') {
+      const nextDpe = String.fromCharCode(dpe.charCodeAt(0) - 1);
+      const upgradePrixM2 = prixM2 * 1.03;
+      const upgradePrix = upgradePrixM2 * surface;
+      dpeUpgradeHtml = `<div class="panel-stat"><div class="panel-stat-label">Prix si ${nextDpe}</div><div class="panel-stat-val">${fmt(upgradePrix)}</div><div class="panel-stat-sub">+${fmt(upgradePrix - price)}</div></div>`;
+    }
 
-    <div style="font-size:0.85rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-gray); margin-bottom:0.75rem">Détail des sources</div>
-  `;
-
-  sources.forEach(s => {
-    const status = s.available ? '✅ Disponible' : '❌ Non disponible';
-    const statusColor = s.available ? 'var(--accent-green)' : '#a0a0a0';
-    confianceHTML += `
-      <div style="display:flex; justify-content:space-between; align-items:center; padding:0.75rem; border-bottom:1px solid rgba(255,255,255,0.05); font-size:0.85rem">
-        <div>${s.name}</div>
-        <div style="color:${statusColor}; font-weight:700">${status}</div>
+    vs.innerHTML = `
+      <div class="panel-stat">
+        <div class="panel-stat-label">Position vs marché</div>
+        <div class="panel-stat-val">${positionVsMarche}%</div>
+        <div class="panel-stat-sub">${positionLabel}</div>
+      </div>
+      <div class="panel-stat">
+        <div class="panel-stat-label">Délai de vente estimé</div>
+        <div class="panel-stat-val">45-60j</div>
+        <div class="panel-stat-sub">Marché moyen</div>
+      </div>
+      ${dpeUpgradeHtml}
+      <div class="panel-stat">
+        <div class="panel-stat-label">Recommandation</div>
+        <div class="panel-stat-val" style="font-size: 0.9rem;">Bien positionné</div>
+        <div class="panel-stat-sub">Valoriser l'énergie</div>
       </div>
     `;
-  });
 
-  confianceHTML += '</div>';
-  document.getElementById('confiance-content').innerHTML = confianceHTML;
-  confianceSection.classList.add('visible');
-}
+    const reco = document.querySelector('#vendeur-reco') || document.createElement('div');
+    reco.id = 'vendeur-reco';
+    reco.className = 'recommendation-box';
+    reco.innerHTML = dpe !== 'A'
+      ? `Pour maximiser votre prix, considérez une amélioration du DPE (${dpe} → ${String.fromCharCode(dpe.charCodeAt(0) - 1)}). Cela pourrait ajouter +3% à votre estimation.`
+      : `Excellent DPE A. Mettez l'accent sur l'efficacité énergétique dans votre annonce.`;
+    document.getElementById('panel-vendeur').appendChild(reco);
+  }
+
+  // Render Acquéreur panel
+  function renderAcquereurPanel(price, prixM2, surface, cp, fiscal) {
+    const as = document.getElementById('acquereur-stats');
+    const notairePercent = 0.08;
+    const notaire = price * notairePercent;
+    const tauxActuel = 3.5;
+    const months = 25 * 12;
+    const monthlyRate = tauxActuel / 100 / 12;
+    const monthly = (price + notaire) * monthlyRate / (1 - Math.pow(1 + monthlyRate, -months));
+    const revenusMinReqis = monthly / 0.35;
+    const tauxFonciere = (price * 0.01) / 12;
+
+    as.innerHTML = `
+      <div class="panel-stat">
+        <div class="panel-stat-label">Coût de l'acquisition</div>
+        <div class="panel-stat-val">${fmt(notaire)}</div>
+        <div class="panel-stat-sub">Frais notaire (~8%)</div>
+      </div>
+      <div class="panel-stat">
+        <div class="panel-stat-label">Prix TTC (avec frais)</div>
+        <div class="panel-stat-val">${fmt(price + notaire)}</div>
+        <div class="panel-stat-sub">Total acquisition</div>
+      </div>
+      <div class="panel-stat">
+        <div class="panel-stat-label">Mensualité crédit</div>
+        <div class="panel-stat-val">${fmt(monthly)}</div>
+        <div class="panel-stat-sub">25 ans @ ${tauxActuel}%</div>
+      </div>
+      <div class="panel-stat">
+        <div class="panel-stat-label">Revenus minimum requis</div>
+        <div class="panel-stat-val">${fmt(revenusMinReqis)}</div>
+        <div class="panel-stat-sub">Règle 35% endettement</div>
+      </div>
+      <div class="panel-stat">
+        <div class="panel-stat-label">Impôt foncier (mensuel)</div>
+        <div class="panel-stat-val">${fmt(tauxFonciere)}</div>
+        <div class="panel-stat-sub">Estimation annuelle</div>
+      </div>
+      <div class="panel-stat">
+        <div class="panel-stat-label">Accessibilité</div>
+        <div class="panel-stat-val" style="font-size: 0.9rem;">Accessible</div>
+        <div class="panel-stat-sub">Au marché moyen</div>
+      </div>
+    `;
+
+    const reco = document.querySelector('#acquereur-reco') || document.createElement('div');
+    reco.id = 'acquereur-reco';
+    reco.className = 'recommendation-box';
+    reco.innerHTML = `Vous pouvez négocier -5% à -10% du prix affiché. Prévoir budget pour amélioration DPE si nécessaire.`;
+    document.getElementById('panel-acquereur').appendChild(reco);
+  }
+
+  // Render Bailleur panel
+  function renderBailleurPanel(price, surface, loyerActuel, loyersData) {
+    const bs = document.getElementById('bailleur-stats');
+    const loyerM2Median = loyersData ? (loyersData.loyer_median_m2 || (price * 0.005 / 12)) : (price * 0.005 / 12);
+    const loyerEstime = loyerM2Median * surface;
+    const rendementBrut = (loyerEstime * 12 / price) * 100;
+    const charges = loyerEstime * 0.2;
+    const tauxFonciere = (price * 0.01) / 12;
+    const rendementNet = ((loyerEstime - charges - tauxFonciere) * 12 / price) * 100;
+    const cashFlow = loyerEstime - charges - tauxFonciere;
+
+    let loyerComparaison = '';
+    if (loyerActuel) {
+      const diff = ((loyerActuel - loyerEstime) / loyerEstime * 100).toFixed(1);
+      loyerComparaison = `<div class="panel-stat"><div class="panel-stat-label">Vs loyer actuel</div><div class="panel-stat-val">${diff}%</div><div class="panel-stat-sub">${diff > 0 ? 'Au-dessus' : 'En-dessous'} du marché</div></div>`;
+    }
+
+    bs.innerHTML = `
+      <div class="panel-stat">
+        <div class="panel-stat-label">Loyer estimé/m²</div>
+        <div class="panel-stat-val">${fmtN(loyerM2Median.toFixed(2))} €</div>
+        <div class="panel-stat-sub">Marché local</div>
+      </div>
+      <div class="panel-stat">
+        <div class="panel-stat-label">Loyer mensuel estimé</div>
+        <div class="panel-stat-val">${fmt(loyerEstime)}</div>
+        <div class="panel-stat-sub">${surface}m² @ ${loyerM2Median.toFixed(2)}€/m²</div>
+      </div>
+      <div class="panel-stat">
+        <div class="panel-stat-label">Rendement brut</div>
+        <div class="panel-stat-val">${rendementBrut.toFixed(1)}%</div>
+        <div class="panel-stat-sub">Annuel</div>
+      </div>
+      <div class="panel-stat">
+        <div class="panel-stat-label">Rendement net</div>
+        <div class="panel-stat-val">${rendementNet.toFixed(1)}%</div>
+        <div class="panel-stat-sub">Après charges</div>
+      </div>
+      <div class="panel-stat">
+        <div class="panel-stat-label">Cash-flow mensuel</div>
+        <div class="panel-stat-val">${fmt(cashFlow)}</div>
+        <div class="panel-stat-sub">Nets</div>
+      </div>
+      ${loyerComparaison}
+    `;
+
+    const reco = document.querySelector('#bailleur-reco') || document.createElement('div');
+    reco.id = 'bailleur-reco';
+    reco.className = 'recommendation-box';
+    reco.innerHTML = rendementNet > 5
+      ? `Bon rendement locatif. Marché local dynamique avec faible vacance estimée.`
+      : `Rendement correct mais vigilance sur les charges. Marché tendu.`;
+    document.getElementById('panel-bailleur').appendChild(reco);
+  }
+
+  // Render market analysis
+  function renderMarketAnalysis(dvf, dpe, poi, confidence, geo) {
+    // Group DVF by year
+    const byYear = {};
+    dvf.forEach(row => {
+      const year = new Date(row.date || '2020-01-01').getFullYear();
+      if (!byYear[year]) byYear[year] = [];
+      byYear[year].push(row);
+    });
+
+    const years = Object.keys(byYear).sort();
+    const pricesByYear = years.map(y => {
+      const prices = byYear[y]
+        .filter(r => r.surface_reelle_bati > 0 && r.valeur_fonciere > 0)
+        .map(r => r.valeur_fonciere / r.surface_reelle_bati);
+      return prices.length ? prices.sort((a, b) => a - b)[Math.floor(prices.length / 2)] : null;
+    });
+    const volumeByYear = years.map(y => byYear[y].length);
+
+    // Price chart
+    const ctx1 = document.getElementById('priceChart');
+    if (chartInstances.price) chartInstances.price.destroy();
+    chartInstances.price = new Chart(ctx1, {
+      type: 'line',
+      data: {
+        labels: years,
+        datasets: [{
+          label: 'Prix médian/m²',
+          data: pricesByYear,
+          borderColor: '#00DC82',
+          backgroundColor: 'rgba(0, 220, 130, 0.1)',
+          tension: 0.4,
+          fill: true,
+          pointRadius: 5,
+          pointBackgroundColor: '#00DC82'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: {
+            beginAtZero: false,
+            grid: { color: '#2A2A3E', drawBorder: false },
+            ticks: { color: '#A0A0A0', font: { size: 11 } }
+          },
+          x: {
+            grid: { display: false },
+            ticks: { color: '#A0A0A0', font: { size: 11 } }
+          }
+        }
+      }
+    });
+
+    // Volume chart
+    const ctx2 = document.getElementById('volumeChart');
+    if (chartInstances.volume) chartInstances.volume.destroy();
+    chartInstances.volume = new Chart(ctx2, {
+      type: 'bar',
+      data: {
+        labels: years,
+        datasets: [{
+          label: 'Transactions',
+          data: volumeByYear,
+          backgroundColor: 'rgba(0, 220, 130, 0.6)',
+          borderColor: '#00DC82',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: { color: '#2A2A3E', drawBorder: false },
+            ticks: { color: '#A0A0A0', font: { size: 11 } }
+          },
+          x: {
+            grid: { display: false },
+            ticks: { color: '#A0A0A0', font: { size: 11 } }
+          }
+        }
+      }
+    });
+
+    // DPE distribution
+    if (dpe) {
+      const dpeDistHtml = ['A', 'B', 'C', 'D', 'E', 'F', 'G'].map(letter => {
+        const pct = dpe[`pct_${letter.toLowerCase()}`] || 0;
+        const colors = { 'A': '#319834', 'B': '#33cc31', 'C': '#cbfc34', 'D': '#fcfc32', 'E': '#fccc32', 'F': '#fc9834', 'G': '#fc0000' };
+        return `
+          <div class="dpe-bar">
+            <div class="dpe-bar-fill" style="background: ${colors[letter]}; height: ${Math.max(20, pct * 2)}px;">
+              ${pct > 5 ? `${pct.toFixed(1)}%` : ''}
+            </div>
+            <div class="dpe-label">${letter}</div>
+          </div>
+        `;
+      }).join('');
+      document.getElementById('dpe-dist').innerHTML = dpeDistHtml;
+
+      const dpeInfoHtml = `
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1rem;">
+          <div style="background: rgba(0, 220, 130, 0.05); border: 1px solid rgba(0, 220, 130, 0.15); border-radius: 8px; padding: 0.8rem;">
+            <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-gray); margin-bottom: 0.3rem;">Conso moyenne</div>
+            <div style="font-size: 1.2rem; font-weight: 700;">${(dpe.conso_moy_kwh_m2 || 250).toFixed(0)} kWh/m²</div>
+          </div>
+          <div style="background: rgba(0, 220, 130, 0.05); border: 1px solid rgba(0, 220, 130, 0.15); border-radius: 8px; padding: 0.8rem;">
+            <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-gray); margin-bottom: 0.3rem;">GES moyen</div>
+            <div style="font-size: 1.2rem; font-weight: 700;">${(dpe.ges_moy_kg_co2_m2 || 50).toFixed(1)} kg/m²</div>
+          </div>
+          <div style="background: rgba(0, 220, 130, 0.05); border: 1px solid rgba(0, 220, 130, 0.15); border-radius: 8px; padding: 0.8rem;">
+            <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-gray); margin-bottom: 0.3rem;">Passoires</div>
+            <div style="font-size: 1.2rem; font-weight: 700;">${((dpe.pct_f || 0) + (dpe.pct_g || 0)).toFixed(1)}%</div>
+          </div>
+        </div>
+      `;
+      document.getElementById('dpe-info').innerHTML = dpeInfoHtml;
+    }
+
+    // POI scores
+    if (poi) {
+      const scoreBarsHtml = [
+        { label: 'Transport', val: poi.score_transport || 50 },
+        { label: 'Éducation', val: poi.score_education || 50 },
+        { label: 'Santé', val: poi.score_sante || 50 },
+        { label: 'Commerce', val: poi.score_commerce || 50 },
+        { label: 'Global', val: poi.score_global || 50 }
+      ].map(s => `
+        <div class="score-bar-item">
+          <div class="score-bar-label">${s.label}</div>
+          <div class="score-bar-bg">
+            <div class="score-bar-fill" style="--width: ${s.val}%;"></div>
+          </div>
+          <div class="score-bar-val">${Math.round(s.val)}/100</div>
+        </div>
+      `).join('');
+      document.getElementById('score-bars').innerHTML = scoreBarsHtml;
+    }
+
+    // Confidence detail
+    const sources = [
+      { name: 'DVF', avail: true, count: dvf.length },
+      { name: 'DPE', avail: !!dpe, count: dpe ? dpe.nb_dpe_total : 0 },
+      { name: 'POI', avail: !!poi, count: 0 },
+      { name: 'Loyers', avail: false, count: 0 },
+      { name: 'Fiscal', avail: false, count: 0 },
+    ];
+
+    const confGridHtml = sources.map(s => `
+      <div class="confidence-source">
+        <div class="confidence-source-name">${s.name}</div>
+        <div class="confidence-source-status ${s.avail ? 'available' : ''}">
+          ${s.avail ? 'Disponible' : 'N.A.'}
+          ${s.count ? `(${s.count})` : ''}
+        </div>
+      </div>
+    `).join('');
+
+    document.getElementById('conf-score').textContent = Math.round(confidence);
+    document.getElementById('conf-grid').innerHTML = confGridHtml;
+
+    if (confidence < 60) {
+      document.getElementById('conf-warning').textContent = 'Confiance faible. Les données sont limitées pour cette zone.';
+      document.getElementById('conf-warning').classList.add('visible');
+    }
+  }
 </script>
+
 </body>
 </html>
