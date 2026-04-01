@@ -6,159 +6,28 @@
     <title>Le projet — Intent Analytics</title>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --dark-bg: #0D0D0D;
-            --dark-bg-light: #1A1A2E;
-            --accent-green: #00DC82;
-            --text-white: #FFFFFF;
-            --text-gray: #A0A0A0;
-            --border-color: #2A2A3E;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            background-color: var(--dark-bg);
-            color: var(--text-white);
-            font-family: 'Inter', sans-serif;
-            font-weight: 400;
-            line-height: 1.6;
-            overflow-x: hidden;
-        }
-
-        a {
-            color: var(--accent-green);
-            text-decoration: none;
-        }
-
-        a:hover {
-            text-decoration: underline;
-        }
-
-        nav {
-            background-color: var(--dark-bg-light);
-            border-bottom: 1px solid var(--border-color);
-            padding: 1.5rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .nav-logo {
-            font-family: 'Space Grotesk', sans-serif;
-            font-weight: 700;
-            font-size: 1.3rem;
-            color: var(--accent-green);
-        }
-
-        .nav-links {
-            display: flex;
-            list-style: none;
-            gap: 2rem;
-        }
-
-        .nav-links a {
-            color: var(--text-gray);
-            font-weight: 500;
-            transition: color 0.2s;
-        }
-
-        .nav-links a:hover {
-            color: var(--accent-green);
-            text-decoration: none;
-        }
-
-        main {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 4rem 2rem;
-        }
-
-        h1 {
-            font-family: 'Space Grotesk', sans-serif;
-            font-weight: 700;
-            font-size: 3rem;
-            margin-bottom: 3rem;
-            color: var(--text-white);
-        }
-
-        h2 {
-            font-family: 'Space Grotesk', sans-serif;
-            font-weight: 700;
-            font-size: 1.8rem;
-            margin-top: 3rem;
-            margin-bottom: 1.5rem;
-            color: var(--accent-green);
-        }
-
-        section {
-            margin-bottom: 3rem;
-        }
-
-        section p {
-            margin-bottom: 1.2rem;
-            color: var(--text-gray);
-            line-height: 1.8;
-        }
-
-        ul {
-            margin-left: 1.5rem;
-            margin-bottom: 1.5rem;
-        }
-
-        li {
-            margin-bottom: 0.8rem;
-            color: var(--text-gray);
-            line-height: 1.8;
-        }
-
-        footer {
-            background-color: var(--dark-bg-light);
-            border-top: 1px solid var(--border-color);
-            padding: 3rem 2rem;
-            margin-top: 6rem;
-            text-align: center;
-            color: var(--text-gray);
-            font-size: 0.9rem;
-            line-height: 1.8;
-        }
-
-        footer a {
-            color: var(--accent-green);
-        }
-
-        @media (max-width: 768px) {
-            nav {
-                flex-direction: column;
-                gap: 1.5rem;
-                text-align: center;
-            }
-
-            .nav-links {
-                flex-wrap: wrap;
-                justify-content: center;
-                gap: 1rem;
-            }
-
-            h1 {
-                font-size: 2rem;
-            }
-
-            h2 {
-                font-size: 1.4rem;
-            }
-
-            main {
-                padding: 2rem 1rem;
-            }
-        }
+        :root { --dark-bg: #0D0D0D; --dark-bg-light: #1A1A2E; --accent-green: #00DC82; --text-white: #FFFFFF; --text-gray: #A0A0A0; --border-color: #2A2A3E; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background-color: var(--dark-bg); color: var(--text-white); font-family: 'Inter', sans-serif; font-weight: 400; line-height: 1.6; overflow-x: hidden; }
+        a { color: var(--accent-green); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        nav { background-color: var(--dark-bg-light); border-bottom: 1px solid var(--border-color); padding: 1.5rem 2rem; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+        .nav-logo { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 1.3rem; color: var(--accent-green); }
+        .nav-links { display: flex; list-style: none; gap: 2rem; }
+        .nav-links a { color: var(--text-gray); font-weight: 500; transition: color 0.2s; }
+        .nav-links a:hover { color: var(--accent-green); text-decoration: none; }
+        .nav-estimation { background: var(--accent-green); color: #fff !important; padding: .25rem .75rem; border-radius: 4px; }
+        .nav-estimation:hover { background: #059669; color: #fff !important; }
+        main { max-width: 900px; margin: 0 auto; padding: 4rem 2rem; }
+        h1 { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 3rem; margin-bottom: 3rem; color: var(--text-white); }
+        h2 { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 1.8rem; margin-top: 3rem; margin-bottom: 1.5rem; color: var(--accent-green); }
+        section { margin-bottom: 3rem; }
+        section p { margin-bottom: 1.2rem; color: var(--text-gray); line-height: 1.8; }
+        ul { margin-left: 1.5rem; margin-bottom: 1.5rem; }
+        li { margin-bottom: 0.8rem; color: var(--text-gray); line-height: 1.8; }
+        footer { background-color: var(--dark-bg-light); border-top: 1px solid var(--border-color); padding: 3rem 2rem; margin-top: 6rem; text-align: center; color: var(--text-gray); font-size: 0.9rem; line-height: 1.8; }
+        footer a { color: var(--accent-green); }
+        @media (max-width: 768px) { nav { flex-direction: column; gap: 1.5rem; text-align: center; } .nav-links { flex-wrap: wrap; justify-content: center; gap: 1rem; } h1 { font-size: 2rem; } h2 { font-size: 1.4rem; } main { padding: 2rem 1rem; } }
     </style>
 </head>
 <body>
@@ -169,30 +38,26 @@
             <li><a href="/donnees">Données</a></li>
             <li><a href="/methodologie">Méthodologie</a></li>
             <li><a href="/explorations">Explorations</a></li>
-            <li><a href="/documentation">Documentation</a></li>
             <li><a href="/a-propos">À propos</a></li>
+            <li><a href="/estimation" class="nav-estimation">Estimation</a></li>
         </ul>
     </nav>
-
     <main>
         <h1>Le projet</h1>
-
         <section>
             <h2>Origine</h2>
             <p>Intent Analytics est né d'une question simple : que peut-on réellement apprendre des données publiques françaises ? L'État publie chaque année des millions d'enregistrements — transactions foncières, diagnostics énergétiques, recensement des équipements, démographie — mais ces jeux de données sont souvent difficiles d'accès, mal documentés et rarement croisés entre eux.</p>
             <p>Ce projet est une initiative personnelle d'exploration technique. Il vise à collecter, nettoyer, croiser et visualiser ces données pour en extraire des analyses statistiques lisibles.</p>
         </section>
-
         <section>
             <h2>Ce que ce projet est</h2>
             <ul>
                 <li>Un laboratoire de data science appliqué aux données publiques françaises</li>
-                <li>Un exercice de traitement ETL (extraction, transformation, chargement) sur des jeux de données volumineux</li>
+                <li>Un exercice de traitement ETL sur des jeux de données volumineux</li>
                 <li>Une exploration des méthodes d'analyse statistique territoriale</li>
-                <li>Un projet transparent dans ses méthodes</li>
+                <li>Un projet transparent dans ses méthodes et ses limites</li>
             </ul>
         </section>
-
         <section>
             <h2>Ce que ce projet n'est pas</h2>
             <ul>
@@ -202,13 +67,11 @@
                 <li>Les résultats sont expérimentaux et ne constituent en aucun cas un conseil professionnel</li>
             </ul>
         </section>
-
         <section>
             <h2>Limites</h2>
-            <p>Les analyses produites sont statistiques et expérimentales. Elles reposent sur des données publiques qui peuvent être incomplètes, obsolètes ou comporter des erreurs. Les scores et agrégats calculés sont des indicateurs exploratoires, pas des valeurs certifiées. L'indice de confiance accompagnant chaque résultat indique la fiabilité statistique estimée. Un indice inférieur à 80 % signale une donnée à interpréter avec précaution.</p>
+            <p>Les analyses produites sont statistiques et expérimentales. Elles reposent sur des données publiques qui peuvent être incomplètes, obsolètes ou comporter des erreurs. Les scores et agrégats calculés sont des indicateurs exploratoires, pas des valeurs certifiées.</p>
         </section>
     </main>
-
     <footer>
         Intent Analytics — Projet expérimental d'exploration de données publiques<br>
         contact@intentanalytics.fr<br>
