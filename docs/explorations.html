@@ -14,37 +14,6 @@
             --text-gray: #A0A0A0;
             --border-color: #2A2A3E;
         }
-<<<<<<< Updated upstream
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background-color: var(--dark-bg); color: var(--text-white); font-family: 'Inter', sans-serif; font-weight: 400; line-height: 1.6; overflow-x: hidden; }
-        a { color: var(--accent-green); text-decoration: none; }
-        a:hover { text-decoration: underline; }
-        nav { background-color: var(--dark-bg-light); border-bottom: 1px solid var(--border-color); padding: 1.5rem 2rem; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
-        .nav-logo { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 1.3rem; color: var(--accent-green); }
-        .nav-links { display: flex; list-style: none; gap: 2rem; }
-        .nav-links a { color: var(--text-gray); font-weight: 500; transition: color 0.2s; }
-        .nav-links a:hover { color: var(--accent-green); text-decoration: none; }
-        .nav-estimation { background: var(--accent-green); color: #fff !important; padding: .25rem .75rem; border-radius: 4px; }
-        .nav-estimation:hover { background: #059669; color: #fff !important; }
-        main { max-width: 900px; margin: 0 auto; padding: 4rem 2rem; }
-        h1 { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 3rem; margin-bottom: 1rem; color: var(--text-white); }
-        .intro { font-size: 1.1rem; color: var(--text-gray); margin-bottom: 3rem; line-height: 1.8; }
-        .explorations-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem; margin-top: 2rem; }
-        .exploration-card { background: linear-gradient(135deg, var(--dark-bg-light) 0%, rgba(26,26,46,0.7) 100%); border: 1px solid var(--border-color); border-radius: 8px; padding: 2rem; transition: all 0.3s ease; display: flex; flex-direction: column; }
-        .exploration-card:hover { border-color: var(--accent-green); box-shadow: 0 8px 32px rgba(0,220,130,0.15); transform: translateY(-2px); }
-        .card-icon { font-size: 2.5rem; margin-bottom: 1rem; }
-        .card-title { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 1.3rem; color: var(--accent-green); margin-bottom: 1rem; }
-        .card-description { color: var(--text-gray); margin-bottom: 1.5rem; flex-grow: 1; line-height: 1.7; }
-        .card-source { font-size: 0.85rem; color: var(--text-gray); padding-top: 1rem; border-top: 1px solid var(--border-color); margin-top: 1rem; }
-        .source-label { font-weight: 500; color: var(--text-white); }
-        .card-button { margin-top: 1.5rem; padding: 0.8rem 1.5rem; background-color: transparent; border: 1px solid var(--accent-green); color: var(--accent-green); border-radius: 4px; font-family: 'Inter', sans-serif; font-weight: 500; cursor: pointer; transition: all 0.2s; text-align: center; font-size: 0.95rem; display: block; }
-        .card-button:hover { background-color: var(--accent-green); color: var(--dark-bg); }
-        .status-badge { display: inline-block; margin-top: 0.5rem; padding: 0.3rem 0.8rem; background-color: rgba(0,220,130,0.15); color: var(--accent-green); border-radius: 4px; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
-        .status-badge.coming-soon { background-color: rgba(160,160,160,0.15); color: var(--text-gray); }
-        footer { background-color: var(--dark-bg-light); border-top: 1px solid var(--border-color); padding: 3rem 2rem; margin-top: 6rem; text-align: center; color: var(--text-gray); font-size: 0.9rem; line-height: 1.8; }
-        footer a { color: var(--accent-green); }
-        @media (max-width: 768px) { nav { flex-direction: column; gap: 1.5rem; text-align: center; } .nav-links { flex-wrap: wrap; justify-content: center; gap: 1rem; } h1 { font-size: 2rem; } main { padding: 2rem 1rem; } .explorations-grid { grid-template-columns: 1fr; gap: 1.5rem; } .intro { font-size: 1rem; } .card-icon { font-size: 2rem; } }
-=======
 
         * {
             margin: 0;
@@ -183,26 +152,6 @@
             color: var(--text-white);
         }
 
-        .card-button {
-            margin-top: 1.5rem;
-            padding: 0.8rem 1.5rem;
-            background-color: transparent;
-            border: 1px solid var(--accent-green);
-            color: var(--accent-green);
-            border-radius: 4px;
-            font-family: 'Inter', sans-serif;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-align: center;
-            font-size: 0.95rem;
-        }
-
-        .card-button:hover {
-            background-color: var(--accent-green);
-            color: var(--dark-bg);
-        }
-
         .status-badge {
             display: inline-block;
             margin-top: 0.5rem;
@@ -270,7 +219,6 @@
                 font-size: 2rem;
             }
         }
->>>>>>> Stashed changes
     </style>
 </head>
 <body>
@@ -281,62 +229,6 @@
             <li><a href="/donnees">Données</a></li>
             <li><a href="/methodologie">Méthodologie</a></li>
             <li><a href="/explorations">Explorations</a></li>
-<<<<<<< Updated upstream
-            <li><a href="/a-propos">À propos</a></li>
-            <li><a href="/estimation" class="nav-estimation">Estimation</a></li>
-        </ul>
-    </nav>
-    <main>
-        <h1>Explorations</h1>
-        <p class="intro">Cette page rassemble les analyses et visualisations produites dans le cadre du projet. Ce sont des explorations expérimentales mises à jour régulièrement au fur et à mesure de l'avancement du projet.</p>
-        <div class="explorations-grid">
-            <div class="exploration-card">
-                <div class="card-icon">📊</div>
-                <div class="card-title">Distribution des prix au m²</div>
-                <div class="card-description">Analyse de la distribution des prix immobiliers par département. Médiane, quartiles Q1/Q3 et évolution sur 24 mois.</div>
-                <div class="status-badge">Disponible</div>
-                <div class="card-source"><span class="source-label">Source :</span> DVF (DGFiP)</div>
-                <a href="/estimation" class="card-button">Consulter l'analyse</a>
-            </div>
-            <div class="exploration-card">
-                <div class="card-icon">🔋</div>
-                <div class="card-title">Cartographie énergétique du parc</div>
-                <div class="card-description">Répartition des classes de performance énergétique A-G par commune. Passoires F+G et potentiels de rénovation par région.</div>
-                <div class="status-badge">Disponible</div>
-                <div class="card-source"><span class="source-label">Source :</span> DPE ADEME</div>
-                <a href="/estimation" class="card-button">Consulter l'analyse</a>
-            </div>
-            <div class="exploration-card">
-                <div class="card-icon">🏬</div>
-                <div class="card-title">Score d'équipements communaux</div>
-                <div class="card-description">Accessibilité locale basée sur équipements publics et commerces. Score 0-100 par commune.</div>
-                <div class="status-badge coming-soon">En cours</div>
-                <div class="card-source"><span class="source-label">Source :</span> INSEE BPE</div>
-                <button class="card-button" disabled style="opacity: 0.5; cursor: not-allowed;">Prochainement</button>
-            </div>
-            <div class="exploration-card">
-                <div class="card-icon">👥</div>
-                <div class="card-title">Dynamique démographique</div>
-                <div class="card-description">Profils de population par zone IRIS. Pyramide des âges, revenus et conditions de logement.</div>
-                <div class="status-badge coming-soon">Planifié</div>
-                <div class="card-source"><span class="source-label">Source :</span> INSEE IRIS</div>
-                <button class="card-button" disabled style="opacity: 0.5; cursor: not-allowed;">Prochainement</button>
-            </div>
-            <div class="exploration-card">
-                <div class="card-icon">🎯</div>
-                <div class="card-title">Analyse multisources croisée</div>
-                <div class="card-description">Croisement prix, énergie, équipements et démographie. Territoires à profil spécifique.</div>
-                <div class="status-badge coming-soon">Planifié</div>
-                <div class="card-source"><span class="source-label">Sources :</span> DVF, DPE, BPE, IRIS</div>
-                <button class="card-button" disabled style="opacity: 0.5; cursor: not-allowed;">Prochainement</button>
-            </div>
-            <div class="exploration-card">
-                <div class="card-icon">📈</div>
-                <div class="card-title">Tendances temporelles longues</div>
-                <div class="card-description">Évolution des prix et de la performance énergétique sur 5-10 ans. Ruptures structurelles et accélérateurs territoriaux.</div>
-                <div class="status-badge coming-soon">Planifié</div>
-                <div class="card-source"><span class="source-label">Sources :</span> DVF, DPE (depuis 2021)</div>
-=======
             <li><a href="/documentation">Documentation</a></li>
             <li><a href="/a-propos">À propos</a></li>
         </ul>
@@ -347,101 +239,61 @@
         <p class="intro">Cette page rassemble les analyses et visualisations produites dans le cadre du projet. Ce sont des explorations expérimentales mises à jour régulièrement au fur et à mesure de l'avancement du projet.</p>
 
         <div class="explorations-grid">
-            <!-- Exploration 1: Prix au m² -->
             <div class="exploration-card">
                 <div class="card-icon">📊</div>
                 <div class="card-title">Distribution des prix au m²</div>
-                <div class="card-description">
-                    Analyse de la distribution des prix immobiliers par département. Médiane, quartiles Q1/Q3 et évolution sur 24 mois. Identifie les départements dynamiques et ceux en repli.
-                </div>
+                <div class="card-description">Analyse de la distribution des prix immobiliers par département. Médiane, quartiles Q1/Q3 et évolution sur 24 mois.</div>
                 <div class="status-badge">Disponible</div>
-                <div class="card-source">
-                    <span class="source-label">Source :</span> DVF (DGFiP)
-                </div>
-                <button class="card-button">Consulter l'analyse</button>
+                <div class="card-source"><span class="source-label">Source :</span> DVF (DGFiP)</div>
             </div>
 
-            <!-- Exploration 2: Cartographie énergétique -->
             <div class="exploration-card">
                 <div class="card-icon">🔋</div>
                 <div class="card-title">Cartographie énergétique du parc</div>
-                <div class="card-description">
-                    Répartition des classes de performance énergétique A-G par commune. Visualisation du pourcentage de passoires F+G et des potentiels de rénovation par région.
-                </div>
+                <div class="card-description">Répartition des classes de performance énergétique A-G par commune. Passoires F+G et potentiels de rénovation par région.</div>
                 <div class="status-badge">Disponible</div>
-                <div class="card-source">
-                    <span class="source-label">Source :</span> DPE ADEME
-                </div>
-                <button class="card-button">Consulter l'analyse</button>
+                <div class="card-source"><span class="source-label">Source :</span> DPE ADEME</div>
             </div>
 
-            <!-- Exploration 3: Score d'équipements -->
             <div class="exploration-card">
-                <div class="card-icon">🏬</div>
-                <div class="card-title">Score d'équipements communaux</div>
-                <div class="card-description">
-                    Analyse de l'accessibilité locale basée sur les équipements publics et commerces. Transports, éducation, santé, commerce géolocalisés. Score 0-100 par commune.
-                </div>
+                <div class="card-icon">🏪</div>
+                <div class="card-title">Score d'équipements</div>
+                <div class="card-description">Proximité des commerces, services, santé, éducation et transports. Indice 0-100 par commune basé sur BPE INSEE.</div>
                 <div class="status-badge coming-soon">En cours</div>
-                <div class="card-source">
-                    <span class="source-label">Source :</span> INSEE BPE
-                </div>
-                <button class="card-button" disabled style="opacity: 0.5; cursor: not-allowed;">Prochainement</button>
+                <div class="card-source"><span class="source-label">Source :</span> BPE INSEE</div>
             </div>
 
-            <!-- Exploration 4: Dynamique démographique -->
             <div class="exploration-card">
                 <div class="card-icon">👥</div>
-                <div class="card-title">Dynamique démographique</div>
-                <div class="card-description">
-                    Profils de population par zone IRIS. Pyramide des âges, taux d'activité, revenus et conditions de logement. Identification des zones de croissance et décroissance.
-                </div>
-                <div class="status-badge coming-soon">Planifié</div>
-                <div class="card-source">
-                    <span class="source-label">Source :</span> INSEE IRIS
-                </div>
-                <button class="card-button" disabled style="opacity: 0.5; cursor: not-allowed;">Prochainement</button>
+                <div class="card-title">Profils démographiques</div>
+                <div class="card-description">Population, composition socioprofessionnelle, âge moyen, évolution. Profil d'une commune en un clin d'oeil.</div>
+                <div class="status-badge coming-soon">En cours</div>
+                <div class="card-source"><span class="source-label">Source :</span> INSEE IRIS</div>
             </div>
 
-            <!-- Exploration 5: Analyse combinée -->
             <div class="exploration-card">
-                <div class="card-icon">🎯</div>
-                <div class="card-title">Analyse multisources croisée</div>
-                <div class="card-description">
-                    Approche intégrée croisant prix immobiliers, performance énergétique, équipements et démographie. Identification de territoires à profil spécifique ou contrastant.
-                </div>
-                <div class="status-badge coming-soon">Planifié</div>
-                <div class="card-source">
-                    <span class="source-label">Sources :</span> DVF, DPE, BPE, IRIS
-                </div>
-                <button class="card-button" disabled style="opacity: 0.5; cursor: not-allowed;">Prochainement</button>
+                <div class="card-icon">🏘️</div>
+                <div class="card-title">Comparateurs territoriaux</div>
+                <div class="card-description">Comparez plusieurs communes sur tous les critères : prix, énergie, équipements, démographie. Tableaux de bord personnalisés.</div>
+                <div class="status-badge coming-soon">En cours</div>
+                <div class="card-source"><span class="source-label">Source :</span> Agrégations multisources</div>
             </div>
 
-            <!-- Exploration 6: Tendances temporelles -->
             <div class="exploration-card">
                 <div class="card-icon">📈</div>
-                <div class="card-title">Tendances temporelles longues</div>
-                <div class="card-description">
-                    Évolution des prix, de la performance énergétique et de la démographie sur 5-10 ans. Identification des ruptures structurelles et accélérateurs territoriaux.
-                </div>
+                <div class="card-title">Tendances et patterns</div>
+                <div class="card-description">Identification automatique des communes en hausse, stagnation, baisse. Alertes sur mouvements immobiliers et énergétiques.</div>
                 <div class="status-badge coming-soon">Planifié</div>
-                <div class="card-source">
-                    <span class="source-label">Sources :</span> DVF, DPE (depuis 2021)
-                </div>
->>>>>>> Stashed changes
-                <button class="card-button" disabled style="opacity: 0.5; cursor: not-allowed;">Prochainement</button>
+                <div class="card-source"><span class="source-label">Source :</span> Analyse statistique</div>
             </div>
         </div>
     </main>
-<<<<<<< Updated upstream
-=======
 
->>>>>>> Stashed changes
     <footer>
-        Intent Analytics — Projet expérimental d'exploration de données publiques<br>
-        contact@intentanalytics.fr<br>
-        <a href="/legal/mentions-legales">Mentions légales</a> · <a href="/legal/cgu">CGU</a> · <a href="/legal/politique-confidentialite">Confidentialité</a><br>
-        © 2025-2026 Intent Analytics
+        Intent Analytics — Projet expérimental d'exploration de données publiques françaises<br>
+        <a href="mailto:contact@intentanalytics.fr">contact@intentanalytics.fr</a><br>
+        <a href="/legal/mentions-legales">Mentions légales</a> • <a href="/legal/cgu">CGU</a> • <a href="/legal/politique-confidentialite">Confidentialité</a><br>
+        © 2026 Intent Analytics
     </footer>
 </body>
 </html>

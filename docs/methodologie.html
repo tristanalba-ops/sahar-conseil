@@ -15,15 +15,11 @@
             --border-color: #2A2A3E;
         }
 
-<<<<<<< Updated upstream
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-=======
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
->>>>>>> Stashed changes
 
         body {
             background-color: var(--dark-bg);
@@ -34,10 +30,6 @@
             overflow-x: hidden;
         }
 
-<<<<<<< Updated upstream
-        a { color: var(--accent-green); text-decoration: none; }
-        a:hover { text-decoration: underline; }
-=======
         a {
             color: var(--accent-green);
             text-decoration: none;
@@ -46,7 +38,6 @@
         a:hover {
             text-decoration: underline;
         }
->>>>>>> Stashed changes
 
         nav {
             background-color: var(--dark-bg-light);
@@ -60,48 +51,6 @@
             z-index: 100;
         }
 
-<<<<<<< Updated upstream
-        .nav-logo { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 1.3rem; color: var(--accent-green); }
-        .nav-links { display: flex; list-style: none; gap: 2rem; }
-        .nav-links a { color: var(--text-gray); font-weight: 500; transition: color 0.2s; }
-        .nav-links a:hover { color: var(--accent-green); text-decoration: none; }
-        .nav-estimation { background: var(--accent-green); color: #fff !important; padding: .25rem .75rem; border-radius: 4px; }
-        .nav-estimation:hover { background: #059669; color: #fff !important; }
-
-        main { max-width: 900px; margin: 0 auto; padding: 4rem 2rem; }
-
-        h1 { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 3rem; margin-bottom: 1rem; color: var(--text-white); }
-        .intro { font-size: 1.1rem; color: var(--text-gray); margin-bottom: 3rem; line-height: 1.8; }
-        h2 { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 1.8rem; margin-top: 3rem; margin-bottom: 1.5rem; color: var(--accent-green); }
-        section p { margin-bottom: 1.2rem; color: var(--text-gray); line-height: 1.8; }
-        ol { margin-left: 1.5rem; margin-bottom: 2rem; }
-        li { margin-bottom: 0.8rem; color: var(--text-gray); line-height: 1.8; }
-
-        .table-container { overflow-x: auto; margin: 2rem 0; border-radius: 8px; }
-        table { width: 100%; border-collapse: collapse; background-color: var(--dark-bg-light); border: 1px solid var(--border-color); }
-        th { background-color: rgba(0, 220, 130, 0.1); padding: 1rem; text-align: left; font-family: 'Space Grotesk', sans-serif; font-weight: 700; color: var(--accent-green); border-bottom: 2px solid var(--accent-green); }
-        td { padding: 1rem; border-bottom: 1px solid var(--border-color); color: var(--text-gray); }
-        tr:hover { background-color: rgba(0, 220, 130, 0.05); }
-        tr:last-child td { border-bottom: none; }
-
-        .section-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin: 2rem 0; }
-        .grid-item { background-color: var(--dark-bg-light); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; }
-        .grid-item h3 { font-family: 'Space Grotesk', sans-serif; font-weight: 700; color: var(--accent-green); margin-bottom: 0.8rem; font-size: 1.1rem; }
-        .grid-item p { margin-bottom: 0; font-size: 0.95rem; }
-
-        footer { background-color: var(--dark-bg-light); border-top: 1px solid var(--border-color); padding: 3rem 2rem; margin-top: 6rem; text-align: center; color: var(--text-gray); font-size: 0.9rem; line-height: 1.8; }
-        footer a { color: var(--accent-green); }
-
-        @media (max-width: 768px) {
-            nav { flex-direction: column; gap: 1.5rem; text-align: center; }
-            .nav-links { flex-wrap: wrap; justify-content: center; gap: 1rem; }
-            h1 { font-size: 2rem; }
-            h2 { font-size: 1.4rem; }
-            main { padding: 2rem 1rem; }
-            table { font-size: 0.9rem; }
-            th, td { padding: 0.75rem; }
-            .intro { font-size: 1rem; }
-=======
         .nav-logo {
             font-family: 'Space Grotesk', sans-serif;
             font-weight: 700;
@@ -288,7 +237,6 @@
             .intro {
                 font-size: 1rem;
             }
->>>>>>> Stashed changes
         }
     </style>
 </head>
@@ -300,13 +248,8 @@
             <li><a href="/donnees">Données</a></li>
             <li><a href="/methodologie">Méthodologie</a></li>
             <li><a href="/explorations">Explorations</a></li>
-<<<<<<< Updated upstream
-            <li><a href="/a-propos">À propos</a></li>
-            <li><a href="/estimation" class="nav-estimation">Estimation</a></li>
-=======
             <li><a href="/documentation">Documentation</a></li>
             <li><a href="/a-propos">À propos</a></li>
->>>>>>> Stashed changes
         </ul>
     </nav>
 
@@ -331,15 +274,6 @@
             <div class="table-container">
                 <table>
                     <thead>
-<<<<<<< Updated upstream
-                        <tr><th>Tentative</th><th>Méthode</th><th>Seuil de confiance</th></tr>
-                    </thead>
-                    <tbody>
-                        <tr><td>1</td><td>Match exact BAN API</td><td>≥ 0.95 (très élevé)</td></tr>
-                        <tr><td>2</td><td>Géocodage inverse (coordonnées GPS)</td><td>≥ 0.90 (bon)</td></tr>
-                        <tr><td>3</td><td>Match partiel BAN API</td><td>≥ 0.80 (acceptable)</td></tr>
-                        <tr><td>4</td><td>Résolution code postal seul</td><td>≥ 0.50 (faible)</td></tr>
-=======
                         <tr>
                             <th>Tentative</th>
                             <th>Méthode</th>
@@ -367,7 +301,6 @@
                             <td>Résolution code postal seul</td>
                             <td>≥ 0.50 (faible)</td>
                         </tr>
->>>>>>> Stashed changes
                     </tbody>
                 </table>
             </div>
@@ -376,102 +309,69 @@
 
         <section>
             <h2>Indicateurs calculés</h2>
+            <p>Pour chaque commune, les analyses produisent les indicateurs suivants :</p>
+
             <div class="section-grid">
                 <div class="grid-item">
-                    <h3>DVF — Prix immobiliers</h3>
-                    <p>Prix médian au m², quartiles Q1/Q3, volume de ventes annuel, évolution 12m/24m, délai moyen de vente. Minimum 3 transactions pour inclusion.</p>
+                    <h3>Marché immobilier (DVF)</h3>
+                    <p>Prix au m² (médiane, Q1, Q3), évolution sur 12 et 24 mois, volume de transactions, délai médian de vente</p>
                 </div>
                 <div class="grid-item">
-                    <h3>DPE — Performance énergétique</h3>
-                    <p>Répartition classes A-G en %, consommation kWh/m²/an, GES kg CO2/m²/an, score composite 0-100, pourcentage passoires F+G.</p>
+                    <h3>Énergie (DPE)</h3>
+                    <p>Répartition des classes A-G, % passoires (F+G), consommation moyenne, GES moyen, score énergie</p>
                 </div>
                 <div class="grid-item">
-                    <h3>BPE — Équipements locaux</h3>
-                    <p>Score par catégorie (transports, éducation, santé, commerce), score global 0-100 reflétant l'accessibilité locale.</p>
+                    <h3>Équipements (BPE)</h3>
+                    <p>Score de proximité (0-100) : transports, commerces, santé, éducation. Walkability index</p>
                 </div>
                 <div class="grid-item">
-                    <h3>IRIS — Démographie</h3>
-                    <p>Population, densité, pyramide des âges, taux d'activité, revenus, condition de logement agrégés au niveau communal.</p>
+                    <h3>Démographie (INSEE)</h3>
+                    <p>Population, composition socioprofessionnelle, âge moyen, densité, évolution annuelle</p>
                 </div>
             </div>
         </section>
 
         <section>
-            <h2>Indice de confiance</h2>
-            <p>Chaque résultat s'accompagne d'un indice de confiance 0-100. Cet indice reflète la fiabilité statistique estimée en fonction du volume de données, de la fraîcheur des données et du nombre de sources croisées.</p>
-            <div class="table-container">
-                <table>
-                    <thead>
-<<<<<<< Updated upstream
-                        <tr><th>Plage de score</th><th>Interprétation</th><th>Recommandation</th></tr>
-                    </thead>
-                    <tbody>
-                        <tr><td>80-100</td><td>Fiabilité très élevée</td><td>Utiliser directement pour analyses décisionnelles</td></tr>
-                        <tr><td>60-79</td><td>Fiabilité correcte</td><td>Utiliser avec confiance, vérifier contexte local</td></tr>
-                        <tr><td>40-59</td><td>Fiabilité limitée</td><td>Interpréter comme indicateur exploratoire, non décisionnel</td></tr>
-                        <tr><td>0-39</td><td>Fiabilité faible</td><td>Données insuffisantes, données approximatives uniquement</td></tr>
-=======
-                        <tr>
-                            <th>Plage de score</th>
-                            <th>Interprétation</th>
-                            <th>Recommandation</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>80-100</td>
-                            <td>Fiabilité très élevée</td>
-                            <td>Utiliser directement pour analyses décisionnelles</td>
-                        </tr>
-                        <tr>
-                            <td>60-79</td>
-                            <td>Fiabilité correcte</td>
-                            <td>Utiliser avec confiance, vérifier contexte local</td>
-                        </tr>
-                        <tr>
-                            <td>40-59</td>
-                            <td>Fiabilité limitée</td>
-                            <td>Interpréter comme indicateur exploratoire, non décisionnel</td>
-                        </tr>
-                        <tr>
-                            <td>0-39</td>
-                            <td>Fiabilité faible</td>
-                            <td>Données insuffisantes, données approximatives uniquement</td>
-                        </tr>
->>>>>>> Stashed changes
-                    </tbody>
-                </table>
-            </div>
-        </section>
-
-        <section>
-            <h2>Sources et traçabilité</h2>
-            <p>Chaque donnée affichée mentionne sa source originelle. Les transformations appliquées sont documentées dans les logs de collecte. Une donnée sans source identifiée n'est jamais affichée.</p>
-            <p>L'audit complet des imports, agrégations et calculs est conservé dans les tables <code>data_import_logs</code> et <code>audit_log</code>, garantissant la reproductibilité.</p>
-        </section>
-
-        <section>
-            <h2>Limitations statistiques</h2>
-            <p>Les analyses produites reposent sur des données publiques qui peuvent présenter des limites intrinsèques :</p>
+            <h2>Scores de confiance</h2>
+            <p>Chaque indicateur produit un score de confiance (0-100) basé sur :</p>
             <ul>
-                <li><strong>Complétude :</strong> DVF exclut SCI et donations. DPE couverture depuis 2021 seulement. BPE couverture inégale.</li>
-                <li><strong>Fraîcheur :</strong> DVF délai 6 mois. DPE mise à jour continue mais décalage 1-2 mois possibles. BPE annuelle.</li>
-<<<<<<< Updated upstream
-                <li><strong>Géocodage :</strong> Certaines adresses restent non localisées malgré les 4 niveaux de réconciliation. Un score &lt; 0.50 signale l'impasse.</li>
-                <li><strong>Valeurs aberrantes :</strong> Outliers conservés sauf si &gt; 5 sigma. Mentionnés en warning quand ils biaisent la médiane.</li>
-=======
-                <li><strong>Géocodage :</strong> Certaines adresses restent non localisées malgré les 4 niveaux de réconciliation. Un score < 0.50 signale l'impasse.</li>
-                <li><strong>Valeurs aberrantes :</strong> Outliers conservés sauf si > 5 sigma. Mentionnés en warning quand ils biaisent la médiane.</li>
->>>>>>> Stashed changes
+                <li><strong>Volume de données</strong> — Nombre de transactions ou diagnostics (40 points max)</li>
+                <li><strong>Fraîcheur</strong> — Ancienneté des données les plus récentes (30 points max)</li>
+                <li><strong>Croisement de sources</strong> — Nombre de sources différentes convergentes (30 points max)</li>
             </ul>
+            <p>Un score < 50 indique des résultats très approximatifs. Un score ≥ 75 indique une confiance raisonnable.</p>
+        </section>
+
+        <section>
+            <h2>Limitations et avertissements</h2>
+            <ul>
+                <li><strong>DVF</strong> — Pas de données de transactions de gré à gré, SCI, donations. Délai de publication : ~6 mois.</li>
+                <li><strong>DPE</strong> — Diagnostic depuis juillet 2021 seulement. Couverture inégale par région.</li>
+                <li><strong>BPE</strong> — Mise à jour annuelle. Couverture variable. Peut être incomplet en zones rurales.</li>
+                <li><strong>Communes < 5 transactions/an</strong> — Résultats approximatifs, signalés avec avertissement.</li>
+                <li><strong>Données anciennes</strong> — Si données > 6 mois : avertissement de fraîcheur.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Reproductibilité</h2>
+            <p>Pour chaque commune, Intent Analytics documente :</p>
+            <ul>
+                <li>Les sources utilisées et leur date de récupération</li>
+                <li>Le nombre de points de données (transactions, diagnostics, etc.)</li>
+                <li>Les formules exactes des agrégats (médiane, quartiles, évolution)</li>
+                <li>Le score de confiance et ses composantes</li>
+                <li>Les avertissements applicables</li>
+            </ul>
+            <p>Tout résultat peut être reproduit par un tiers en appliquant cette documentation.</p>
         </section>
     </main>
 
     <footer>
-        Intent Analytics — Projet expérimental d'exploration de données publiques<br>
-        contact@intentanalytics.fr<br>
-        <a href="/legal/mentions-legales">Mentions légales</a> · <a href="/legal/cgu">CGU</a> · <a href="/legal/politique-confidentialite">Confidentialité</a><br>
-        © 2025-2026 Intent Analytics
+        Intent Analytics — Projet expérimental d'exploration de données publiques françaises<br>
+        <a href="mailto:contact@intentanalytics.fr">contact@intentanalytics.fr</a><br>
+        <a href="/legal/mentions-legales">Mentions légales</a> • <a href="/legal/cgu">CGU</a> • <a href="/legal/politique-confidentialite">Confidentialité</a><br>
+        © 2026 Intent Analytics
     </footer>
 </body>
 </html>

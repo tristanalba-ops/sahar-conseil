@@ -97,11 +97,6 @@
     }
 
     .nav-links a:hover { color: var(--accent-green); }
-<<<<<<< Updated upstream
-    .nav-estimation { background: var(--accent-green); color: #fff !important; padding: .25rem .75rem; border-radius: 4px; }
-    .nav-estimation:hover { background: #059669; color: #fff !important; }
-=======
->>>>>>> Stashed changes
 
     /* HERO */
     .hero {
@@ -362,13 +357,8 @@
       <li><a href="/donnees">Données</a></li>
       <li><a href="/methodologie">Méthodologie</a></li>
       <li><a href="/explorations">Explorations</a></li>
-<<<<<<< Updated upstream
-            <li><a href="/a-propos">À propos</a></li>
-      <li><a href="/estimation" class="nav-estimation">Estimation</a></li>
-=======
       <li><a href="/documentation">Documentation</a></li>
       <li><a href="/a-propos">À propos</a></li>
->>>>>>> Stashed changes
     </ul>
   </nav>
 
@@ -395,31 +385,19 @@
       <div class="data-card">
         <div class="data-card-icon">📊</div>
         <div class="data-card-name">DVF</div>
-<<<<<<< Updated upstream
-        <div class="data-card-vol">~12M mutations depuis 2014</div>
-=======
         <div class="data-card-vol">~5M mutations depuis 2014</div>
->>>>>>> Stashed changes
         <div class="data-card-desc">Transactions de ventes immobilières enregistrées par les notaires, publiées par la DGFiP.</div>
       </div>
       <div class="data-card">
         <div class="data-card-icon">⚡</div>
         <div class="data-card-name">DPE ADEME</div>
-<<<<<<< Updated upstream
-        <div class="data-card-vol">~7,8M diagnostics</div>
-=======
         <div class="data-card-vol">~2,7M diagnostics</div>
->>>>>>> Stashed changes
         <div class="data-card-desc">Diagnostics de performance énergétique : classe énergie, consommation, émissions GES.</div>
       </div>
       <div class="data-card">
         <div class="data-card-icon">🏗️</div>
         <div class="data-card-name">INSEE BPE</div>
-<<<<<<< Updated upstream
-        <div class="data-card-vol">~190 000 équipements</div>
-=======
         <div class="data-card-vol">~6 600 équipements</div>
->>>>>>> Stashed changes
         <div class="data-card-desc">Inventaire géolocalisé des commerces, services, transports, santé et éducation par commune.</div>
       </div>
       <div class="data-card">
@@ -460,31 +438,30 @@
     </div>
   </section>
 
-  <!-- MÉTHODOLOGIE APERÇU -->
+  <!-- METHODO PREVIEW -->
   <section class="methodo-section">
+    <div class="section-header">
+      <div class="section-label">Approche</div>
+      <h2 class="section-title">Méthodologie</h2>
+    </div>
     <div class="methodo-content">
-      <div class="section-label">Transparence</div>
-      <h2 class="section-title">Approche méthodologique</h2>
       <p class="methodo-text">
-        Chaque analyse repose sur des données publiques vérifiables. Les sources sont citées,
-        les méthodes de calcul sont documentées, et les limites sont explicitement indiquées.
-        Il n'y a pas de boîte noire : les scores, intervalles de confiance et agrégats sont
-        reproductibles à partir des jeux de données d'origine.
+        Chaque analyse repose sur un pipeline documenté : récupération depuis les APIs officielles, nettoyage et normalisation géographique (réconciliation INSEE via BAN), agrégation statistique (médiane, quartiles, évolution), et croisement multisources. La confiance de chaque résultat est mesurée et affichée.
       </p>
-      <a href="/methodologie" class="hero-link">Lire la méthodologie complète →</a>
+      <a href="/methodologie" style="color: var(--accent-green); font-weight: 600; text-decoration: none; border-bottom: 2px solid transparent; transition: border-color 0.2s;" onmouseover="this.style.borderColor='var(--accent-green)'" onmouseout="this.style.borderColor='transparent'">Lire la méthodologie complète →</a>
     </div>
   </section>
 
   <!-- FOOTER -->
   <footer>
-    <div>Intent Analytics — Projet expérimental d'exploration de données publiques</div>
-    <a href="mailto:contact@intentanalytics.fr" class="footer-email">contact@intentanalytics.fr</a>
+    <p><strong>Intent Analytics</strong> — Projet expérimental d'exploration de données publiques françaises</p>
+    <span class="footer-email"><a href="mailto:contact@intentanalytics.fr">contact@intentanalytics.fr</a></span>
     <div class="footer-legal">
-      <a href="/legal/mentions-legales">Mentions légales</a> ·
-      <a href="/legal/cgu">CGU</a> ·
-      <a href="/legal/politique-confidentialite">Confidentialité</a>
+      <a href="/legal/mentions-legales">Mentions légales</a> •
+      <a href="/legal/cgu">CGU</a> •
+      <a href="/legal/politique-confidentialite">Politique de confidentialité</a>
     </div>
-    <div class="footer-copy">© 2025-2026 Intent Analytics</div>
+    <div class="footer-copy">© 2026 Intent Analytics</div>
   </footer>
 
 </body>
