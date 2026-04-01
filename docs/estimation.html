@@ -174,7 +174,30 @@
       background: #fafafa;
       transition: border .2s;
     }
-    .form-group input:focus,
+    #adresse-suggestions {
+      position: absolute;
+      top: 100%;
+      left: 0; right: 0;
+      background: #fff;
+      border: 1px solid #d1d5db;
+      border-top: none;
+      border-radius: 0 0 8px 8px;
+      z-index: 999;
+      box-shadow: 0 4px 12px rgba(0,0,0,.10);
+      display: none;
+    }
+    #adresse-suggestions.open { display: block; }
+    #adresse-suggestions .sug-item {
+      padding: .55rem .75rem;
+      font-size: .88rem;
+      cursor: pointer;
+      border-bottom: 1px solid #f1f5f9;
+      color: #374151;
+    }
+    #adresse-suggestions .sug-item:last-child { border-bottom: none; }
+    #adresse-suggestions .sug-item:hover { background: #f0fdf4; color: #10b981; }
+    .form-group.adresse-wrap { position: relative; }
+        .form-group input:focus,
     .form-group select:focus {
       border-color: var(--green);
       outline: none;
@@ -539,9 +562,10 @@
     <h2>Votre bien</h2>
     <form id="estimation-form" class="form-grid" autocomplete="off">
 
-      <div class="form-group full">
+      <div class="form-group full adresse-wrap">
         <label for="adresse">Adresse complète</label>
-        <input type="text" id="adresse" name="adresse" placeholder="12 rue de la Paix, 75002 Paris" required minlength="5" />
+        <input type="text" id="adresse" name="adresse" placeholder="12 rue de la Paix, 75002 Paris" required minlength="5" autocomplete="off" />
+        <div id="adresse-suggestions"></div>
       </div>
 
       <div class="form-group">
@@ -1268,6 +1292,54 @@ function scoreImmo(stats, evo) {
   return Math.max(10, Math.min(100, s));
 }
 
+// ── Autocomplete adresse (BAN) ────────────────────────────────────────────────
+function setupAddressAutocomplete() {
+  const input = document.getElementById("adresse");
+  const box   = document.getElementById("adresse-suggestions");
+  let timer = null;
+
+  function hideSuggestions() {
+    box.classList.remove("open");
+    box.innerHTML = "";
+  }
+
+  function selectSuggestion(label) {
+    input.value = label;
+    hideSuggestions();
+  }
+
+  input.addEventListener("input", () => {
+    clearTimeout(timer);
+    const q = input.value.trim();
+    if (q.length < 4) { hideSuggestions(); return; }
+    timer = setTimeout(async () => {
+      try {
+        const r = await fetch(`https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(q)}&limit=5`);
+        const d = await r.json();
+        const features = d.features || [];
+        if (!features.length) { hideSuggestions(); return; }
+        box.innerHTML = features.map(f =>
+          `<div class="sug-item" data-label="${f.properties.label.replace(/"/g, '&quot;')}">${f.properties.label}</div>`
+        ).join("");
+        box.classList.add("open");
+        box.querySelectorAll(".sug-item").forEach(el => {
+          el.addEventListener("mousedown", (e) => {
+            e.preventDefault();
+            selectSuggestion(el.dataset.label);
+          });
+        });
+      } catch (_) { hideSuggestions(); }
+    }, 300);
+  });
+
+  input.addEventListener("blur", () => setTimeout(hideSuggestions, 150));
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") hideSuggestions();
+  });
+}
+
+document.addEventListener("DOMContentLoaded", setupAddressAutocomplete);
+
 // ── Erreur ────────────────────────────────────────────────────────────────────
 function showError(msg) {
   const el = document.getElementById("error-box");
@@ -1303,7 +1375,7 @@ document.getElementById("estimation-form").addEventListener("submit", async (e) 
     // 1. Géocodage
     btn.textContent = "Géocodage…";
     const geo = await geocode(adresse);
-    if (!geo) throw new Error("Adresse non reconnue. Vérifiez l'orthographe et réessayez.");
+    if (!geo) throw new Error("Adresse non reconnue. Utilisez les suggestions qui apparaissent pendant la saisie pour sélectionner une adresse valide.");
 
     // 2. DVF
     btn.textContent = "Chargement des transactions…";
