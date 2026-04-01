@@ -1,7 +1,7 @@
 {
-  "name": "SAHAR Conseil",
-  "short_name": "SAHAR",
-  "description": "Open data pour décisions professionnelles — DVF, DPE ADEME, INSEE",
+  "name": "Intent Analytics",
+  "short_name": "IA",
+  "description": "Exploration de données publiques françaises — DVF, DPE ADEME, INSEE",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0D0D0D",
@@ -10,28 +10,27 @@
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' rx='32' fill='%2300DC82'/><text y='145' x='24' font-size='140' font-family='sans-serif' font-weight='bold' fill='%230D0D0D'>S</text></svg>",
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' rx='32' fill='%2300DC82'/><text y='145' x='14' font-size='120' font-family='sans-serif' font-weight='bold' fill='%230D0D0D'>IA</text></svg>",
       "sizes": "192x192",
       "type": "image/svg+xml"
     }
   ],
   "categories": [
-    "business",
-    "finance",
-    "productivity"
+    "education",
+    "utilities"
   ],
   "screenshots": [],
   "shortcuts": [
     {
-      "name": "Nos outils",
-      "url": "/#outils",
-      "description": "Accéder à la suite d'outils open data"
+      "name": "Le projet",
+      "url": "/projet",
+      "description": "En savoir plus sur le projet"
     },
     {
-      "name": "Mon espace",
-      "url": "/compte.html",
-      "description": "Accéder à mon espace personnel"
+      "name": "Explorations",
+      "url": "/explorations",
+      "description": "Voir les explorations disponibles"
     }
   ],
-  "generated": "2026-03-28"
+  "generated": "2026-04-01"
 }

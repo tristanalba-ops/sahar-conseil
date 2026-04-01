@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentation — Intent Analytics</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --dark-bg: #0D0D0D;
+            --dark-bg-light: #1A1A2E;
+            --accent-green: #00DC82;
+            --text-white: #FFFFFF;
+            --text-gray: #A0A0A0;
+            --border-color: #2A2A3E;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            color: var(--text-white);
+            font-family: 'Inter', sans-serif;
+            font-weight: 400;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        a {
+            color: var(--accent-green);
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        nav {
+            background-color: var(--dark-bg-light);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-logo {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            font-size: 1.3rem;
+            color: var(--accent-green);
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: var(--text-gray);
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent-green);
+            text-decoration: none;
+        }
+
+        main {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+        }
+
+        h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--text-white);
+        }
+
+        .intro {
+            font-size: 1.1rem;
+            color: var(--text-gray);
+            margin-bottom: 3rem;
+            line-height: 1.8;
+        }
+
+        h2 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            font-size: 1.8rem;
+            margin-top: 3rem;
+            margin-bottom: 1.5rem;
+            color: var(--accent-green);
+        }
+
+        section p {
+            margin-bottom: 1.2rem;
+            color: var(--text-gray);
+            line-height: 1.8;
+        }
+
+        .stack-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .stack-badge {
+            background-color: var(--dark-bg-light);
+            border: 1px solid var(--border-color);
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--accent-green);
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin: 2rem 0;
+            border-radius: 8px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: var(--dark-bg-light);
+            border: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: rgba(0, 220, 130, 0.1);
+            padding: 1rem;
+            text-align: left;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            color: var(--accent-green);
+            border-bottom: 2px solid var(--accent-green);
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-gray);
+        }
+
+        tr:hover {
+            background-color: rgba(0, 220, 130, 0.05);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        code {
+            background-color: rgba(0, 0, 0, 0.3);
+            padding: 0.2rem 0.6rem;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: var(--accent-green);
+        }
+
+        .code-block {
+            background-color: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            overflow-x: auto;
+        }
+
+        .code-block code {
+            background: none;
+            padding: 0;
+            color: var(--text-gray);
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+
+        .diagram {
+            background-color: var(--dark-bg-light);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 2rem 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            color: var(--accent-green);
+            line-height: 1.6;
+            overflow-x: auto;
+        }
+
+        footer {
+            background-color: var(--dark-bg-light);
+            border-top: 1px solid var(--border-color);
+            padding: 3rem 2rem;
+            margin-top: 6rem;
+            text-align: center;
+            color: var(--text-gray);
+            font-size: 0.9rem;
+            line-height: 1.8;
+        }
+
+        footer a {
+            color: var(--accent-green);
+        }
+
+        @media (max-width: 768px) {
+            nav {
+                flex-direction: column;
+                gap: 1.5rem;
+                text-align: center;
+            }
+
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 1rem;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            h2 {
+                font-size: 1.4rem;
+            }
+
+            main {
+                padding: 2rem 1rem;
+            }
+
+            table {
+                font-size: 0.9rem;
+            }
+
+            th, td {
+                padding: 0.75rem;
+            }
+
+            .intro {
+                font-size: 1rem;
+            }
+
+            .stack-list {
+                gap: 0.5rem;
+            }
+
+            .stack-badge {
+                font-size: 0.85rem;
+                padding: 0.4rem 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/" class="nav-logo">Intent Analytics</a>
+        <ul class="nav-links">
+            <li><a href="/projet">Le projet</a></li>
+            <li><a href="/donnees">Données</a></li>
+            <li><a href="/methodologie">Méthodologie</a></li>
+            <li><a href="/explorations">Explorations</a></li>
+            <li><a href="/documentation">Documentation</a></li>
+            <li><a href="/a-propos">À propos</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <h1>Documentation technique</h1>
+        <p class="intro">Architecture technique du projet à des fins de transparence et de reproductibilité. Chaque composant est documenté : sources, technologies, processus ETL et indicateurs calculés.</p>
+
+        <section>
+            <h2>Stack technologique</h2>
+            <div class="stack-list">
+                <div class="stack-badge">Python 3.11+</div>
+                <div class="stack-badge">PostgreSQL (Supabase)</div>
+                <div class="stack-badge">pandas/geopandas</div>
+                <div class="stack-badge">numpy/scipy</div>
+                <div class="stack-badge">Plotly</div>
+                <div class="stack-badge">Folium (cartes)</div>
+                <div class="stack-badge">GitHub Pages</div>
+                <div class="stack-badge">Streamlit</div>
+            </div>
+        </section>
+
+        <section>
+            <h2>Sources de données</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Source</th>
+                            <th>Format/API</th>
+                            <th>Fréquence MAJ</th>
+                            <th>Volume</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>DVF</td>
+                            <td>CSV data.gouv.fr</td>
+                            <td>Semestrielle</td>
+                            <td>~5M mutations</td>
+                        </tr>
+                        <tr>
+                            <td>DPE ADEME</td>
+                            <td>API REST data.ademe.fr</td>
+                            <td>Mensuelle</td>
+                            <td>~2.7M diagnostics</td>
+                        </tr>
+                        <tr>
+                            <td>BAN</td>
+                            <td>API REST api-adresse.data.gouv.fr</td>
+                            <td>À la demande</td>
+                            <td>~142k adresses</td>
+                        </tr>
+                        <tr>
+                            <td>INSEE BPE</td>
+                            <td>CSV insee.fr</td>
+                            <td>Annuelle</td>
+                            <td>~6.6k équipements</td>
+                        </tr>
+                        <tr>
+                            <td>Géo API</td>
+                            <td>API REST geo.api.gouv.fr</td>
+                            <td>Annuelle</td>
+                            <td>~35k communes</td>
+                        </tr>
+                        <tr>
+                            <td>INSEE IRIS</td>
+                            <td>CSV insee.fr</td>
+                            <td>Annuelle</td>
+                            <td>~846 zones IRIS</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section>
+            <h2>Structure de la base de données</h2>
+            <p>La base de données Supabase (PostgreSQL) contient les tables suivantes :</p>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Table</th>
+                            <th>Description</th>
+                            <th>Rows (estimé)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>dvf_mutations</code></td>
+                            <td>Transactions immobilières notariées</td>
+                            <td>~5M</td>
+                        </tr>
+                        <tr>
+                            <td><code>dpe_diagnostics</code></td>
+                            <td>Diagnostics énergétiques ADEME</td>
+                            <td>~2.7M</td>
+                        </tr>
+                        <tr>
+                            <td><code>ban_adresses</code></td>
+                            <td>Adresses géocodées normalisées</td>
+                            <td>~142k</td>
+                        </tr>
+                        <tr>
+                            <td><code>poi_equipements</code></td>
+                            <td>Points d'intérêt (équipements publics)</td>
+                            <td>~6.6k</td>
+                        </tr>
+                        <tr>
+                            <td><code>commune_wiki</code></td>
+                            <td>Référentiel communes (population, superficie)</td>
+                            <td>~35k</td>
+                        </tr>
+                        <tr>
+                            <td><code>market_stats</code></td>
+                            <td>Statistiques marché immobilier agrégées</td>
+                            <td>~500</td>
+                        </tr>
+                        <tr>
+                            <td><code>poi_scores_commune</code></td>
+                            <td>Scores équipements par commune</td>
+                            <td>~467</td>
+                        </tr>
+                        <tr>
+                            <td><code>iris_demographics</code></td>
+                            <td>Données démographiques IRIS</td>
+                            <td>~846</td>
+                        </tr>
+                        <tr>
+                            <td><code>collector_metadata</code></td>
+                            <td>Métadonnées des collecteurs ETL</td>
+                            <td>8</td>
+                        </tr>
+                        <tr>
+                            <td><code>data_import_logs</code></td>
+                            <td>Logs de synchronisation et imports</td>
+                            <td>Variable</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section>
+            <h2>Pipeline ETL</h2>
+            <p>Le processus d'extraction, transformation et chargement suit ce flux :</p>
+            <div class="diagram">
+Sources Open Data
+        ↓
+   Collecte (API/CSV)
+        ↓
+   Nettoyage & Validation
+        ↓
+   Normalisation (BAN)
+        ↓
+Réconciliation INSEE (4 niveaux)
+        ↓
+   Stockage Supabase
+        ↓
+Agrégation & Calcul KPI
+        ↓
+Sauvegarde Cache Redis
+        ↓
+  Visualisation/API REST
+            </div>
+        </section>
+
+        <section>
+            <h2>Indicateurs et calculs</h2>
+            <p><strong>DVF — Prix immobiliers</strong></p>
+            <p>Pour chaque commune, calcul du prix médian au m², quartiles Q1 et Q3, volume annuel de transactions, évolution 12 mois et 24 mois. Inclusion minimum : 3 transactions/an. Source : DVF (DGFiP).</p>
+
+            <p><strong>DPE — Performance énergétique</strong></p>
+            <p>Répartition des classes A-G en %, consommation énergétique kWh/m²/an, émissions GES kg CO2/m²/an. Calcul du score composite 0-100 et pourcentage passoires (F+G). Source : ADEME.</p>
+
+            <p><strong>BPE — Équipements locaux</strong></p>
+            <p>Score par catégorie (transports, éducation, santé, commerce) de 0-100 basé sur proximité et accessibilité. Score global 0-100. Source : INSEE BPE.</p>
+
+            <p><strong>IRIS — Démographie</strong></p>
+            <p>Population, densité, structure d'âge, taux d'activité, revenus, conditions de logement agrégés par commune. Source : INSEE IRIS.</p>
+        </section>
+
+        <section>
+            <h2>Reproductibilité</h2>
+            <p>Chaque résultat affiché provient d'une source identifiée et d'un calcul documenté. Les transformations appliquées sont conservées dans les logs d'import. Une trace d'audit complet permet de rejouer tout agrégat depuis les données brutes.</p>
+            <p>Les formules utilisées pour calculer scores, indices de confiance et agrégats statistiques sont documentées dans la section <a href="/methodologie">Méthodologie</a>.</p>
+        </section>
+
+        <section>
+            <h2>Performance et cache</h2>
+            <p>Les requêtes fréquentes (KPIs par code INSEE) sont cachées en Redis avec TTL 3600s. Taux de hit estimé > 80%. Les requêtes complexes (croisements multisources) utilisent BigQuery pour les agrégations.</p>
+        </section>
+    </main>
+
+    <footer>
+        Intent Analytics — Projet expérimental d'exploration de données publiques<br>
+        contact@intentanalytics.fr<br>
+        <a href="/legal/mentions-legales">Mentions légales</a> · <a href="/legal/cgu">CGU</a> · <a href="/legal/politique-confidentialite">Confidentialité</a><br>
+        © 2025-2026 Intent Analytics
+    </footer>
+</body>
+</html>

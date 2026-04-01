@@ -1,3 +1,4 @@
 User-agent: *
 Allow: /
+Disallow: /estimation
 Sitemap: https://intentanalytics.fr/sitemap.xml
