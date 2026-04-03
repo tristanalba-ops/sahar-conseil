@@ -1254,14 +1254,6 @@ document.getElementById('explorer-input').addEventListener('keydown', (e) => {
     </div>
   </div>
 
-  <!-- Bouton Claude MCP -->
-  <div id="ai-section" class="hidden" style="margin: 1.5rem 0;">
-    <button id="btnAnalyze" onclick="handleAnalyze()" style="background:#00D47E;color:#000;border:none;padding:0.75rem 1.5rem;border-radius:8px;font-weight:600;cursor:pointer;font-size:1rem;width:100%;">
-      ✨ Analyser avec Claude
-    </button>
-    <div id="ai-result" style="display:none;margin-top:1rem;padding:1.5rem;background:#1a1a2e;border-radius:12px;border:1px solid #00D47E33;line-height:1.7;"></div>
-  </div>
-
   <!-- Analyse marché -->
   <div class="analyse-section" id="analyse-section">
     <div class="section-title">Marché local</div>
@@ -1544,8 +1536,6 @@ document.getElementById('estimation-form').addEventListener('submit', async (e) 
     `;
 
     document.getElementById('result-card').classList.add('visible');
-    document.getElementById('ai-section').classList.remove('hidden');
-    document.getElementById('ai-result').style.display = 'none';
     renderMarketAnalysis(validDVF, supp.dpe, supp.poi, conf, geo);
     document.getElementById('analyse-section').classList.add('visible');
     document.getElementById('result-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -1647,48 +1637,6 @@ function renderMarketAnalysis(dvf, dpe, poi, confidence, geo) {
   const cw = document.getElementById('conf-warning');
   if (confidence < 60) { cw.textContent = 'Confiance faible. Les données sont limitées pour cette zone.'; cw.classList.add('visible'); }
   else { cw.classList.remove('visible'); }
-}
-
-
-// ── Claude MCP ──
-async function handleAnalyze() {
-  const btn = document.getElementById('btnAnalyze');
-  const resultDiv = document.getElementById('ai-result');
-  btn.disabled = true;
-  btn.textContent = '⏳ Analyse en cours...';
-  resultDiv.style.display = 'none';
-  try {
-    if (!_selectedGeo) throw new Error('Adresse non sélectionnée');
-    const payload = {
-      code_postal: _selectedGeo.cp,
-      code_commune: _selectedGeo.citycode,
-      surface: parseFloat(document.getElementById('surface')?.value) || 65,
-      type_bien: document.getElementById('type_bien')?.value || 'Appartement',
-      lat: _selectedGeo.lat,
-      lon: _selectedGeo.lon
-    };
-    const resp = await fetch('https://wwvdpixzfaviaapixarb.supabase.co/functions/v1/mcp-analyze', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'apikey': SUPA_ANON },
-      body: JSON.stringify(payload)
-    });
-    if (!resp.ok) throw new Error(`Erreur API (${resp.status})`);
-    const data = await resp.json();
-    if (data.error) throw new Error(data.error);
-    const html = (data.analysis || data.result || 'Pas de réponse')
-      .replace(/\n\n/g, '<br><br>')
-      .replace(/\n/g, '<br>')
-      .replace(/### (.*?)(<br>|$)/g, '<strong style="font-size:1.05rem;color:#00D47E">$1</strong><br>')
-      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-    resultDiv.innerHTML = html;
-    resultDiv.style.display = 'block';
-  } catch(e) {
-    resultDiv.innerHTML = `<em style="color:#ff6b6b">Erreur : ${e.message}</em>`;
-    resultDiv.style.display = 'block';
-  } finally {
-    btn.disabled = false;
-    btn.textContent = '✨ Analyser avec Claude';
-  }
 }
 </script>
 
