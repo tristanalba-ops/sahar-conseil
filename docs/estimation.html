@@ -606,8 +606,12 @@ function renderAnalysis(dvf, dpe, poi, confidence, geo) {
       const pct = dpe[`pct_${l.toLowerCase()}`] || 0;
       return `<div class="dpe-bar"><div class="dpe-bar-fill" style="background:${dpeColors[l]};height:${Math.max(4,pct*2)}px;">${pct>5?pct.toFixed(0)+'%':''}</div><div class="dpe-bar-label">${l}</div></div>`;
     }).join('');
-    const dom = dpe.classe_dominante || '—';
+    // Calculer la classe dominante à partir des pourcentages
+    const letters = ['a','b','c','d','e','f','g'];
+    const dom = letters.reduce((mx, l) => (dpe[`pct_${l}`]||0) > (dpe[`pct_${mx}`]||0) ? l : mx, 'a').toUpperCase();
     document.getElementById('dpe-info').innerHTML = `<p style="font-size:0.82rem;color:var(--text-gray);margin-top:0.8rem">Classe dominante : <strong style="color:#fff">${dom}</strong> · ${fmtN(dpe.nb_dpe||0)} DPE enregistrés</p>`;
+  } else {
+    document.getElementById('dpe-dist').innerHTML = '<p style="color:var(--text-gray);font-size:0.85rem;padding:1rem 0">Données DPE non disponibles pour cette commune.</p>';
   }
 
   // POI scores
