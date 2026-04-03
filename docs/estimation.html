@@ -604,4 +604,108 @@ function renderAnalysis(dvf, dpe, poi, confidence, geo) {
   if (dpe) {
     document.getElementById('dpe-dist').innerHTML = ['A','B','C','D','E','F','G'].map(l => {
       const pct = dpe[`pct_${l.toLowerCase()}`] || 0;
-      return `<div class="dpe-bar"><div class="dpe-bar-fill" style="background:${dpeColors[l]};height:${Math.max(4,pct*2)}px;">${pct>5?pct.toFi
+      return `<div class="dpe-bar"><div class="dpe-bar-fill" style="background:${dpeColors[l]};height:${Math.max(4,pct*2)}px;">${pct>5?pct.toFixed(0)+'%':''}</div><div class="dpe-bar-label">${l}</div></div>`;
+    }).join('');
+    const dom = dpe.classe_dominante || '—';
+    document.getElementById('dpe-info').innerHTML = `<p style="font-size:0.82rem;color:var(--text-gray);margin-top:0.8rem">Classe dominante : <strong style="color:#fff">${dom}</strong> · ${fmtN(dpe.nb_dpe||0)} DPE enregistrés</p>`;
+  }
+
+  // POI scores
+  if (poi) {
+    const scores = [
+      { label:'Transports', key:'score_transport' },
+      { label:'Commerces', key:'score_commerce' },
+      { label:'Éducation', key:'score_education' },
+      { label:'Santé', key:'score_sante' },
+      { label:'Loisirs', key:'score_loisirs' }
+    ];
+    document.getElementById('score-bars').innerHTML = scores.map(s => {
+      const v = poi[s.key] || 0;
+      const pct = Math.min(100, Math.round(v));
+      return `<div class="score-bar-item"><span class="score-bar-label">${s.label}</span><div class="score-bar-bg"><div class="score-bar-fill" style="--width:${pct}%"></div></div><span class="score-bar-val">${pct}/100</span></div>`;
+    }).join('');
+  }
+
+  // Confidence grid
+  const sources = [
+    { label:'Transactions DVF', ok: dvf.length >= 10, detail: `${dvf.length} ventes` },
+    { label:'Données DPE', ok: !!dpe, detail: dpe ? 'Disponible' : 'Absent' },
+    { label:'Équipements POI', ok: !!poi, detail: poi ? 'Disponible' : 'Absent' },
+    { label:'Fraîcheur données', ok: confidence >= 50, detail: confidence >= 50 ? 'Récentes' : 'Anciennes' }
+  ];
+  document.getElementById('conf-grid').innerHTML = sources.map(s =>
+    `<div style="background:rgba(13,13,13,0.6);border:1px solid ${s.ok?'rgba(0,220,130,0.3)':'var(--border-color)'};border-radius:8px;padding:0.8rem"><div style="font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-gray);margin-bottom:0.2rem">${s.label}</div><div style="font-size:0.9rem;font-weight:700;color:${s.ok?'#00DC82':'#ff6b6b'}">${s.detail}</div></div>`
+  ).join('');
+  document.getElementById('conf-score').textContent = Math.round(confidence);
+  if (confidence < 50) {
+    const w = document.getElementById('conf-warning');
+    w.textContent = 'Indice de confiance faible — estimation indicative uniquement. Données insuffisantes pour cette commune.';
+    w.classList.add('visible');
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// EXPLORER — PROFIL COMMUNE
+// ═══════════════════════════════════════════════════════════════
+document.getElementById('explorer-btn').addEventListener('click', async () => {
+  const input = document.getElementById('explorer-input').value.trim();
+  const errBox = document.getElementById('explorer-error');
+  const results = document.getElementById('explorer-results');
+  errBox.classList.remove('visible'); errBox.textContent = '';
+  results.classList.remove('visible');
+  if (!input) { errBox.textContent = 'Saisissez un code INSEE ou un nom de commune.'; errBox.classList.add('visible'); return; }
+
+  const btn = document.getElementById('explorer-btn');
+  btn.disabled = true; btn.textContent = 'Chargement...';
+
+  try {
+    // Search by code INSEE or name
+    const isCode = /^\d{5}$/.test(input);
+    const rows = isCode
+      ? await supaFetch('property_index', { code_commune: `eq.${input}`, limit: '1' })
+      : await supaFetch('property_index', { nom_commune: `ilike.${input}%`, limit: '5' });
+
+    if (!rows.length) throw new Error(`Commune "${input}" introuvable.`);
+    const c = rows[0];
+
+    document.getElementById('explorer-kpis').innerHTML = [
+      { label:'Prix médian/m²', value: c.prix_m2_median ? fmtN(Math.round(c.prix_m2_median))+' €' : '—', sub: c.nb_transactions ? `${fmtN(c.nb_transactions)} transactions` : '', accent: true },
+      { label:'Prix moyen/m²', value: c.prix_m2_mean ? fmtN(Math.round(c.prix_m2_mean))+' €' : '—', sub: '' },
+      { label:'DPE dominant', value: c.dpe_classe_dominante || '—', sub: 'Classe énergie' },
+      { label:'Population', value: c.population ? fmtN(c.population) : '—', sub: c.code_postal || '' },
+      { label:'Score transport', value: c.score_transport ? Math.round(c.score_transport)+'/100' : '—', sub: '' },
+      { label:'Score commerces', value: c.score_commerce ? Math.round(c.score_commerce)+'/100' : '—', sub: '' }
+    ].map(k => `<div class="kpi-card${k.accent?' accent':''}"><div class="kpi-label">${k.label}</div><div class="kpi-value">${k.value}</div>${k.sub?`<div class="kpi-sub">${k.sub}</div>`:''}</div>`).join('');
+
+    document.getElementById('explorer-profile').innerHTML = `
+      <div class="analysis-card">
+        <h3>${c.nom_commune || input}</h3>
+        <p style="color:var(--text-gray);font-size:0.88rem;line-height:1.6;margin-top:0.5rem">${c.description || 'Aucune description disponible.'}</p>
+        <p style="font-size:0.8rem;color:var(--text-gray);margin-top:0.8rem">Code INSEE : <strong style="color:#fff">${c.code_commune}</strong> · CP : <strong style="color:#fff">${c.code_postal||'—'}</strong></p>
+      </div>
+      <div class="analysis-card">
+        <h3>Répartition DPE</h3>
+        <div class="dpe-bars" style="height:100px">
+          ${['a','b','c','d','e','f','g'].map(l => {
+            const dpeColors2 = { a:'#319834', b:'#33cc31', c:'#cbfc34', d:'#fcfc32', e:'#fccc32', f:'#fc9834', g:'#fc0000' };
+            const pct = c[`pct_dpe_${l}`] || 0;
+            return `<div class="dpe-bar"><div class="dpe-bar-fill" style="background:${dpeColors2[l]};height:${Math.max(4,pct*2)}px;">${pct>5?pct.toFixed(0)+'%':''}</div><div class="dpe-bar-label">${l.toUpperCase()}</div></div>`;
+          }).join('')}
+        </div>
+      </div>`;
+
+    results.classList.add('visible');
+  } catch(err) {
+    errBox.textContent = err.message || 'Erreur lors du chargement.';
+    errBox.classList.add('visible');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Explorer';
+  }
+});
+
+document.getElementById('explorer-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('explorer-btn').click();
+});
+</script>
+</body>
+</html>
