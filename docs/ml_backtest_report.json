@@ -1,140 +1,182 @@
 {
-  "generated_at": "2026-04-03T12:17:44Z",
+  "generated_at": "2026-04-03T12:46:46Z",
+  "version": "v2",
   "model": {
     "file": "datamoat/models/model_xgboost.pkl",
     "type": "XGBRegressor",
-    "trained_at": "2026-04-02T07:02:58.395143Z",
-    "n_features": 31,
-    "n_train": 2132403
+    "trained_at": "2026-04-03T12:40:40.756124Z",
+    "n_features": 32,
+    "n_train": 238405
   },
   "backtest_period": "2025-01-01 to 2025-06-30",
-  "note": "DVF France a un délai de publication de 12-18 mois. Les données >= 2025-10-01 ne sont pas encore disponibles. Jan-Jun 2025 est la période OOT la plus récente disponible (non vue lors de l'entraînement 2022-2024).",
-  "n_transactions": 211776,
+  "note": "DVF France a un délai de publication de 12-18 mois. Les données >= 2025-10-01 ne sont pas encore disponibles. Jan-Jun 2025 est la période OOT la plus récente disponible (non vue lors de l'entraînement 2022-2024). v2 : jointures réelles sur iris_demographics, dpe_commune_agg, poi_scores_commune, data_demographie_commune.",
+  "n_transactions": 212241,
   "metrics_global": {
-    "rmse_eur_m2": 2183.7,
-    "mae_eur_m2": 1824.9,
-    "r2": 0.076,
-    "err_median_pct": 63.34,
-    "err_p75_pct": 111.57,
-    "err_p90_pct": 195.65,
-    "pct_within_10pct": 7.5,
-    "pct_within_20pct": 15.0,
-    "pct_within_30pct": 22.9
+    "rmse_eur_m2": 1297.9,
+    "mae_eur_m2": 849.7,
+    "r2": 0.663,
+    "err_median_pct": 21.35,
+    "err_p75_pct": 42.37,
+    "err_p90_pct": 84.33,
+    "pct_within_10pct": 25.8,
+    "pct_within_20pct": 47.5,
+    "pct_within_30pct": 63.1
+  },
+  "objectives": {
+    "r2_gt_05": true,
+    "err_median_lt_35pct": true
   },
   "by_type_local": {
     "Appartement": {
-      "n": 78276,
-      "err_median_pct": 49.83,
-      "mae_eur_m2": 1830.8,
-      "pct_10": 10.8,
-      "pct_20": 21.2,
-      "pct_30": 31.3
+      "n": 78661,
+      "err_median_pct": 19.23,
+      "mae_eur_m2": 996.8,
+      "pct_10": 28.1,
+      "pct_20": 51.5,
+      "pct_30": 67.6
     },
     "Maison": {
-      "n": 133500,
-      "err_median_pct": 72.45,
-      "mae_eur_m2": 1821.4,
-      "pct_10": 5.5,
-      "pct_20": 11.4,
-      "pct_30": 18.0
+      "n": 133580,
+      "err_median_pct": 22.79,
+      "mae_eur_m2": 763.0,
+      "pct_10": 24.4,
+      "pct_20": 45.1,
+      "pct_30": 60.4
     }
   },
   "by_price_decile": {
     "D1": {
-      "prix_median_eur_m2": 795.0,
-      "err_median_pct": 233.48,
-      "n": 21184
+      "prix_median_eur_m2": 806.0,
+      "err_median_pct": 100.84,
+      "n": 21247
     },
     "D2": {
-      "prix_median_eur_m2": 1290.0,
-      "err_median_pct": 125.85,
-      "n": 21172
+      "prix_median_eur_m2": 1297.0,
+      "err_median_pct": 39.32,
+      "n": 21218
     },
     "D3": {
       "prix_median_eur_m2": 1667.0,
-      "err_median_pct": 97.07,
-      "n": 21178
+      "err_median_pct": 25.21,
+      "n": 21244
     },
     "D4": {
       "prix_median_eur_m2": 2000.0,
-      "err_median_pct": 81.61,
-      "n": 21177
+      "err_median_pct": 20.13,
+      "n": 21215
     },
     "D5": {
-      "prix_median_eur_m2": 2353.0,
-      "err_median_pct": 70.07,
-      "n": 21177
+      "prix_median_eur_m2": 2356.0,
+      "err_median_pct": 17.6,
+      "n": 21242
     },
     "D6": {
-      "prix_median_eur_m2": 2738.0,
-      "err_median_pct": 60.79,
-      "n": 21220
+      "prix_median_eur_m2": 2742.0,
+      "err_median_pct": 16.52,
+      "n": 21186
     },
     "D7": {
-      "prix_median_eur_m2": 3214.0,
-      "err_median_pct": 53.01,
-      "n": 21189
+      "prix_median_eur_m2": 3217.0,
+      "err_median_pct": 15.94,
+      "n": 21228
     },
     "D8": {
       "prix_median_eur_m2": 3853.0,
-      "err_median_pct": 45.19,
-      "n": 21124
+      "err_median_pct": 16.06,
+      "n": 21215
     },
     "D9": {
-      "prix_median_eur_m2": 4911.0,
-      "err_median_pct": 32.9,
-      "n": 21178
+      "prix_median_eur_m2": 4902.0,
+      "err_median_pct": 15.7,
+      "n": 21226
     },
     "D10": {
-      "prix_median_eur_m2": 7966.0,
-      "err_median_pct": 15.95,
-      "n": 21177
+      "prix_median_eur_m2": 7890.0,
+      "err_median_pct": 18.67,
+      "n": 21220
     }
   },
   "training_baseline": {
-    "mae_eur_m2": 816.8,
-    "mape_pct": 34.78,
-    "r2": 0.731
+    "mae_eur_m2": 781.8,
+    "mape_pct": 31.71,
+    "r2": 0.696
   },
   "feature_coverage": {
-    "computed_from_dvf": [
-      "surface",
-      "nb_pieces",
-      "type_local_encoded",
-      "surface_terrain",
-      "log_surface",
-      "ratio_terrain_bati",
-      "surface_par_piece",
-      "annee_vente",
-      "mois_vente"
-    ],
-    "from_market_stats": [
-      "prix_zone_median",
-      "evolution_zone_12m",
-      "volume_zone"
-    ],
-    "derived": [
-      "prix_x_attractivite",
-      "ratio_revenu_prix"
-    ],
-    "imputed_from_scaler": [
-      "pct_passoire_zone",
-      "conso_energie_zone",
-      "score_energie_zone",
-      "score_transport",
-      "score_education",
-      "score_sante",
-      "score_commerce",
-      "score_poi_global",
-      "revenu_median_commune",
-      "taux_chomage_commune",
-      "part_proprietaires_commune",
-      "part_cadres_commune",
-      "taux_pauvrete_commune",
-      "population_commune",
-      "superficie_km2",
-      "densite_pop_km2",
-      "log_population"
-    ]
+    "sources": {
+      "dvf_mutations": {
+        "features": [
+          "surface",
+          "nb_pieces",
+          "type_local_encoded",
+          "surface_terrain",
+          "log_surface",
+          "ratio_terrain_bati",
+          "surface_par_piece",
+          "annee_vente",
+          "mois_vente"
+        ],
+        "coverage_pct": 100.0
+      },
+      "market_stats": {
+        "features": [
+          "prix_zone_median",
+          "evolution_zone_12m",
+          "volume_zone"
+        ],
+        "coverage_pct": 100.0
+      },
+      "iris_demographics": {
+        "features": [
+          "revenu_median_commune",
+          "taux_chomage_commune",
+          "part_proprietaires_commune",
+          "part_cadres_commune",
+          "taux_pauvrete_commune"
+        ],
+        "coverage_pct": 94.8
+      },
+      "dpe_commune_agg": {
+        "features": [
+          "pct_passoire_zone",
+          "conso_energie_zone",
+          "score_energie_zone"
+        ],
+        "coverage_pct": 99.9
+      },
+      "poi_scores_commune": {
+        "features": [
+          "score_transport",
+          "score_education",
+          "score_sante",
+          "score_commerce",
+          "score_poi_global"
+        ],
+        "coverage_pct": 87.8
+      },
+      "data_demographie_commune": {
+        "features": [
+          "population_commune",
+          "superficie_km2",
+          "densite_pop_km2",
+          "log_population"
+        ],
+        "coverage_pct": 100.0
+      },
+      "derived": {
+        "features": [
+          "prix_x_attractivite",
+          "ratio_revenu_prix"
+        ],
+        "coverage_pct": 100.0
+      },
+      "target_encoding": {
+        "features": [
+          "code_commune_te"
+        ],
+        "coverage_pct": 100.0
+      }
+    },
+    "n_features_real_join": 32,
+    "n_features_total": 32
   }
 }
