@@ -465,7 +465,7 @@ async function fetchDVF(citycode, typeBien) {
 }
 
 async function fetchSupp(citycode, cp) {
-  const zoneFields = 'revenu_median_zone,taux_chomage_zone,part_proprietaires_zone,population_commune,evolution_12m_zone,volume_transactions_zone,indice_dynamisme_eco,nb_entreprises_zone,score_transport,score_education,score_sante,score_commerce,score_cadre_vie,rotation_quartier';
+  const zoneFields = 'revenu_median_zone,taux_chomage_zone,part_proprietaires_zone,population_commune,evolution_12m_zone,volume_transactions_zone,indice_dynamisme_eco,nb_entreprises_zone,nb_creations_12m,score_transport,score_education,score_sante,score_commerce,score_cadre_vie,score_vente,score_renovation,score_investissement,rotation_quartier';
   const [dpeArr, poiArr, propArr] = await Promise.all([
     supaFetch('dpe_commune_agg', { code_postal: `eq.${cp}`, limit: '1' }),
     supaFetch('poi_scores_commune', { code_commune: `eq.${citycode}`, limit: '1' }),
@@ -567,6 +567,11 @@ document.getElementById('estimation-form').addEventListener('submit', async (e) 
       <div class="metric-box"><div class="metric-label">Ch\u00f4mage</div><div class="metric-val">${parseFloat(z.taux_chomage_zone).toFixed(1)}%</div><div class="metric-sub">Taux local</div></div>
       ${z.part_proprietaires_zone ? `<div class="metric-box"><div class="metric-label">Propri\u00e9taires</div><div class="metric-val">${parseFloat(z.part_proprietaires_zone).toFixed(0)}%</div><div class="metric-sub">Part du parc</div></div>` : ''}
       ${z.nb_entreprises_zone ? `<div class="metric-box"><div class="metric-label">Entreprises</div><div class="metric-val">${fmtN(z.nb_entreprises_zone)}</div><div class="metric-sub">Zone</div></div>` : ''}
+      ${z.nb_creations_12m ? `<div class="metric-box"><div class="metric-label">Cr\u00e9ations 12 mois</div><div class="metric-val">${fmtN(z.nb_creations_12m)}</div><div class="metric-sub">Nouvelles entreprises</div></div>` : ''}
+      ${z.score_vente ? `<div class="metric-box"><div class="metric-label">Score vente</div><div class="metric-val">${z.score_vente}/100</div><div class="metric-sub">Attractivit\u00e9 vendeur</div></div>` : ''}
+      ${z.score_renovation ? `<div class="metric-box"><div class="metric-label">Score r\u00e9novation</div><div class="metric-val">${z.score_renovation}/100</div><div class="metric-sub">Potentiel travaux</div></div>` : ''}
+      ${z.score_investissement ? `<div class="metric-box"><div class="metric-label">Score investissement</div><div class="metric-val">${z.score_investissement}/100</div><div class="metric-sub">Rendement locatif</div></div>` : ''}
+      ${z.rotation_quartier ? `<div class="metric-box"><div class="metric-label">Rotation march\u00e9</div><div class="metric-val">${parseFloat(z.rotation_quartier).toFixed(2)}%</div><div class="metric-sub">Turn-over annuel</div></div>` : ''}
       ` : ''}`;
 
     document.getElementById('result-card').classList.add('visible');
@@ -688,7 +693,7 @@ document.getElementById('explorer-btn').addEventListener('click', async () => {
 
   try {
     const isCode = /^\d{5}$/.test(input);
-    const selFields = 'code_commune,code_postal,commune,prix_median_m2_zone,evolution_12m_zone,volume_transactions_zone,population_commune,revenu_median_zone,taux_chomage_zone,part_proprietaires_zone,score_transport,score_commerce,score_education,score_sante,score_cadre_vie,dpe_classe,nb_entreprises_zone,indice_dynamisme_eco,rotation_quartier';
+    const selFields = 'code_commune,code_postal,commune,prix_median_m2_zone,evolution_12m_zone,volume_transactions_zone,population_commune,revenu_median_zone,taux_chomage_zone,part_proprietaires_zone,score_transport,score_commerce,score_education,score_sante,score_cadre_vie,score_vente,score_renovation,score_investissement,dpe_classe,nb_entreprises_zone,nb_creations_12m,indice_dynamisme_eco,rotation_quartier';
     let rows;
     if (isCode) {
       // Essai par code postal (usage naturel), fallback code INSEE
@@ -762,8 +767,18 @@ document.getElementById('explorer-btn').addEventListener('click', async () => {
         <div class="profile-row"><span class="label">Taux de chômage</span><span class="value">${c.taux_chomage_zone!=null?parseFloat(c.taux_chomage_zone).toFixed(1)+'%':'—'}</span></div>
         <div class="profile-row"><span class="label">Part propriétaires</span><span class="value">${c.part_proprietaires_zone!=null?parseFloat(c.part_proprietaires_zone).toFixed(0)+'%':'—'}</span></div>
         <div class="profile-row"><span class="label">Nb entreprises</span><span class="value">${c.nb_entreprises_zone?fmtN(c.nb_entreprises_zone):'—'}</span></div>
+        <div class="profile-row"><span class="label">Créations 12 mois</span><span class="value">${c.nb_creations_12m?fmtN(c.nb_creations_12m):'—'}</span></div>
         <div class="profile-row"><span class="label">Dynamisme éco</span><span class="value">${c.indice_dynamisme_eco!=null?parseFloat(c.indice_dynamisme_eco).toFixed(1):'—'}</span></div>
-      </div>`;
+      </div>
+      ${(c.score_vente||c.score_renovation||c.score_investissement) ? `
+      <div class="profile-section" style="grid-column:1/-1">
+        <h4>Scores d'intérêt — ${c.commune||'—'}</h4>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0.8rem;margin-top:0.5rem">
+          ${c.score_vente?`<div><div style="font-size:0.72rem;font-weight:600;color:var(--text-gray);text-transform:uppercase;margin-bottom:0.3rem">Score vente</div><div class="score-bar-bg" style="height:10px"><div class="score-bar-fill" style="--width:${c.score_vente}%"></div></div><div style="font-size:0.85rem;font-weight:700;margin-top:0.3rem">${c.score_vente}/100 <span style="font-size:0.72rem;color:var(--text-gray);font-weight:400">Attractivité vendeur</span></div></div>`:''}
+          ${c.score_renovation?`<div><div style="font-size:0.72rem;font-weight:600;color:var(--text-gray);text-transform:uppercase;margin-bottom:0.3rem">Score rénovation</div><div class="score-bar-bg" style="height:10px"><div class="score-bar-fill" style="--width:${c.score_renovation}%"></div></div><div style="font-size:0.85rem;font-weight:700;margin-top:0.3rem">${c.score_renovation}/100 <span style="font-size:0.72rem;color:var(--text-gray);font-weight:400">Potentiel travaux</span></div></div>`:''}
+          ${c.score_investissement?`<div><div style="font-size:0.72rem;font-weight:600;color:var(--text-gray);text-transform:uppercase;margin-bottom:0.3rem">Score investissement</div><div class="score-bar-bg" style="height:10px"><div class="score-bar-fill" style="--width:${c.score_investissement}%"></div></div><div style="font-size:0.85rem;font-weight:700;margin-top:0.3rem">${c.score_investissement}/100 <span style="font-size:0.72rem;color:var(--text-gray);font-weight:400">Rendement locatif</span></div></div>`:''}
+        </div>
+      </div>` : ''}`;
 
     results.classList.add('visible');
   } catch(err) {
