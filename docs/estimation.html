@@ -641,13 +641,23 @@ document.getElementById('estimation-form').addEventListener('submit', async (e) 
 
     const supp = await fetchSupplementaryData(geo.citycode, geo.cp);
 
-    // Stats
-    const validDVF = dvfRows
-      .filter(r => r.surface_reelle_bati > 0 && r.valeur_fonciere > 0)
+    // Stats — filter outliers with IQR method before computing stats
+    const rawDVF = dvfRows
+      .filter(r => r.surface_reelle_bati >= 9 && r.valeur_fonciere >= 5000) // exclude tiny surfaces and near-zero prices
       .map(r => ({ prixM2: r.valeur_fonciere / r.surface_reelle_bati, prix: r.valeur_fonciere, surface: r.surface_reelle_bati, date: r.date_mutation, type: r.type_local }))
       .sort((a, b) => a.prixM2 - b.prixM2);
 
-    if (validDVF.length < 3) throw new Error('Pas assez de transactions valides.');
+    if (rawDVF.length < 3) throw new Error('Pas assez de transactions valides.');
+
+    // IQR filter to remove outliers (Tukey fences: Q1 - 1.5*IQR, Q3 + 1.5*IQR)
+    const rawQ1 = rawDVF[Math.floor(rawDVF.length * 0.25)].prixM2;
+    const rawQ3 = rawDVF[Math.floor(rawDVF.length * 0.75)].prixM2;
+    const iqr = rawQ3 - rawQ1;
+    const lowerFence = rawQ1 - 1.5 * iqr;
+    const upperFence = rawQ3 + 1.5 * iqr;
+    const validDVF = rawDVF.filter(r => r.prixM2 >= lowerFence && r.prixM2 <= upperFence);
+
+    if (validDVF.length < 3) throw new Error('Pas assez de transactions valides après filtrage.');
 
     const medianPrixM2 = validDVF[Math.floor(validDVF.length / 2)].prixM2;
     const q1 = validDVF[Math.floor(validDVF.length * 0.25)].prixM2;
@@ -817,6 +827,7 @@ function renderMarketAnalysis(dvf, dpe, poi, confidence, geo) {
   else { cw.classList.remove('visible'); }
 }
 
+
 // ── Claude MCP ──
 async function handleAnalyze() {
   const btn = document.getElementById('btnAnalyze');
@@ -825,24 +836,32 @@ async function handleAnalyze() {
   btn.textContent = '⏳ Analyse en cours...';
   resultDiv.style.display = 'none';
   try {
+    if (!_selectedGeo) throw new Error('Adresse non sélectionnée');
     const payload = {
-      adresse: document.getElementById('adresse')?.value || '',
-      type_bien: document.getElementById('type_bien')?.value || '',
-      surface: document.getElementById('surface')?.value || '',
-      prix_estime: document.getElementById('r-prix')?.textContent || '',
-      prix_m2: document.getElementById('r-prix-m2')?.textContent || ''
+      code_postal: _selectedGeo.cp,
+      code_commune: _selectedGeo.citycode,
+      surface: parseFloat(document.getElementById('surface')?.value) || 65,
+      type_bien: document.getElementById('type_bien')?.value || 'Appartement',
+      lat: _selectedGeo.lat,
+      lon: _selectedGeo.lon
     };
     const resp = await fetch('https://wwvdpixzfaviaapixarb.supabase.co/functions/v1/mcp-analyze', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'apikey': SUPA_ANON },
       body: JSON.stringify(payload)
     });
-    if (!resp.ok) throw new Error('Erreur API');
+    if (!resp.ok) throw new Error(`Erreur API (${resp.status})`);
     const data = await resp.json();
-    resultDiv.innerHTML = (data.analysis || data.result || 'Pas de réponse').replace(/\n/g, '<br>');
+    if (data.error) throw new Error(data.error);
+    const html = (data.analysis || data.result || 'Pas de réponse')
+      .replace(/\n\n/g, '<br><br>')
+      .replace(/\n/g, '<br>')
+      .replace(/### (.*?)(<br>|$)/g, '<strong style="font-size:1.05rem;color:#00D47E">$1</strong><br>')
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    resultDiv.innerHTML = html;
     resultDiv.style.display = 'block';
   } catch(e) {
-    resultDiv.innerHTML = '<em style="color:#ff6b6b">Erreur lors de l\'analyse. Réessaie dans un instant.</em>';
+    resultDiv.innerHTML = `<em style="color:#ff6b6b">Erreur : ${e.message}</em>`;
     resultDiv.style.display = 'block';
   } finally {
     btn.disabled = false;
