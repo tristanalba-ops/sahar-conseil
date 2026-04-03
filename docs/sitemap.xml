@@ -37,6 +37,13 @@
   </url>
 
   <url>
+    <loc>https://intentanalytics.fr/estimation</loc>
+    <lastmod>2026-04-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
     <loc>https://intentanalytics.fr/documentation</loc>
     <lastmod>2026-04-01</lastmod>
     <changefreq>monthly</changefreq>
