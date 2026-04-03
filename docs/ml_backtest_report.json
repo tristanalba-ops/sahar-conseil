@@ -1,0 +1,140 @@
+{
+  "generated_at": "2026-04-03T12:17:44Z",
+  "model": {
+    "file": "datamoat/models/model_xgboost.pkl",
+    "type": "XGBRegressor",
+    "trained_at": "2026-04-02T07:02:58.395143Z",
+    "n_features": 31,
+    "n_train": 2132403
+  },
+  "backtest_period": "2025-01-01 to 2025-06-30",
+  "note": "DVF France a un délai de publication de 12-18 mois. Les données >= 2025-10-01 ne sont pas encore disponibles. Jan-Jun 2025 est la période OOT la plus récente disponible (non vue lors de l'entraînement 2022-2024).",
+  "n_transactions": 211776,
+  "metrics_global": {
+    "rmse_eur_m2": 2183.7,
+    "mae_eur_m2": 1824.9,
+    "r2": 0.076,
+    "err_median_pct": 63.34,
+    "err_p75_pct": 111.57,
+    "err_p90_pct": 195.65,
+    "pct_within_10pct": 7.5,
+    "pct_within_20pct": 15.0,
+    "pct_within_30pct": 22.9
+  },
+  "by_type_local": {
+    "Appartement": {
+      "n": 78276,
+      "err_median_pct": 49.83,
+      "mae_eur_m2": 1830.8,
+      "pct_10": 10.8,
+      "pct_20": 21.2,
+      "pct_30": 31.3
+    },
+    "Maison": {
+      "n": 133500,
+      "err_median_pct": 72.45,
+      "mae_eur_m2": 1821.4,
+      "pct_10": 5.5,
+      "pct_20": 11.4,
+      "pct_30": 18.0
+    }
+  },
+  "by_price_decile": {
+    "D1": {
+      "prix_median_eur_m2": 795.0,
+      "err_median_pct": 233.48,
+      "n": 21184
+    },
+    "D2": {
+      "prix_median_eur_m2": 1290.0,
+      "err_median_pct": 125.85,
+      "n": 21172
+    },
+    "D3": {
+      "prix_median_eur_m2": 1667.0,
+      "err_median_pct": 97.07,
+      "n": 21178
+    },
+    "D4": {
+      "prix_median_eur_m2": 2000.0,
+      "err_median_pct": 81.61,
+      "n": 21177
+    },
+    "D5": {
+      "prix_median_eur_m2": 2353.0,
+      "err_median_pct": 70.07,
+      "n": 21177
+    },
+    "D6": {
+      "prix_median_eur_m2": 2738.0,
+      "err_median_pct": 60.79,
+      "n": 21220
+    },
+    "D7": {
+      "prix_median_eur_m2": 3214.0,
+      "err_median_pct": 53.01,
+      "n": 21189
+    },
+    "D8": {
+      "prix_median_eur_m2": 3853.0,
+      "err_median_pct": 45.19,
+      "n": 21124
+    },
+    "D9": {
+      "prix_median_eur_m2": 4911.0,
+      "err_median_pct": 32.9,
+      "n": 21178
+    },
+    "D10": {
+      "prix_median_eur_m2": 7966.0,
+      "err_median_pct": 15.95,
+      "n": 21177
+    }
+  },
+  "training_baseline": {
+    "mae_eur_m2": 816.8,
+    "mape_pct": 34.78,
+    "r2": 0.731
+  },
+  "feature_coverage": {
+    "computed_from_dvf": [
+      "surface",
+      "nb_pieces",
+      "type_local_encoded",
+      "surface_terrain",
+      "log_surface",
+      "ratio_terrain_bati",
+      "surface_par_piece",
+      "annee_vente",
+      "mois_vente"
+    ],
+    "from_market_stats": [
+      "prix_zone_median",
+      "evolution_zone_12m",
+      "volume_zone"
+    ],
+    "derived": [
+      "prix_x_attractivite",
+      "ratio_revenu_prix"
+    ],
+    "imputed_from_scaler": [
+      "pct_passoire_zone",
+      "conso_energie_zone",
+      "score_energie_zone",
+      "score_transport",
+      "score_education",
+      "score_sante",
+      "score_commerce",
+      "score_poi_global",
+      "revenu_median_commune",
+      "taux_chomage_commune",
+      "part_proprietaires_commune",
+      "part_cadres_commune",
+      "taux_pauvrete_commune",
+      "population_commune",
+      "superficie_km2",
+      "densite_pop_km2",
+      "log_population"
+    ]
+  }
+}
