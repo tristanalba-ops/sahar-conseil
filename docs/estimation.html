@@ -291,6 +291,38 @@
       .tab-btn{padding:0.5rem 1rem;font-size:0.8rem}
       .explorer-search{flex-direction:column}
     }
+
+    /* ── FICHE INVESTISSEUR ── */
+    #fiche-investisseur{display:none;margin-bottom:2rem}
+    .fi-card{background:#fff;color:#1a1a1a;border:1px solid #d0d0d0;border-radius:12px;padding:2rem;font-family:'Inter',system-ui,sans-serif;font-size:0.9rem}
+    .fi-header{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1a1a1a;padding-bottom:1rem;margin-bottom:1.5rem}
+    .fi-header-title{font-size:1.1rem;font-weight:700;color:#1a1a1a}
+    .fi-header-sub{font-size:0.78rem;color:#666;margin-top:0.25rem}
+    .fi-logo{font-weight:700;font-size:0.95rem;color:#1a1a1a;text-align:right;white-space:nowrap}
+    .fi-logo span{display:block;font-size:0.72rem;font-weight:400;color:#888;margin-top:0.2rem}
+    .fi-section{margin-bottom:1.5rem}
+    .fi-section-title{font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#666;border-bottom:1px solid #e0e0e0;padding-bottom:0.4rem;margin-bottom:0.9rem}
+    .fi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:0.9rem}
+    .fi-item-label{font-size:0.72rem;color:#888;margin-bottom:0.15rem}
+    .fi-item-val{font-size:1rem;font-weight:600;color:#1a1a1a}
+    .fi-item-sub{font-size:0.72rem;color:#999;margin-top:0.1rem}
+    .fi-score{display:inline-block;padding:0.15rem 0.55rem;border-radius:4px;font-weight:700;font-size:0.85rem}
+    .fi-score.good{background:#d4edda;color:#155724}
+    .fi-score.medium{background:#fff3cd;color:#856404}
+    .fi-score.low{background:#f8d7da;color:#721c24}
+    #btn-pdf-fiche{display:block;width:100%;margin-top:1.5rem;padding:0.7rem 1.5rem;background:#1a1a1a;color:#fff;border:none;border-radius:8px;font-size:0.88rem;font-weight:600;cursor:pointer;font-family:inherit;transition:background 0.2s}
+    #btn-pdf-fiche:hover{background:#333}
+
+    /* PRINT */
+    @media print{
+      nav,.hero,.tabs,.form-card,.error-box,#result-card,
+      #ml-block,#ai-section,.analyse-section,.sources,footer,
+      #btn-pdf-fiche{display:none!important}
+      #fiche-investisseur{display:block!important}
+      .fi-card{border:none;padding:0;border-radius:0}
+      body{background:#fff!important}
+      @page{margin:1.5cm}
+    }
   </style>
 </head>
 <body>
@@ -470,6 +502,10 @@
       <div id="renov-est-panel"></div>
     </div>
   </div>
+
+  <!-- FICHE INVESTISSEUR (injectée par renderFicheInvestisseur) -->
+  <div id="fiche-investisseur" style="max-width:1100px;margin:0 auto;padding:0 5%"></div>
+
 </div>
 
 <!-- ═══════════════════════════ TAB 2 : PROFIL COMMUNE ═══════════════════════════ -->
@@ -743,6 +779,7 @@ document.getElementById('estimation-form').addEventListener('submit', async (e) 
     renderMLBlock(estPrice, typeBien, validDVF, supp);
     renderAnalysis(validDVF, supp.dpe, supp.poi, conf, geo, supp.zone);
     document.getElementById('analyse-section').classList.add('visible');
+    renderFicheInvestisseur({ estPrice, estPrixM2, medianPrixM2, q1, q3, surface, typeBien, dpe, nb_pieces, geo, zone: supp.zone });
     // Bouton rénovation
     const renovSect = document.getElementById('renov-est-section');
     renovSect.style.display = 'block';
@@ -1172,6 +1209,142 @@ function renderRenovPanel(container, dpeClass, surface, communeNom, codeInsee) {
         </div>`;
     });
   });
+}
+
+// ═══════════════════════════════════════════════════════════════
+// FICHE INVESTISSEUR / PROSPECT
+// ═══════════════════════════════════════════════════════════════
+async function renderFicheInvestisseur({ estPrice, estPrixM2, medianPrixM2, q1, q3, surface, typeBien, dpe, nb_pieces, geo, zone }) {
+  const ficheDiv = document.getElementById('fiche-investisseur');
+  ficheDiv.style.display = 'none';
+  ficheDiv.innerHTML = '';
+
+  // Fetch loyers observés
+  let loyerMensuel = null;
+  try {
+    const loyerRows = await supaFetch('data_loyers_observes', {
+      code_commune: `eq.${geo.citycode}`,
+      limit: '1'
+    });
+    if (loyerRows.length && loyerRows[0].loyer_median_m2) {
+      loyerMensuel = parseFloat(loyerRows[0].loyer_median_m2) * surface;
+    }
+  } catch(e) { console.error('Loyers fetch error:', e); }
+
+  const loyerAnnuel = loyerMensuel ? loyerMensuel * 12 : null;
+  const rendementBrut = (loyerAnnuel && estPrice > 0) ? (loyerAnnuel / estPrice * 100) : null;
+
+  const today = new Date().toLocaleDateString('fr-FR', { year:'numeric', month:'long', day:'numeric' });
+  const dpeUp = (dpe || 'D').toUpperCase();
+  const showRenov = ['F','G'].includes(dpeUp);
+
+  const DPE_CONSO_F = { A:50, B:90, C:150, D:230, E:330, F:450, G:600 };
+  const DPE_TGT_F   = { G:'E', F:'D', E:'C', D:'C', C:'B', B:'A', A:'A' };
+  const targetDpe   = DPE_TGT_F[dpeUp] || 'C';
+  const curConso    = DPE_CONSO_F[dpeUp] || 230;
+  const tgtConso    = DPE_CONSO_F[targetDpe] || 150;
+  const gainKwh     = Math.max(0, (curConso - tgtConso) * surface);
+  const econAn      = Math.round(gainKwh * PRIX_KWH);
+
+  const evo12m      = zone?.evolution_12m_zone != null ? parseFloat(zone.evolution_12m_zone) : null;
+  const volumeTx    = zone?.volume_transactions_zone || null;
+  const scoreInvest = zone?.score_investissement != null ? zone.score_investissement : null;
+  const scoreRenov  = zone?.score_renovation != null ? zone.score_renovation : null;
+
+  function scoreClass(s) {
+    if (s == null) return '';
+    if (s >= 65) return 'good';
+    if (s >= 40) return 'medium';
+    return 'low';
+  }
+
+  const prixMedianZone = medianPrixM2 * surface;
+
+  ficheDiv.innerHTML = `
+  <div class="fi-card">
+    <div class="fi-header">
+      <div>
+        <div class="fi-header-title">Analyse immobilière — ${geo.label}</div>
+        <div class="fi-header-sub">${typeBien} · ${fmtN(surface)} m² · DPE ${dpeUp} · ${nb_pieces} pièce${nb_pieces > 1 ? 's' : ''}</div>
+      </div>
+      <div class="fi-logo">Intent Analytics<span>Généré le ${today}</span></div>
+    </div>
+
+    <div class="fi-section">
+      <div class="fi-section-title">1 — Synthèse bien &amp; marché</div>
+      <div class="fi-grid">
+        <div>
+          <div class="fi-item-label">Prix estimé</div>
+          <div class="fi-item-val">${fmt(estPrice)}</div>
+          <div class="fi-item-sub">Fourchette ${fmt(q1 * surface)} — ${fmt(q3 * surface)}</div>
+        </div>
+        <div>
+          <div class="fi-item-label">Prix médian du secteur</div>
+          <div class="fi-item-val">${fmt(prixMedianZone)}</div>
+          <div class="fi-item-sub">${fmtN(medianPrixM2.toFixed(0))} €/m² × ${fmtN(surface)} m²</div>
+        </div>
+        <div>
+          <div class="fi-item-label">Évolution 12 mois</div>
+          <div class="fi-item-val" style="color:${evo12m != null ? (evo12m >= 0 ? '#1a7a3c' : '#c0392b') : '#1a1a1a'}">${evo12m != null ? (evo12m >= 0 ? '+' : '') + evo12m.toFixed(1) + ' %' : '—'}</div>
+          <div class="fi-item-sub">Prix/m² local</div>
+        </div>
+        <div>
+          <div class="fi-item-label">Volume transactions</div>
+          <div class="fi-item-val">${volumeTx ? fmtN(volumeTx) : '—'}</div>
+          <div class="fi-item-sub">Dynamisme du marché</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="fi-section">
+      <div class="fi-section-title">2 — Potentiel investissement</div>
+      <div class="fi-grid">
+        <div>
+          <div class="fi-item-label">Loyer estimé / mois</div>
+          <div class="fi-item-val">${loyerMensuel ? fmt(Math.round(loyerMensuel)) : 'N/D'}</div>
+          <div class="fi-item-sub">${loyerMensuel ? 'Loyer médian observé × surface' : 'Données non disponibles pour cette commune'}</div>
+        </div>
+        <div>
+          <div class="fi-item-label">Rendement brut estimé</div>
+          <div class="fi-item-val">${rendementBrut ? rendementBrut.toFixed(2) + ' %' : '—'}</div>
+          <div class="fi-item-sub">${rendementBrut ? '(loyer annuel / prix estimé) × 100' : loyerMensuel ? '' : 'Loyer requis'}</div>
+        </div>
+        ${scoreInvest != null ? `
+        <div>
+          <div class="fi-item-label">Score investissement</div>
+          <div class="fi-item-val"><span class="fi-score ${scoreClass(scoreInvest)}">${scoreInvest}/100</span></div>
+          <div class="fi-item-sub">Attractivité locative du secteur</div>
+        </div>` : ''}
+      </div>
+    </div>
+
+    ${showRenov ? `
+    <div class="fi-section">
+      <div class="fi-section-title">3 — Potentiel rénovation énergétique</div>
+      <div class="fi-grid">
+        <div>
+          <div class="fi-item-label">Classe DPE</div>
+          <div class="fi-item-val">${dpeUp} → ${targetDpe}</div>
+          <div class="fi-item-sub">Actuelle → cible recommandée</div>
+        </div>
+        <div>
+          <div class="fi-item-label">Économie annuelle estimée</div>
+          <div class="fi-item-val">~${fmtN(econAn)} €/an</div>
+          <div class="fi-item-sub">${fmtN(Math.round(gainKwh))} kWh · ${curConso}→${tgtConso} kWh EP/m²/an</div>
+        </div>
+        ${scoreRenov != null ? `
+        <div>
+          <div class="fi-item-label">Score rénovation</div>
+          <div class="fi-item-val"><span class="fi-score ${scoreClass(scoreRenov)}">${scoreRenov}/100</span></div>
+          <div class="fi-item-sub">Potentiel travaux du secteur</div>
+        </div>` : ''}
+      </div>
+    </div>` : ''}
+
+    <button id="btn-pdf-fiche" onclick="window.print()">Exporter en PDF</button>
+  </div>`;
+
+  ficheDiv.style.display = 'block';
 }
 </script>
 </body>
