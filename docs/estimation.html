@@ -89,6 +89,98 @@
     .chart-box{background:var(--card-bg);border:1px solid var(--border-color);border-radius:16px;padding:1.5rem;min-height:280px}
     .chart-box canvas{width:100%!important;height:250px!important}
 
+    /* ── ML Block ── */
+    .ml-block {
+      margin-bottom: 2rem;
+    }
+    .ml-block-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.4rem; font-weight: 700; letter-spacing: -0.5px;
+      margin-bottom: 1.25rem;
+    }
+    .ml-cards-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    @media (max-width: 768px) { .ml-cards-grid { grid-template-columns: 1fr; } }
+    .ml-card {
+      background: rgba(26,26,46,0.5);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 1.5rem;
+      backdrop-filter: blur(10px);
+    }
+    .ml-card.full { grid-column: 1 / -1; }
+    .ml-card-label {
+      font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.05em; color: var(--text-gray); margin-bottom: 1rem;
+    }
+    /* Range bar */
+    .ml-range-row {
+      display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;
+    }
+    .ml-range-bound {
+      font-size: 0.85rem; font-weight: 600; color: var(--text-gray); white-space: nowrap;
+    }
+    .ml-range-track {
+      flex: 1; height: 8px; background: rgba(255,255,255,0.1);
+      border-radius: 4px; position: relative;
+    }
+    .ml-range-cursor {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 16px; height: 16px; border-radius: 50%;
+      background: var(--accent-green);
+      box-shadow: 0 0 0 3px rgba(0,220,130,0.25);
+    }
+    .ml-range-center-label {
+      text-align: center; font-size: 0.82rem; color: var(--text-gray);
+    }
+    .ml-range-center-label strong { color: var(--text-white); }
+    /* Fiability */
+    .ml-fiability-badge {
+      font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem;
+    }
+    .ml-fiability-detail {
+      font-size: 0.85rem; color: var(--text-gray); line-height: 1.5;
+    }
+    /* Factors */
+    .ml-factor-list { display: flex; flex-direction: column; gap: 0.75rem; }
+    .ml-factor {
+      display: flex; align-items: flex-start; gap: 0.75rem;
+      padding: 0.75rem; border-radius: 8px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .ml-factor-icon { font-size: 1.2rem; line-height: 1; flex-shrink: 0; margin-top: 1px; }
+    .ml-factor-text {}
+    .ml-factor-name {
+      font-size: 0.78rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.04em; color: var(--text-gray); margin-bottom: 0.15rem;
+    }
+    .ml-factor-value { font-size: 0.92rem; font-weight: 600; color: var(--text-white); }
+    .ml-factor-value.positive { color: var(--accent-green); }
+    .ml-factor-value.negative { color: #ff9999; }
+    .ml-factor-value.neutral { color: var(--text-gray); }
+
+    /* ── Steps ── */
+    .how-section {
+      background: rgba(26,26,46,0.5); border: 1px solid var(--border-color);
+      border-radius: 16px; padding: 2rem; backdrop-filter: blur(10px);
+      margin-top: 3rem; margin-bottom: 2rem;
+    }
+    .how-title { font-family: 'Space Grotesk', sans-serif; font-size: 1.3rem; font-weight: 700; margin-bottom: 1.5rem; letter-spacing: -0.5px; }
+    .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1.5rem; }
+    .step { display: flex; flex-direction: column; align-items: center; text-align: center; }
+    .step-num {
+      background: var(--accent-green); color: var(--dark-bg);
+      width: 40px; height: 40px; font-weight: 700; font-size: 0.85rem;
+      border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 0.75rem;
+    }
+    .step h4 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .step p { font-size: 0.8rem; color: var(--text-gray); line-height: 1.5; }
+
     /* DPE + POI */
     .analysis-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:2rem}
     .analysis-card{background:var(--card-bg);border:1px solid var(--border-color);border-radius:16px;padding:1.5rem}
@@ -311,6 +403,47 @@
   </div>
 
   <!-- ANALYSE (visible après estimation) -->
+
+  <!-- Bloc ML : Analyse du bien et du secteur -->
+  <div class="ml-block" id="ml-block" style="display:none;">
+    <div class="ml-block-title">Analyse du bien et du secteur</div>
+    <div class="ml-cards-grid">
+
+      <!-- 1. Fourchette -->
+      <div class="ml-card">
+        <div class="ml-card-label">Fourchette de prix</div>
+        <div class="ml-range-row">
+          <span class="ml-range-bound" id="ml-low">—</span>
+          <div class="ml-range-track"><div class="ml-range-cursor"></div></div>
+          <span class="ml-range-bound" id="ml-high">—</span>
+        </div>
+        <div class="ml-range-center-label">Entre <strong id="ml-low-label">—</strong> et <strong id="ml-high-label">—</strong></div>
+      </div>
+
+      <!-- 2. Fiabilité -->
+      <div class="ml-card">
+        <div class="ml-card-label">Fiabilité de l'estimation</div>
+        <div class="ml-fiability-badge" id="ml-fiability-badge">—</div>
+        <div class="ml-fiability-detail" id="ml-fiability-detail">—</div>
+      </div>
+
+      <!-- 3. Facteurs clés -->
+      <div class="ml-card full">
+        <div class="ml-card-label">Pourquoi ce prix ?</div>
+        <div class="ml-factor-list" id="ml-factors"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div id="ai-section" class="hidden" style="margin: 1.5rem 0;">
+    <button id="btnAnalyze" onclick="handleAnalyze()" style="background:#00D47E;color:#000;border:none;padding:0.75rem 1.5rem;border-radius:8px;font-weight:600;cursor:pointer;font-size:1rem;width:100%;">
+      ✨ Analyser avec Claude
+    </button>
+    <div id="ai-result" style="display:none;margin-top:1rem;padding:1.5rem;background:#1a1a2e;border-radius:12px;border:1px solid #00D47E33;line-height:1.7;"></div>
+  </div>
+
+  <!-- Analyse marché -->
   <div class="analyse-section" id="analyse-section">
     <div class="charts-row">
       <div class="chart-box"><canvas id="priceChart"></canvas></div>
@@ -607,6 +740,7 @@ document.getElementById('estimation-form').addEventListener('submit', async (e) 
       ` : ''}`;
 
     document.getElementById('result-card').classList.add('visible');
+    renderMLBlock(estPrice, typeBien, validDVF, supp);
     renderAnalysis(validDVF, supp.dpe, supp.poi, conf, geo, supp.zone);
     document.getElementById('analyse-section').classList.add('visible');
     // Bouton rénovation
@@ -627,6 +761,115 @@ document.getElementById('estimation-form').addEventListener('submit', async (e) 
     btn.disabled = false; btn.textContent = 'Estimer';
   }
 });
+
+// ── ML Block rendering ──
+function renderMLBlock(estPrice, typeBien, validDVF, supp) {
+  const isAppart = typeBien === 'Appartement';
+  const lowMult  = isAppart ? 0.82 : 0.78;
+  const highMult = isAppart ? 1.18 : 1.22;
+  const priceLow  = estPrice * lowMult;
+  const priceHigh = estPrice * highMult;
+
+  // 1. Fourchette
+  document.getElementById('ml-low').textContent       = fmt(priceLow);
+  document.getElementById('ml-high').textContent      = fmt(priceHigh);
+  document.getElementById('ml-low-label').textContent  = fmt(priceLow);
+  document.getElementById('ml-high-label').textContent = fmt(priceHigh);
+
+  // 2. Fiabilité (volume = nb transactions)
+  const vol = validDVF.length;
+  const badge  = document.getElementById('ml-fiability-badge');
+  const detail = document.getElementById('ml-fiability-detail');
+
+  // Count last-12-months transactions for display
+  const now = new Date();
+  const MS12 = 365 * 24 * 3600 * 1000;
+  const recent12 = validDVF.filter(r => (now - new Date(r.date || '2020-01-01')) <= MS12);
+
+  if (vol > 50) {
+    badge.textContent = '🟢 Estimation fiable';
+  } else if (vol >= 10) {
+    badge.textContent = '🟡 Estimation indicative';
+  } else {
+    badge.textContent = '🔴 Marché peu actif — à confirmer';
+  }
+  detail.textContent = `Basée sur ${recent12.length} vente${recent12.length > 1 ? 's' : ''} dans ce secteur (12 mois)`;
+
+  // 3. Facteurs clés
+  const factors = [];
+
+  // Transport
+  const scoreTransport = supp.poi?.score_transport;
+  if (scoreTransport != null) {
+    const positive = scoreTransport >= 37;
+    factors.push({
+      icon: '🚇',
+      name: 'Transports',
+      value: positive ? 'Bien desservi' : 'Transports limités',
+      cls: positive ? 'positive' : 'negative'
+    });
+  }
+
+  // Évolution marché (calculée depuis DVF)
+  const older12 = validDVF.filter(r => {
+    const d = now - new Date(r.date || '2020-01-01');
+    return d > MS12 && d <= 2 * MS12;
+  });
+  if (recent12.length >= 3 && older12.length >= 3) {
+    const med = arr => { const s = arr.map(r => r.prixM2).sort((a, b) => a - b); return s[Math.floor(s.length / 2)]; };
+    const evo = ((med(recent12) - med(older12)) / med(older12)) * 100;
+    factors.push({
+      icon: '📈',
+      name: 'Marché local',
+      value: `${evo >= 0 ? '+' : ''}${evo.toFixed(1)}% sur 12 mois`,
+      cls: evo >= 0 ? 'positive' : 'negative'
+    });
+  }
+
+  // DPE zone — passoires thermiques
+  if (supp.dpe) {
+    const pctPassoires = (supp.dpe.pct_f || 0) + (supp.dpe.pct_g || 0);
+    if (pctPassoires >= 20) {
+      factors.push({
+        icon: '⚡',
+        name: 'DPE du secteur',
+        value: `Potentiel de rénovation élevé (${pctPassoires.toFixed(0)}% de passoires F/G)`,
+        cls: 'negative'
+      });
+    } else {
+      factors.push({
+        icon: '⚡',
+        name: 'DPE du secteur',
+        value: `Bon profil énergétique (${pctPassoires.toFixed(0)}% de passoires F/G)`,
+        cls: 'positive'
+      });
+    }
+  }
+
+  // Éducation / services
+  const scoreGlobal = supp.poi?.score_global;
+  if (scoreGlobal != null) {
+    factors.push({
+      icon: '🏘️',
+      name: 'Services & équipements',
+      value: scoreGlobal >= 60 ? 'Secteur bien équipé' : scoreGlobal >= 35 ? 'Équipements corrects' : 'Services limités',
+      cls: scoreGlobal >= 60 ? 'positive' : scoreGlobal >= 35 ? 'neutral' : 'negative'
+    });
+  }
+
+  document.getElementById('ml-factors').innerHTML = factors.length
+    ? factors.map(f => `
+        <div class="ml-factor">
+          <div class="ml-factor-icon">${f.icon}</div>
+          <div class="ml-factor-text">
+            <div class="ml-factor-name">${f.name}</div>
+            <div class="ml-factor-value ${f.cls}">${f.value}</div>
+          </div>
+        </div>`).join('')
+    : '<div style="color:var(--text-gray);font-size:0.9rem;">Données sectorielles non disponibles pour cette commune.</div>';
+
+  document.getElementById('ml-block').style.display = 'block';
+}
 
 // ═══════════════════════════════════════════════════════════════
 // MARKET ANALYSIS RENDERING
