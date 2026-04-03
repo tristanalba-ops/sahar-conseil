@@ -853,12 +853,13 @@ const DPE_TGT   = { G:'E', F:'D', E:'C', D:'C', C:'B', B:'A', A:'A' };
 const PRIX_KWH  = 0.206;
 
 async function fetchRenovAids(codeInsee, revenClasse) {
-  const params = { revenu_classe:`eq.${revenClasse}`, select:'geste_label,mpr_montant,cee_montant,mpr_accompagnee,total_aides', order:'total_aides.desc', limit:'30' };
-  let rows = await supaFetch('ref_renovation_aids', { ...params, code_insee:`eq.${codeInsee}` });
-  if (!rows.length) rows = await supaFetch('ref_renovation_aids', params); // fallback national
-  // Dédoublonner par geste_label
-  const seen = new Set();
-  return rows.filter(r => { if (seen.has(r.geste_label)) return false; seen.add(r.geste_label); return true; });
+  const rows = await supaFetch('ref_renovation_aids', {
+    revenu_classe: `eq.${revenClasse}`,
+    select: 'geste_label,mpr_montant,cee_montant,mpr_accompagnee,total_aides',
+    order: 'total_aides.desc',
+    limit: '30'
+  });
+  return rows;
 }
 
 function renderRenovPanel(container, dpeClass, surface, communeNom, codeInsee) {
@@ -909,7 +910,7 @@ function renderRenovPanel(container, dpeClass, surface, communeNom, codeInsee) {
       aidesDiv.innerHTML = '<p style="color:var(--text-gray);font-size:0.85rem;padding:0.8rem 0">Chargement des aides...</p>';
       const aids = await fetchRenovAids(codeInsee, b.dataset.val);
       if (!aids.length) {
-        aidesDiv.innerHTML = '<p style="color:var(--text-gray);font-size:0.85rem;padding:0.8rem 0">Aucune donnée spécifique à cette commune — montants MaPrimeRénov nationaux applicables.</p>';
+        aidesDiv.innerHTML = '<p style="color:var(--text-gray);font-size:0.85rem;padding:0.8rem 0">Aucune donnée disponible pour cette tranche — barème national MaPrimeRénov 2026.</p>';
         return;
       }
       aidesDiv.innerHTML = `
