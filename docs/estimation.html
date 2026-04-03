@@ -587,10 +587,11 @@ document.addEventListener('click', (e) => {
 });
 
 // ── Fetch DVF (REST) ──
-async function fetchDVF(commune, typeBien) {
+async function fetchDVF(citycode, typeBien) {
   try {
+    // Query by exact code_commune (indexed, fast) instead of ILIKE on commune name
     const rows = await supaFetch('dvf_mutations', {
-      commune: `ilike.*${commune}*`,
+      code_commune: `eq.${citycode}`,
       nature_mutation: 'eq.Vente',
       valeur_fonciere: 'gte.10000',
       surface_reelle_bati: 'gte.5',
@@ -635,7 +636,7 @@ document.getElementById('estimation-form').addEventListener('submit', async (e) 
     const geo = _selectedGeo;
     if (!geo) throw new Error('Veuillez sélectionner une adresse dans les suggestions.');
 
-    const dvfRows = await fetchDVF(geo.commune, typeBien);
+    const dvfRows = await fetchDVF(geo.citycode, typeBien);
     if (dvfRows.length < 3) throw new Error(`Données insuffisantes pour ${geo.commune} (${dvfRows.length} transactions).`);
 
     const supp = await fetchSupplementaryData(geo.citycode, geo.cp);
