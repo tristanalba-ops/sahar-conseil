@@ -656,16 +656,37 @@ adresseInput.addEventListener('input', (e) => {
 });
 document.addEventListener('click', (e) => { if (!e.target.closest('.adresse-wrap')) adresseSug.classList.remove('open'); });
 
+async function dvfRest(params) {
+  // PostgREST direct avec service_role via anon + GRANT (appliqué)
+  const cols = 'id,date_mutation,valeur_fonciere,surface_reelle_bati,type_local,nombre_pieces_principales,surface_terrain';
+  const qs = new URLSearchParams({
+    ...params,
+    nature_mutation: 'eq.Vente',
+    valeur_fonciere: 'gte.10000',
+    surface_reelle_bati: 'gte.5',
+    select: cols,
+    order: 'date_mutation.desc',
+    limit: '500'
+  }).toString();
+  const r = await fetch(`${SUPA_URL}/rest/v1/dvf_mutations?${qs}`, {
+    headers: {
+      apikey: SUPA_ANON,
+      Authorization: `Bearer ${SUPA_ANON}`,
+      Accept: 'application/json',
+      'Accept-Profile': 'public'
+    }
+  });
+  if (!r.ok) {
+    const txt = await r.text();
+    console.error('DVF REST', r.status, txt);
+    return [];
+  }
+  return r.json();
+}
+
 async function fetchDVF(citycode, typeBien) {
   try {
-    const resp = await fetch(`${SUPA_URL}/functions/v1/dvf-query`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', apikey: SUPA_ANON, Authorization: `Bearer ${SUPA_ANON}` },
-      body: JSON.stringify({ code_commune: citycode, limit: 500 })
-    });
-    if (!resp.ok) { console.error('dvf-query commune', resp.status, await resp.text()); return []; }
-    const d = await resp.json();
-    const rows = d.rows || [];
+    const rows = await dvfRest({ 'code_commune': `eq.${citycode}` });
     if (!rows.length) return [];
     if (typeBien) {
       const tf = typeBien === "Appartement" ? "Appartement" : "Maison";
@@ -678,14 +699,7 @@ async function fetchDVF(citycode, typeBien) {
 
 async function fetchDVFFallback(codeDept, typeBien) {
   try {
-    const resp = await fetch(`${SUPA_URL}/functions/v1/dvf-query`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', apikey: SUPA_ANON, Authorization: `Bearer ${SUPA_ANON}` },
-      body: JSON.stringify({ code_departement: codeDept, limit: 500 })
-    });
-    if (!resp.ok) { console.error('dvf-query dept', resp.status); return { rows: [], fallback: true }; }
-    const d = await resp.json();
-    const rows = d.rows || [];
+    const rows = await dvfRest({ 'code_departement': `eq.${codeDept}` });
     if (!rows.length) return { rows: [], fallback: true };
     if (typeBien) {
       const tf = typeBien === "Appartement" ? "Appartement" : "Maison";
