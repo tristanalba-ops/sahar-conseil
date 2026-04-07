@@ -847,7 +847,41 @@ document.getElementById('estimation-form').addEventListener('submit', async (e) 
     if (document.getElementById('has_garden').checked) featBonus += 0.04;
     if (document.getElementById('has_view').checked) featBonus += 0.02;
 
-    const totalAdj = dpeAdj + stateAdj + featBonus;
+    // ── Ajustements données enrichies ──────────────────────────────────
+    // Score localisation composite (0-100, centré sur 50 = neutre)
+    // ±4% max : score 80 → +2.4%, score 30 → -1.6%
+    let locAdj = 0;
+    const scoreLoc = supp.loc?.score_localisation ?? null;
+    if (scoreLoc !== null) locAdj = ((scoreLoc - 50) / 50) * 0.04;
+
+    // Score POI global (0-100) — accessibilité équipements
+    // ±3% max
+    let poiAdj = 0;
+    const scorePoi = supp.poi?.score_global ?? supp.loc?.score_accessibilite ?? null;
+    if (scorePoi !== null) poiAdj = ((scorePoi - 50) / 50) * 0.03;
+
+    // Risques naturels — malus progressif
+    // 0 risque = 0%, 1 = -0.5%, 2 = -1%, 3+ = -2%
+    let risqueAdj = 0;
+    const nbRisques = supp.geo?.nb_catnat != null
+      ? Math.min(supp.geo.nb_catnat, 10) / 10 * -0.03  // catnat comme proxy intensité
+      : supp.loc?.score_risques_naturels != null
+        ? ((50 - supp.loc.score_risques_naturels) / 50) * -0.025
+        : 0;
+    risqueAdj = Math.max(-0.03, Math.min(0, nbRisques));
+
+    // Tendance marché 12m — momentum
+    // ex: +5% évolution → +1% sur prix, -5% → -1%
+    let marcheAdj = 0;
+    const evo12m = supp.zone?.evolution_12m_zone ?? null;
+    if (evo12m !== null) marcheAdj = Math.max(-0.02, Math.min(0.02, (parseFloat(evo12m) / 100) * 0.4));
+
+    // Score énergie zone — si zone très énergivore, léger malus marché
+    let energieAdj = 0;
+    const scoreEnergie = supp.dpe?.score_energie ?? null;
+    if (scoreEnergie !== null) energieAdj = ((scoreEnergie - 50) / 50) * 0.015;
+
+    const totalAdj = dpeAdj + stateAdj + featBonus + locAdj + poiAdj + risqueAdj + marcheAdj + energieAdj;
     const estPrixM2 = medianPrixM2 * (1 + totalAdj);
     const estPrice = estPrixM2 * surface;
 
@@ -863,10 +897,12 @@ document.getElementById('estimation-form').addEventListener('submit', async (e) 
     const daysSince = Math.floor((Date.now() - new Date(latestDate).getTime()) / 86400000);
     if (daysSince <= 90) conf += 15; else if (daysSince <= 180) conf += 10; else if (daysSince <= 365) conf += 5;
     if (marginPct < 20) conf += 15; else if (marginPct < 35) conf += 10; else if (marginPct < 50) conf += 5;
-    if (supp.dpe) conf += 8;
+    if (supp.dpe) conf += 5;
     if (supp.poi) conf += 5;
+    if (supp.loc) conf += 5;
+    if (supp.geo) conf += 3;
     if (supp.zone) conf += 2;
-    conf = Math.min(100, conf);
+    conf = Math.min(95, conf);
 
     document.getElementById('result-hero').classList.add('visible');
     document.getElementById('rh-type').textContent = `${typeBien} ${nb_pieces} pièce${nb_pieces > 1 ? 's' : ''} — ${fmtN(surface)} m²`;
@@ -1217,11 +1253,20 @@ document.getElementById('estimation-form').addEventListener('submit', async (e) 
       </div>
     `;
     const factors = [
-      `${validDVF.length} transactions récentes`,
-      `Ajustement: ${(totalAdj*100 >= 0 ? '+' : '')}${(totalAdj*100).toFixed(1)}%`,
-      `Marge d'erreur: ±${marginPct}%`
-    ];
-    document.getElementById('ml-factors').innerHTML = factors.map(f => `<div style="padding:0.5rem 0; border-bottom:1px solid var(--border);">${f}</div>`).join('');
+      `${validDVF.length} transactions DVF filtrées (IQR ±1.5)`,
+      `Médiane brute : ${fmtN(medianPrixM2.toFixed(0))} €/m²`,
+      dpeAdj !== 0 ? `DPE ${dpe} : ${dpeAdj >= 0 ? '+' : ''}${(dpeAdj*100).toFixed(0)}%` : null,
+      stateAdj !== 0 ? `État du bien : ${stateAdj >= 0 ? '+' : ''}${(stateAdj*100).toFixed(0)}%` : null,
+      featBonus !== 0 ? `Options (parking/balcon/jardin/vue) : +${(featBonus*100).toFixed(0)}%` : null,
+      locAdj !== 0 ? `Score localisation ${Math.round(scoreLoc)}/100 : ${locAdj >= 0 ? '+' : ''}${(locAdj*100).toFixed(1)}%` : null,
+      poiAdj !== 0 ? `Score équipements ${Math.round(scorePoi)}/100 : ${poiAdj >= 0 ? '+' : ''}${(poiAdj*100).toFixed(1)}%` : null,
+      risqueAdj !== 0 ? `Risques naturels : ${(risqueAdj*100).toFixed(1)}%` : null,
+      marcheAdj !== 0 ? `Tendance marché 12m (${evo12m >= 0 ? '+' : ''}${parseFloat(evo12m).toFixed(1)}%) : ${marcheAdj >= 0 ? '+' : ''}${(marcheAdj*100).toFixed(1)}%` : null,
+      energieAdj !== 0 ? `Performance énergétique zone : ${energieAdj >= 0 ? '+' : ''}${(energieAdj*100).toFixed(1)}%` : null,
+      `Ajustement total : ${totalAdj >= 0 ? '+' : ''}${(totalAdj*100).toFixed(1)}%`,
+      `Marge de dispersion DVF : ±${marginPct}%`
+    ].filter(Boolean);
+    document.getElementById('ml-factors').innerHTML = factors.map(f => `<div style="padding:0.5rem 0; border-bottom:1px solid var(--border); font-size:0.9rem;">${f}</div>`).join('');
 
 
     document.getElementById('result-hero').scrollIntoView({ behavior: 'smooth', block: 'start' });
