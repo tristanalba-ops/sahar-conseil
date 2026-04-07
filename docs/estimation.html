@@ -415,6 +415,10 @@
         <h3>Fiscalité & Sécurité</h3>
         <div class="kpi-grid" id="fiscalite-grid"></div>
       </div>
+      <div class="result-card" id="batiment-card" style="display:none">
+        <h3>Bâtiment & Construction</h3>
+        <div class="kpi-grid" id="batiment-grid"></div>
+      </div>
     </div>
 
     <div class="volets-panel" id="volet-energie">
@@ -611,12 +615,22 @@ async function fetchDVF(citycode, typeBien) {
 }
 
 async function fetchSupp(citycode, cp) {
-  const [dpeArr, poiArr, propArr] = await Promise.all([
+  const [dpeArr, poiArr, propArr, locArr, eauArr, geoArr] = await Promise.all([
     supaFetch('dpe_commune_agg', { code_postal: `eq.${cp}`, limit: '1' }),
     supaFetch('poi_scores_commune', { code_commune: `eq.${citycode}`, limit: '1' }),
-    supaFetch('property_index', { code_commune: `eq.${citycode}`, select: '*', limit: '1' })
+    supaFetch('property_index', { code_commune: `eq.${citycode}`, select: '*', limit: '1' }),
+    supaFetch('score_localisation_commune', { code_commune: `eq.${citycode}`, limit: '1' }),
+    supaFetch('data_qualite_eau', { code_insee: `eq.${citycode}`, limit: '1' }),
+    supaFetch('data_georisques', { code_commune: `eq.${citycode}`, limit: '1' })
   ]);
-  return { dpe: dpeArr[0] || null, poi: poiArr[0] || null, zone: propArr[0] || null };
+  return {
+    dpe: dpeArr[0] || null,
+    poi: poiArr[0] || null,
+    zone: propArr[0] || null,
+    loc: locArr[0] || null,
+    eau: eauArr[0] || null,
+    geo: geoArr[0] || null
+  };
 }
 
 function renderSVGRing(containerId, score) {
@@ -875,8 +889,10 @@ document.getElementById('estimation-form').addEventListener('submit', async (e) 
     const tags = [
       `${validDVF.length} comparables`,
       `Confiance ${Math.round(conf)}%`,
-      dpe === 'G' || dpe === 'F' ? 'Impact DPE -' : dpe === 'A' || dpe === 'B' ? 'Impact DPE +' : 'Impact DPE neutre'
+      dpe === 'G' || dpe === 'F' ? 'Impact DPE −' : dpe === 'A' || dpe === 'B' ? 'Impact DPE +' : 'Impact DPE neutre'
     ];
+    if (supp.loc?.score_localisation) tags.push(`Localisation ${Math.round(supp.loc.score_localisation)}/100`);
+    if (supp.loc?.detail_risques?.nb_risques !== undefined) tags.push(`${supp.loc.detail_risques.nb_risques} risque${supp.loc.detail_risques.nb_risques !== 1 ? 's' : ''} naturel${supp.loc.detail_risques.nb_risques !== 1 ? 's' : ''}`);
     const tagsHtml = tags.map(t => `<div class="tag">${t}</div>`).join('');
     document.getElementById('rh-tags').innerHTML = tagsHtml;
 
@@ -898,14 +914,15 @@ document.getElementById('estimation-form').addEventListener('submit', async (e) 
     const volImmoKpi = document.getElementById('volet-immo-kpi');
     if (volImmoKpi) volImmoKpi.innerHTML = kpiHtml;
 
-    const scoreCommune = supp.zone?.score_investissement || supp.zone?.score_vente || 50;
+    const scoreCommune = supp.loc?.score_localisation || supp.zone?.score_investissement || supp.zone?.score_vente || 50;
     renderSVGRing('score-commune-ring', scoreCommune);
 
     const breakdown = [
-      { label: 'Transport', val: supp.poi?.score_transport || 0 },
-      { label: 'Éducation', val: supp.poi?.score_education || 0 },
-      { label: 'Santé', val: supp.poi?.score_sante || 0 },
-      { label: 'Commerce', val: supp.poi?.score_commerce || 0 }
+      { label: 'Accessibilité', val: supp.loc?.score_accessibilite ?? supp.poi?.score_transport ?? 0 },
+      { label: 'Sécurité', val: supp.loc?.score_securite ?? 0 },
+      { label: 'Services', val: supp.loc?.score_services ?? supp.poi?.score_sante ?? 0 },
+      { label: 'Risques naturels', val: supp.loc?.score_risques_naturels ?? 0 },
+      { label: 'Dynamisme', val: supp.loc?.score_dynamisme ?? supp.poi?.score_commerce ?? 0 }
     ];
     const breakdownHtml = breakdown.map(b => `
       <div class="score-item">
@@ -920,6 +937,25 @@ document.getElementById('estimation-form').addEventListener('submit', async (e) 
     if (breakEl) breakEl.innerHTML = breakdownHtml;
 
     renderHistoriquePrix(validDVF);
+
+    // Bloc bâtiment / construction (BDNB + Sitadel via score_localisation_commune)
+    const batCard = document.getElementById('batiment-card');
+    const batGrid = document.getElementById('batiment-grid');
+    if (batCard && batGrid && supp.loc) {
+      const bat = supp.loc.detail_batiment;
+      const constr = supp.loc.detail_construction;
+      if (bat || constr) {
+        batCard.style.display = '';
+        batGrid.innerHTML = [
+          bat?.annee_moy ? `<div class="kpi-card"><div class="label">Année moy. construction</div><div class="value">${Math.round(bat.annee_moy)}</div><div class="sub">Parc bâti</div></div>` : '',
+          bat?.materiaux ? `<div class="kpi-card"><div class="label">Matériau mur dominant</div><div class="value">${bat.materiaux}</div><div class="sub">BDNB</div></div>` : '',
+          bat?.chauffage ? `<div class="kpi-card"><div class="label">Chauffage dominant</div><div class="value">${bat.chauffage}</div><div class="sub">BDNB</div></div>` : '',
+          constr?.permis_recents != null ? `<div class="kpi-card"><div class="label">Permis récents</div><div class="value">${fmtN(constr.permis_recents)}</div><div class="sub">Sitadel</div></div>` : '',
+          constr?.logements_crees != null ? `<div class="kpi-card"><div class="label">Logements créés</div><div class="value">${fmtN(constr.logements_crees)}</div><div class="sub">Sitadel</div></div>` : '',
+          constr?.logements_sociaux != null ? `<div class="kpi-card"><div class="label">Logements sociaux</div><div class="value">${fmtN(constr.logements_sociaux)}</div><div class="sub">Sitadel</div></div>` : ''
+        ].join('');
+      }
+    }
 
     const comparaison = document.getElementById('comparaison-marche');
     if (comparaison) {
@@ -1018,12 +1054,14 @@ document.getElementById('estimation-form').addEventListener('submit', async (e) 
     renderDPEScale(dpe);
     renderDPERepartition(supp.dpe);
 
-    const [climData, geoData, pluData, eauData] = await Promise.all([
+    const [climData, pluData] = await Promise.all([
       supaFetch('data_climat', { code_commune: `eq.${geo.citycode}`, limit: '1' }),
-      supaFetch('data_georisques', { code_commune: `eq.${geo.citycode}`, limit: '1' }),
-      supaFetch('data_plu_communes', { code_commune: `eq.${geo.citycode}`, limit: '1' }),
-      supaFetch('data_qualite_eau', { code_commune: `eq.${geo.citycode}`, limit: '1' })
+      supaFetch('data_plu_communes', { code_commune: `eq.${geo.citycode}`, limit: '1' })
     ]);
+
+    // Utiliser supp.geo et supp.eau déjà fetchés dans fetchSupp
+    const geoData = [supp.geo || {}];
+    const eauData = [supp.eau || {}];
 
     const clim = climData[0];
     const climatEl = document.getElementById('climat-grid');
@@ -1054,26 +1092,63 @@ document.getElementById('estimation-form').addEventListener('submit', async (e) 
 
     const aidesPanel = document.getElementById('aides-renov-panel');
     if (aidesPanel) {
-      const targetDpe = dpe === 'G' ? 'F' : dpe === 'F' ? 'E' : dpe;
-      aidesPanel.innerHTML = `
-        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-bottom:1rem;">
-          <div style="padding:1rem; background:rgba(0,220,130,0.05); border-radius:6px;">
-            <strong>MaPrimeRénov'</strong><p style="font-size:0.85rem; color:var(--text-gray); margin-top:0.3rem;">Aide de l'État pour rénover votre habitation.</p>
-          </div>
-          <div style="padding:1rem; background:rgba(0,220,130,0.05); border-radius:6px;">
-            <strong>CEE</strong><p style="font-size:0.85rem; color:var(--text-gray); margin-top:0.3rem;">Certificats d'Économie d'Énergie.</p>
-          </div>
-          <div style="padding:1rem; background:rgba(0,220,130,0.05); border-radius:6px;">
-            <strong>Éco-PTZ</strong><p style="font-size:0.85rem; color:var(--text-gray); margin-top:0.3rem;">Prêt à taux zéro pour rénovation.</p>
-          </div>
-          <div style="padding:1rem; background:rgba(0,220,130,0.05); border-radius:6px;">
-            <strong>TVA réduite</strong><p style="font-size:0.85rem; color:var(--text-gray); margin-top:0.3rem;">5,5% sur travaux énergétiques.</p>
-          </div>
-        </div>
-        <div style="padding:1rem; background:rgba(252,178,46,0.1); border-radius:6px; border-left:3px solid #FCB82E;">
-          <strong>Cible estimée:</strong> Passage de ${dpe} à ${targetDpe}
-        </div>
-      `;
+      if (['E', 'F', 'G'].includes(dpe)) {
+        aidesPanel.innerHTML = `<div style="color:var(--text-gray); font-size:0.9rem;">Simulation en cours…</div>`;
+        try {
+          const renoResp = await fetch(`${SUPA_URL}/rest/v1/rpc/renovation_simulate`, {
+            method: 'POST',
+            headers: { apikey: SUPA_ANON, Authorization: `Bearer ${SUPA_ANON}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ p_code_commune: geo.citycode, p_classe_dpe: dpe, p_surface: surface })
+          });
+          const reno = renoResp.ok ? await renoResp.json() : null;
+          if (reno && reno.cout_total_estime) {
+            const pctCouvert = reno.pct_couvert ? (reno.pct_couvert * 100).toFixed(0) : '—';
+            const gestesHtml = (reno.details_gestes || []).map(g => `
+              <tr>
+                <td>${g.geste || '—'}</td>
+                <td>${g.cout ? fmt(g.cout) : '—'}</td>
+                <td style="color:#00DC82">${g.mpr ? fmt(g.mpr) : '—'}</td>
+                <td style="color:#FCB82E">${g.cee ? fmt(g.cee) : '—'}</td>
+              </tr>
+            `).join('');
+            aidesPanel.innerHTML = `
+              <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:1rem; margin-bottom:1.5rem;">
+                <div class="kpi-card"><div class="label">Coût total travaux</div><div class="value">${fmt(reno.cout_total_estime)}</div><div class="sub">Estimation</div></div>
+                <div class="kpi-card"><div class="label">MaPrimeRénov'</div><div class="value" style="color:#00DC82">${reno.mpr_total ? fmt(reno.mpr_total) : '—'}</div><div class="sub">Aide État</div></div>
+                <div class="kpi-card"><div class="label">CEE</div><div class="value" style="color:#FCB82E">${reno.cee_total ? fmt(reno.cee_total) : '—'}</div><div class="sub">Certificats énergie</div></div>
+                <div class="kpi-card"><div class="label">Reste à charge</div><div class="value" style="color:${reno.reste_a_charge > reno.cout_total_estime * 0.5 ? '#FF6B6B' : '#00DC82'}">${reno.reste_a_charge ? fmt(reno.reste_a_charge) : '—'}</div><div class="sub">${pctCouvert}% couvert</div></div>
+              </div>
+              ${gestesHtml ? `
+              <div class="table-responsive">
+                <table>
+                  <tr><th>Geste</th><th>Coût</th><th>MPR</th><th>CEE</th></tr>
+                  ${gestesHtml}
+                </table>
+              </div>` : ''}
+              <div style="margin-top:1rem; padding:0.8rem; background:rgba(252,178,46,0.1); border-left:3px solid #FCB82E; border-radius:4px; font-size:0.85rem;">
+                Classe actuelle <strong>${dpe}</strong> — Zone ${reno.zone_climatique || '—'} — Revenus ${reno.revenu_classe || '—'}
+              </div>
+            `;
+          } else {
+            throw new Error('No reno data');
+          }
+        } catch {
+          const targetDpe = dpe === 'G' ? 'F' : 'E';
+          aidesPanel.innerHTML = `
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-bottom:1rem;">
+              <div style="padding:1rem; background:rgba(0,220,130,0.05); border-radius:6px;"><strong>MaPrimeRénov'</strong><p style="font-size:0.85rem; color:var(--text-gray); margin-top:0.3rem;">Aide de l'État pour rénover votre habitation.</p></div>
+              <div style="padding:1rem; background:rgba(0,220,130,0.05); border-radius:6px;"><strong>CEE</strong><p style="font-size:0.85rem; color:var(--text-gray); margin-top:0.3rem;">Certificats d'Économie d'Énergie.</p></div>
+              <div style="padding:1rem; background:rgba(0,220,130,0.05); border-radius:6px;"><strong>Éco-PTZ</strong><p style="font-size:0.85rem; color:var(--text-gray); margin-top:0.3rem;">Prêt à taux zéro pour rénovation.</p></div>
+              <div style="padding:1rem; background:rgba(0,220,130,0.05); border-radius:6px;"><strong>TVA réduite</strong><p style="font-size:0.85rem; color:var(--text-gray); margin-top:0.3rem;">5,5% sur travaux énergétiques.</p></div>
+            </div>
+            <div style="padding:1rem; background:rgba(252,178,46,0.1); border-radius:6px; border-left:3px solid #FCB82E;">
+              <strong>Cible estimée :</strong> Passage de ${dpe} à ${targetDpe}
+            </div>
+          `;
+        }
+      } else {
+        aidesPanel.innerHTML = `<p style="color:var(--text-gray); font-size:0.9rem;">Ce bien (classe ${dpe}) ne nécessite pas de rénovation prioritaire. Les aides sont principalement disponibles pour les classes E, F et G.</p>`;
+      }
     }
 
     if (geoData[0]) renderRisques(geoData[0]);
@@ -1082,9 +1157,10 @@ document.getElementById('estimation-form').addEventListener('submit', async (e) 
 
     const securiEl = document.getElementById('securite-climat-grid');
     if (securiEl && clim) {
-      const geo0 = geoData[0] || {};
+      const geo0 = supp.geo || {};
       const nbCatnat = geo0.nb_catnat || 0;
       const nbRisques = [geo0.risque_inondation, geo0.risque_argile, geo0.pprn_prescrit, geo0.pprt_prescrit].filter(Boolean).length;
+      const sec = supp.loc?.detail_securite;
       securiEl.innerHTML = `
         <div class="kpi-card">
           <div class="label">Catastrophes naturelles</div>
@@ -1096,6 +1172,28 @@ document.getElementById('estimation-form').addEventListener('submit', async (e) 
           <div class="value">${nbRisques}/4</div>
           <div class="sub">Inondation, argile, PPRN, PPRT</div>
         </div>
+        ${sec ? `
+        <div class="kpi-card">
+          <div class="label">Cambriolages</div>
+          <div class="value" style="color:${(sec.cambriolages_1000||0) > 10 ? '#FF6B6B' : '#00DC82'}">${sec.cambriolages_1000 != null ? sec.cambriolages_1000.toFixed(1) : '—'}</div>
+          <div class="sub">Pour 1 000 hab.</div>
+        </div>
+        <div class="kpi-card">
+          <div class="label">Violences</div>
+          <div class="value" style="color:${(sec.violences_1000||0) > 15 ? '#FF6B6B' : '#00DC82'}">${sec.violences_1000 != null ? sec.violences_1000.toFixed(1) : '—'}</div>
+          <div class="sub">Pour 1 000 hab.</div>
+        </div>
+        <div class="kpi-card">
+          <div class="label">Gendarmerie / Police</div>
+          <div class="value">${sec.gendarmerie ? '✓ Présente' : '—'}</div>
+          <div class="sub">Sur la commune</div>
+        </div>
+        <div class="kpi-card">
+          <div class="label">Eau potable</div>
+          <div class="value" style="color:${sec.eau === true ? '#00DC82' : sec.eau === false ? '#FF6B6B' : 'var(--text-gray)'}">${sec.eau === true ? 'Conforme' : sec.eau === false ? 'Non conforme' : '—'}</div>
+          <div class="sub">Conformité</div>
+        </div>
+        ` : `
         <div class="kpi-card">
           <div class="label">DJU Chauffage</div>
           <div class="value">${clim.dju_chauffage || '—'}</div>
@@ -1106,6 +1204,7 @@ document.getElementById('estimation-form').addEventListener('submit', async (e) 
           <div class="value">${clim.precipitations_mm_an ? fmtN(clim.precipitations_mm_an) : '—'} mm</div>
           <div class="sub">Annuelles</div>
         </div>
+        `}
       `;
     }
 
