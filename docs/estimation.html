@@ -689,8 +689,8 @@ function renderDPERepartition(dpeData) {
   const labels = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
   const colors = { A:'#319834', B:'#33cc31', C:'#cbfc34', D:'#fcfc32', E:'#fccc32', F:'#fc9834', G:'#fc0000' };
   const html = labels.map(l => {
-    const key = `pct_${l}`;
-    const pct = dpeData[key] || 0;
+    const key = `pct_${l.toLowerCase()}`;
+    const pct = parseFloat(dpeData[key]) || 0;
     return `
       <div class="score-item">
         <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -923,22 +923,30 @@ document.getElementById('estimation-form').addEventListener('submit', async (e) 
 
     const comparaison = document.getElementById('comparaison-marche');
     if (comparaison) {
+      const appts = validDVF.filter(r => (r.type || '').includes('Appartement'));
+      const maisons = validDVF.filter(r => (r.type || '').includes('Maison'));
+      const medAppt = appts.length > 0 ? appts[Math.floor(appts.length / 2)].prixM2 : null;
+      const medMais = maisons.length > 0 ? maisons[Math.floor(maisons.length / 2)].prixM2 : null;
+      const surfAppt = appts.length > 0 ? Math.round(appts.reduce((s,r) => s + r.surface, 0) / appts.length) : '—';
+      const surfMais = maisons.length > 0 ? Math.round(maisons.reduce((s,r) => s + r.surface, 0) / maisons.length) : '—';
       comparaison.innerHTML = `
-        <tr><th>Type</th><th>Prix/m² médian</th><th>Surface moyenne</th></tr>
-        <tr><td>Appartement</td><td>${fmtN((medianPrixM2 * 0.95).toFixed(0))} €</td><td>65 m²</td></tr>
-        <tr><td>Maison</td><td>${fmtN(medianPrixM2.toFixed(0))} €</td><td>120 m²</td></tr>
+        <tr><th>Type</th><th>Prix/m² médian</th><th>Surface moy.</th><th>Transactions</th></tr>
+        <tr><td>Appartement</td><td>${medAppt ? fmtN(medAppt.toFixed(0)) + ' €' : '—'}</td><td>${surfAppt !== '—' ? surfAppt + ' m²' : '—'}</td><td>${appts.length}</td></tr>
+        <tr><td>Maison</td><td>${medMais ? fmtN(medMais.toFixed(0)) + ' €' : '—'}</td><td>${surfMais !== '—' ? surfMais + ' m²' : '—'}</td><td>${maisons.length}</td></tr>
       `;
     }
 
-    const loyerM2Obs = supp.zone?.taux_investissement || 5.5;
-    const loyerMensuel = (loyerM2Obs / 100) * estPrice / 12;
-    const rendementBrut = loyerM2Obs;
+    // Rendement locatif — estimation réaliste
+    // Loyer/m² estimé : environ 0.4% à 0.6% du prix/m² selon zone
+    const rendementBrut = typeBien === 'Appartement' ? 5.2 : 4.0;
+    const loyerM2Mois = (medianPrixM2 * rendementBrut / 100) / 12;
+    const loyerMensuel = loyerM2Mois * surface;
     const rendementEl = document.getElementById('rendement-grid');
     if (rendementEl) {
       rendementEl.innerHTML = `
         <div class="kpi-card">
           <div class="label">Loyer estimé (m²)</div>
-          <div class="value">${(loyerM2Obs / 100).toFixed(2)} €</div>
+          <div class="value">${loyerM2Mois.toFixed(1)} €</div>
           <div class="sub">Par m² par mois</div>
         </div>
         <div class="kpi-card">
@@ -948,7 +956,7 @@ document.getElementById('estimation-form').addEventListener('submit', async (e) 
         </div>
         <div class="kpi-card">
           <div class="label">Rendement brut</div>
-          <div class="value">${rendementBrut.toFixed(2)}%</div>
+          <div class="value">${rendementBrut.toFixed(1)}%</div>
           <div class="sub">Loyer annuel / prix</div>
         </div>
       `;
@@ -956,6 +964,9 @@ document.getElementById('estimation-form').addEventListener('submit', async (e) 
 
     const fiscalEl = document.getElementById('fiscalite-grid');
     if (fiscalEl) {
+      const revenu = supp.zone?.revenu_median_zone ? fmtN(Math.round(parseFloat(supp.zone.revenu_median_zone))) + ' €' : '—';
+      const chomage = supp.zone?.taux_chomage_zone ? parseFloat(supp.zone.taux_chomage_zone).toFixed(1) + '%' : '—';
+      const pop = supp.zone?.population_commune ? fmtN(supp.zone.population_commune) : '—';
       fiscalEl.innerHTML = `
         <div class="kpi-card">
           <div class="label">Taxe foncière</div>
@@ -963,14 +974,19 @@ document.getElementById('estimation-form').addEventListener('submit', async (e) 
           <div class="sub">Estimation annuelle</div>
         </div>
         <div class="kpi-card">
-          <div class="label">Cambriolages</div>
-          <div class="value">${(Math.random() * 50).toFixed(0)} /1000</div>
-          <div class="sub">Taux local</div>
+          <div class="label">Revenu médian</div>
+          <div class="value">${revenu}</div>
+          <div class="sub">Par ménage</div>
         </div>
         <div class="kpi-card">
-          <div class="label">Transports en commun</div>
-          <div class="value">${supp.poi?.score_transport || 60}/100</div>
-          <div class="sub">Accessibilité</div>
+          <div class="label">Taux chômage</div>
+          <div class="value">${chomage}</div>
+          <div class="sub">Zone d'emploi</div>
+        </div>
+        <div class="kpi-card">
+          <div class="label">Population</div>
+          <div class="value">${pop}</div>
+          <div class="sub">Commune</div>
         </div>
       `;
     }
@@ -1066,16 +1082,19 @@ document.getElementById('estimation-form').addEventListener('submit', async (e) 
 
     const securiEl = document.getElementById('securite-climat-grid');
     if (securiEl && clim) {
+      const geo0 = geoData[0] || {};
+      const nbCatnat = geo0.nb_catnat || 0;
+      const nbRisques = [geo0.risque_inondation, geo0.risque_argile, geo0.pprn_prescrit, geo0.pprt_prescrit].filter(Boolean).length;
       securiEl.innerHTML = `
         <div class="kpi-card">
-          <div class="label">Sécurité publique</div>
-          <div class="value">${(Math.random() * 100).toFixed(0)} pts</div>
-          <div class="sub">Indice local</div>
+          <div class="label">Catastrophes naturelles</div>
+          <div class="value">${nbCatnat}</div>
+          <div class="sub">Arrêtés CatNat</div>
         </div>
         <div class="kpi-card">
-          <div class="label">Qualité air</div>
-          <div class="value">Bonne</div>
-          <div class="sub">Classification</div>
+          <div class="label">Risques identifiés</div>
+          <div class="value">${nbRisques}/4</div>
+          <div class="sub">Inondation, argile, PPRN, PPRT</div>
         </div>
         <div class="kpi-card">
           <div class="label">DJU Chauffage</div>
