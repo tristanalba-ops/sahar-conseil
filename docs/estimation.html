@@ -240,16 +240,13 @@
     .ml-card.full { grid-column: 1 / -1; }
     .ml-card-label { color: var(--text-gray); font-size: 0.85rem; margin-bottom: 1rem; text-transform: uppercase; }
 
-    #ai-section { margin: 2rem 0; }
-    #btnAnalyze { width: 100%; padding: 0.75rem 1.5rem; background: var(--accent); color: #000; border: none; border-radius: 8px; font-weight: 700; font-size: 1rem; cursor: pointer; transition: all 0.2s; }
-    #btnAnalyze:hover { transform: translateY(-2px); }
-    #ai-result { margin-top: 1rem; padding: 1.5rem; background: rgba(0,220,130,0.05); border: 1px solid var(--border); border-radius: 8px; display: none; line-height: 1.7; }
+
 
     #fiche-investisseur { display: none; }
 
     @media print {
       nav, .hero, .tabs, .form-card, .error-box, .result-hero, .volets-tabs, .volets-panel,
-      #ml-block, #ai-section, footer { display: none !important; }
+      #ml-block, footer { display: none !important; }
       #fiche-investisseur { display: block !important; }
       body { background: white !important; }
       @page { margin: 1.5cm; }
@@ -485,10 +482,7 @@
       </div>
     </div>
 
-    <div id="ai-section">
-      <button id="btnAnalyze">✨ Analyser avec Claude</button>
-      <div id="ai-result"></div>
-    </div>
+
   </div>
 
   <div class="tab-panel" id="tab-commune">
@@ -1230,7 +1224,7 @@ document.getElementById('estimation-form').addEventListener('submit', async (e) 
     ];
     document.getElementById('ml-factors').innerHTML = factors.map(f => `<div style="padding:0.5rem 0; border-bottom:1px solid var(--border);">${f}</div>`).join('');
 
-    document.getElementById('ai-section').style.display = 'block';
+
     document.getElementById('result-hero').scrollIntoView({ behavior: 'smooth', block: 'start' });
 
   } catch (err) {
@@ -1241,33 +1235,7 @@ document.getElementById('estimation-form').addEventListener('submit', async (e) 
   }
 });
 
-async function handleAnalyze() {
-  const btn = document.getElementById('btnAnalyze');
-  btn.disabled = true;
-  btn.textContent = 'Analyse en cours...';
-  const result = document.getElementById('ai-result');
-  result.style.display = 'block';
-  result.textContent = 'Claude est en train d\'analyser votre bien...';
 
-  try {
-    const adresse = document.getElementById('adresse').value;
-    const typeBien = document.getElementById('type_bien').value;
-    const surface = document.getElementById('surface').value;
-    const prix = document.getElementById('rh-prix').textContent;
-
-    result.innerHTML = `
-      <p><strong>Analyse contextuelle :</strong></p>
-      <p>Bien : ${typeBien} de ${surface} m² à ${adresse}</p>
-      <p>Estimation : ${prix} €</p>
-      <p><em>Cette fonctionnalité nécessite une intégration API complète avec Claude.</em></p>
-    `;
-  } catch (err) {
-    result.textContent = 'Erreur lors de l\'analyse.';
-  } finally {
-    btn.disabled = false;
-    btn.textContent = '✨ Analyser avec Claude';
-  }
-}
 </script>
 </body>
 </html>
