@@ -350,12 +350,50 @@
               <option value="mauvais">À rénover</option>
             </select>
           </div>
+          <!-- Champs appartement uniquement -->
+          <div class="form-group" id="field-etage">
+            <label for="etage">Étage</label>
+            <select id="etage" name="etage">
+              <option value="rdc">Rez-de-chaussée</option>
+              <option value="1-2">1er ou 2e étage</option>
+              <option value="3-4" selected>3e ou 4e étage</option>
+              <option value="5+">5e étage ou plus</option>
+            </select>
+          </div>
+          <div class="form-group" id="field-nb_sdb">
+            <label for="nb_sdb">Salle(s) de bain</label>
+            <select id="nb_sdb" name="nb_sdb">
+              <option value="1" selected>1</option>
+              <option value="2+">2 ou plus</option>
+            </select>
+          </div>
+          <!-- Champs maison uniquement -->
+          <div class="form-group" id="field-surface_terrain" style="display:none">
+            <label for="surface_terrain">Surface terrain (m²)</label>
+            <select id="surface_terrain" name="surface_terrain">
+              <option value="none">Sans terrain</option>
+              <option value="lt200">Moins de 200 m²</option>
+              <option value="200-500" selected>200 à 500 m²</option>
+              <option value="500-1000">500 à 1 000 m²</option>
+              <option value="1000+">Plus de 1 000 m²</option>
+            </select>
+          </div>
+          <div class="form-group" id="field-mitoyennete" style="display:none">
+            <label for="mitoyennete">Mitoyenneté</label>
+            <select id="mitoyennete" name="mitoyennete">
+              <option value="non" selected>Non mitoyenne</option>
+              <option value="semi">Semi-mitoyenne (1 côté)</option>
+              <option value="oui">Mitoyenne (2 côtés)</option>
+            </select>
+          </div>
         </div>
         <div class="checkboxes">
           <label><input type="checkbox" id="has_parking"> Parking</label>
           <label><input type="checkbox" id="has_balcony"> Balcon / Terrasse</label>
           <label><input type="checkbox" id="has_garden"> Jardin</label>
           <label><input type="checkbox" id="has_view"> Vue dégagée</label>
+          <label><input type="checkbox" id="has_cave"> Cave / Sous-sol</label>
+          <label id="label-ascenseur"><input type="checkbox" id="has_ascenseur"> Ascenseur</label>
         </div>
         <button type="submit" class="btn-primary" id="btn-submit">Estimer</button>
       </form>
@@ -526,6 +564,21 @@ async function supaFetch(table, params) {
   if (!r.ok) return [];
   return r.json();
 }
+
+// Affichage conditionnel selon type de bien
+function updateFormFields() {
+  const type = document.getElementById('type_bien').value;
+  const isAppart = type === 'Appartement';
+  // Champs appartement
+  document.getElementById('field-etage').style.display = isAppart ? '' : 'none';
+  document.getElementById('field-nb_sdb').style.display = isAppart ? '' : 'none';
+  document.getElementById('label-ascenseur').style.display = isAppart ? '' : 'none';
+  // Champs maison
+  document.getElementById('field-surface_terrain').style.display = isAppart ? 'none' : '';
+  document.getElementById('field-mitoyennete').style.display = isAppart ? 'none' : '';
+}
+document.getElementById('type_bien').addEventListener('change', updateFormFields);
+updateFormFields();
 
 document.querySelectorAll('.tab-btn').forEach(btn => {
   btn.addEventListener('click', () => {
@@ -861,27 +914,63 @@ document.getElementById('estimation-form').addEventListener('submit', async (e) 
     if (scorePoi !== null) poiAdj = ((scorePoi - 50) / 50) * 0.03;
 
     // Risques naturels — malus progressif
-    // 0 risque = 0%, 1 = -0.5%, 2 = -1%, 3+ = -2%
     let risqueAdj = 0;
     const nbRisques = supp.geo?.nb_catnat != null
-      ? Math.min(supp.geo.nb_catnat, 10) / 10 * -0.03  // catnat comme proxy intensité
+      ? Math.min(supp.geo.nb_catnat, 10) / 10 * -0.03
       : supp.loc?.score_risques_naturels != null
         ? ((50 - supp.loc.score_risques_naturels) / 50) * -0.025
         : 0;
     risqueAdj = Math.max(-0.03, Math.min(0, nbRisques));
 
-    // Tendance marché 12m — momentum
-    // ex: +5% évolution → +1% sur prix, -5% → -1%
+    // Tendance marché 12m
     let marcheAdj = 0;
     const evo12m = supp.zone?.evolution_12m_zone ?? null;
     if (evo12m !== null) marcheAdj = Math.max(-0.02, Math.min(0.02, (parseFloat(evo12m) / 100) * 0.4));
 
-    // Score énergie zone — si zone très énergivore, léger malus marché
+    // Score énergie zone
     let energieAdj = 0;
     const scoreEnergie = supp.dpe?.score_energie ?? null;
     if (scoreEnergie !== null) energieAdj = ((scoreEnergie - 50) / 50) * 0.015;
 
-    const totalAdj = dpeAdj + stateAdj + featBonus + locAdj + poiAdj + risqueAdj + marcheAdj + energieAdj;
+    // ── Nouveaux ajustements déclaratifs calibrés ──────────────────────
+    // Étage (appartement) — calibré sur études de marché France
+    let etageAdj = 0;
+    if (typeBien === 'Appartement') {
+      const etage = document.getElementById('etage').value;
+      etageAdj = { rdc: -0.05, '1-2': 0, '3-4': 0.03, '5+': 0.05 }[etage] || 0;
+    }
+
+    // Ascenseur (appartement, pertinent seulement à partir du 3e étage)
+    let ascenseurAdj = 0;
+    if (typeBien === 'Appartement' && document.getElementById('has_ascenseur').checked) {
+      const etage = document.getElementById('etage').value;
+      if (etage === '3-4' || etage === '5+') ascenseurAdj = 0.02;
+    }
+
+    // Surface terrain (maison) — calibré sur DVF 2022-2024
+    // Référence : 200-500m² = neutre, sans terrain = -3%, > 1000m² = +4%
+    let terrainAdj = 0;
+    if (typeBien === 'Maison') {
+      const terrain = document.getElementById('surface_terrain').value;
+      terrainAdj = { none: -0.03, lt200: -0.01, '200-500': 0, '500-1000': 0.02, '1000+': 0.04 }[terrain] || 0;
+    }
+
+    // Mitoyenneté (maison) — impact négatif sur valeur
+    let mitoyenneteAdj = 0;
+    if (typeBien === 'Maison') {
+      const mito = document.getElementById('mitoyennete').value;
+      mitoyenneteAdj = { non: 0, semi: -0.03, oui: -0.06 }[mito] || 0;
+    }
+
+    // Cave/sous-sol
+    let caveAdj = document.getElementById('has_cave').checked ? 0.015 : 0;
+
+    // Salle de bain supplémentaire
+    let sdbAdj = 0;
+    if (typeBien === 'Appartement' && document.getElementById('nb_sdb').value === '2+') sdbAdj = 0.02;
+
+    const totalAdj = dpeAdj + stateAdj + featBonus + locAdj + poiAdj + risqueAdj + marcheAdj + energieAdj
+                   + etageAdj + ascenseurAdj + terrainAdj + mitoyenneteAdj + caveAdj + sdbAdj;
     const estPrixM2 = medianPrixM2 * (1 + totalAdj);
     const estPrice = estPrixM2 * surface;
 
@@ -1258,10 +1347,16 @@ document.getElementById('estimation-form').addEventListener('submit', async (e) 
       dpeAdj !== 0 ? `DPE ${dpe} : ${dpeAdj >= 0 ? '+' : ''}${(dpeAdj*100).toFixed(0)}%` : null,
       stateAdj !== 0 ? `État du bien : ${stateAdj >= 0 ? '+' : ''}${(stateAdj*100).toFixed(0)}%` : null,
       featBonus !== 0 ? `Options (parking/balcon/jardin/vue) : +${(featBonus*100).toFixed(0)}%` : null,
+      etageAdj !== 0 ? `Étage : ${etageAdj >= 0 ? '+' : ''}${(etageAdj*100).toFixed(0)}%` : null,
+      ascenseurAdj !== 0 ? `Ascenseur : +${(ascenseurAdj*100).toFixed(0)}%` : null,
+      terrainAdj !== 0 ? `Terrain : ${terrainAdj >= 0 ? '+' : ''}${(terrainAdj*100).toFixed(0)}%` : null,
+      mitoyenneteAdj !== 0 ? `Mitoyenneté : ${(mitoyenneteAdj*100).toFixed(0)}%` : null,
+      caveAdj !== 0 ? `Cave : +${(caveAdj*100).toFixed(1)}%` : null,
+      sdbAdj !== 0 ? `2 SDB ou plus : +${(sdbAdj*100).toFixed(0)}%` : null,
       locAdj !== 0 ? `Score localisation ${Math.round(scoreLoc)}/100 : ${locAdj >= 0 ? '+' : ''}${(locAdj*100).toFixed(1)}%` : null,
       poiAdj !== 0 ? `Score équipements ${Math.round(scorePoi)}/100 : ${poiAdj >= 0 ? '+' : ''}${(poiAdj*100).toFixed(1)}%` : null,
       risqueAdj !== 0 ? `Risques naturels : ${(risqueAdj*100).toFixed(1)}%` : null,
-      marcheAdj !== 0 ? `Tendance marché 12m (${evo12m >= 0 ? '+' : ''}${parseFloat(evo12m).toFixed(1)}%) : ${marcheAdj >= 0 ? '+' : ''}${(marcheAdj*100).toFixed(1)}%` : null,
+      marcheAdj !== 0 ? `Tendance marché 12m : ${marcheAdj >= 0 ? '+' : ''}${(marcheAdj*100).toFixed(1)}%` : null,
       energieAdj !== 0 ? `Performance énergétique zone : ${energieAdj >= 0 ? '+' : ''}${(energieAdj*100).toFixed(1)}%` : null,
       `Ajustement total : ${totalAdj >= 0 ? '+' : ''}${(totalAdj*100).toFixed(1)}%`,
       `Marge de dispersion DVF : ±${marginPct}%`
