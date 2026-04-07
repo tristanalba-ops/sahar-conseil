@@ -643,17 +643,15 @@ document.addEventListener('click', (e) => { if (!e.target.closest('.adresse-wrap
 
 async function fetchDVF(citycode, typeBien) {
   try {
-    const selectCols = 'id,date_mutation,valeur_fonciere,surface_reelle_bati,type_local,nombre_pieces_principales,surface_terrain,adresse_nom_voie';
-    const rows = await supaFetch('dvf_mutations', {
-      code_commune: `eq.${citycode}`,
-      nature_mutation: 'eq.Vente',
-      valeur_fonciere: 'gte.10000',
-      surface_reelle_bati: 'gte.5',
-      select: selectCols,
-      order: 'date_mutation.desc',
-      limit: '1000'
+    const resp = await fetch(`${SUPA_URL}/functions/v1/dvf-query`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', apikey: SUPA_ANON, Authorization: `Bearer ${SUPA_ANON}` },
+      body: JSON.stringify({ code_commune: citycode, limit: 1000 })
     });
-    if (typeBien && rows.length > 20) {
+    if (!resp.ok) { console.error('dvf-query commune', resp.status); return []; }
+    const { rows } = await resp.json();
+    if (!rows?.length) return [];
+    if (typeBien) {
       const tf = typeBien === "Appartement" ? "Appartement" : "Maison";
       const filtered = rows.filter(r => (r.type_local || "").includes(tf));
       if (filtered.length >= 8) return filtered;
@@ -664,17 +662,15 @@ async function fetchDVF(citycode, typeBien) {
 
 async function fetchDVFFallback(codeDept, typeBien) {
   try {
-    const selectCols = 'id,date_mutation,valeur_fonciere,surface_reelle_bati,type_local,nombre_pieces_principales,surface_terrain,adresse_nom_voie';
-    const rows = await supaFetch('dvf_mutations', {
-      code_departement: `eq.${codeDept}`,
-      nature_mutation: 'eq.Vente',
-      valeur_fonciere: 'gte.10000',
-      surface_reelle_bati: 'gte.5',
-      select: selectCols,
-      order: 'date_mutation.desc',
-      limit: '1000'
+    const resp = await fetch(`${SUPA_URL}/functions/v1/dvf-query`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', apikey: SUPA_ANON, Authorization: `Bearer ${SUPA_ANON}` },
+      body: JSON.stringify({ code_departement: codeDept, limit: 1000 })
     });
-    if (typeBien && rows.length > 50) {
+    if (!resp.ok) { console.error('dvf-query dept', resp.status); return { rows: [], fallback: true }; }
+    const { rows } = await resp.json();
+    if (!rows?.length) return { rows: [], fallback: true };
+    if (typeBien) {
       const tf = typeBien === "Appartement" ? "Appartement" : "Maison";
       const filtered = rows.filter(r => (r.type_local || "").includes(tf));
       if (filtered.length >= 8) return { rows: filtered, fallback: true };
