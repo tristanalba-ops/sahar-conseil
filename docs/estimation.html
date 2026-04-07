@@ -643,7 +643,6 @@ document.addEventListener('click', (e) => { if (!e.target.closest('.adresse-wrap
 
 async function fetchDVF(citycode, typeBien) {
   try {
-    // select explicite plutôt que * (évite encodage %2A qui peut casser PostgREST)
     const selectCols = 'id,date_mutation,valeur_fonciere,surface_reelle_bati,type_local,nombre_pieces_principales,surface_terrain,adresse_nom_voie';
     const rows = await supaFetch('dvf_mutations', {
       code_commune: `eq.${citycode}`,
@@ -652,9 +651,8 @@ async function fetchDVF(citycode, typeBien) {
       surface_reelle_bati: 'gte.5',
       select: selectCols,
       order: 'date_mutation.desc',
-      limit: '2000'
+      limit: '1000'
     });
-
     if (typeBien && rows.length > 20) {
       const tf = typeBien === "Appartement" ? "Appartement" : "Maison";
       const filtered = rows.filter(r => (r.type_local || "").includes(tf));
@@ -665,7 +663,6 @@ async function fetchDVF(citycode, typeBien) {
 }
 
 async function fetchDVFFallback(codeDept, typeBien) {
-  // Fallback : chercher sur le département si commune trop petite
   try {
     const selectCols = 'id,date_mutation,valeur_fonciere,surface_reelle_bati,type_local,nombre_pieces_principales,surface_terrain,adresse_nom_voie';
     const rows = await supaFetch('dvf_mutations', {
@@ -675,7 +672,7 @@ async function fetchDVFFallback(codeDept, typeBien) {
       surface_reelle_bati: 'gte.5',
       select: selectCols,
       order: 'date_mutation.desc',
-      limit: '2000'
+      limit: '1000'
     });
     if (typeBien && rows.length > 50) {
       const tf = typeBien === "Appartement" ? "Appartement" : "Maison";
