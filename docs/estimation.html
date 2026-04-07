@@ -646,11 +646,12 @@ async function fetchDVF(citycode, typeBien) {
     const resp = await fetch(`${SUPA_URL}/functions/v1/dvf-query`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', apikey: SUPA_ANON, Authorization: `Bearer ${SUPA_ANON}` },
-      body: JSON.stringify({ code_commune: citycode, limit: 1000 })
+      body: JSON.stringify({ code_commune: citycode, limit: 500 })
     });
-    if (!resp.ok) { console.error('dvf-query commune', resp.status); return []; }
-    const { rows } = await resp.json();
-    if (!rows?.length) return [];
+    if (!resp.ok) { console.error('dvf-query commune', resp.status, await resp.text()); return []; }
+    const d = await resp.json();
+    const rows = d.rows || [];
+    if (!rows.length) return [];
     if (typeBien) {
       const tf = typeBien === "Appartement" ? "Appartement" : "Maison";
       const filtered = rows.filter(r => (r.type_local || "").includes(tf));
@@ -665,11 +666,12 @@ async function fetchDVFFallback(codeDept, typeBien) {
     const resp = await fetch(`${SUPA_URL}/functions/v1/dvf-query`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', apikey: SUPA_ANON, Authorization: `Bearer ${SUPA_ANON}` },
-      body: JSON.stringify({ code_departement: codeDept, limit: 1000 })
+      body: JSON.stringify({ code_departement: codeDept, limit: 500 })
     });
     if (!resp.ok) { console.error('dvf-query dept', resp.status); return { rows: [], fallback: true }; }
-    const { rows } = await resp.json();
-    if (!rows?.length) return { rows: [], fallback: true };
+    const d = await resp.json();
+    const rows = d.rows || [];
+    if (!rows.length) return { rows: [], fallback: true };
     if (typeBien) {
       const tf = typeBien === "Appartement" ? "Appartement" : "Maison";
       const filtered = rows.filter(r => (r.type_local || "").includes(tf));
