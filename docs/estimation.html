@@ -643,15 +643,18 @@ document.addEventListener('click', (e) => { if (!e.target.closest('.adresse-wrap
 
 async function fetchDVF(citycode, typeBien) {
   try {
+    // select explicite plutôt que * (évite encodage %2A qui peut casser PostgREST)
+    const selectCols = 'id,date_mutation,valeur_fonciere,surface_reelle_bati,type_local,nombre_pieces_principales,surface_terrain,adresse_nom_voie';
     const rows = await supaFetch('dvf_mutations', {
       code_commune: `eq.${citycode}`,
       nature_mutation: 'eq.Vente',
       valeur_fonciere: 'gte.10000',
       surface_reelle_bati: 'gte.5',
-      select: '*',
+      select: selectCols,
       order: 'date_mutation.desc',
       limit: '2000'
     });
+
     if (typeBien && rows.length > 20) {
       const tf = typeBien === "Appartement" ? "Appartement" : "Maison";
       const filtered = rows.filter(r => (r.type_local || "").includes(tf));
@@ -659,6 +662,28 @@ async function fetchDVF(citycode, typeBien) {
     }
     return rows;
   } catch (err) { console.error('DVF error:', err); return []; }
+}
+
+async function fetchDVFFallback(codeDept, typeBien) {
+  // Fallback : chercher sur le département si commune trop petite
+  try {
+    const selectCols = 'id,date_mutation,valeur_fonciere,surface_reelle_bati,type_local,nombre_pieces_principales,surface_terrain,adresse_nom_voie';
+    const rows = await supaFetch('dvf_mutations', {
+      code_departement: `eq.${codeDept}`,
+      nature_mutation: 'eq.Vente',
+      valeur_fonciere: 'gte.10000',
+      surface_reelle_bati: 'gte.5',
+      select: selectCols,
+      order: 'date_mutation.desc',
+      limit: '2000'
+    });
+    if (typeBien && rows.length > 50) {
+      const tf = typeBien === "Appartement" ? "Appartement" : "Maison";
+      const filtered = rows.filter(r => (r.type_local || "").includes(tf));
+      if (filtered.length >= 8) return { rows: filtered, fallback: true };
+    }
+    return { rows, fallback: true };
+  } catch (err) { console.error('DVF fallback error:', err); return { rows: [], fallback: true }; }
 }
 
 async function fetchSupp(citycode, cp) {
@@ -868,8 +893,20 @@ document.getElementById('estimation-form').addEventListener('submit', async (e) 
     const geo = _selectedGeo;
     if (!geo) throw new Error('Veuillez sélectionner une adresse dans les suggestions.');
 
-    const dvfRows = await fetchDVF(geo.citycode, typeBien);
-    if (dvfRows.length < 3) throw new Error(`Données insuffisantes pour ${geo.commune} (${dvfRows.length} transactions).`);
+    let dvfRows = await fetchDVF(geo.citycode, typeBien);
+    let dvfFallback = false;
+
+    // Fallback département si commune trop petite (< 15 transactions)
+    if (dvfRows.length < 15) {
+      const codeDept = geo.citycode.length >= 5 ? geo.citycode.slice(0, 2) : geo.citycode.slice(0, 2);
+      const fb = await fetchDVFFallback(codeDept, typeBien);
+      if (fb.rows.length >= 3) {
+        dvfRows = fb.rows;
+        dvfFallback = true;
+      }
+    }
+
+    if (dvfRows.length < 3) throw new Error(`Données insuffisantes pour ${geo.commune} (${dvfRows.length} transactions). Marché local trop restreint.`);
 
     const supp = await fetchSupp(geo.citycode, geo.cp);
 
@@ -1012,6 +1049,7 @@ document.getElementById('estimation-form').addEventListener('submit', async (e) 
     ];
     if (supp.loc?.score_localisation) tags.push(`Localisation ${Math.round(supp.loc.score_localisation)}/100`);
     if (supp.loc?.detail_risques?.nb_risques !== undefined) tags.push(`${supp.loc.detail_risques.nb_risques} risque${supp.loc.detail_risques.nb_risques !== 1 ? 's' : ''} naturel${supp.loc.detail_risques.nb_risques !== 1 ? 's' : ''}`);
+    if (dvfFallback) tags.push(`Marché départemental (commune peu active)`);
     document.getElementById('rh-tags').innerHTML = tags.map(t => `<div class="tag">${t}</div>`).join('');
 
     document.getElementById('volets-tabs').classList.add('visible');
