@@ -3,17 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="robots" content="noindex, nofollow" />
+    <meta name="robots" content="noindex, nofollow" />
     <title>Explorations — Intent Analytics</title>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
     <style>
         :root {
-            --dark-bg: #0D0D0D;
-            --dark-bg-light: #1A1A2E;
-            --accent-green: #00DC82;
-            --text-white: #FFFFFF;
-            --text-gray: #A0A0A0;
-            --border-color: #2A2A3E;
+            --bg: #F0EEE9;
+            --bg-alt: #E6E2DB;
+            --accent: #8B7355;
+            --accent-light: rgba(139, 115, 85, 0.08);
+            --text-primary: #1A1A1A;
+            --text-secondary: #6B6560;
+            --border: #D4CFC7;
+            --card-bg: #FFFFFF;
+            --nav-bg: rgba(240, 238, 233, 0.95);
         }
 
         * {
@@ -23,8 +26,8 @@
         }
 
         body {
-            background-color: var(--dark-bg);
-            color: var(--text-white);
+            background-color: var(--bg);
+            color: var(--text-primary);
             font-family: 'Inter', sans-serif;
             font-weight: 400;
             line-height: 1.6;
@@ -32,19 +35,21 @@
         }
 
         a {
-            color: var(--accent-green);
+            color: var(--accent);
             text-decoration: none;
+            border-bottom: 2px solid transparent;
+            transition: border-color 0.2s;
         }
 
         a:hover {
-            text-decoration: underline;
+            border-color: var(--accent);
         }
 
         nav {
-            background: rgba(13, 13, 13, 0.95);
+            background: var(--nav-bg);
             backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--border-color);
-            padding: 1.5rem 2rem;
+            border-bottom: 1px solid var(--border);
+            padding: 1.5rem 5%;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -57,72 +62,108 @@
             font-family: 'Space Grotesk', sans-serif;
             font-weight: 700;
             font-size: 1.3rem;
-            color: var(--accent-green);
+            color: var(--accent);
+            text-decoration: none;
         }
 
         .nav-links {
             display: flex;
             list-style: none;
             gap: 2rem;
+            align-items: center;
         }
 
         .nav-links a {
-            color: var(--text-white);
+            color: var(--text-primary);
             font-weight: 500;
             transition: color 0.2s;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            border-bottom: 2px solid transparent;
         }
 
         .nav-links a:hover {
-            color: var(--accent-green);
-            text-decoration: none;
+            color: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            gap: 6px;
+            cursor: pointer;
+            padding: 8px;
+            background: none;
+            border: none;
+        }
+
+        .hamburger span {
+            display: block;
+            width: 24px;
+            height: 2px;
+            background: var(--text-primary);
+            transition: 0.3s;
+        }
+
+        .hamburger.active span:nth-child(1) {
+            transform: rotate(45deg) translate(8px, 8px);
+        }
+
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -6px);
         }
 
         main {
             max-width: 900px;
             margin: 0 auto;
-            padding: 4rem 2rem;
+            padding: 4rem 5%;
         }
 
         h1 {
             font-family: 'Space Grotesk', sans-serif;
             font-weight: 700;
-            font-size: 3rem;
+            font-size: clamp(2rem, 5vw, 3rem);
             margin-bottom: 1rem;
-            color: var(--text-white);
+            color: var(--text-primary);
         }
 
         .intro {
             font-size: 1.1rem;
-            color: var(--text-gray);
+            color: var(--text-secondary);
             margin-bottom: 3rem;
             line-height: 1.8;
         }
 
         .explorations-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 2rem;
             margin-top: 2rem;
         }
 
         .exploration-card {
-            background: linear-gradient(135deg, var(--dark-bg-light) 0%, rgba(26, 26, 46, 0.7) 100%);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
             padding: 2rem;
-            transition: all 0.3s ease;
+            transition: all 0.2s;
             display: flex;
             flex-direction: column;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
         }
 
         .exploration-card:hover {
-            border-color: var(--accent-green);
-            box-shadow: 0 8px 32px rgba(0, 220, 130, 0.15);
-            transform: translateY(-2px);
+            border-color: var(--accent);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
         }
 
         .card-icon {
-            font-size: 2.5rem;
+            font-size: 0;
             margin-bottom: 1rem;
         }
 
@@ -130,12 +171,12 @@
             font-family: 'Space Grotesk', sans-serif;
             font-weight: 700;
             font-size: 1.3rem;
-            color: var(--accent-green);
+            color: var(--accent);
             margin-bottom: 1rem;
         }
 
         .card-description {
-            color: var(--text-gray);
+            color: var(--text-secondary);
             margin-bottom: 1.5rem;
             flex-grow: 1;
             line-height: 1.7;
@@ -143,24 +184,24 @@
 
         .card-source {
             font-size: 0.85rem;
-            color: var(--text-gray);
+            color: var(--text-secondary);
             padding-top: 1rem;
-            border-top: 1px solid var(--border-color);
+            border-top: 1px solid var(--border);
             margin-top: 1rem;
         }
 
         .source-label {
             font-weight: 500;
-            color: var(--text-white);
+            color: var(--text-primary);
         }
 
         .status-badge {
             display: inline-block;
             margin-top: 0.5rem;
             padding: 0.3rem 0.8rem;
-            background-color: rgba(0, 220, 130, 0.15);
-            color: var(--accent-green);
-            border-radius: 4px;
+            background-color: var(--accent-light);
+            color: var(--accent);
+            border-radius: 100px;
             font-size: 0.8rem;
             font-weight: 600;
             text-transform: uppercase;
@@ -168,36 +209,63 @@
         }
 
         .status-badge.coming-soon {
-            background-color: rgba(160, 160, 160, 0.15);
-            color: var(--text-gray);
+            background-color: rgba(107, 101, 96, 0.08);
+            color: var(--text-secondary);
         }
 
         footer {
-            background-color: var(--dark-bg-light);
-            border-top: 1px solid var(--border-color);
-            padding: 3rem 2rem;
+            background-color: var(--bg-alt);
+            border-top: 1px solid var(--border);
+            padding: 3rem 5%;
             margin-top: 6rem;
             text-align: center;
-            color: var(--text-gray);
+            color: var(--text-secondary);
             font-size: 0.9rem;
             line-height: 1.8;
         }
 
         footer a {
-            color: var(--accent-green);
+            color: var(--accent);
+            border-bottom: 2px solid transparent;
+            transition: border-color 0.2s;
+        }
+
+        footer a:hover {
+            border-color: var(--accent);
         }
 
         @media (max-width: 768px) {
             nav {
-                flex-direction: column;
-                gap: 1.5rem;
-                text-align: center;
+                padding: 1rem 5%;
+                flex-direction: row;
             }
 
             .nav-links {
-                flex-wrap: wrap;
-                justify-content: center;
-                gap: 1rem;
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                flex-direction: column;
+                background: var(--nav-bg);
+                border-bottom: 1px solid var(--border);
+                padding: 1rem 5%;
+                gap: 0;
+                z-index: 99;
+            }
+
+            .nav-links.active {
+                display: flex;
+            }
+
+            .nav-links li {
+                min-height: 44px;
+                display: flex;
+                align-items: center;
+            }
+
+            .hamburger {
+                display: flex;
             }
 
             h1 {
@@ -205,7 +273,7 @@
             }
 
             main {
-                padding: 2rem 1rem;
+                padding: 2rem 5%;
             }
 
             .explorations-grid {
@@ -218,7 +286,7 @@
             }
 
             .card-icon {
-                font-size: 2rem;
+                font-size: 0;
             }
         }
     </style>
@@ -226,6 +294,11 @@
 <body>
     <nav>
         <a href="/" class="nav-logo">Intent Analytics</a>
+        <button class="hamburger" onclick="this.classList.toggle('active'); document.querySelector('.nav-links').classList.toggle('active');">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
         <ul class="nav-links">
             <li><a href="/projet">Le projet</a></li>
             <li><a href="/donnees">Données</a></li>
@@ -243,21 +316,18 @@
 
         <div class="explorations-grid">
             <div class="exploration-card">
-                <div class="card-icon">📊</div>
                 <div class="card-title">Prix immobiliers</div>
                 <div class="card-description">Données DVF par territoire.</div>
                 <div class="status-badge">Disponible</div>
             </div>
 
             <div class="exploration-card">
-                <div class="card-icon">🔋</div>
                 <div class="card-title">Performance énergétique</div>
                 <div class="card-description">Données DPE par territoire.</div>
                 <div class="status-badge">Disponible</div>
             </div>
 
             <div class="exploration-card">
-                <div class="card-icon">🏪</div>
                 <div class="card-title">Équipements</div>
                 <div class="card-description">Données BPE par territoire.</div>
                 <div class="status-badge coming-soon">En cours</div>

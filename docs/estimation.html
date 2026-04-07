@@ -7,26 +7,30 @@
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #0D0D0D;
-      --card-bg: rgba(26,26,46,0.5);
-      --accent: #00DC82;
-      --text-white: #FFFFFF;
-      --text-gray: #A0A0A0;
-      --border: #2A2A3E;
-      --danger: #FF6B6B;
-      --warning: #FCB82E;
+      --bg: #F0EEE9;
+      --bg-alt: #E6E2DB;
+      --card-bg: #FFFFFF;
+      --accent: #8B7355;
+      --accent-light: rgba(139, 115, 85, 0.08);
+      --text-primary: #1A1A1A;
+      --text-secondary: #6B6560;
+      --border: #D4CFC7;
+      --nav-bg: rgba(240, 238, 233, 0.95);
+      --success: #4A7C59;
+      --danger: #9B4D4D;
+      --info: #5B7B9B;
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text-white); line-height: 1.6; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text-primary); line-height: 1.6; }
     h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; font-weight: 700; }
 
     .container { max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem; }
-    .error-box { display: none; padding: 1rem; background: rgba(255,107,107,0.1); border: 1px solid var(--danger); border-radius: 8px; color: var(--danger); margin: 1rem 0; }
+    .error-box { display: none; padding: 1rem; background: rgba(155, 77, 77, 0.08); border: 1px solid var(--danger); border-radius: 12px; color: var(--danger); margin: 1rem 0; }
     .error-box.visible { display: block; }
 
     nav {
-      background: rgba(13,13,13,0.95);
+      background: var(--nav-bg);
       backdrop-filter: blur(8px);
       border-bottom: 1px solid var(--border);
       padding: 0 1.5rem;
@@ -40,65 +44,65 @@
     }
     .nav-logo { font-size: 1.05rem; font-weight: 700; color: var(--accent); text-decoration: none; }
     .nav-links { list-style: none; display: flex; gap: 1.5rem; }
-    .nav-links a { color: var(--text-gray); text-decoration: none; font-size: 0.9rem; transition: color 0.2s; }
+    .nav-links a { color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; transition: color 0.2s; }
     .nav-links a:hover { color: var(--accent); }
     .burger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 6px; background: none; border: none; }
-    .burger span { display: block; width: 22px; height: 2px; background: var(--text-white); border-radius: 2px; transition: all 0.3s; }
-    .burger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .burger span { display: block; width: 22px; height: 2px; background: var(--text-primary); border-radius: 2px; transition: all 0.3s; }
+    .burger.open span:nth-child(1) { transform: rotate(45deg); }
     .burger.open span:nth-child(2) { opacity: 0; }
-    .burger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+    .burger.open span:nth-child(3) { transform: rotate(-45deg); }
     @media (max-width: 768px) {
       .burger { display: flex; }
       .nav-links {
         display: none; position: absolute; top: 52px; left: 0; right: 0;
-        background: rgba(13,13,13,0.98); border-bottom: 1px solid var(--border);
+        background: var(--nav-bg); border-bottom: 1px solid var(--border);
         flex-direction: column; gap: 0; padding: 0.5rem 0;
       }
       .nav-links.open { display: flex; }
-      .nav-links li a { display: block; padding: 0.9rem 1.5rem; font-size: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); }
+      .nav-links li a { display: block; padding: 0.9rem 1.5rem; font-size: 1rem; border-bottom: 1px solid rgba(0,0,0,0.05); }
     }
 
     .hero {
       text-align: center;
       padding: 3rem 2rem;
-      background: linear-gradient(135deg, rgba(0,220,130,0.05) 0%, rgba(42,42,62,0.1) 100%);
+      background: linear-gradient(135deg, rgba(139, 115, 85, 0.04) 0%, rgba(212, 207, 199, 0.08) 100%);
       border-bottom: 1px solid var(--border);
       margin-bottom: 2rem;
     }
     .hero-tag { display: inline-block; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); margin-bottom: 1rem; }
     .hero h1 { font-size: 2.5rem; margin-bottom: 0.5rem; }
     .hero h1 span { color: var(--accent); }
-    .hero p { color: var(--text-gray); font-size: 1.1rem; max-width: 600px; margin: 0 auto; }
+    .hero p { color: var(--text-secondary); font-size: 1.1rem; max-width: 600px; margin: 0 auto; }
 
     .tabs { display: flex; gap: 1rem; border-bottom: 1px solid var(--border); margin-bottom: 2rem; }
     .tab-btn {
       padding: 1rem 1.5rem;
       background: none;
       border: none;
-      color: var(--text-gray);
+      color: var(--text-secondary);
       cursor: pointer;
       font-size: 0.95rem;
       font-weight: 600;
       border-bottom: 2px solid transparent;
       transition: all 0.3s;
     }
-    .tab-btn:hover { color: var(--text-white); }
+    .tab-btn:hover { color: var(--text-primary); }
     .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
     .tab-panel { display: none; animation: fadeIn 0.3s; }
     .tab-panel.active { display: block; }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-    .form-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 2rem; margin-bottom: 2rem; }
+    .form-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 2rem; margin-bottom: 2rem; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
     .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem; }
     .form-group { display: flex; flex-direction: column; }
-    .form-group label { font-weight: 600; margin-bottom: 0.5rem; font-size: 0.95rem; }
+    .form-group label { font-weight: 600; margin-bottom: 0.5rem; font-size: 0.95rem; color: var(--text-primary); }
     .form-group input,
     .form-group select {
       padding: 0.75rem;
-      background: rgba(255,255,255,0.05);
+      background: #FFFFFF;
       border: 1px solid var(--border);
-      border-radius: 6px;
-      color: var(--text-white);
+      border-radius: 8px;
+      color: var(--text-primary);
       font-family: inherit;
       font-size: 0.95rem;
       transition: border-color 0.2s;
@@ -107,7 +111,7 @@
     .form-group select:focus {
       outline: none;
       border-color: var(--accent);
-      box-shadow: 0 0 0 2px rgba(0,220,130,0.1);
+      box-shadow: 0 0 0 2px rgba(139, 115, 85, 0.1);
     }
     .adresse-wrap { position: relative; }
     .suggestions {
@@ -118,11 +122,12 @@
       background: var(--card-bg);
       border: 1px solid var(--border);
       border-top: none;
-      border-radius: 0 0 6px 6px;
+      border-radius: 0 0 8px 8px;
       max-height: 200px;
       overflow-y: auto;
       display: none;
       z-index: 10;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
     }
     .suggestions.open { display: block; }
     .sug-item {
@@ -131,28 +136,31 @@
       border-bottom: 1px solid var(--border);
       font-size: 0.9rem;
       transition: background 0.2s;
+      color: var(--text-primary);
     }
-    .sug-item:hover { background: rgba(0,220,130,0.1); }
+    .sug-item:hover { background: var(--accent-light); }
     .sug-item:last-child { border-bottom: none; }
 
     .checkboxes { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
-    .checkboxes label { display: flex; align-items: center; cursor: pointer; font-size: 0.95rem; gap: 0.5rem; }
+    .checkboxes label { display: flex; align-items: center; cursor: pointer; font-size: 0.95rem; gap: 0.5rem; color: var(--text-primary); }
     .checkboxes input { cursor: pointer; }
 
     .btn-primary {
       padding: 0.85rem 2rem;
       background: var(--accent);
-      color: #000;
+      color: #FFFFFF;
       border: none;
       border-radius: 8px;
       font-weight: 700;
       font-size: 1rem;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: background 0.2s;
       width: 100%;
+      touch-action: manipulation;
+      min-height: 44px;
     }
-    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 16px rgba(0,220,130,0.2); }
-    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .btn-primary:hover { background: #7A6347; }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
 
     .result-hero {
       background: var(--card-bg);
@@ -161,19 +169,20 @@
       padding: 2rem;
       margin-bottom: 2rem;
       display: none;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
     }
     .result-hero.visible { display: block; }
     .result-hero-header { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 1.5rem; align-items: start; }
-    .result-hero-info h2 { font-size: 1.5rem; margin-bottom: 0.5rem; }
-    .result-hero-info .sub-text { color: var(--text-gray); font-size: 0.95rem; }
+    .result-hero-info h2 { font-size: 1.5rem; margin-bottom: 0.5rem; color: var(--text-primary); }
+    .result-hero-info .sub-text { color: var(--text-secondary); font-size: 0.95rem; }
     .result-hero-price { display: flex; align-items: baseline; gap: 0.5rem; margin-top: 1rem; }
     .result-hero-price .big-number { font-size: 2.5rem; font-weight: 700; color: var(--accent); }
-    .result-hero-price .unit { color: var(--text-gray); }
+    .result-hero-price .unit { color: var(--text-secondary); }
     .result-tags { display: flex; flex-wrap: wrap; gap: 0.8rem; margin-top: 1rem; }
-    .tag { display: inline-block; padding: 0.4rem 0.8rem; background: rgba(0,220,130,0.1); border: 1px solid rgba(0,220,130,0.3); border-radius: 20px; font-size: 0.85rem; color: var(--accent); }
+    .tag { display: inline-block; padding: 0.4rem 0.8rem; background: var(--accent-light); border: 1px solid rgba(139, 115, 85, 0.25); border-radius: 20px; font-size: 0.85rem; color: var(--accent); }
     .fourchette { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
-    .fourchette-item { text-align: center; padding: 1rem; background: rgba(0,220,130,0.05); border-radius: 8px; }
-    .fourchette-label { color: var(--text-gray); font-size: 0.85rem; margin-bottom: 0.3rem; }
+    .fourchette-item { text-align: center; padding: 1rem; background: var(--accent-light); border-radius: 8px; }
+    .fourchette-label { color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.3rem; }
     .fourchette-val { font-size: 1.5rem; font-weight: 700; color: var(--accent); }
 
     .volets-tabs { display: none; gap: 1rem; border-bottom: 1px solid var(--border); margin-bottom: 2rem; }
@@ -182,77 +191,77 @@
       padding: 1rem 1.5rem;
       background: none;
       border: none;
-      color: var(--text-gray);
+      color: var(--text-secondary);
       cursor: pointer;
       font-size: 0.95rem;
       font-weight: 600;
       border-bottom: 2px solid transparent;
       transition: all 0.3s;
     }
-    .volets-tab-btn:hover { color: var(--text-white); }
+    .volets-tab-btn:hover { color: var(--text-primary); }
     .volets-tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
     .volets-panel { display: none; }
     .volets-panel.active { display: block; }
 
-    .result-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; }
+    .result-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+    .result-card h3 { color: var(--text-primary); margin-bottom: 1rem; }
     .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
-    .kpi-card { padding: 1.5rem; background: rgba(0,220,130,0.05); border: 1px solid rgba(0,220,130,0.2); border-radius: 10px; text-align: center; }
-    .kpi-card .label { color: var(--text-gray); font-size: 0.85rem; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em; }
-    .kpi-card .value { font-size: 1.8rem; font-weight: 700; color: var(--accent); }
-    .kpi-card .sub { color: var(--text-gray); font-size: 0.8rem; margin-top: 0.3rem; }
+    .kpi-card { padding: 1.5rem; background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+    .kpi-card .label { color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    .kpi-card .value { font-size: 1.8rem; font-weight: 700; color: var(--text-primary); }
+    .kpi-card .sub { color: var(--text-secondary); font-size: 0.8rem; margin-top: 0.3rem; }
 
     .score-ring { width: 200px; height: 200px; margin: 0 auto 1.5rem; }
 
     .score-item { padding: 0.8rem 0; border-bottom: 1px solid var(--border); }
     .score-item:last-child { border-bottom: none; }
-    .score-item-label { color: var(--text-gray); font-size: 0.9rem; }
-    .score-item-bar { width: 100%; height: 6px; background: rgba(255,255,255,0.05); border-radius: 3px; margin-top: 0.5rem; overflow: hidden; }
-    .score-item-fill { height: 100%; background: linear-gradient(90deg, var(--accent), #00B870); border-radius: 3px; }
+    .score-item-label { color: var(--text-secondary); font-size: 0.9rem; }
+    .score-item-bar { width: 100%; height: 6px; background: rgba(0,0,0,0.06); border-radius: 3px; margin-top: 0.5rem; overflow: hidden; }
+    .score-item-fill { height: 100%; background: linear-gradient(90deg, var(--accent), #7A6347); border-radius: 3px; }
     .score-item-val { color: var(--accent); font-weight: 600; font-size: 0.9rem; }
 
     .table-responsive { overflow-x: auto; margin: 1rem 0; }
     table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
-    th { background: rgba(0,220,130,0.1); padding: 1rem; text-align: left; font-weight: 600; color: var(--accent); }
-    td { padding: 0.8rem 1rem; border-bottom: 1px solid var(--border); }
-    tr:hover { background: rgba(0,220,130,0.05); }
+    th { background: var(--bg-alt); padding: 1rem; text-align: left; font-weight: 600; color: var(--text-primary); }
+    td { padding: 0.8rem 1rem; border-bottom: 1px solid var(--border); color: var(--text-primary); }
+    tr:hover { background: var(--accent-light); }
 
     .dpe-badge { display: inline-block; width: 100px; height: 100px; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 700; color: white; text-align: center; }
-    .dpe-a { background: #319834; }
-    .dpe-b { background: #33cc31; }
-    .dpe-c { background: #cbfc34; color: #000; }
-    .dpe-d { background: #fcfc32; color: #000; }
-    .dpe-e { background: #fccc32; color: #000; }
-    .dpe-f { background: #fc9834; }
-    .dpe-g { background: #fc0000; }
+    .dpe-a { background: #4A7C59; }
+    .dpe-b { background: #5A8C69; }
+    .dpe-c { background: #7B9A7C; color: #FFFFFF; }
+    .dpe-d { background: #9B8B5B; color: #FFFFFF; }
+    .dpe-e { background: #B89B6B; color: #FFFFFF; }
+    .dpe-f { background: #9B4D4D; }
+    .dpe-g { background: #8B3B3B; }
 
     .dpe-scale { display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.5rem; margin: 1rem 0; }
-    .dpe-scale-item { text-align: center; padding: 1rem 0.5rem; border-radius: 6px; font-weight: 600; font-size: 0.85rem; border: 2px solid transparent; transition: all 0.2s; }
-    .dpe-scale-item.active { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(0,220,130,0.2); }
+    .dpe-scale-item { text-align: center; padding: 1rem 0.5rem; border-radius: 6px; font-weight: 600; font-size: 0.85rem; border: 2px solid transparent; transition: all 0.2s; background: var(--bg-alt); color: var(--text-primary); }
+    .dpe-scale-item.active { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(139, 115, 85, 0.15); }
 
-    .chart-box { background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 1.5rem; margin-bottom: 1.5rem; }
+    .chart-box { background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
     .charts-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
 
     .risques-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; }
-    .risque-card { padding: 1rem; background: rgba(0,220,130,0.05); border: 1px solid var(--border); border-radius: 8px; text-align: center; }
-    .risque-card .label { color: var(--text-gray); font-size: 0.85rem; margin-bottom: 0.5rem; }
-    .risque-card .value { font-size: 1.3rem; font-weight: 700; }
+    .risque-card { padding: 1rem; background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+    .risque-card .label { color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.5rem; }
+    .risque-card .value { font-size: 1.3rem; font-weight: 700; color: var(--text-primary); }
     .risque-card.yes { border-color: var(--danger); }
     .risque-card.yes .value { color: var(--danger); }
 
     .plu-donut { width: 200px; height: 200px; margin: 0 auto 1rem; }
     .plu-legend { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 1rem; margin-top: 1rem; }
-    .plu-legend-item { padding: 0.8rem; background: rgba(0,220,130,0.05); border-radius: 6px; font-size: 0.9rem; }
+    .plu-legend-item { padding: 0.8rem; background: var(--bg-alt); border-radius: 6px; font-size: 0.9rem; color: var(--text-primary); }
     .plu-legend-item .pct { font-weight: 700; color: var(--accent); }
 
-    .ml-block { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 2rem; margin: 2rem 0; display: none; }
+    .ml-block { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 2rem; margin: 2rem 0; display: none; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
     .ml-block.visible { display: block; }
-    .ml-block-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 1.5rem; }
+    .ml-block-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 1.5rem; color: var(--text-primary); }
     .ml-cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; }
-    .ml-card { padding: 1.5rem; background: rgba(0,220,130,0.05); border: 1px solid var(--border); border-radius: 8px; }
+    .ml-card { padding: 1.5rem; background: var(--bg-alt); border: 1px solid var(--border); border-radius: 8px; }
     .ml-card.full { grid-column: 1 / -1; }
-    .ml-card-label { color: var(--text-gray); font-size: 0.85rem; margin-bottom: 1rem; text-transform: uppercase; }
-
-
+    .ml-card-label { color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 1rem; text-transform: uppercase; }
+    .ml-card h4 { color: var(--text-primary); }
 
     #fiche-investisseur { display: none; }
 
@@ -272,19 +281,20 @@
       .result-hero-header { grid-template-columns: 1fr; gap: 1.5rem; }
       .kpi-grid { grid-template-columns: 1fr; }
       .charts-row { grid-template-columns: 1fr; }
+      .btn-primary { min-height: 44px; }
     }
 
     footer {
-      background: rgba(13,13,13,0.95);
+      background: var(--nav-bg);
       border-top: 1px solid var(--border);
       padding: 2rem;
       margin-top: 3rem;
       text-align: center;
-      color: var(--text-gray);
+      color: var(--text-secondary);
       font-size: 0.9rem;
     }
     footer a { color: var(--accent); text-decoration: none; transition: color 0.2s; }
-    footer a:hover { color: var(--text-white); }
+    footer a:hover { color: var(--text-primary); }
     .footer-email { display: inline-block; margin: 0.5rem 0; }
     .footer-legal, .footer-disclaimer, .footer-copy { margin: 0.5rem 0; font-size: 0.85rem; }
   </style>
@@ -540,7 +550,7 @@
 
   <div class="tab-panel" id="tab-commune">
     <div class="result-card">
-      <p style="text-align:center; color:var(--text-gray);">Sélectionnez une adresse et cliquez sur "Estimer" pour découvrir le profil détaillé de la commune.</p>
+      <p style="text-align:center; color:var(--text-secondary);">Sélectionnez une adresse et cliquez sur "Estimer" pour découvrir le profil détaillé de la commune.</p>
     </div>
   </div>
 </div>
@@ -628,7 +638,7 @@ adresseInput.addEventListener('input', (e) => {
       const d = await r.json();
       const feats = d.features || [];
       if (!feats.length) {
-        adresseSug.innerHTML = '<div class="sug-item" style="color:var(--text-gray)">Aucune adresse trouvée</div>';
+        adresseSug.innerHTML = '<div class="sug-item" style="color:var(--text-secondary)">Aucune adresse trouvée</div>';
         adresseSug.classList.add('open');
         return;
       }
@@ -735,14 +745,14 @@ function renderSVGRing(containerId, score) {
   const radius = 90;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference * (1 - score / 100);
-  const color = score >= 70 ? '#00DC82' : score >= 50 ? '#FCB82E' : '#FF6B6B';
+  const color = score >= 70 ? '#8B7355' : score >= 50 ? '#F4B860' : '#9B4D4D';
   svg.innerHTML = `
     <circle cx="100" cy="100" r="${radius}" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="8"/>
     <circle cx="100" cy="100" r="${radius}" fill="none" stroke="${color}" stroke-width="8"
             stroke-dasharray="${circumference}" stroke-dashoffset="${offset}"
             stroke-linecap="round" transform="rotate(-90 100 100)"/>
     <text x="100" y="100" text-anchor="middle" dy="0.3em" font-size="32" font-weight="700" fill="${color}">${Math.round(score)}</text>
-    <text x="100" y="125" text-anchor="middle" font-size="14" fill="var(--text-gray)">/100</text>
+    <text x="100" y="125" text-anchor="middle" font-size="14" fill="var(--text-secondary)">/100</text>
   `;
 }
 
@@ -768,21 +778,21 @@ function renderHistoriquePrix(validDVF) {
         datasets: [{
           label: 'Prix médian m²',
           data: data,
-          borderColor: '#00DC82',
-          backgroundColor: 'rgba(0,220,130,0.1)',
+          borderColor: '#8B7355',
+          backgroundColor: 'rgba(139, 115, 85, 0.08)',
           tension: 0.4,
           fill: true,
-          pointBackgroundColor: '#00DC82'
+          pointBackgroundColor: '#8B7355'
         }]
       },
-      options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: false, ticks: { color: 'var(--text-gray)' }, grid: { color: 'rgba(255,255,255,0.05)' } }, x: { ticks: { color: 'var(--text-gray)' }, grid: { display: false } } } }
+      options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: false, ticks: { color: 'var(--text-secondary)' }, grid: { color: 'rgba(0,0,0,0.06)' } }, x: { ticks: { color: 'var(--text-secondary)' }, grid: { display: false } } } }
     });
   }
 }
 
 function renderDPEScale(currentDPE) {
   const dpes = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
-  const colors = { A:'#319834', B:'#33cc31', C:'#cbfc34', D:'#fcfc32', E:'#fccc32', F:'#fc9834', G:'#fc0000' };
+  const colors = { A:'#319834', B:'#4A7C59', C:'#cbfc34', D:'#fcfc32', E:'#fccc32', F:'#fc9834', G:'#fc0000' };
   const impacts = { A:6, B:4, C:2, D:0, E:-4, F:-8, G:-8 };
   const html = dpes.map(d => `
     <div class="dpe-scale-item ${d === currentDPE ? 'active' : ''}" style="background:${colors[d]}; color:${['C','D','E'].includes(d) ? '#000' : '#fff'};">
@@ -797,7 +807,7 @@ function renderDPEScale(currentDPE) {
 function renderDPERepartition(dpeData) {
   if (!dpeData) return;
   const labels = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
-  const colors = { A:'#319834', B:'#33cc31', C:'#cbfc34', D:'#fcfc32', E:'#fccc32', F:'#fc9834', G:'#fc0000' };
+  const colors = { A:'#319834', B:'#4A7C59', C:'#cbfc34', D:'#fcfc32', E:'#fccc32', F:'#fc9834', G:'#fc0000' };
   const html = labels.map(l => {
     const key = `pct_${l.toLowerCase()}`;
     const pct = parseFloat(dpeData[key]) || 0;
@@ -856,7 +866,7 @@ function renderPLU(pluData) {
   if (total === 0) return;
   const values = [pluData.pct_zone_u || 0, pluData.pct_zone_au || 0, pluData.pct_zone_n || 0, pluData.pct_zone_a || 0];
   const labels = ['U', 'AU', 'N', 'A'];
-  const colors = ['#00DC82', '#FCB82E', '#6C6C7C', '#33cc31'];
+  const colors = ['#8B7355', '#F4B860', '#9B9B9B', '#4A7C59'];
   const radius = 70;
   const circumference = 2 * Math.PI * radius;
   let offset = 0;
@@ -1209,7 +1219,7 @@ document.getElementById('estimation-form').addEventListener('submit', async (e) 
 
     const dpeBadge = document.getElementById('dpe-badge-large');
     if (dpeBadge) {
-      const colors = { A:'#319834', B:'#33cc31', C:'#cbfc34', D:'#fcfc32', E:'#fccc32', F:'#fc9834', G:'#fc0000' };
+      const colors = { A:'#319834', B:'#4A7C59', C:'#cbfc34', D:'#fcfc32', E:'#fccc32', F:'#fc9834', G:'#fc0000' };
       const impacts = { A:'+6%', B:'+4%', C:'+2%', D:'0%', E:'-4%', F:'-8%', G:'-8%' };
       const textColor = ['C', 'D', 'E'].includes(dpe) ? '#000' : '#fff';
       dpeBadge.innerHTML = `
@@ -1223,7 +1233,7 @@ document.getElementById('estimation-form').addEventListener('submit', async (e) 
     const dpeImpact = document.getElementById('dpe-impact');
     if (dpeImpact) {
       dpeImpact.innerHTML = `
-        <div style="font-size:0.95rem; color:var(--text-gray);">
+        <div style="font-size:0.95rem; color:var(--text-secondary);">
           <strong>Classe énergétique actuelle:</strong> ${dpe}<br/>
           <strong>Impact estimation:</strong> ${dpeAdj >= 0 ? '+' : ''}${(dpeAdj * 100).toFixed(1)}%<br/>
           <strong>Impact prix:</strong> ${fmt(estPrice * dpeAdj)}
@@ -1273,7 +1283,7 @@ document.getElementById('estimation-form').addEventListener('submit', async (e) 
     const aidesPanel = document.getElementById('aides-renov-panel');
     if (aidesPanel) {
       if (['E', 'F', 'G'].includes(dpe)) {
-        aidesPanel.innerHTML = `<div style="color:var(--text-gray); font-size:0.9rem;">Simulation en cours…</div>`;
+        aidesPanel.innerHTML = `<div style="color:var(--text-secondary); font-size:0.9rem;">Simulation en cours…</div>`;
         try {
           const renoResp = await fetch(`${SUPA_URL}/rest/v1/rpc/renovation_simulate`, {
             method: 'POST',
@@ -1287,16 +1297,16 @@ document.getElementById('estimation-form').addEventListener('submit', async (e) 
               <tr>
                 <td>${g.geste || '—'}</td>
                 <td>${g.cout ? fmt(g.cout) : '—'}</td>
-                <td style="color:#00DC82">${g.mpr ? fmt(g.mpr) : '—'}</td>
-                <td style="color:#FCB82E">${g.cee ? fmt(g.cee) : '—'}</td>
+                <td style="color:#8B7355">${g.mpr ? fmt(g.mpr) : '—'}</td>
+                <td style="color:#F4B860">${g.cee ? fmt(g.cee) : '—'}</td>
               </tr>
             `).join('');
             aidesPanel.innerHTML = `
               <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:1rem; margin-bottom:1.5rem;">
                 <div class="kpi-card"><div class="label">Coût total travaux</div><div class="value">${fmt(reno.cout_total_estime)}</div><div class="sub">Estimation</div></div>
-                <div class="kpi-card"><div class="label">MaPrimeRénov'</div><div class="value" style="color:#00DC82">${reno.mpr_total ? fmt(reno.mpr_total) : '—'}</div><div class="sub">Aide État</div></div>
-                <div class="kpi-card"><div class="label">CEE</div><div class="value" style="color:#FCB82E">${reno.cee_total ? fmt(reno.cee_total) : '—'}</div><div class="sub">Certificats énergie</div></div>
-                <div class="kpi-card"><div class="label">Reste à charge</div><div class="value" style="color:${reno.reste_a_charge > reno.cout_total_estime * 0.5 ? '#FF6B6B' : '#00DC82'}">${reno.reste_a_charge ? fmt(reno.reste_a_charge) : '—'}</div><div class="sub">${pctCouvert}% couvert</div></div>
+                <div class="kpi-card"><div class="label">MaPrimeRénov'</div><div class="value" style="color:#8B7355">${reno.mpr_total ? fmt(reno.mpr_total) : '—'}</div><div class="sub">Aide État</div></div>
+                <div class="kpi-card"><div class="label">CEE</div><div class="value" style="color:#F4B860">${reno.cee_total ? fmt(reno.cee_total) : '—'}</div><div class="sub">Certificats énergie</div></div>
+                <div class="kpi-card"><div class="label">Reste à charge</div><div class="value" style="color:${reno.reste_a_charge > reno.cout_total_estime * 0.5 ? '#9B4D4D' : '#8B7355'}">${reno.reste_a_charge ? fmt(reno.reste_a_charge) : '—'}</div><div class="sub">${pctCouvert}% couvert</div></div>
               </div>
               ${gestesHtml ? `
               <div class="table-responsive">
@@ -1305,7 +1315,7 @@ document.getElementById('estimation-form').addEventListener('submit', async (e) 
                   ${gestesHtml}
                 </table>
               </div>` : ''}
-              <div style="margin-top:1rem; padding:0.8rem; background:rgba(252,178,46,0.1); border-left:3px solid #FCB82E; border-radius:4px; font-size:0.85rem;">
+              <div style="margin-top:1rem; padding:0.8rem; background:rgba(244, 184, 96, 0.1); border-left:3px solid #F4B860; border-radius:4px; font-size:0.85rem;">
                 Classe actuelle <strong>${dpe}</strong> — Zone ${reno.zone_climatique || '—'} — Revenus ${reno.revenu_classe || '—'}
               </div>
             `;
@@ -1316,18 +1326,18 @@ document.getElementById('estimation-form').addEventListener('submit', async (e) 
           const targetDpe = dpe === 'G' ? 'F' : 'E';
           aidesPanel.innerHTML = `
             <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-bottom:1rem;">
-              <div style="padding:1rem; background:rgba(0,220,130,0.05); border-radius:6px;"><strong>MaPrimeRénov'</strong><p style="font-size:0.85rem; color:var(--text-gray); margin-top:0.3rem;">Aide de l'État pour rénover votre habitation.</p></div>
-              <div style="padding:1rem; background:rgba(0,220,130,0.05); border-radius:6px;"><strong>CEE</strong><p style="font-size:0.85rem; color:var(--text-gray); margin-top:0.3rem;">Certificats d'Économie d'Énergie.</p></div>
-              <div style="padding:1rem; background:rgba(0,220,130,0.05); border-radius:6px;"><strong>Éco-PTZ</strong><p style="font-size:0.85rem; color:var(--text-gray); margin-top:0.3rem;">Prêt à taux zéro pour rénovation.</p></div>
-              <div style="padding:1rem; background:rgba(0,220,130,0.05); border-radius:6px;"><strong>TVA réduite</strong><p style="font-size:0.85rem; color:var(--text-gray); margin-top:0.3rem;">5,5% sur travaux énergétiques.</p></div>
+              <div style="padding:1rem; background:rgba(139, 115, 85, 0.04); border-radius:6px;"><strong>MaPrimeRénov'</strong><p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.3rem;">Aide de l'État pour rénover votre habitation.</p></div>
+              <div style="padding:1rem; background:rgba(139, 115, 85, 0.04); border-radius:6px;"><strong>CEE</strong><p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.3rem;">Certificats d'Économie d'Énergie.</p></div>
+              <div style="padding:1rem; background:rgba(139, 115, 85, 0.04); border-radius:6px;"><strong>Éco-PTZ</strong><p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.3rem;">Prêt à taux zéro pour rénovation.</p></div>
+              <div style="padding:1rem; background:rgba(139, 115, 85, 0.04); border-radius:6px;"><strong>TVA réduite</strong><p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.3rem;">5,5% sur travaux énergétiques.</p></div>
             </div>
-            <div style="padding:1rem; background:rgba(252,178,46,0.1); border-radius:6px; border-left:3px solid #FCB82E;">
+            <div style="padding:1rem; background:rgba(244, 184, 96, 0.1); border-radius:6px; border-left:3px solid #F4B860;">
               <strong>Cible estimée :</strong> Passage de ${dpe} à ${targetDpe}
             </div>
           `;
         }
       } else {
-        aidesPanel.innerHTML = `<p style="color:var(--text-gray); font-size:0.9rem;">Ce bien (classe ${dpe}) ne nécessite pas de rénovation prioritaire. Les aides sont principalement disponibles pour les classes E, F et G.</p>`;
+        aidesPanel.innerHTML = `<p style="color:var(--text-secondary); font-size:0.9rem;">Ce bien (classe ${dpe}) ne nécessite pas de rénovation prioritaire. Les aides sont principalement disponibles pour les classes E, F et G.</p>`;
       }
     }
 
@@ -1355,12 +1365,12 @@ document.getElementById('estimation-form').addEventListener('submit', async (e) 
         ${sec ? `
         <div class="kpi-card">
           <div class="label">Cambriolages</div>
-          <div class="value" style="color:${(sec.cambriolages_1000||0) > 10 ? '#FF6B6B' : '#00DC82'}">${sec.cambriolages_1000 != null ? sec.cambriolages_1000.toFixed(1) : '—'}</div>
+          <div class="value" style="color:${(sec.cambriolages_1000||0) > 10 ? '#9B4D4D' : '#8B7355'}">${sec.cambriolages_1000 != null ? sec.cambriolages_1000.toFixed(1) : '—'}</div>
           <div class="sub">Pour 1 000 hab.</div>
         </div>
         <div class="kpi-card">
           <div class="label">Violences</div>
-          <div class="value" style="color:${(sec.violences_1000||0) > 15 ? '#FF6B6B' : '#00DC82'}">${sec.violences_1000 != null ? sec.violences_1000.toFixed(1) : '—'}</div>
+          <div class="value" style="color:${(sec.violences_1000||0) > 15 ? '#9B4D4D' : '#8B7355'}">${sec.violences_1000 != null ? sec.violences_1000.toFixed(1) : '—'}</div>
           <div class="sub">Pour 1 000 hab.</div>
         </div>
         <div class="kpi-card">
@@ -1370,7 +1380,7 @@ document.getElementById('estimation-form').addEventListener('submit', async (e) 
         </div>
         <div class="kpi-card">
           <div class="label">Eau potable</div>
-          <div class="value" style="color:${sec.eau === true ? '#00DC82' : sec.eau === false ? '#FF6B6B' : 'var(--text-gray)'}">${sec.eau === true ? 'Conforme' : sec.eau === false ? 'Non conforme' : '—'}</div>
+          <div class="value" style="color:${sec.eau === true ? '#8B7355' : sec.eau === false ? '#9B4D4D' : 'var(--text-secondary)'}">${sec.eau === true ? 'Conforme' : sec.eau === false ? 'Non conforme' : '—'}</div>
           <div class="sub">Conformité</div>
         </div>
         ` : `
@@ -1396,10 +1406,10 @@ document.getElementById('estimation-form').addEventListener('submit', async (e) 
       </div>
     `;
     document.getElementById('ml-fiability').innerHTML = `
-      <div style="font-size:1.5rem; color:${conf >= 70 ? '#00DC82' : conf >= 50 ? '#FCB82E' : '#FF6B6B'}; font-weight:700;">
+      <div style="font-size:1.5rem; color:${conf >= 70 ? '#8B7355' : conf >= 50 ? '#F4B860' : '#9B4D4D'}; font-weight:700;">
         ${Math.round(conf)}%
       </div>
-      <div style="margin-top:0.5rem; color:var(--text-gray); font-size:0.85rem;">
+      <div style="margin-top:0.5rem; color:var(--text-secondary); font-size:0.85rem;">
         ${conf >= 70 ? 'Très fiable' : conf >= 50 ? 'Acceptable' : 'À considérer'}
       </div>
     `;

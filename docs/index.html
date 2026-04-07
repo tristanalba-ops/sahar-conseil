@@ -37,7 +37,7 @@
   }
   </script>
 
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%2300DC82'/><text y='.9em' font-size='75' x='12'>IA</text></svg>" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%238B7355'/><text y='.9em' font-size='75' x='12'>IA</text></svg>" />
   <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet" />
@@ -45,18 +45,21 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     :root {
-      --dark-bg: #0D0D0D;
-      --dark-bg-light: #1A1A2E;
-      --accent-green: #00DC82;
-      --text-white: #FFFFFF;
-      --text-gray: #A0A0A0;
-      --border-color: #2A2A3E;
+      --bg: #F0EEE9;
+      --bg-alt: #E6E2DB;
+      --accent: #8B7355;
+      --accent-light: rgba(139, 115, 85, 0.08);
+      --text-primary: #1A1A1A;
+      --text-secondary: #6B6560;
+      --border: #D4CFC7;
+      --card-bg: #FFFFFF;
+      --nav-bg: rgba(240, 238, 233, 0.95);
     }
 
     body {
       font-family: 'Inter', sans-serif;
-      background: var(--dark-bg);
-      color: var(--text-white);
+      background: var(--bg);
+      color: var(--text-primary);
       line-height: 1.6;
     }
 
@@ -66,9 +69,9 @@
       align-items: center;
       justify-content: space-between;
       padding: 1.2rem 5%;
-      background: rgba(13, 13, 13, 0.95);
+      background: var(--nav-bg);
       backdrop-filter: blur(10px);
-      border-bottom: 1px solid var(--border-color);
+      border-bottom: 1px solid var(--border);
       position: sticky;
       top: 0;
       z-index: 100;
@@ -78,7 +81,7 @@
       font-family: 'Space Grotesk', sans-serif;
       font-size: 1.35rem;
       font-weight: 700;
-      color: var(--accent-green);
+      color: var(--accent);
       text-decoration: none;
     }
 
@@ -90,13 +93,46 @@
     }
 
     .nav-links a {
-      color: var(--text-white);
+      color: var(--text-primary);
       text-decoration: none;
       font-size: 0.9rem;
       transition: color 0.2s;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
     }
 
-    .nav-links a:hover { color: var(--accent-green); }
+    .nav-links a:hover { color: var(--accent); }
+
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 6px;
+      cursor: pointer;
+      padding: 8px;
+      background: none;
+      border: none;
+    }
+
+    .hamburger span {
+      display: block;
+      width: 24px;
+      height: 2px;
+      background: var(--text-primary);
+      transition: 0.3s;
+    }
+
+    .hamburger.active span:nth-child(1) {
+      transform: rotate(45deg) translate(8px, 8px);
+    }
+
+    .hamburger.active span:nth-child(2) {
+      opacity: 0;
+    }
+
+    .hamburger.active span:nth-child(3) {
+      transform: rotate(-45deg) translate(7px, -6px);
+    }
 
     /* HERO */
     .hero {
@@ -112,13 +148,14 @@
       font-weight: 700;
       line-height: 1.1;
       margin-bottom: 1.5rem;
+      color: var(--text-primary);
     }
 
-    .hero h1 span { color: var(--accent-green); }
+    .hero h1 span { color: var(--accent); }
 
     .hero-sub {
       font-size: 1.15rem;
-      color: var(--text-gray);
+      color: var(--text-secondary);
       max-width: 700px;
       margin: 0 auto 2.5rem;
       line-height: 1.8;
@@ -126,7 +163,7 @@
 
     .hero-link {
       display: inline-block;
-      color: var(--accent-green);
+      color: var(--accent);
       font-weight: 600;
       text-decoration: none;
       font-size: 1rem;
@@ -134,12 +171,12 @@
       transition: border-color 0.2s;
     }
 
-    .hero-link:hover { border-color: var(--accent-green); }
+    .hero-link:hover { border-color: var(--accent); }
 
     /* DATA CARDS */
     .data-section {
       padding: 5rem 5%;
-      border-top: 1px solid var(--border-color);
+      border-top: 1px solid var(--border);
     }
 
     .section-header {
@@ -152,7 +189,7 @@
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.15em;
-      color: var(--accent-green);
+      color: var(--accent);
       margin-bottom: 0.75rem;
     }
 
@@ -161,11 +198,12 @@
       font-size: clamp(1.8rem, 4vw, 2.5rem);
       font-weight: 700;
       margin-bottom: 1rem;
+      color: var(--text-primary);
     }
 
     .section-sub {
       font-size: 1rem;
-      color: var(--text-gray);
+      color: var(--text-secondary);
       max-width: 600px;
       margin: 0 auto;
     }
@@ -179,20 +217,22 @@
     }
 
     .data-card {
-      background: rgba(26, 26, 46, 0.5);
-      border: 1px solid var(--border-color);
-      border-radius: 16px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
       padding: 2rem;
-      transition: all 0.3s;
+      transition: all 0.2s;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
     }
 
     .data-card:hover {
-      border-color: rgba(0, 220, 130, 0.3);
-      background: rgba(26, 26, 46, 0.8);
+      border-color: var(--accent);
+      background: var(--card-bg);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
     }
 
     .data-card-icon {
-      font-size: 2rem;
+      font-size: 0;
       margin-bottom: 1rem;
     }
 
@@ -201,27 +241,28 @@
       font-weight: 700;
       font-size: 1.05rem;
       margin-bottom: 0.5rem;
+      color: var(--text-primary);
     }
 
     .data-card-vol {
       font-size: 0.8rem;
-      color: var(--accent-green);
+      color: var(--accent);
       font-weight: 600;
       margin-bottom: 0.75rem;
     }
 
     .data-card-desc {
       font-size: 0.88rem;
-      color: var(--text-gray);
+      color: var(--text-secondary);
       line-height: 1.6;
     }
 
     /* EXPLORATIONS */
     .explorations-section {
       padding: 5rem 5%;
-      background: var(--dark-bg-light);
-      border-top: 1px solid var(--border-color);
-      border-bottom: 1px solid var(--border-color);
+      background: var(--bg-alt);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
     }
 
     .exploration-grid {
@@ -233,18 +274,19 @@
     }
 
     .exploration-card {
-      background: rgba(13, 13, 13, 0.6);
-      border: 1px solid var(--border-color);
-      border-top: 3px solid var(--accent-green);
-      border-radius: 16px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-top: 3px solid var(--accent);
+      border-radius: 12px;
       padding: 2rem;
-      transition: all 0.3s;
+      transition: all 0.2s;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
     }
 
     .exploration-card:hover {
-      transform: translateY(-4px);
-      border-color: rgba(0, 220, 130, 0.3);
-      border-top-color: var(--accent-green);
+      border-color: var(--accent);
+      border-top-color: var(--accent);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
     }
 
     .exploration-badge {
@@ -259,13 +301,13 @@
     }
 
     .badge-live {
-      background: rgba(0, 220, 130, 0.15);
-      color: var(--accent-green);
+      background: var(--accent-light);
+      color: var(--accent);
     }
 
     .badge-wip {
-      background: rgba(160, 160, 160, 0.15);
-      color: var(--text-gray);
+      background: rgba(107, 101, 96, 0.08);
+      color: var(--text-secondary);
     }
 
     .exploration-title {
@@ -273,18 +315,19 @@
       font-weight: 700;
       font-size: 1.05rem;
       margin-bottom: 0.75rem;
+      color: var(--text-primary);
     }
 
     .exploration-desc {
       font-size: 0.88rem;
-      color: var(--text-gray);
+      color: var(--text-secondary);
       line-height: 1.6;
       margin-bottom: 1rem;
     }
 
     .exploration-source {
       font-size: 0.78rem;
-      color: var(--accent-green);
+      color: var(--accent);
       font-weight: 600;
     }
 
@@ -301,7 +344,7 @@
 
     .methodo-text {
       font-size: 1.05rem;
-      color: var(--text-gray);
+      color: var(--text-secondary);
       line-height: 1.8;
       margin-bottom: 2rem;
     }
@@ -309,22 +352,22 @@
     /* FOOTER */
     footer {
       padding: 3rem 5%;
-      border-top: 1px solid var(--border-color);
+      border-top: 1px solid var(--border);
       text-align: center;
       font-size: 0.85rem;
-      color: var(--text-gray);
+      color: var(--text-secondary);
     }
 
     footer a {
-      color: var(--text-gray);
+      color: var(--text-secondary);
       text-decoration: none;
       transition: color 0.2s;
     }
 
-    footer a:hover { color: var(--accent-green); }
+    footer a:hover { color: var(--accent); }
 
     .footer-email {
-      color: var(--accent-green);
+      color: var(--accent);
       margin: 0.75rem 0;
       display: block;
     }
@@ -336,14 +379,54 @@
     .footer-copy {
       margin-top: 1rem;
       font-size: 0.78rem;
-      color: rgba(160, 160, 160, 0.6);
+      color: rgba(107, 101, 96, 0.6);
     }
 
     /* MOBILE */
     @media (max-width: 768px) {
-      .nav-links { display: none; }
-      .hero { padding: 5rem 5% 4rem; }
-      .data-grid, .exploration-grid { grid-template-columns: 1fr; }
+      nav {
+        padding: 1rem 5%;
+      }
+
+      .nav-links {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        flex-direction: column;
+        background: var(--nav-bg);
+        border-bottom: 1px solid var(--border);
+        padding: 1rem 5%;
+        gap: 0;
+        z-index: 99;
+      }
+
+      .nav-links.active {
+        display: flex;
+      }
+
+      .nav-links li {
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+      }
+
+      .hamburger {
+        display: flex;
+      }
+
+      .hero {
+        padding: 5rem 5% 4rem;
+      }
+
+      .data-grid, .exploration-grid {
+        grid-template-columns: 1fr;
+      }
+
+      main {
+        padding: 2rem 5% !important;
+      }
     }
   </style>
 </head>
@@ -352,6 +435,11 @@
   <!-- NAV -->
   <nav>
     <a href="/" class="nav-logo">Intent Analytics</a>
+    <button class="hamburger" onclick="this.classList.toggle('active'); document.querySelector('.nav-links').classList.toggle('active');">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
     <ul class="nav-links">
       <li><a href="/projet">Le projet</a></li>
       <li><a href="/donnees">Données</a></li>
@@ -382,22 +470,18 @@
     </div>
     <div class="data-grid">
       <div class="data-card">
-        <div class="data-card-icon">📊</div>
         <div class="data-card-name">DVF</div>
         <div class="data-card-desc">Transactions immobilières</div>
       </div>
       <div class="data-card">
-        <div class="data-card-icon">⚡</div>
         <div class="data-card-name">DPE</div>
         <div class="data-card-desc">Diagnostics énergétiques</div>
       </div>
       <div class="data-card">
-        <div class="data-card-icon">🏗️</div>
         <div class="data-card-name">BPE</div>
         <div class="data-card-desc">Équipements et services</div>
       </div>
       <div class="data-card">
-        <div class="data-card-icon">📍</div>
         <div class="data-card-name">BAN</div>
         <div class="data-card-desc">Adresses géocodées</div>
       </div>
@@ -443,7 +527,7 @@
       <p class="methodo-text">
         Les analyses s'appuient sur des données officielles et un indice de confiance accompagne chaque résultat.
       </p>
-      <a href="/methodologie" style="color: var(--accent-green); font-weight: 600; text-decoration: none; border-bottom: 2px solid transparent; transition: border-color 0.2s;" onmouseover="this.style.borderColor='var(--accent-green)'" onmouseout="this.style.borderColor='transparent'">Lire la méthodologie complète →</a>
+      <a href="/methodologie" style="color: var(--accent); font-weight: 600; text-decoration: none; border-bottom: 2px solid transparent; transition: border-color 0.2s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='transparent'">Lire la méthodologie complète →</a>
     </div>
   </section>
 
