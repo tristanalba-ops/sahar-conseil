@@ -815,97 +815,87 @@ document.getElementById('estimation-form').addEventListener('submit', async (e) 
     const geo = _selectedGeo;
     if (!geo) throw new Error('Veuillez sélectionner une adresse dans les suggestions.');
 
-    // Ajustements manuels (état + features) — appliqués au prix ML
+    const dvfRows = await fetchDVF(geo.citycode, typeBien);
+    if (dvfRows.length < 3) throw new Error(`Données insuffisantes pour ${geo.commune} (${dvfRows.length} transactions).`);
+
+    const supp = await fetchSupp(geo.citycode, geo.cp);
+
+    const rawDVF = dvfRows
+      .filter(r => r.surface_reelle_bati >= 9 && r.valeur_fonciere >= 5000)
+      .map(r => ({ prixM2: r.valeur_fonciere / r.surface_reelle_bati, prix: r.valeur_fonciere, surface: r.surface_reelle_bati, date: r.date_mutation, type: r.type_local }))
+      .sort((a, b) => a.prixM2 - b.prixM2);
+    if (rawDVF.length < 3) throw new Error('Pas assez de transactions valides.');
+
+    const rawQ1 = rawDVF[Math.floor(rawDVF.length * 0.25)].prixM2;
+    const rawQ3 = rawDVF[Math.floor(rawDVF.length * 0.75)].prixM2;
+    const iqr = rawQ3 - rawQ1;
+    const lowerFence = rawQ1 - 1.5 * iqr;
+    const upperFence = rawQ3 + 1.5 * iqr;
+    const validDVF = rawDVF.filter(r => r.prixM2 >= lowerFence && r.prixM2 <= upperFence);
+    if (validDVF.length < 3) throw new Error('Pas assez de transactions valides.');
+
+    const medianPrixM2 = validDVF[Math.floor(validDVF.length / 2)].prixM2;
+    const q1 = validDVF[Math.floor(validDVF.length * 0.25)].prixM2;
+    const q3 = validDVF[Math.floor(validDVF.length * 0.75)].prixM2;
+    const meanPrixM2 = validDVF.reduce((s, r) => s + r.prixM2, 0) / validDVF.length;
+
+    const dpeAdj = { A:0.06, B:0.04, C:0.02, D:0, E:-0.04, F:-0.08, G:-0.08 }[dpe] || 0;
     const stateAdj = { mauvais:-0.10, moyen:-0.05, bon:0, tres_bon:0.05, excellent:0.10 }[etat] || 0;
     let featBonus = 0;
     if (document.getElementById('has_parking').checked) featBonus += 0.03;
     if (document.getElementById('has_balcony').checked) featBonus += 0.02;
     if (document.getElementById('has_garden').checked) featBonus += 0.04;
     if (document.getElementById('has_view').checked) featBonus += 0.02;
-    const manualAdj = stateAdj + featBonus;
 
-    // ── APPEL ML-PREDICT (moteur principal) ──────────────────────────────
-    btn.textContent = 'Modèle ML en cours...';
-    const mlResp = await fetch(`${SUPA_URL}/functions/v1/ml-predict`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', apikey: SUPA_ANON, Authorization: `Bearer ${SUPA_ANON}` },
-      body: JSON.stringify({
-        code_postal: geo.cp,
-        surface,
-        type_bien: typeBien,
-        nb_pieces,
-        latitude: geo.lat,
-        longitude: geo.lon
-      })
-    });
-    if (!mlResp.ok) throw new Error(`ml-predict: ${mlResp.status}`);
-    const ml = await mlResp.json();
-    if (ml.error) throw new Error(ml.error);
-
-    // Prix ML + ajustements manuels
-    const mlPrixM2 = ml.prediction.prix_m2;
-    const estPrixM2 = Math.round(mlPrixM2 * (1 + manualAdj));
+    const totalAdj = dpeAdj + stateAdj + featBonus;
+    const estPrixM2 = medianPrixM2 * (1 + totalAdj);
     const estPrice = estPrixM2 * surface;
-    const fourchetteBasse = Math.round(ml.prediction.fourchette_basse * (1 + manualAdj));
-    const fourchetteHaute = Math.round(ml.prediction.fourchette_haute * (1 + manualAdj));
-    const mlR2 = ml.model?.metrics?.r2 || 0.73;
-    const conf = Math.min(97, Math.round(mlR2 * 100));
 
-    // ── DVF (contexte marché + comparables) ──────────────────────────────
-    btn.textContent = 'Chargement données marché...';
-    const [dvfRows, supp] = await Promise.all([
-      fetchDVF(geo.citycode, typeBien),
-      fetchSupp(geo.citycode, geo.cp)
-    ]);
+    const ecartType = Math.sqrt(validDVF.reduce((s, r) => s + Math.pow(r.prixM2 - meanPrixM2, 2), 0) / validDVF.length);
+    const marginPct = parseFloat(((ecartType / meanPrixM2) * 100).toFixed(1));
 
-    // Calcul DVF pour historique/comparables (pas pour l'estimation)
-    const rawDVF = dvfRows
-      .filter(r => r.surface_reelle_bati >= 9 && r.valeur_fonciere >= 5000)
-      .map(r => ({ prixM2: r.valeur_fonciere / r.surface_reelle_bati, prix: r.valeur_fonciere, surface: r.surface_reelle_bati, date: r.date_mutation, type: r.type_local }))
-      .sort((a, b) => a.prixM2 - b.prixM2);
+    let conf = 30;
+    if (validDVF.length >= 100) conf += 25;
+    else if (validDVF.length >= 50) conf += 20;
+    else if (validDVF.length >= 20) conf += 15;
+    else if (validDVF.length >= 10) conf += 10;
+    const latestDate = validDVF.reduce((mx, r) => r.date > mx ? r.date : mx, '2000-01-01');
+    const daysSince = Math.floor((Date.now() - new Date(latestDate).getTime()) / 86400000);
+    if (daysSince <= 90) conf += 15; else if (daysSince <= 180) conf += 10; else if (daysSince <= 365) conf += 5;
+    if (marginPct < 20) conf += 15; else if (marginPct < 35) conf += 10; else if (marginPct < 50) conf += 5;
+    if (supp.dpe) conf += 8;
+    if (supp.poi) conf += 5;
+    if (supp.zone) conf += 2;
+    conf = Math.min(100, conf);
 
-    let validDVF = rawDVF;
-    let medianPrixM2 = estPrixM2; // fallback ML si pas de DVF
-    if (rawDVF.length >= 3) {
-      const rawQ1 = rawDVF[Math.floor(rawDVF.length * 0.25)].prixM2;
-      const rawQ3 = rawDVF[Math.floor(rawDVF.length * 0.75)].prixM2;
-      const iqr = rawQ3 - rawQ1;
-      validDVF = rawDVF.filter(r => r.prixM2 >= rawQ1 - 1.5 * iqr && r.prixM2 <= rawQ3 + 1.5 * iqr);
-      medianPrixM2 = validDVF[Math.floor(validDVF.length / 2)]?.prixM2 || estPrixM2;
-    }
-
-    // ── HERO RÉSULTAT ────────────────────────────────────────────────────
     document.getElementById('result-hero').classList.add('visible');
     document.getElementById('rh-type').textContent = `${typeBien} ${nb_pieces} pièce${nb_pieces > 1 ? 's' : ''} — ${fmtN(surface)} m²`;
     document.getElementById('rh-commune').textContent = `${geo.commune}, ${geo.cp}`;
     document.getElementById('rh-prix').textContent = fmtN(Math.round(estPrice));
-    document.getElementById('rh-prix-m2').textContent = `${fmtN(estPrixM2)} €/m²`;
+    document.getElementById('rh-prix-m2').textContent = `${fmtN(estPrixM2.toFixed(0))} €/m²`;
 
     const fourchette = document.getElementById('rh-fourchette');
     fourchette.innerHTML = `
-      <div class="fourchette-item"><div class="fourchette-label">Estimation basse</div><div class="fourchette-val">${fmt(fourchetteBasse)}</div></div>
-      <div class="fourchette-item"><div class="fourchette-label">Estimation haute</div><div class="fourchette-val">${fmt(fourchetteHaute)}</div></div>
+      <div class="fourchette-item"><div class="fourchette-label">Estimation basse</div><div class="fourchette-val">${fmt(q1 * surface)}</div></div>
+      <div class="fourchette-item"><div class="fourchette-label">Estimation haute</div><div class="fourchette-val">${fmt(q3 * surface)}</div></div>
     `;
 
     const tags = [
-      `Modèle ML XGBoost`,
-      `R² ${mlR2.toFixed ? mlR2.toFixed(3) : mlR2}`,
+      `${validDVF.length} comparables`,
+      `Confiance ${Math.round(conf)}%`,
       dpe === 'G' || dpe === 'F' ? 'Impact DPE −' : dpe === 'A' || dpe === 'B' ? 'Impact DPE +' : 'Impact DPE neutre'
     ];
-    if (validDVF.length > 0) tags.push(`${validDVF.length} comparables DVF`);
     if (supp.loc?.score_localisation) tags.push(`Localisation ${Math.round(supp.loc.score_localisation)}/100`);
-    if (ml.risques?.nb_risques != null) tags.push(`${ml.risques.nb_risques} risque${ml.risques.nb_risques !== 1 ? 's' : ''} naturel${ml.risques.nb_risques !== 1 ? 's' : ''}`);
+    if (supp.loc?.detail_risques?.nb_risques !== undefined) tags.push(`${supp.loc.detail_risques.nb_risques} risque${supp.loc.detail_risques.nb_risques !== 1 ? 's' : ''} naturel${supp.loc.detail_risques.nb_risques !== 1 ? 's' : ''}`);
     document.getElementById('rh-tags').innerHTML = tags.map(t => `<div class="tag">${t}</div>`).join('');
 
     document.getElementById('volets-tabs').classList.add('visible');
 
-    // KPIs immobiliers : ML pour prix/m², DVF pour volume/évolution
-    const evo = ml.metadata?.enrichment?.evolution_12m ?? supp.zone?.evolution_12m_zone ?? null;
     const kpiImmo = [
-      { label: 'Prix ML (m²)', value: fmtN(mlPrixM2) + ' €', sub: `R²=${mlR2}` },
-      { label: 'Évolution 12m', value: evo != null ? (evo >= 0 ? '+' : '') + Number(evo).toFixed(1) + '%' : '—', sub: 'Prix/m² annuel' },
-      { label: 'Comparables DVF', value: fmtN(validDVF.length), sub: 'Transactions récentes' },
-      { label: 'Médiane DVF (m²)', value: validDVF.length ? fmtN(medianPrixM2.toFixed(0)) + ' €' : '—', sub: 'Marché local' }
+      { label: 'Prix médian (m²)', value: fmtN(medianPrixM2.toFixed(0)) + ' €', sub: validDVF.length + ' transactions' },
+      { label: 'Évolution 12m', value: (supp.zone?.evolution_12m_zone || 0) >= 0 ? '+' + (supp.zone?.evolution_12m_zone || 0).toFixed(1) + '%' : (supp.zone?.evolution_12m_zone || 0).toFixed(1) + '%', sub: 'Prix/m² annuel' },
+      { label: 'Transactions', value: fmtN(validDVF.length), sub: 'Dynamisme du marché' },
+      { label: 'Délai de vente', value: supp.zone?.rotation_quartier ? (365 / parseFloat(supp.zone.rotation_quartier)).toFixed(0) + ' j' : '—', sub: 'Estimé' }
     ];
     const kpiHtml = kpiImmo.map(k => `
       <div class="kpi-card">
@@ -1154,17 +1144,7 @@ document.getElementById('estimation-form').addEventListener('submit', async (e) 
       }
     }
 
-    // Risques : données supp.geo en priorité, fallback ml.risques
-    const geoForRisques = geoData[0] || (ml.risques ? {
-      risque_inondation: ml.risques.inondation,
-      risque_argile: ml.risques.argile,
-      risque_seisme: ml.risques.seisme,
-      risque_radon: ml.risques.radon,
-      nb_catnat: null,
-      pprn_prescrit: ml.risques.pprn,
-      pprt_prescrit: ml.risques.pprt
-    } : null);
-    if (geoForRisques) renderRisques(geoForRisques);
+    if (geoData[0]) renderRisques(geoData[0]);
     if (pluData[0]) renderPLU(pluData[0]);
     if (eauData[0]) renderEauQualite(eauData[0]);
 
@@ -1225,26 +1205,21 @@ document.getElementById('estimation-form').addEventListener('submit', async (e) 
     mlBlock.classList.add('visible');
     document.getElementById('ml-range').innerHTML = `
       <div style="text-align:center; font-size:0.95rem;">
-        Entre <strong>${fmt(fourchetteBasse)}</strong> et <strong>${fmt(fourchetteHaute)}</strong>
-        <div style="margin-top:0.5rem; color:var(--text-gray); font-size:0.8rem;">Fourchette ±15% modèle ML</div>
+        Entre <strong>${fmt(q1 * surface)}</strong> et <strong>${fmt(q3 * surface)}</strong>
       </div>
     `;
     document.getElementById('ml-fiability').innerHTML = `
-      <div style="font-size:1.5rem; color:${mlR2 >= 0.75 ? '#00DC82' : mlR2 >= 0.60 ? '#FCB82E' : '#FF6B6B'}; font-weight:700;">
-        ${Math.round(mlR2 * 100)}%
+      <div style="font-size:1.5rem; color:${conf >= 70 ? '#00DC82' : conf >= 50 ? '#FCB82E' : '#FF6B6B'}; font-weight:700;">
+        ${Math.round(conf)}%
       </div>
       <div style="margin-top:0.5rem; color:var(--text-gray); font-size:0.85rem;">
-        R² = ${mlR2} — ${mlR2 >= 0.80 ? 'Très fiable' : mlR2 >= 0.65 ? 'Fiable' : 'Acceptable'}
+        ${conf >= 70 ? 'Très fiable' : conf >= 50 ? 'Acceptable' : 'À considérer'}
       </div>
     `;
-    const mlMae = ml.model?.metrics?.mae_eur_m2;
     const factors = [
-      `Modèle XGBoost v5 — ${ml.model?.n_trees || '—'} arbres`,
-      `Features utilisées : ${ml.metadata?.features_used || '—'} (${ml.metadata?.features_non_null || '—'} renseignées)`,
-      mlMae ? `Erreur moyenne : ±${fmtN(mlMae)} €/m²` : `MAPE modèle : 34.8% (non-résidentiel inclus)`,
-      manualAdj !== 0 ? `Ajustements manuels appliqués : ${(manualAdj * 100).toFixed(0) > 0 ? '+' : ''}${(manualAdj * 100).toFixed(0)}%` : `Aucun ajustement manuel`,
-      `Source prix zone : ${ml.metadata?.enrichment?.prix_source || '—'}`,
-      `Population source : ${ml.metadata?.enrichment?.pop_source || '—'}`
+      `${validDVF.length} transactions récentes`,
+      `Ajustement: ${(totalAdj*100 >= 0 ? '+' : '')}${(totalAdj*100).toFixed(1)}%`,
+      `Marge d'erreur: ±${marginPct}%`
     ];
     document.getElementById('ml-factors').innerHTML = factors.map(f => `<div style="padding:0.5rem 0; border-bottom:1px solid var(--border);">${f}</div>`).join('');
 
