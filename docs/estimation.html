@@ -1644,7 +1644,6 @@
     function safeTbody(id) { const el = document.getElementById(id); return el && el.querySelector('tbody') ? el.querySelector('tbody') : document.createElement('tbody'); }
 const SUPA_URL = 'https://wwvdpixzfaviaapixarb.supabase.co';
         
-    function safeTbody(id) { const el = document.getElementById(id); return el && el.querySelector('tbody') ? el.querySelector('tbody') : document.createElement('tbody'); }
 const SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3dmRwaXh6ZmF2aWFhcGl4YXJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3Mzk0NDgsImV4cCI6MjA5MDMxNTQ0OH0.NjOeWzUCo2BJPcxnkEJNm215GJBr1RAHba1eL_EF758';
         const BAN_URL = 'https://api-adresse.data.gouv.fr/search/';
 
@@ -2098,7 +2097,7 @@ const SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIs
             };
             const statsAppt = calcStats(appts);
             const statsM = calcStats(maisons);
-            document.getElementById('tableComparaison')?.querySelector('tbody')?.innerHTML = `
+            (document.getElementById('tableComparaison')?.querySelector('tbody') || {}).innerHTML = `
                 <tr><td>Appartement</td><td>${fmt(statsAppt.prixM2)}</td><td>${fmtD(statsAppt.surface)} m²</td><td>${statsAppt.count}</td></tr>
                 <tr><td>Maison</td><td>${fmt(statsM.prixM2)}</td><td>${fmtD(statsM.surface)} m²</td><td>${statsM.count}</td></tr>
             `;
@@ -2258,7 +2257,7 @@ const SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIs
             // Qualité eau
             const eauData = Array.isArray(d.eau) ? d.eau[0] : d.eau;
             if (eauData) {
-                document.getElementById('tableEau')?.querySelector('tbody')?.innerHTML = `
+                (document.getElementById('tableEau')?.querySelector('tbody') || {}).innerHTML = `
                     <tr><td>Conformité globale</td><td>${eauData.taux_conformite_global ? fmtD(eauData.taux_conformite_global) + '%' : '—'}</td><td>${eauData.taux_conformite_global >= 95 ? 'Conforme' : 'Attention'}</td></tr>
                     <tr><td>Nitrates</td><td>${eauData.nitrates_mg_l ? fmtD(eauData.nitrates_mg_l) + ' mg/L' : '—'}</td><td>${eauData.nitrates_mg_l < 50 ? 'Conforme' : 'Non conforme'}</td></tr>
                     <tr><td>Bactériologie</td><td>${eauData.conformite_bacterio ? 'Conforme' : 'Non conforme'}</td><td>${eauData.conformite_bacterio ? 'Conforme' : 'Non conforme'}</td></tr>
@@ -2304,11 +2303,11 @@ const SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIs
             const deptCode = e.geo.citycode.substring(0, 2);
             const marchesFiltered = (d.marches || []).filter(m => m.lieu_exec_code?.startsWith(deptCode)).slice(0, 5);
             if (marchesFiltered.length > 0) {
-                document.getElementById('tableMarchesPublics')?.querySelector('tbody')?.innerHTML = marchesFiltered.map(m => `
+                (document.getElementById('tableMarchesPublics')?.querySelector('tbody') || {}).innerHTML = marchesFiltered.map(m => `
                     <tr><td>${m.objet?.substring(0, 40) || '-'}</td><td>${fmt(m.montant || 0)}</td><td>${m.date_notification?.substring?.(0, 10) || '-'}</td></tr>
                 `).join('');
             } else {
-                document.getElementById('tableMarchesPublics')?.querySelector('tbody')?.innerHTML = '<tr><td colspan="3">Aucun marché récent</td></tr>';
+                (document.getElementById('tableMarchesPublics')?.querySelector('tbody') || {}).innerHTML = '<tr><td colspan="3">Aucun marché récent</td></tr>';
             }
 
             // TAB 6: METHODOLOGIE
