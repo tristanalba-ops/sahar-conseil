@@ -1635,7 +1635,12 @@
 
     <script>
         // CONSTANTS
-        const SUPA_URL = 'https://wwvdpixzfaviaapixarb.supabase.co';
+        
+    // --- SAFE HELPERS ---
+    function safeEl(id) { const el = document.getElementById(id); return el || { textContent: '', innerHTML: '', classList: { add(){}, remove(){}, toggle(){} }, style: {}, querySelector: () => ({ innerHTML: '' }), scrollIntoView(){}, getContext: () => null }; }
+    function safeCtx(id) { const el = document.getElementById(id); return el ? el.getContext('2d') : null; }
+  
+const SUPA_URL = 'https://wwvdpixzfaviaapixarb.supabase.co';
         const SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3dmRwaXh6ZmF2aWFhcGl4YXJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3Mzk0NDgsImV4cCI6MjA5MDMxNTQ0OH0.NjOeWzUCo2BJPcxnkEJNm215GJBr1RAHba1eL_EF758';
         const BAN_URL = 'https://api-adresse.data.gouv.fr/search/';
 
@@ -1660,7 +1665,7 @@
             const res = await fetch(url, {
                 headers: { 'apikey': SUPA_ANON, 'Authorization': `Bearer ${SUPA_ANON}` }
             });
-            return res.json();
+            if (!res.ok) return []; try { return await res.json(); } catch(e) { return []; }
         }
 
         // DVF FETCH
@@ -1669,7 +1674,7 @@
             const res = await fetch(url, {
                 headers: { 'apikey': SUPA_ANON, 'Authorization': `Bearer ${SUPA_ANON}` }
             });
-            let data = await res.json();
+            let data; try { data = await res.json(); } catch(_e) { data = []; }
             if (data.length > 0) {
                 data = data.filter(r => r.surface_reelle_bati >= 9 && r.valeur_fonciere >= 5000);
                 if (typeBien && typeBien === 'Appartement') {
@@ -1689,7 +1694,7 @@
             const res = await fetch(url, {
                 headers: { 'apikey': SUPA_ANON, 'Authorization': `Bearer ${SUPA_ANON}` }
             });
-            let data = await res.json();
+            let data; try { data = await res.json(); } catch(_e) { data = []; }
             if (data.length > 0) {
                 data = data.filter(r => r.surface_reelle_bati >= 9 && r.valeur_fonciere >= 5000);
                 if (typeBien === 'Appartement') {
@@ -1847,11 +1852,11 @@
                 showError('Veuillez sélectionner une adresse valide');
                 return null;
             }
-            const typeBien = document.getElementById('typeBien').value;
-            const surface = parseInt(document.getElementById('surface').value);
-            const pieces = document.getElementById('pieces').value;
-            const dpe = document.getElementById('dpe').value;
-            const etat = document.getElementById('etatGeneral').value;
+            const typeBien = (document.getElementById('typeBien') || {value:''}).value;
+            const surface = parseInt((document.getElementById('surface') || {value:''}).value);
+            const pieces = (document.getElementById('pieces') || {value:''}).value;
+            const dpe = (document.getElementById('dpe') || {value:''}).value;
+            const etat = (document.getElementById('etatGeneral') || {value:''}).value;
 
             if (!typeBien || !surface || !pieces || !dpe || !etat) {
                 showError('Veuillez remplir tous les champs obligatoires');
@@ -1872,12 +1877,12 @@
             };
 
             if (typeBien === 'Appartement') {
-                form.etage = document.getElementById('etage').value || '';
-                form.sdb = document.getElementById('sdb').value || '';
+                form.etage = (document.getElementById('etage') || {value:''}).value || '';
+                form.sdb = (document.getElementById('sdb') || {value:''}).value || '';
                 form.ascenseur = document.getElementById('ascenseur').checked;
             } else {
-                form.terrain = document.getElementById('terrain').value || '';
-                form.mitoy = document.getElementById('mitoyennete').value || '';
+                form.terrain = (document.getElementById('terrain') || {value:''}).value || '';
+                form.mitoy = (document.getElementById('mitoyennete') || {value:''}).value || '';
             }
 
             return form;
@@ -1892,20 +1897,20 @@
         }
 
         function hideError() {
-            document.getElementById('errorMessage').classList.remove('show');
+            (document.getElementById('errorMessage') || {classList:{add(){},remove(){},toggle(){}}}).classList.remove('show');
         }
 
         function showLoading(show = true) {
-            document.getElementById('loading').classList.toggle('show', show);
+            (document.getElementById('loading') || {classList:{add(){},remove(){},toggle(){}}}).classList.toggle('show', show);
         }
 
         // BAN AUTOCOMPLETE
         let banTimeout;
-        document.getElementById('address').addEventListener('input', async (e) => {
+        (document.getElementById('address') || {addEventListener(){}}).addEventListener('input', async (e) => {
             const q = e.target.value;
             clearTimeout(banTimeout);
             if (q.length < 3) {
-                document.getElementById('autocompleteDropdown').classList.add('hidden');
+                (document.getElementById('autocompleteDropdown') || {classList:{add(){},remove(){},toggle(){}}}).classList.add('hidden');
                 return;
             }
             banTimeout = setTimeout(async () => {
@@ -1941,24 +1946,24 @@
                 lat: props.y,
                 lon: props.x
             };
-            document.getElementById('address').value = props.label;
-            document.getElementById('autocompleteDropdown').classList.add('hidden');
+            (document.getElementById('address') || {value:''}).value = props.label;
+            (document.getElementById('autocompleteDropdown') || {classList:{add(){},remove(){},toggle(){}}}).classList.add('hidden');
             hideError();
         }
 
         // TYPE BIEN CONDITIONAL
-        document.getElementById('typeBien').addEventListener('change', (e) => {
-            document.getElementById('apartmentFields').classList.toggle('hidden', e.target.value !== 'Appartement');
-            document.getElementById('houseFields').classList.toggle('hidden', e.target.value !== 'Maison');
+        (document.getElementById('typeBien') || {addEventListener(){}}).addEventListener('change', (e) => {
+            (document.getElementById('apartmentFields') || {classList:{add(){},remove(){},toggle(){}}}).classList.toggle('hidden', e.target.value !== 'Appartement');
+            (document.getElementById('houseFields') || {classList:{add(){},remove(){},toggle(){}}}).classList.toggle('hidden', e.target.value !== 'Maison');
         });
 
         // MOBILE BURGER
-        document.getElementById('burgerBtn').addEventListener('click', () => {
-            document.getElementById('navLinks').classList.toggle('active');
+        (document.getElementById('burgerBtn') || {addEventListener(){}}).addEventListener('click', () => {
+            (document.getElementById('navLinks') || {classList:{add(){},remove(){},toggle(){}}}).classList.toggle('active');
         });
 
         // FORM SUBMIT
-        document.getElementById('estimationForm').addEventListener('submit', async (e) => {
+        (document.getElementById('estimationForm') || {addEventListener(){}}).addEventListener('submit', async (e) => {
             e.preventDefault();
             hideError();
             const form = getFormData();
@@ -1966,9 +1971,9 @@
 
             showLoading(true);
             try {
-                const dvf = await fetchDVF(_selectedGeo.citycode, form.type);
+                const dvf = await fetchDVF((_selectedGeo?.citycode || ""), form.type);
                 let dvfToUse = dvf;
-                if (dvf.length < 15 && _selectedGeo.citycode.substring(0, 2)) {
+                if ((dvf?.length || 0) < 15 && _selectedGeo.citycode.substring(0, 2)) {
                     const fallback = await fetchDVFFallback(_selectedGeo.citycode.substring(0, 2), form.type);
                     if (fallback.length > dvf.length) dvfToUse = fallback;
                 }
@@ -1986,25 +1991,25 @@
                 displayResult();
                 displayTabs();
                 showLoading(false);
-                document.getElementById('resultHero').classList.add('show');
-                document.getElementById('tabsSection').classList.add('show');
-                document.getElementById('resultHero').scrollIntoView({ behavior: 'smooth' });
+                (document.getElementById('resultHero') || {classList:{add(){},remove(){},toggle(){}}}).classList.add('show');
+                (document.getElementById('tabsSection') || {classList:{add(){},remove(){},toggle(){}}}).classList.add('show');
+                (document.getElementById('resultHero') || {scrollIntoView(){}}).scrollIntoView({ behavior: 'smooth' });
             } catch (err) {
                 console.error('Error:', err);
-                showError('Erreur lors du calcul. Veuillez réessayer.');
+                showError('Erreur lors du calcul: ' + (err.message || err) + '. Veuillez réessayer.');
                 showLoading(false);
             }
         });
 
         // DISPLAY RESULT
-        function displayResult() {
+        function displayResult() { if (!_estimation) return;
             const e = _estimation;
-            document.getElementById('resultHeader').textContent = `${e.form.type} - ${e.form.surface} m² - ${e.geo.commune}`;
-            document.getElementById('resultPrice').textContent = fmt(e.price);
-            document.getElementById('resultPrixM2').textContent = fmt(e.prixM2) + '/m²';
-            document.getElementById('resultQ1').textContent = fmt(e.q1);
-            document.getElementById('resultQ3').textContent = fmt(e.q3);
-            document.getElementById('resultConfidence').textContent = e.confidence.toFixed(0) + '%';
+            (document.getElementById('resultHeader') || {}).textContent = `${e.form.type} - ${e.form.surface} m² - ${e.geo.commune}`;
+            (document.getElementById('resultPrice') || {}).textContent = fmt(e.price);
+            (document.getElementById('resultPrixM2') || {}).textContent = fmt(e.prixM2) + '/m²';
+            (document.getElementById('resultQ1') || {}).textContent = fmt(e.q1);
+            (document.getElementById('resultQ3') || {}).textContent = fmt(e.q3);
+            (document.getElementById('resultConfidence') || {}).textContent = e.confidence.toFixed(0) + '%';
 
             const confLevel = e.confidence >= 80 ? 'Très élevée' : e.confidence >= 60 ? 'Élevée' : 'Modérée';
             const confTag = e.confidence >= 80 ? 'confidence-high' : e.confidence >= 60 ? 'confidence-medium' : 'confidence-low';
@@ -2015,7 +2020,7 @@
                 `<span class="tag">Localisation: ${Math.round((e.allData.score?.score_localisation || 50) / 10) * 10}/100</span>`
             ];
             if (e.dvf.length < 30) tags.push('<span class="tag">Données partielles</span>');
-            document.getElementById('resultTags').innerHTML = tags.join('');
+            (document.getElementById('resultTags') || {innerHTML:''}).innerHTML = tags.join('');
         }
 
         // TABS
@@ -2043,17 +2048,17 @@
             });
             const years = Object.keys(dvfByYear).sort();
             const medians = years.map(y => dvfByYear[y].reduce((a, b) => a + b) / dvfByYear[y].length);
-            document.getElementById('km-prixMedian').textContent = fmt(e.median) + '/m²';
-            document.getElementById('km-evolution').textContent = years.length > 1 ? fmtP((medians[medians.length - 1] - medians[0]) / medians[0]) : '-';
-            document.getElementById('km-volume').textContent = fmtN(e.dvf.length);
-            document.getElementById('km-delai').textContent = e.confidence > 70 ? '30-45 jours' : '45-60 jours';
-            document.getElementById('km-population').textContent = fmtN(d.demo?.population_2024 || 0);
-            document.getElementById('km-densite').textContent = fmtN(d.demo?.densite_hab_km2 || 0);
-            document.getElementById('km-evolPop').textContent = d.demo?.evolution_pop_5ans_pct ? fmtP(d.demo.evolution_pop_5ans_pct / 100) : '-';
-            document.getElementById('km-ageMoyen').textContent = d.demo?.age_moyen ? fmtD(d.demo.age_moyen) : '-';
+            (document.getElementById('km-prixMedian') || {}).textContent = fmt(e.median) + '/m²';
+            (document.getElementById('km-evolution') || {}).textContent = years.length > 1 ? fmtP((medians[medians.length - 1] - medians[0]) / medians[0]) : '-';
+            (document.getElementById('km-volume') || {}).textContent = fmtN(e.dvf.length);
+            (document.getElementById('km-delai') || {}).textContent = e.confidence > 70 ? '30-45 jours' : '45-60 jours';
+            (document.getElementById('km-population') || {}).textContent = fmtN(d.demo?.population_2024 || 0);
+            (document.getElementById('km-densite') || {}).textContent = fmtN(d.demo?.densite_hab_km2 || 0);
+            (document.getElementById('km-evolPop') || {}).textContent = d.demo?.evolution_pop_5ans_pct ? fmtP(d.demo.evolution_pop_5ans_pct / 100) : '-';
+            (document.getElementById('km-ageMoyen') || {}).textContent = d.demo?.age_moyen ? fmtD(d.demo.age_moyen) : '-';
 
             if (window.chartHistorique && typeof window.chartHistorique.destroy === 'function') window.chartHistorique.destroy();
-            const ctx = document.getElementById('chartHistorique').getContext('2d');
+            const ctx = (document.getElementById('chartHistorique') || document.createElement('canvas')).getContext('2d');
             window.chartHistorique = new Chart(ctx, {
                 type: 'line',
                 data: {
@@ -2089,7 +2094,7 @@
             };
             const statsAppt = calcStats(appts);
             const statsM = calcStats(maisons);
-            document.getElementById('tableComparaison').querySelector('tbody').innerHTML = `
+            document.getElementById('tableComparaison')?.querySelector('tbody')?.innerHTML = `
                 <tr><td>Appartement</td><td>${fmt(statsAppt.prixM2)}</td><td>${fmtD(statsAppt.surface)} m²</td><td>${statsAppt.count}</td></tr>
                 <tr><td>Maison</td><td>${fmt(statsM.prixM2)}</td><td>${fmtD(statsM.surface)} m²</td><td>${statsM.count}</td></tr>
             `;
@@ -2098,79 +2103,79 @@
             const loyerM2 = d.loyers?.[0]?.loyer_median_m2 || (e.median * 0.005);
             const loyerMensuel = loyerM2 * e.form.surface;
             const rendementBrut = (loyerMensuel * 12) / e.price;
-            document.getElementById('rent-loyerM2').textContent = fmt(loyerM2) + '/m²';
-            document.getElementById('rent-loyerMensuel').textContent = fmt(loyerMensuel);
-            document.getElementById('rent-rendementBrut').textContent = fmtP(rendementBrut);
+            (document.getElementById('rent-loyerM2') || {}).textContent = fmt(loyerM2) + '/m²';
+            (document.getElementById('rent-loyerMensuel') || {}).textContent = fmt(loyerMensuel);
+            (document.getElementById('rent-rendementBrut') || {}).textContent = fmtP(rendementBrut);
             const charges = loyerMensuel * 0.15;
             const taxeFonciere = (e.price * (d.fiscal?.taux_taxe_fonciere_bati || 0.008)) / 12;
             const rendementNet = (loyerMensuel - charges - taxeFonciere) * 12 / e.price;
-            document.getElementById('rent-rendementNet').textContent = fmtP(Math.max(0, rendementNet));
-            document.getElementById('rent-taxeFonciere').textContent = fmt((e.price * (d.fiscal?.taux_taxe_fonciere_bati || 0.008)));
-            document.getElementById('rent-budgetCommune').textContent = d.fiscal?.budget_commune_par_hab ? fmt(d.fiscal.budget_commune_par_hab) : '-';
-            document.getElementById('rent-dettePar').textContent = d.fiscal?.dette_commune_par_hab ? fmt(d.fiscal.dette_commune_par_hab) : '-';
-            document.getElementById('rent-revenus').textContent = d.index?.revenu_median_zone ? fmt(d.index.revenu_median_zone) : '-';
-            document.getElementById('rent-chomage').textContent = d.index?.taux_chomage_zone ? fmtP(d.index.taux_chomage_zone / 100) : '-';
-            document.getElementById('rent-proprio').textContent = d.index?.part_proprietaires_zone ? fmtP(d.index.part_proprietaires_zone / 100) : '-';
-            document.getElementById('rent-dynamisme').textContent = d.index?.indice_dynamisme_eco ? (d.index.indice_dynamisme_eco > 60 ? 'Bon' : 'Moyen') : '-';
+            (document.getElementById('rent-rendementNet') || {}).textContent = fmtP(Math.max(0, rendementNet));
+            (document.getElementById('rent-taxeFonciere') || {}).textContent = fmt((e.price * (d.fiscal?.taux_taxe_fonciere_bati || 0.008)));
+            (document.getElementById('rent-budgetCommune') || {}).textContent = d.fiscal?.budget_commune_par_hab ? fmt(d.fiscal.budget_commune_par_hab) : '-';
+            (document.getElementById('rent-dettePar') || {}).textContent = d.fiscal?.dette_commune_par_hab ? fmt(d.fiscal.dette_commune_par_hab) : '-';
+            (document.getElementById('rent-revenus') || {}).textContent = d.index?.revenu_median_zone ? fmt(d.index.revenu_median_zone) : '-';
+            (document.getElementById('rent-chomage') || {}).textContent = d.index?.taux_chomage_zone ? fmtP(d.index.taux_chomage_zone / 100) : '-';
+            (document.getElementById('rent-proprio') || {}).textContent = d.index?.part_proprietaires_zone ? fmtP(d.index.part_proprietaires_zone / 100) : '-';
+            (document.getElementById('rent-dynamisme') || {}).textContent = d.index?.indice_dynamisme_eco ? (d.index.indice_dynamisme_eco > 60 ? 'Bon' : 'Moyen') : '-';
 
             // Simulation crédit
             const updateCredit = () => {
-                const pourcent = parseInt(document.getElementById('sliderApport').value);
+                const pourcent = parseInt((document.getElementById('sliderApport') || {value:''}).value);
                 const montant = e.price * (1 - pourcent / 100);
-                const duree = parseInt(document.getElementById('sliderDuree').value);
-                const taux = parseFloat(document.getElementById('sliderTaux').value);
+                const duree = parseInt((document.getElementById('sliderDuree') || {value:''}).value);
+                const taux = parseFloat((document.getElementById('sliderTaux') || {value:''}).value);
                 const mensualite = calcMensualite(montant, taux, duree * 12);
                 const coutTotal = mensualite * duree * 12;
                 const cashFlow = loyerMensuel - mensualite - charges;
 
-                document.getElementById('sliderMontantValue').textContent = fmt(montant);
-                document.getElementById('sliderDureeValue').textContent = duree + ' ans';
-                document.getElementById('sliderTauxValue').textContent = fmtD(taux, 1) + '%';
-                document.getElementById('sliderApportValue').textContent = pourcent + '%';
-                document.getElementById('rent-mensualite').textContent = fmt(mensualite);
-                document.getElementById('rent-coutTotal').textContent = fmt(coutTotal);
-                document.getElementById('rent-cashFlow').textContent = fmt(cashFlow);
+                (document.getElementById('sliderMontantValue') || {}).textContent = fmt(montant);
+                (document.getElementById('sliderDureeValue') || {}).textContent = duree + ' ans';
+                (document.getElementById('sliderTauxValue') || {}).textContent = fmtD(taux, 1) + '%';
+                (document.getElementById('sliderApportValue') || {}).textContent = pourcent + '%';
+                (document.getElementById('rent-mensualite') || {}).textContent = fmt(mensualite);
+                (document.getElementById('rent-coutTotal') || {}).textContent = fmt(coutTotal);
+                (document.getElementById('rent-cashFlow') || {}).textContent = fmt(cashFlow);
             };
-            document.getElementById('sliderMontant').addEventListener('input', updateCredit);
-            document.getElementById('sliderDuree').addEventListener('input', updateCredit);
-            document.getElementById('sliderTaux').addEventListener('input', updateCredit);
-            document.getElementById('sliderApport').addEventListener('input', updateCredit);
+            (document.getElementById('sliderMontant') || {addEventListener(){}}).addEventListener('input', updateCredit);
+            (document.getElementById('sliderDuree') || {addEventListener(){}}).addEventListener('input', updateCredit);
+            (document.getElementById('sliderTaux') || {addEventListener(){}}).addEventListener('input', updateCredit);
+            (document.getElementById('sliderApport') || {addEventListener(){}}).addEventListener('input', updateCredit);
             updateCredit();
 
             // TAB 3: RENOVATION
             const dpeColors = { A: 'dpe-A', B: 'dpe-B', C: 'dpe-C', D: 'dpe-D', E: 'dpe-E', F: 'dpe-F', G: 'dpe-G' };
             if (e.form.dpe && e.form.dpe !== 'Non renseigné') {
-                document.getElementById('dpeBadge').textContent = e.form.dpe;
+                (document.getElementById('dpeBadge') || {}).textContent = e.form.dpe;
                 document.getElementById('dpeBadge').className = 'dpe-badge ' + dpeColors[e.form.dpe];
                 const impact = { A: '+6%', B: '+4%', C: '+2%', D: '0%', E: '-4%', F: '-8%', G: '-8%' };
-                document.getElementById('dpeImpact').textContent = 'Impact sur l\'estimation: ' + impact[e.form.dpe];
+                (document.getElementById('dpeImpact') || {}).textContent = 'Impact sur l\'estimation: ' + impact[e.form.dpe];
             }
-            document.getElementById('ren-conso').textContent = d.dpe?.conso_moy_kwh_m2 ? fmtD(d.dpe.conso_moy_kwh_m2) + ' kWh/m²' : '-';
-            document.getElementById('ren-passoires').textContent = d.dpe?.pct_passoire ? fmtP(d.dpe.pct_passoire / 100) : '-';
-            document.getElementById('ren-zone').textContent = d.climat?.zone_climatique || '-';
-            document.getElementById('ren-temp').textContent = d.climat?.temperature_moy_annuelle ? fmtD(d.climat.temperature_moy_annuelle) + '°C' : '-';
-            document.getElementById('ren-ensoleillement').textContent = d.climat?.ensoleillement_h_an ? fmtN(d.climat.ensoleillement_h_an) + ' h' : '-';
-            document.getElementById('ren-dju').textContent = d.climat?.dju_chauffage ? fmtN(d.climat.dju_chauffage) : '-';
-            document.getElementById('ren-precip').textContent = d.climat?.precipitations_mm_an ? fmtD(d.climat.precipitations_mm_an) + ' mm' : '-';
+            (document.getElementById('ren-conso') || {}).textContent = d.dpe?.conso_moy_kwh_m2 ? fmtD(d.dpe.conso_moy_kwh_m2) + ' kWh/m²' : '-';
+            (document.getElementById('ren-passoires') || {}).textContent = d.dpe?.pct_passoire ? fmtP(d.dpe.pct_passoire / 100) : '-';
+            (document.getElementById('ren-zone') || {}).textContent = d.climat?.zone_climatique || '-';
+            (document.getElementById('ren-temp') || {}).textContent = d.climat?.temperature_moy_annuelle ? fmtD(d.climat.temperature_moy_annuelle) + '°C' : '-';
+            (document.getElementById('ren-ensoleillement') || {}).textContent = d.climat?.ensoleillement_h_an ? fmtN(d.climat.ensoleillement_h_an) + ' h' : '-';
+            (document.getElementById('ren-dju') || {}).textContent = d.climat?.dju_chauffage ? fmtN(d.climat.dju_chauffage) : '-';
+            (document.getElementById('ren-precip') || {}).textContent = d.climat?.precipitations_mm_an ? fmtD(d.climat.precipitations_mm_an) + ' mm' : '-';
 
             if (['E', 'F', 'G'].includes(e.form.dpe) && e.form.dpe !== 'Non renseigné') {
-                document.getElementById('renovationSim').classList.remove('hidden');
+                (document.getElementById('renovationSim') || {classList:{add(){},remove(){},toggle(){}}}).classList.remove('hidden');
                 const coutTravaux = e.price * 0.15;
                 const mpr = coutTravaux * 0.4;
                 const cee = coutTravaux * 0.2;
                 const rac = coutTravaux - mpr - cee;
                 const roi = (e.price * 0.08) / rac;
-                document.getElementById('ren-coutTravaux').textContent = fmt(coutTravaux);
-                document.getElementById('ren-mpr').textContent = fmt(mpr);
-                document.getElementById('ren-cee').textContent = fmt(cee);
-                document.getElementById('ren-rac').textContent = fmt(rac);
-                document.getElementById('ren-roi').textContent = fmtP(roi);
-                document.getElementById('ren-delai').textContent = fmtD(rac / 1000) + ' ans';
-                document.getElementById('ren-isolation-murs').textContent = fmt(coutTravaux * 0.3);
-                document.getElementById('ren-isolation-toit').textContent = fmt(coutTravaux * 0.2);
-                document.getElementById('ren-fenetes').textContent = fmt(coutTravaux * 0.2);
-                document.getElementById('ren-chauffage').textContent = fmt(coutTravaux * 0.2);
-                document.getElementById('ren-vmc').textContent = fmt(coutTravaux * 0.1);
+                (document.getElementById('ren-coutTravaux') || {}).textContent = fmt(coutTravaux);
+                (document.getElementById('ren-mpr') || {}).textContent = fmt(mpr);
+                (document.getElementById('ren-cee') || {}).textContent = fmt(cee);
+                (document.getElementById('ren-rac') || {}).textContent = fmt(rac);
+                (document.getElementById('ren-roi') || {}).textContent = fmtP(roi);
+                (document.getElementById('ren-delai') || {}).textContent = fmtD(rac / 1000) + ' ans';
+                (document.getElementById('ren-isolation-murs') || {}).textContent = fmt(coutTravaux * 0.3);
+                (document.getElementById('ren-isolation-toit') || {}).textContent = fmt(coutTravaux * 0.2);
+                (document.getElementById('ren-fenetes') || {}).textContent = fmt(coutTravaux * 0.2);
+                (document.getElementById('ren-chauffage') || {}).textContent = fmt(coutTravaux * 0.2);
+                (document.getElementById('ren-vmc') || {}).textContent = fmt(coutTravaux * 0.1);
             }
 
             if (window.chartDPE && typeof window.chartDPE.destroy === 'function') window.chartDPE.destroy();
@@ -2183,7 +2188,7 @@
                 d.dpe?.pct_f || 0,
                 d.dpe?.pct_g || 0
             ];
-            const ctxDpe = document.getElementById('chartDPE').getContext('2d');
+            const ctxDpe = (document.getElementById('chartDPE') || document.createElement('canvas')).getContext('2d');
             window.chartDPE = new Chart(ctxDpe, {
                 type: 'bar',
                 data: {
@@ -2206,7 +2211,7 @@
             const score = d.score?.score_localisation || 50;
             const scoreRatio = (score / 100) * 565.5;
             document.getElementById('scoreRing').setAttribute('stroke-dasharray', `${scoreRatio} 565.5`);
-            document.getElementById('scoreValue').textContent = Math.round(score);
+            (document.getElementById('scoreValue') || {}).textContent = Math.round(score);
             const breakdown = [
                 { id: 'acces', val: d.score?.score_accessibilite || 0 },
                 { id: 'secu', val: d.score?.score_securite || 0 },
@@ -2218,38 +2223,38 @@
                 document.getElementById(`break-${b.id}`).style.width = b.val + '%';
                 document.getElementById(`break-${b.id}-val`).textContent = Math.round(b.val);
             });
-            document.getElementById('cdv-transport').textContent = d.poi?.score_transport || '-';
-            document.getElementById('cdv-education').textContent = d.poi?.score_education || '-';
-            document.getElementById('cdv-sante').textContent = d.poi?.score_sante || '-';
-            document.getElementById('cdv-commerce').textContent = d.poi?.score_commerce || '-';
-            document.getElementById('cdv-population').textContent = fmtN(d.demo?.population_2024 || 0);
-            document.getElementById('cdv-densite').textContent = fmtN(d.demo?.densite_hab_km2 || 0);
-            document.getElementById('cdv-menages').textContent = fmtN(d.demo?.nb_menages || 0);
-            document.getElementById('cdv-tailleMenage').textContent = fmtD(d.demo?.taille_menage_moy || 0, 1);
-            document.getElementById('cdv-couples').textContent = d.demo?.pct_couples_avec_enfants ? fmtP(d.demo.pct_couples_avec_enfants / 100) : '-';
-            document.getElementById('cdv-seules').textContent = d.demo?.pct_personnes_seules ? fmtP(d.demo.pct_personnes_seules / 100) : '-';
+            (document.getElementById('cdv-transport') || {}).textContent = d.poi?.score_transport || '-';
+            (document.getElementById('cdv-education') || {}).textContent = d.poi?.score_education || '-';
+            (document.getElementById('cdv-sante') || {}).textContent = d.poi?.score_sante || '-';
+            (document.getElementById('cdv-commerce') || {}).textContent = d.poi?.score_commerce || '-';
+            (document.getElementById('cdv-population') || {}).textContent = fmtN(d.demo?.population_2024 || 0);
+            (document.getElementById('cdv-densite') || {}).textContent = fmtN(d.demo?.densite_hab_km2 || 0);
+            (document.getElementById('cdv-menages') || {}).textContent = fmtN(d.demo?.nb_menages || 0);
+            (document.getElementById('cdv-tailleMenage') || {}).textContent = fmtD(d.demo?.taille_menage_moy || 0, 1);
+            (document.getElementById('cdv-couples') || {}).textContent = d.demo?.pct_couples_avec_enfants ? fmtP(d.demo.pct_couples_avec_enfants / 100) : '-';
+            (document.getElementById('cdv-seules') || {}).textContent = d.demo?.pct_personnes_seules ? fmtP(d.demo.pct_personnes_seules / 100) : '-';
             const schoolTypes = {};
             (d.schools || []).forEach(s => {
                 schoolTypes[s.type] = (schoolTypes[s.type] || 0) + 1;
             });
-            document.getElementById('cdv-maternelle').textContent = schoolTypes['Maternelle'] || 0;
-            document.getElementById('cdv-elementaire').textContent = schoolTypes['Élémentaire'] || 0;
-            document.getElementById('cdv-college').textContent = schoolTypes['Collège'] || 0;
-            document.getElementById('cdv-lycee').textContent = schoolTypes['Lycée'] || 0;
+            (document.getElementById('cdv-maternelle') || {}).textContent = schoolTypes['Maternelle'] || 0;
+            (document.getElementById('cdv-elementaire') || {}).textContent = schoolTypes['Élémentaire'] || 0;
+            (document.getElementById('cdv-college') || {}).textContent = schoolTypes['Collège'] || 0;
+            (document.getElementById('cdv-lycee') || {}).textContent = schoolTypes['Lycée'] || 0;
             const transportTypes = {};
             (d.transports || []).forEach(t => {
                 transportTypes[t.type_transport] = (transportTypes[t.type_transport] || 0) + 1;
             });
             const totalTransports = Object.values(transportTypes).reduce((a, b) => a + b, 0);
-            document.getElementById('cdv-arrets').textContent = totalTransports;
-            document.getElementById('cdv-gares').textContent = d.transports.filter(t => t.type_transport === 'SNCF').length || 0;
-            document.getElementById('cdv-description').textContent = d.wiki?.description || 'Aucune information disponible';
-            document.getElementById('cdv-points').textContent = d.wiki?.points_interet ? d.wiki.points_interet.join(', ') : 'Aucun point d\'intérêt';
+            (document.getElementById('cdv-arrets') || {}).textContent = totalTransports;
+            (document.getElementById('cdv-gares') || {}).textContent = d.transports.filter(t => t.type_transport === 'SNCF').length || 0;
+            (document.getElementById('cdv-description') || {}).textContent = d.wiki?.description || 'Aucune information disponible';
+            (document.getElementById('cdv-points') || {}).textContent = d.wiki?.points_interet ? d.wiki.points_interet.join(', ') : 'Aucun point d\'intérêt';
 
             // Qualité eau
             const eauData = Array.isArray(d.eau) ? d.eau[0] : d.eau;
             if (eauData) {
-                document.getElementById('tableEau').querySelector('tbody').innerHTML = `
+                document.getElementById('tableEau')?.querySelector('tbody')?.innerHTML = `
                     <tr><td>Conformité globale</td><td>${eauData.taux_conformite_global ? fmtD(eauData.taux_conformite_global) + '%' : '—'}</td><td>${eauData.taux_conformite_global >= 95 ? 'Conforme' : 'Attention'}</td></tr>
                     <tr><td>Nitrates</td><td>${eauData.nitrates_mg_l ? fmtD(eauData.nitrates_mg_l) + ' mg/L' : '—'}</td><td>${eauData.nitrates_mg_l < 50 ? 'Conforme' : 'Non conforme'}</td></tr>
                     <tr><td>Bactériologie</td><td>${eauData.conformite_bacterio ? 'Conforme' : 'Non conforme'}</td><td>${eauData.conformite_bacterio ? 'Conforme' : 'Non conforme'}</td></tr>
@@ -2261,13 +2266,13 @@
             }
 
             // TAB 5: RISQUES
-            document.getElementById('ris-inondation').textContent = d.risques?.risque_inondation ? 'Oui' : 'Non';
-            document.getElementById('ris-argile').textContent = d.risques?.risque_argile ? 'Oui' : 'Non';
-            document.getElementById('ris-seisme').textContent = ['—', 'Très faible', 'Faible', 'Modéré', 'Moyen', 'Fort'][d.risques?.risque_seisme || 0] || '—';
-            document.getElementById('ris-radon').textContent = ['—', 'Faible', 'Moyen', 'Élevé'][d.risques?.risque_radon || 0] || '—';
-            document.getElementById('ris-pprn').textContent = d.risques?.pprn_prescrit ? 'Oui' : 'Non';
-            document.getElementById('ris-pprt').textContent = d.risques?.pprt_prescrit ? 'Oui' : 'Non';
-            document.getElementById('ris-catnat').textContent = d.risques?.nb_catnat || 0;
+            (document.getElementById('ris-inondation') || {}).textContent = d.risques?.risque_inondation ? 'Oui' : 'Non';
+            (document.getElementById('ris-argile') || {}).textContent = d.risques?.risque_argile ? 'Oui' : 'Non';
+            (document.getElementById('ris-seisme') || {}).textContent = ['—', 'Très faible', 'Faible', 'Modéré', 'Moyen', 'Fort'][d.risques?.risque_seisme || 0] || '—';
+            (document.getElementById('ris-radon') || {}).textContent = ['—', 'Faible', 'Moyen', 'Élevé'][d.risques?.risque_radon || 0] || '—';
+            (document.getElementById('ris-pprn') || {}).textContent = d.risques?.pprn_prescrit ? 'Oui' : 'Non';
+            (document.getElementById('ris-pprt') || {}).textContent = d.risques?.pprt_prescrit ? 'Oui' : 'Non';
+            (document.getElementById('ris-catnat') || {}).textContent = d.risques?.nb_catnat || 0;
 
             const pluZones = {
                 U: parseFloat(d.plu?.pct_zone_u) || 0,
@@ -2280,26 +2285,26 @@
             const dominant = Object.entries(pluZones).find(([k, v]) => v === maxZone)?.[0] || (d.plu?.zone_dominante || '-');
             const pluRatio = (maxZone / totalZone) * 502.6;
             document.getElementById('pluRing').setAttribute('stroke-dasharray', `${pluRatio} 502.6`);
-            document.getElementById('pluLabel').textContent = dominant;
-            document.getElementById('ris-zonePLU').textContent = d.plu?.zone_dominante || dominant;
-            document.getElementById('ris-approbation').textContent = d.plu?.date_approbation || '-';
-            document.getElementById('ris-anneeConstruction').textContent = d.bdnb?.[0]?.annee_construction || '-';
-            document.getElementById('ris-materiau').textContent = d.bdnb?.[0]?.mat_mur_txt || '-';
-            document.getElementById('ris-chauffageType').textContent = d.bdnb?.[0]?.type_energie_chauffage || '-';
+            (document.getElementById('pluLabel') || {}).textContent = dominant;
+            (document.getElementById('ris-zonePLU') || {}).textContent = d.plu?.zone_dominante || dominant;
+            (document.getElementById('ris-approbation') || {}).textContent = d.plu?.date_approbation || '-';
+            (document.getElementById('ris-anneeConstruction') || {}).textContent = d.bdnb?.[0]?.annee_construction || '-';
+            (document.getElementById('ris-materiau') || {}).textContent = d.bdnb?.[0]?.mat_mur_txt || '-';
+            (document.getElementById('ris-chauffageType') || {}).textContent = d.bdnb?.[0]?.type_energie_chauffage || '-';
             const sitadelRecent = d.sitadel?.filter(s => parseInt(s.an_depot) >= 2021).reduce((a, s) => a + (s.nb_lgt_tot_crees || 0), 0) || 0;
-            document.getElementById('ris-sitadelRecent').textContent = sitadelRecent;
+            (document.getElementById('ris-sitadelRecent') || {}).textContent = sitadelRecent;
             const sitadelAvg = d.sitadel?.length > 0 ? Math.round(sitadelRecent / 3) : 0;
-            document.getElementById('ris-sitadelRate').textContent = sitadelAvg + '/an';
+            (document.getElementById('ris-sitadelRate') || {}).textContent = sitadelAvg + '/an';
 
             // Marchés publics
             const deptCode = e.geo.citycode.substring(0, 2);
             const marchesFiltered = (d.marches || []).filter(m => m.lieu_exec_code?.startsWith(deptCode)).slice(0, 5);
             if (marchesFiltered.length > 0) {
-                document.getElementById('tableMarchesPublics').querySelector('tbody').innerHTML = marchesFiltered.map(m => `
+                document.getElementById('tableMarchesPublics')?.querySelector('tbody')?.innerHTML = marchesFiltered.map(m => `
                     <tr><td>${m.objet?.substring(0, 40) || '-'}</td><td>${fmt(m.montant || 0)}</td><td>${m.date_notification?.substring?.(0, 10) || '-'}</td></tr>
                 `).join('');
             } else {
-                document.getElementById('tableMarchesPublics').querySelector('tbody').innerHTML = '<tr><td colspan="3">Aucun marché récent</td></tr>';
+                document.getElementById('tableMarchesPublics')?.querySelector('tbody')?.innerHTML = '<tr><td colspan="3">Aucun marché récent</td></tr>';
             }
 
             // TAB 6: METHODOLOGIE
