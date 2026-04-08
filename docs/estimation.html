@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
@@ -1640,8 +1640,12 @@
     function safeEl(id) { const el = document.getElementById(id); return el || { textContent: '', innerHTML: '', classList: { add(){}, remove(){}, toggle(){} }, style: {}, querySelector: () => ({ innerHTML: '' }), scrollIntoView(){}, getContext: () => null }; }
     function safeCtx(id) { const el = document.getElementById(id); return el ? el.getContext('2d') : null; }
   
+
+    function safeTbody(id) { const el = document.getElementById(id); return el && el.querySelector('tbody') ? el.querySelector('tbody') : document.createElement('tbody'); }
 const SUPA_URL = 'https://wwvdpixzfaviaapixarb.supabase.co';
-        const SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3dmRwaXh6ZmF2aWFhcGl4YXJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3Mzk0NDgsImV4cCI6MjA5MDMxNTQ0OH0.NjOeWzUCo2BJPcxnkEJNm215GJBr1RAHba1eL_EF758';
+        
+    function safeTbody(id) { const el = document.getElementById(id); return el && el.querySelector('tbody') ? el.querySelector('tbody') : document.createElement('tbody'); }
+const SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3dmRwaXh6ZmF2aWFhcGl4YXJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3Mzk0NDgsImV4cCI6MjA5MDMxNTQ0OH0.NjOeWzUCo2BJPcxnkEJNm215GJBr1RAHba1eL_EF758';
         const BAN_URL = 'https://api-adresse.data.gouv.fr/search/';
 
         let _selectedGeo = null;
@@ -1973,12 +1977,12 @@ const SUPA_URL = 'https://wwvdpixzfaviaapixarb.supabase.co';
             try {
                 const dvf = await fetchDVF((_selectedGeo?.citycode || ""), form.type);
                 let dvfToUse = dvf;
-                if ((dvf?.length || 0) < 15 && _selectedGeo.citycode.substring(0, 2)) {
-                    const fallback = await fetchDVFFallback(_selectedGeo.citycode.substring(0, 2), form.type);
+                if ((dvf?.length || 0) < 15 && (_selectedGeo?.citycode || "").substring(0, 2)) {
+                    const fallback = await fetchDVFFallback((_selectedGeo?.citycode || "").substring(0, 2), form.type);
                     if (fallback.length > dvf.length) dvfToUse = fallback;
                 }
 
-                const allData = await fetchAllData(_selectedGeo.citycode, _selectedGeo.cp, form.type, _selectedGeo.citycode.substring(0, 2));
+                const allData = await fetchAllData((_selectedGeo?.citycode || ""), _selectedGeo.cp, form.type, (_selectedGeo?.citycode || "").substring(0, 2));
                 const estimation = calculateEstimation(dvfToUse, form, allData);
 
                 if (!estimation) {
