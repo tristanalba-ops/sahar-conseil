@@ -2036,7 +2036,7 @@
 
             // TAB 1: MARCHE LOCAL
             const dvfByYear = {};
-            e.dvf.forEach(r => {
+            (e.dvf || []).forEach(r => {
                 const y = r.date_mutation.substring(0, 4);
                 if (!dvfByYear[y]) dvfByYear[y] = [];
                 dvfByYear[y].push(r.valeur_fonciere / r.surface_reelle_bati);
@@ -2229,7 +2229,7 @@
             document.getElementById('cdv-couples').textContent = d.demo?.pct_couples_avec_enfants ? fmtP(d.demo.pct_couples_avec_enfants / 100) : '-';
             document.getElementById('cdv-seules').textContent = d.demo?.pct_personnes_seules ? fmtP(d.demo.pct_personnes_seules / 100) : '-';
             const schoolTypes = {};
-            d.schools.forEach(s => {
+            (d.schools || []).forEach(s => {
                 schoolTypes[s.type] = (schoolTypes[s.type] || 0) + 1;
             });
             document.getElementById('cdv-maternelle').textContent = schoolTypes['Maternelle'] || 0;
@@ -2237,7 +2237,7 @@
             document.getElementById('cdv-college').textContent = schoolTypes['Collège'] || 0;
             document.getElementById('cdv-lycee').textContent = schoolTypes['Lycée'] || 0;
             const transportTypes = {};
-            d.transports.forEach(t => {
+            (d.transports || []).forEach(t => {
                 transportTypes[t.type_transport] = (transportTypes[t.type_transport] || 0) + 1;
             });
             const totalTransports = Object.values(transportTypes).reduce((a, b) => a + b, 0);
