@@ -3,20 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="robots" content="noindex, nofollow" />
+  <meta name="robots" content="noindex, nofollow" />
     <title>Documentation — Intent Analytics</title>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #F0EEE9;
-            --bg-alt: #E6E2DB;
-            --accent: #8B7355;
-            --accent-light: rgba(139, 115, 85, 0.08);
-            --text-primary: #1A1A1A;
-            --text-secondary: #6B6560;
-            --border: #D4CFC7;
-            --card-bg: #FFFFFF;
-            --nav-bg: rgba(240, 238, 233, 0.95);
+            --dark-bg: #0D0D0D;
+            --dark-bg-light: #1A1A2E;
+            --accent-green: #00DC82;
+            --text-white: #FFFFFF;
+            --text-gray: #A0A0A0;
+            --border-color: #2A2A3E;
         }
 
         * {
@@ -26,8 +23,8 @@
         }
 
         body {
-            background-color: var(--bg);
-            color: var(--text-primary);
+            background-color: var(--dark-bg);
+            color: var(--text-white);
             font-family: 'Inter', sans-serif;
             font-weight: 400;
             line-height: 1.6;
@@ -35,21 +32,19 @@
         }
 
         a {
-            color: var(--accent);
+            color: var(--accent-green);
             text-decoration: none;
-            border-bottom: 2px solid transparent;
-            transition: border-color 0.2s;
         }
 
         a:hover {
-            border-color: var(--accent);
+            text-decoration: underline;
         }
 
         nav {
-            background: var(--nav-bg);
+            background: rgba(13, 13, 13, 0.95);
             backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--border);
-            padding: 1.5rem 5%;
+            border-bottom: 1px solid var(--border-color);
+            padding: 1.5rem 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -62,79 +57,43 @@
             font-family: 'Space Grotesk', sans-serif;
             font-weight: 700;
             font-size: 1.3rem;
-            color: var(--accent);
-            text-decoration: none;
+            color: var(--accent-green);
         }
 
         .nav-links {
             display: flex;
             list-style: none;
             gap: 2rem;
-            align-items: center;
         }
 
         .nav-links a {
-            color: var(--text-primary);
+            color: var(--text-white);
             font-weight: 500;
             transition: color 0.2s;
-            min-height: 44px;
-            display: flex;
-            align-items: center;
-            border-bottom: 2px solid transparent;
         }
 
         .nav-links a:hover {
-            color: var(--accent);
-            border-color: var(--accent);
-        }
-
-        .hamburger {
-            display: none;
-            flex-direction: column;
-            gap: 6px;
-            cursor: pointer;
-            padding: 8px;
-            background: none;
-            border: none;
-        }
-
-        .hamburger span {
-            display: block;
-            width: 24px;
-            height: 2px;
-            background: var(--text-primary);
-            transition: 0.3s;
-        }
-
-        .hamburger.active span:nth-child(1) {
-            transform: rotate(45deg) translate(8px, 8px);
-        }
-
-        .hamburger.active span:nth-child(2) {
-            opacity: 0;
-        }
-
-        .hamburger.active span:nth-child(3) {
-            transform: rotate(-45deg) translate(7px, -6px);
+            color: var(--accent-green);
+            text-decoration: none;
         }
 
         main {
             max-width: 900px;
             margin: 0 auto;
-            padding: 4rem 5%;
+            padding: 4rem 2rem;
         }
 
         h1 {
             font-family: 'Space Grotesk', sans-serif;
             font-weight: 700;
-            font-size: clamp(2rem, 5vw, 3rem);
+            font-size: 3rem;
             margin-bottom: 1rem;
-            color: var(--text-primary);
+            color: var(--text-white);
         }
 
         .intro {
             font-size: 1.1rem;
-            color: var(--text-secondary);
+            color: var(--text-gray);
             margin-bottom: 3rem;
             line-height: 1.8;
         }
@@ -142,15 +101,15 @@
         h2 {
             font-family: 'Space Grotesk', sans-serif;
             font-weight: 700;
-            font-size: clamp(1.4rem, 4vw, 1.8rem);
+            font-size: 1.8rem;
             margin-top: 3rem;
             margin-bottom: 1.5rem;
-            color: var(--accent);
+            color: var(--accent-green);
         }
 
         section p {
             margin-bottom: 1.2rem;
-            color: var(--text-secondary);
+            color: var(--text-gray);
             line-height: 1.8;
         }
 
@@ -162,47 +121,46 @@
         }
 
         .stack-badge {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border);
+            background-color: var(--dark-bg-light);
+            border: 1px solid var(--border-color);
             padding: 0.5rem 1rem;
-            border-radius: 100px;
+            border-radius: 4px;
             font-size: 0.9rem;
             font-weight: 500;
-            color: var(--accent);
+            color: var(--accent-green);
         }
 
         .table-container {
             overflow-x: auto;
             margin: 2rem 0;
-            border-radius: 12px;
+            border-radius: 8px;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            background-color: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 12px;
+            background-color: var(--dark-bg-light);
+            border: 1px solid var(--border-color);
         }
 
         th {
-            background-color: var(--accent-light);
+            background-color: rgba(0, 220, 130, 0.1);
             padding: 1rem;
             text-align: left;
             font-family: 'Space Grotesk', sans-serif;
             font-weight: 700;
-            color: var(--accent);
-            border-bottom: 2px solid var(--border);
+            color: var(--accent-green);
+            border-bottom: 2px solid var(--accent-green);
         }
 
         td {
             padding: 1rem;
-            border-bottom: 1px solid var(--border);
-            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-gray);
         }
 
         tr:hover {
-            background-color: var(--accent-light);
+            background-color: rgba(0, 220, 130, 0.05);
         }
 
         tr:last-child td {
@@ -210,18 +168,18 @@
         }
 
         code {
-            background-color: var(--accent-light);
+            background-color: rgba(0, 0, 0, 0.3);
             padding: 0.2rem 0.6rem;
             border-radius: 3px;
             font-family: 'Courier New', monospace;
             font-size: 0.9rem;
-            color: var(--accent);
+            color: var(--accent-green);
         }
 
         .code-block {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 12px;
+            background-color: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
             padding: 1.5rem;
             margin: 1.5rem 0;
             overflow-x: auto;
@@ -230,77 +188,50 @@
         .code-block code {
             background: none;
             padding: 0;
-            color: var(--text-secondary);
+            color: var(--text-gray);
             font-size: 0.85rem;
             line-height: 1.5;
         }
 
         .diagram {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 12px;
+            background-color: var(--dark-bg-light);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
             padding: 2rem;
             margin: 2rem 0;
             font-family: 'Courier New', monospace;
             font-size: 0.85rem;
-            color: var(--accent);
+            color: var(--accent-green);
             line-height: 1.6;
             overflow-x: auto;
         }
 
         footer {
-            background-color: var(--bg-alt);
-            border-top: 1px solid var(--border);
-            padding: 3rem 5%;
+            background-color: var(--dark-bg-light);
+            border-top: 1px solid var(--border-color);
+            padding: 3rem 2rem;
             margin-top: 6rem;
             text-align: center;
-            color: var(--text-secondary);
+            color: var(--text-gray);
             font-size: 0.9rem;
             line-height: 1.8;
         }
 
         footer a {
-            color: var(--accent);
-            border-bottom: 2px solid transparent;
-            transition: border-color 0.2s;
-        }
-
-        footer a:hover {
-            border-color: var(--accent);
+            color: var(--accent-green);
         }
 
         @media (max-width: 768px) {
             nav {
-                padding: 1rem 5%;
-                flex-direction: row;
+                flex-direction: column;
+                gap: 1.5rem;
+                text-align: center;
             }
 
             .nav-links {
-                display: none;
-                position: absolute;
-                top: 100%;
-                left: 0;
-                right: 0;
-                flex-direction: column;
-                background: var(--nav-bg);
-                border-bottom: 1px solid var(--border);
-                padding: 1rem 5%;
-                gap: 0;
-                z-index: 99;
-            }
-
-            .nav-links.active {
-                display: flex;
-            }
-
-            .nav-links li {
-                min-height: 44px;
-                display: flex;
-                align-items: center;
-            }
-
-            .hamburger {
-                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 1rem;
             }
 
             h1 {
@@ -312,7 +243,7 @@
             }
 
             main {
-                padding: 2rem 5%;
+                padding: 2rem 1rem;
             }
 
             table {
@@ -341,17 +272,12 @@
 <body>
     <nav>
         <a href="/" class="nav-logo">Intent Analytics</a>
-        <button class="hamburger" onclick="this.classList.toggle('active'); document.querySelector('.nav-links').classList.toggle('active');">
-            <span></span>
-            <span></span>
-            <span></span>
-        </button>
         <ul class="nav-links">
             <li><a href="/projet">Le projet</a></li>
             <li><a href="/donnees">Données</a></li>
             <li><a href="/methodologie">Méthodologie</a></li>
             <li><a href="/explorations">Explorations</a></li>
-            <li><a href="/estimation">Estimation</a></li>
+            <li><a href="/renovation-energetique">Rénovation énergétique</a></li>
             <li><a href="/documentation">Documentation</a></li>
             <li><a href="/a-propos">À propos</a></li>
         </ul>
@@ -374,3 +300,5 @@
     </footer>
 </body>
 </html>
+
+
