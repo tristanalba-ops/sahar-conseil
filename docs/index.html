@@ -48,6 +48,7 @@
       --bg: #F0EEE9;
       --bg-alt: #E6E2DB;
       --accent: #8B7355;
+      --accent-hover: #74603F;
       --accent-light: rgba(139, 115, 85, 0.08);
       --text-primary: #1A1A1A;
       --text-secondary: #6B6560;
@@ -61,6 +62,7 @@
       background: var(--bg);
       color: var(--text-primary);
       line-height: 1.6;
+      overflow-x: hidden;
     }
 
     /* NAV */
@@ -70,7 +72,7 @@
       justify-content: space-between;
       padding: 1.2rem 5%;
       background: var(--nav-bg);
-      backdrop-filter: blur(10px);
+      backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--border);
       position: sticky;
       top: 0;
@@ -112,6 +114,10 @@
       padding: 8px;
       background: none;
       border: none;
+      min-height: 44px;
+      min-width: 44px;
+      align-items: center;
+      justify-content: center;
     }
 
     .hamburger span {
@@ -122,31 +128,62 @@
       transition: 0.3s;
     }
 
-    .hamburger.active span:nth-child(1) {
-      transform: rotate(45deg) translate(8px, 8px);
-    }
-
-    .hamburger.active span:nth-child(2) {
-      opacity: 0;
-    }
-
-    .hamburger.active span:nth-child(3) {
-      transform: rotate(-45deg) translate(7px, -6px);
-    }
+    .hamburger.active span:nth-child(1) { transform: rotate(45deg) translate(6px, 6px); }
+    .hamburger.active span:nth-child(2) { opacity: 0; }
+    .hamburger.active span:nth-child(3) { transform: rotate(-45deg) translate(6px, -6px); }
 
     /* HERO */
     .hero {
-      padding: 8rem 5% 6rem;
+      position: relative;
+      padding: 6rem 5% 4rem;
       text-align: center;
-      max-width: 900px;
+      max-width: 1200px;
       margin: 0 auto;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -100px;
+      right: -150px;
+      width: 500px;
+      height: 500px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(139,115,85,0.06) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: -80px;
+      left: -100px;
+      width: 350px;
+      height: 350px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(139,115,85,0.04) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-badge {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--accent);
+      background: var(--accent-light);
+      padding: 0.5rem 1.2rem;
+      border-radius: 100px;
+      margin-bottom: 2rem;
     }
 
     .hero h1 {
       font-family: 'Space Grotesk', sans-serif;
-      font-size: clamp(2.5rem, 5vw, 3.8rem);
+      font-size: clamp(2.8rem, 6vw, 4.2rem);
       font-weight: 700;
-      line-height: 1.1;
+      line-height: 1.08;
       margin-bottom: 1.5rem;
       color: var(--text-primary);
     }
@@ -156,36 +193,91 @@
     .hero-sub {
       font-size: 1.15rem;
       color: var(--text-secondary);
-      max-width: 700px;
-      margin: 0 auto 2.5rem;
+      max-width: 640px;
+      margin: 0 auto 3rem;
       line-height: 1.8;
     }
+
+    .hero-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #fff;
+      background: var(--accent);
+      font-weight: 600;
+      text-decoration: none;
+      font-size: 0.95rem;
+      padding: 0.9rem 2rem;
+      border-radius: 8px;
+      transition: background 0.2s;
+      min-height: 44px;
+    }
+
+    .hero-cta:hover { background: var(--accent-hover); }
+
+    .hero-cta svg { width: 18px; height: 18px; }
 
     .hero-link {
       display: inline-block;
       color: var(--accent);
       font-weight: 600;
       text-decoration: none;
-      font-size: 1rem;
-      border-bottom: 2px solid transparent;
+      font-size: 0.95rem;
+      margin-left: 1.5rem;
+      border-bottom: 1px solid transparent;
       transition: border-color 0.2s;
+      min-height: 44px;
+      line-height: 44px;
     }
 
     .hero-link:hover { border-color: var(--accent); }
 
+    /* KPI STRIP */
+    .kpi-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      max-width: 900px;
+      margin: 4rem auto 0;
+      background: var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+
+    .kpi-item {
+      background: var(--card-bg);
+      padding: 1.8rem 1rem;
+      text-align: center;
+    }
+
+    .kpi-value {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+      font-weight: 700;
+      color: var(--accent);
+      line-height: 1;
+      margin-bottom: 0.4rem;
+    }
+
+    .kpi-label {
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      line-height: 1.3;
+    }
+
     /* DATA CARDS */
     .data-section {
-      padding: 5rem 5%;
-      border-top: 1px solid var(--border);
+      padding: 6rem 5%;
     }
 
     .section-header {
       text-align: center;
-      margin-bottom: 3rem;
+      margin-bottom: 3.5rem;
     }
 
     .section-label {
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.15em;
@@ -210,7 +302,7 @@
 
     .data-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      grid-template-columns: repeat(4, 1fr);
       gap: 1.5rem;
       max-width: 1100px;
       margin: 0 auto;
@@ -221,34 +313,61 @@
       border: 1px solid var(--border);
       border-radius: 12px;
       padding: 2rem;
-      transition: all 0.2s;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+      transition: border-color 0.2s, box-shadow 0.2s;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      position: relative;
+      overflow: hidden;
     }
 
-    .data-card:hover {
-      border-color: var(--accent);
-      background: var(--card-bg);
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    .data-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--accent);
+      opacity: 0;
+      transition: opacity 0.2s;
     }
+
+    .data-card:hover { border-color: var(--accent); box-shadow: 0 4px 12px rgba(139,115,85,0.08); }
+    .data-card:hover::before { opacity: 1; }
 
     .data-card-icon {
-      font-size: 0;
-      margin-bottom: 1rem;
+      width: 48px;
+      height: 48px;
+      border-radius: 10px;
+      background: var(--accent-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1.2rem;
+    }
+
+    .data-card-icon svg {
+      width: 24px;
+      height: 24px;
+      stroke: var(--accent);
+      fill: none;
+      stroke-width: 1.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
     }
 
     .data-card-name {
       font-family: 'Space Grotesk', sans-serif;
       font-weight: 700;
-      font-size: 1.05rem;
-      margin-bottom: 0.5rem;
+      font-size: 1.1rem;
+      margin-bottom: 0.3rem;
       color: var(--text-primary);
     }
 
     .data-card-vol {
-      font-size: 0.8rem;
+      font-size: 0.82rem;
       color: var(--accent);
       font-weight: 600;
-      margin-bottom: 0.75rem;
+      margin-bottom: 0.6rem;
     }
 
     .data-card-desc {
@@ -259,15 +378,13 @@
 
     /* EXPLORATIONS */
     .explorations-section {
-      padding: 5rem 5%;
+      padding: 6rem 5%;
       background: var(--bg-alt);
-      border-top: 1px solid var(--border);
-      border-bottom: 1px solid var(--border);
     }
 
     .exploration-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      grid-template-columns: repeat(3, 1fr);
       gap: 1.5rem;
       max-width: 1100px;
       margin: 0 auto;
@@ -276,78 +393,165 @@
     .exploration-card {
       background: var(--card-bg);
       border: 1px solid var(--border);
-      border-top: 3px solid var(--accent);
       border-radius: 12px;
-      padding: 2rem;
-      transition: all 0.2s;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+      overflow: hidden;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
     }
 
-    .exploration-card:hover {
-      border-color: var(--accent);
-      border-top-color: var(--accent);
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    .exploration-card:hover { border-color: var(--accent); box-shadow: 0 4px 12px rgba(139,115,85,0.08); }
+
+    .exploration-visual {
+      height: 160px;
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .exploration-visual svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .exploration-body {
+      padding: 1.5rem;
     }
 
     .exploration-badge {
       display: inline-block;
-      font-size: 0.7rem;
+      font-size: 0.68rem;
       font-weight: 700;
       padding: 0.3rem 0.8rem;
       border-radius: 100px;
       text-transform: uppercase;
       letter-spacing: 0.05em;
-      margin-bottom: 1rem;
+      margin-bottom: 0.8rem;
     }
 
-    .badge-live {
-      background: var(--accent-light);
-      color: var(--accent);
-    }
-
-    .badge-wip {
-      background: rgba(107, 101, 96, 0.08);
-      color: var(--text-secondary);
-    }
+    .badge-live { background: rgba(74,124,89,0.1); color: #4A7C59; }
+    .badge-wip { background: rgba(107,101,96,0.08); color: var(--text-secondary); }
 
     .exploration-title {
       font-family: 'Space Grotesk', sans-serif;
       font-weight: 700;
       font-size: 1.05rem;
-      margin-bottom: 0.75rem;
+      margin-bottom: 0.6rem;
       color: var(--text-primary);
     }
 
     .exploration-desc {
-      font-size: 0.88rem;
+      font-size: 0.85rem;
       color: var(--text-secondary);
       line-height: 1.6;
       margin-bottom: 1rem;
     }
 
     .exploration-source {
-      font-size: 0.78rem;
+      font-size: 0.75rem;
       color: var(--accent);
       font-weight: 600;
     }
 
-    /* METHODO PREVIEW */
-    .methodo-section {
-      padding: 5rem 5%;
+    /* HOW IT WORKS */
+    .how-section {
+      padding: 6rem 5%;
     }
 
-    .methodo-content {
+    .how-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .how-step {
+      text-align: center;
+      position: relative;
+    }
+
+    .how-number {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #fff;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.2rem;
+    }
+
+    .how-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      margin-bottom: 0.5rem;
+      color: var(--text-primary);
+    }
+
+    .how-desc {
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    /* CTA BANNER */
+    .cta-section {
+      padding: 5rem 5%;
+      background: var(--bg-alt);
+    }
+
+    .cta-box {
       max-width: 800px;
       margin: 0 auto;
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 3.5rem;
       text-align: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      border: 1px solid var(--border);
     }
 
-    .methodo-text {
-      font-size: 1.05rem;
-      color: var(--text-secondary);
-      line-height: 1.8;
-      margin-bottom: 2rem;
+    .cta-box h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(1.5rem, 3vw, 2rem);
+      font-weight: 700;
+      margin-bottom: 1rem;
+      color: var(--text-primary);
     }
+
+    .cta-box p {
+      font-size: 1rem;
+      color: var(--text-secondary);
+      margin-bottom: 2rem;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .cta-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #fff;
+      background: var(--accent);
+      font-weight: 600;
+      text-decoration: none;
+      font-size: 0.95rem;
+      padding: 0.9rem 2.5rem;
+      border-radius: 8px;
+      transition: background 0.2s;
+      min-height: 44px;
+    }
+
+    .cta-btn:hover { background: var(--accent-hover); }
 
     /* FOOTER */
     footer {
@@ -358,75 +562,83 @@
       color: var(--text-secondary);
     }
 
-    footer a {
-      color: var(--text-secondary);
-      text-decoration: none;
-      transition: color 0.2s;
-    }
-
+    footer a { color: var(--text-secondary); text-decoration: none; transition: color 0.2s; }
     footer a:hover { color: var(--accent); }
+    .footer-email { color: var(--accent); margin: 0.75rem 0; display: block; }
+    .footer-legal { margin: 0.75rem 0; }
+    .footer-copy { margin-top: 1rem; font-size: 0.78rem; color: rgba(107,101,96,0.6); }
 
-    .footer-email {
-      color: var(--accent);
-      margin: 0.75rem 0;
-      display: block;
+    /* ANIMATIONS */
+    .fade-up {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
     }
 
-    .footer-legal {
-      margin: 0.75rem 0;
+    .fade-up.visible {
+      opacity: 1;
+      transform: translateY(0);
     }
 
-    .footer-copy {
-      margin-top: 1rem;
-      font-size: 0.78rem;
-      color: rgba(107, 101, 96, 0.6);
-    }
+    /* COUNTER ANIMATION */
+    .counter { display: inline-block; }
 
     /* MOBILE */
+    @media (max-width: 1024px) {
+      .data-grid { grid-template-columns: repeat(2, 1fr); }
+      .exploration-grid { grid-template-columns: repeat(2, 1fr); }
+      .how-grid { grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+    }
+
     @media (max-width: 768px) {
-      nav {
-        padding: 1rem 5%;
-      }
+      nav { padding: 1rem 5%; }
 
       .nav-links {
         display: none;
-        position: absolute;
-        top: 100%;
-        left: 0;
+        position: fixed;
+        top: 0;
         right: 0;
+        bottom: 0;
+        width: 280px;
         flex-direction: column;
-        background: var(--nav-bg);
-        border-bottom: 1px solid var(--border);
-        padding: 1rem 5%;
+        background: var(--card-bg);
+        padding: 5rem 2rem 2rem;
         gap: 0;
-        z-index: 99;
+        z-index: 200;
+        box-shadow: -4px 0 20px rgba(0,0,0,0.08);
       }
 
-      .nav-links.active {
-        display: flex;
+      .nav-links.active { display: flex; }
+
+      .nav-links li { min-height: 48px; display: flex; align-items: center; border-bottom: 1px solid var(--border); width: 100%; }
+      .nav-links a { width: 100%; padding: 0.5rem 0; }
+
+      .nav-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.3);
+        z-index: 150;
       }
 
-      .nav-links li {
-        min-height: 44px;
-        display: flex;
-        align-items: center;
-      }
+      .nav-overlay.active { display: block; }
 
-      .hamburger {
-        display: flex;
-      }
+      .hamburger { display: flex; z-index: 250; }
 
-      .hero {
-        padding: 5rem 5% 4rem;
-      }
+      .hero { padding: 4rem 5% 3rem; }
+      .hero h1 { font-size: clamp(2rem, 8vw, 2.8rem); }
+      .hero-cta { width: 100%; justify-content: center; }
+      .hero-link { display: block; margin: 1rem 0 0; }
 
-      .data-grid, .exploration-grid {
-        grid-template-columns: 1fr;
-      }
+      .kpi-strip { grid-template-columns: repeat(2, 1fr); }
 
-      main {
-        padding: 2rem 5% !important;
-      }
+      .data-grid, .exploration-grid { grid-template-columns: 1fr; }
+
+      .how-grid { grid-template-columns: 1fr; gap: 2.5rem; }
+
+      .exploration-visual { height: 120px; }
+
+      .cta-box { padding: 2.5rem 1.5rem; }
     }
   </style>
 </head>
@@ -435,7 +647,7 @@
   <!-- NAV -->
   <nav>
     <a href="/" class="nav-logo">Intent Analytics</a>
-    <button class="hamburger" onclick="this.classList.toggle('active'); document.querySelector('.nav-links').classList.toggle('active');">
+    <button class="hamburger" aria-label="Menu" onclick="toggleMenu()">
       <span></span>
       <span></span>
       <span></span>
@@ -449,85 +661,196 @@
       <li><a href="/documentation">Documentation</a></li>
       <li><a href="/a-propos">À propos</a></li>
     </ul>
+    <div class="nav-overlay" onclick="toggleMenu()"></div>
   </nav>
 
   <!-- HERO -->
   <section class="hero">
-    <h1><span>Intent Analytics</span></h1>
+    <div class="hero-badge">Open Data France</div>
+    <h1>Données publiques,<br/><span>rendues lisibles.</span></h1>
     <p class="hero-sub">
-      Exploration de données publiques françaises.
-      Transactions immobilières (DVF), diagnostics de performance énergétique (DPE ADEME),
-      équipements et démographie (INSEE). Ce projet les croise et les rend lisibles.
+      Transactions immobilières, diagnostics énergétiques, équipements et démographie.
+      Nous croisons les données ouvertes françaises pour en extraire du sens.
     </p>
-    <a href="/projet" class="hero-link">En savoir plus sur le projet →</a>
+    <div>
+      <a href="/estimation" class="hero-cta">
+        Estimer un bien
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+      <a href="/projet" class="hero-link">Découvrir le projet →</a>
+    </div>
+
+    <!-- KPI STRIP -->
+    <div class="kpi-strip fade-up">
+      <div class="kpi-item">
+        <div class="kpi-value"><span class="counter" data-target="12.2">0</span>M</div>
+        <div class="kpi-label">Transactions DVF</div>
+      </div>
+      <div class="kpi-item">
+        <div class="kpi-value"><span class="counter" data-target="9.8">0</span>M</div>
+        <div class="kpi-label">Diagnostics DPE</div>
+      </div>
+      <div class="kpi-item">
+        <div class="kpi-value"><span class="counter" data-target="6.3">0</span>M</div>
+        <div class="kpi-label">Adresses BAN</div>
+      </div>
+      <div class="kpi-item">
+        <div class="kpi-value"><span class="counter" data-target="35">0</span>k</div>
+        <div class="kpi-label">Communes couvertes</div>
+      </div>
+    </div>
   </section>
 
   <!-- DONNÉES TRAITÉES -->
   <section class="data-section">
-    <div class="section-header">
+    <div class="section-header fade-up">
       <div class="section-label">Sources</div>
       <h2 class="section-title">Données traitées</h2>
+      <p class="section-sub">Quatre sources de données ouvertes, croisées et enrichies pour une vision complète du territoire.</p>
     </div>
     <div class="data-grid">
-      <div class="data-card">
+      <div class="data-card fade-up">
+        <div class="data-card-icon">
+          <svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 16l4-8 4 5 5-9"/></svg>
+        </div>
         <div class="data-card-name">DVF</div>
-        <div class="data-card-desc">Transactions immobilières</div>
+        <div class="data-card-vol">12.2M transactions</div>
+        <div class="data-card-desc">Demandes de valeurs foncières — chaque vente immobilière en France depuis 2018.</div>
       </div>
-      <div class="data-card">
+      <div class="data-card fade-up">
+        <div class="data-card-icon">
+          <svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+        </div>
         <div class="data-card-name">DPE</div>
-        <div class="data-card-desc">Diagnostics énergétiques</div>
+        <div class="data-card-vol">9.8M diagnostics</div>
+        <div class="data-card-desc">Diagnostics de performance énergétique ADEME — classe énergie et émissions CO2.</div>
       </div>
-      <div class="data-card">
+      <div class="data-card fade-up">
+        <div class="data-card-icon">
+          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        </div>
         <div class="data-card-name">BPE</div>
-        <div class="data-card-desc">Équipements et services</div>
+        <div class="data-card-vol">236k équipements</div>
+        <div class="data-card-desc">Base permanente des équipements INSEE — commerces, santé, éducation, transports.</div>
       </div>
-      <div class="data-card">
+      <div class="data-card fade-up">
+        <div class="data-card-icon">
+          <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        </div>
         <div class="data-card-name">BAN</div>
-        <div class="data-card-desc">Adresses géocodées</div>
+        <div class="data-card-vol">6.3M adresses</div>
+        <div class="data-card-desc">Base adresse nationale — géocodage précis de chaque adresse du territoire.</div>
       </div>
     </div>
   </section>
 
   <!-- EXPLORATIONS -->
   <section class="explorations-section">
-    <div class="section-header">
+    <div class="section-header fade-up">
       <div class="section-label">Prototypes</div>
       <h2 class="section-title">Explorations disponibles</h2>
-      <p class="section-sub">Ces explorations illustrent ce qu'il est possible d'extraire des données publiques en les croisant et en appliquant des méthodes statistiques documentées.</p>
+      <p class="section-sub">Des croisements de données publiques qui révèlent des tendances invisibles à l'oeil nu.</p>
     </div>
     <div class="exploration-grid">
-      <div class="exploration-card">
-        <span class="exploration-badge badge-live">Disponible</span>
-        <div class="exploration-title">Analyse DVF</div>
-        <div class="exploration-desc">Exploration des transactions immobilières par commune. Distribution des prix au m², volume de ventes, évolution temporelle.</div>
-        <div class="exploration-source">Source : DGFiP DVF</div>
+      <div class="exploration-card fade-up">
+        <div class="exploration-visual">
+          <svg viewBox="0 0 400 160" preserveAspectRatio="none">
+            <defs><linearGradient id="g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#8B7355" stop-opacity="0.15"/><stop offset="100%" stop-color="#8B7355" stop-opacity="0"/></linearGradient></defs>
+            <path d="M0,140 Q50,120 100,100 T200,80 T300,60 T400,30" fill="none" stroke="#8B7355" stroke-width="2" opacity="0.6"/>
+            <path d="M0,140 Q50,120 100,100 T200,80 T300,60 T400,30 L400,160 L0,160Z" fill="url(#g1)"/>
+            <circle cx="100" cy="100" r="4" fill="#8B7355" opacity="0.6"/><circle cx="200" cy="80" r="4" fill="#8B7355" opacity="0.6"/><circle cx="300" cy="60" r="4" fill="#8B7355" opacity="0.6"/>
+          </svg>
+        </div>
+        <div class="exploration-body">
+          <span class="exploration-badge badge-live">Disponible</span>
+          <div class="exploration-title">Analyse DVF</div>
+          <div class="exploration-desc">Distribution des prix au m², volume de ventes, évolution temporelle par commune.</div>
+          <div class="exploration-source">Source : DGFiP DVF</div>
+        </div>
       </div>
-      <div class="exploration-card">
-        <span class="exploration-badge badge-live">Disponible</span>
-        <div class="exploration-title">Scanner DPE</div>
-        <div class="exploration-desc">Exploration du registre des diagnostics énergétiques par commune. Répartition des classes énergie, identification des logements les moins performants.</div>
-        <div class="exploration-source">Source : ADEME DPE</div>
+      <div class="exploration-card fade-up">
+        <div class="exploration-visual">
+          <svg viewBox="0 0 400 160" preserveAspectRatio="none">
+            <rect x="40" y="100" width="40" height="50" rx="4" fill="#4A7C59" opacity="0.2"/>
+            <rect x="100" y="80" width="40" height="70" rx="4" fill="#4A7C59" opacity="0.3"/>
+            <rect x="160" y="50" width="40" height="100" rx="4" fill="#D4A843" opacity="0.3"/>
+            <rect x="220" y="30" width="40" height="120" rx="4" fill="#C67A3C" opacity="0.3"/>
+            <rect x="280" y="20" width="40" height="130" rx="4" fill="#9B4D4D" opacity="0.3"/>
+            <rect x="340" y="40" width="40" height="110" rx="4" fill="#9B4D4D" opacity="0.2"/>
+            <text x="50" y="145" font-size="10" fill="#6B6560" font-family="Inter">A</text>
+            <text x="110" y="145" font-size="10" fill="#6B6560" font-family="Inter">B</text>
+            <text x="170" y="145" font-size="10" fill="#6B6560" font-family="Inter">C</text>
+            <text x="230" y="145" font-size="10" fill="#6B6560" font-family="Inter">D</text>
+            <text x="290" y="145" font-size="10" fill="#6B6560" font-family="Inter">E</text>
+            <text x="350" y="145" font-size="10" fill="#6B6560" font-family="Inter">F</text>
+          </svg>
+        </div>
+        <div class="exploration-body">
+          <span class="exploration-badge badge-live">Disponible</span>
+          <div class="exploration-title">Scanner DPE</div>
+          <div class="exploration-desc">Répartition des classes énergie par commune, identification des passoires thermiques.</div>
+          <div class="exploration-source">Source : ADEME DPE</div>
+        </div>
       </div>
-      <div class="exploration-card">
-        <span class="exploration-badge badge-wip">En cours</span>
-        <div class="exploration-title">Score équipements</div>
-        <div class="exploration-desc">Score de proximité des équipements par commune : transports, commerces, santé, éducation. Échelle 0-100 basée sur le BPE INSEE.</div>
-        <div class="exploration-source">Source : INSEE BPE</div>
+      <div class="exploration-card fade-up">
+        <div class="exploration-visual">
+          <svg viewBox="0 0 400 160" preserveAspectRatio="none">
+            <circle cx="200" cy="80" r="55" fill="none" stroke="#8B7355" stroke-width="1.5" opacity="0.2"/>
+            <circle cx="200" cy="80" r="40" fill="none" stroke="#8B7355" stroke-width="1.5" opacity="0.3"/>
+            <circle cx="200" cy="80" r="25" fill="none" stroke="#8B7355" stroke-width="1.5" opacity="0.4"/>
+            <circle cx="200" cy="80" r="6" fill="#8B7355" opacity="0.5"/>
+            <circle cx="175" cy="55" r="4" fill="#4A7C59" opacity="0.5"/>
+            <circle cx="230" cy="65" r="4" fill="#5B7B9B" opacity="0.5"/>
+            <circle cx="185" cy="105" r="4" fill="#C67A3C" opacity="0.5"/>
+            <circle cx="235" cy="95" r="4" fill="#9B4D4D" opacity="0.5"/>
+            <circle cx="160" cy="85" r="3" fill="#8B7355" opacity="0.3"/>
+            <circle cx="245" cy="75" r="3" fill="#8B7355" opacity="0.3"/>
+          </svg>
+        </div>
+        <div class="exploration-body">
+          <span class="exploration-badge badge-wip">En cours</span>
+          <div class="exploration-title">Score équipements</div>
+          <div class="exploration-desc">Score de proximité 0-100 : transports, commerces, santé, éducation par commune.</div>
+          <div class="exploration-source">Source : INSEE BPE</div>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- METHODO PREVIEW -->
-  <section class="methodo-section">
-    <div class="section-header">
+  <!-- HOW IT WORKS -->
+  <section class="how-section">
+    <div class="section-header fade-up">
       <div class="section-label">Approche</div>
-      <h2 class="section-title">Méthodologie</h2>
+      <h2 class="section-title">Comment ça marche</h2>
     </div>
-    <div class="methodo-content">
-      <p class="methodo-text">
-        Les analyses s'appuient sur des données officielles et un indice de confiance accompagne chaque résultat.
-      </p>
-      <a href="/methodologie" style="color: var(--accent); font-weight: 600; text-decoration: none; border-bottom: 2px solid transparent; transition: border-color 0.2s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='transparent'">Lire la méthodologie complète →</a>
+    <div class="how-grid">
+      <div class="how-step fade-up">
+        <div class="how-number">1</div>
+        <div class="how-title">Collecte</div>
+        <div class="how-desc">Ingestion automatique des sources publiques officielles — DVF, ADEME, INSEE, BAN, Géorisques.</div>
+      </div>
+      <div class="how-step fade-up">
+        <div class="how-number">2</div>
+        <div class="how-title">Croisement</div>
+        <div class="how-desc">Géocodage, normalisation et jointure des données pour créer une vision unifiée du territoire.</div>
+      </div>
+      <div class="how-step fade-up">
+        <div class="how-number">3</div>
+        <div class="how-title">Analyse</div>
+        <div class="how-desc">Modèles statistiques et ML pour extraire des tendances, scores et estimations fiables.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section">
+    <div class="cta-box fade-up">
+      <h2>Testez l'estimation</h2>
+      <p>Entrez une adresse et obtenez une estimation basée sur les données réelles du marché.</p>
+      <a href="/estimation" class="cta-btn">
+        Lancer une estimation
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
     </div>
   </section>
 
@@ -542,6 +865,65 @@
     </p>
     <p class="footer-copy">© 2026 Intent Analytics</p>
   </footer>
+
+  <script>
+    // Mobile menu
+    function toggleMenu() {
+      document.querySelector('.hamburger').classList.toggle('active');
+      document.querySelector('.nav-links').classList.toggle('active');
+      document.querySelector('.nav-overlay').classList.toggle('active');
+    }
+
+    // Scroll animations
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+    document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+    // Counter animation
+    function animateCounters() {
+      document.querySelectorAll('.counter').forEach(counter => {
+        const target = parseFloat(counter.dataset.target);
+        const duration = 1800;
+        const start = performance.now();
+
+        function update(now) {
+          const elapsed = now - start;
+          const progress = Math.min(elapsed / duration, 1);
+          const ease = 1 - Math.pow(1 - progress, 3);
+          const current = target * ease;
+
+          if (target >= 10) {
+            counter.textContent = Math.round(current);
+          } else {
+            counter.textContent = current.toFixed(1);
+          }
+
+          if (progress < 1) requestAnimationFrame(update);
+        }
+
+        requestAnimationFrame(update);
+      });
+    }
+
+    // Trigger counters when KPI strip is visible
+    const kpiObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          animateCounters();
+          kpiObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.3 });
+
+    const kpiStrip = document.querySelector('.kpi-strip');
+    if (kpiStrip) kpiObserver.observe(kpiStrip);
+  </script>
 
 </body>
 </html>
