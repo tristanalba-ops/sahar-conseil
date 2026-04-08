@@ -1,1464 +1,2315 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Estimation Bien Immobilier — Intent Analytics</title>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --bg: #F0EEE9;
-      --bg-alt: #E6E2DB;
-      --card-bg: #FFFFFF;
-      --accent: #8B7355;
-      --accent-light: rgba(139, 115, 85, 0.08);
-      --text-primary: #1A1A1A;
-      --text-secondary: #6B6560;
-      --border: #D4CFC7;
-      --nav-bg: rgba(240, 238, 233, 0.95);
-      --success: #4A7C59;
-      --danger: #9B4D4D;
-      --info: #5B7B9B;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estimation Immobilière - SAHAR Conseil</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text-primary); line-height: 1.6; }
-    h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; font-weight: 700; }
+        :root {
+            --bg: #F0EEE9;
+            --bg-alt: #E6E2DB;
+            --accent: #8B7355;
+            --text-primary: #1A1A1A;
+            --text-secondary: #6B6560;
+            --border: #D4CFC7;
+            --card-bg: #FFFFFF;
+        }
 
-    .container { max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem; }
-    .error-box { display: none; padding: 1rem; background: rgba(155, 77, 77, 0.08); border: 1px solid var(--danger); border-radius: 12px; color: var(--danger); margin: 1rem 0; }
-    .error-box.visible { display: block; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
 
-    nav {
-      background: var(--nav-bg);
-      backdrop-filter: blur(8px);
-      border-bottom: 1px solid var(--border);
-      padding: 0 1.5rem;
-      height: 52px;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .nav-logo { font-size: 1.05rem; font-weight: 700; color: var(--accent); text-decoration: none; }
-    .nav-links { list-style: none; display: flex; gap: 1.5rem; }
-    .nav-links a { color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; transition: color 0.2s; }
-    .nav-links a:hover { color: var(--accent); }
-    .burger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 6px; background: none; border: none; }
-    .burger span { display: block; width: 22px; height: 2px; background: var(--text-primary); border-radius: 2px; transition: all 0.3s; }
-    .burger.open span:nth-child(1) { transform: rotate(45deg); }
-    .burger.open span:nth-child(2) { opacity: 0; }
-    .burger.open span:nth-child(3) { transform: rotate(-45deg); }
-    @media (max-width: 768px) {
-      .burger { display: flex; }
-      .nav-links {
-        display: none; position: absolute; top: 52px; left: 0; right: 0;
-        background: var(--nav-bg); border-bottom: 1px solid var(--border);
-        flex-direction: column; gap: 0; padding: 0.5rem 0;
-      }
-      .nav-links.open { display: flex; }
-      .nav-links li a { display: block; padding: 0.9rem 1.5rem; font-size: 1rem; border-bottom: 1px solid rgba(0,0,0,0.05); }
-    }
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 600;
+        }
 
-    .hero {
-      text-align: center;
-      padding: 3rem 2rem;
-      background: linear-gradient(135deg, rgba(139, 115, 85, 0.04) 0%, rgba(212, 207, 199, 0.08) 100%);
-      border-bottom: 1px solid var(--border);
-      margin-bottom: 2rem;
-    }
-    .hero-tag { display: inline-block; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); margin-bottom: 1rem; }
-    .hero h1 { font-size: 2.5rem; margin-bottom: 0.5rem; }
-    .hero h1 span { color: var(--accent); }
-    .hero p { color: var(--text-secondary); font-size: 1.1rem; max-width: 600px; margin: 0 auto; }
+        /* NAV BAR */
+        nav {
+            background-color: var(--card-bg);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
 
-    .tabs { display: flex; gap: 1rem; border-bottom: 1px solid var(--border); margin-bottom: 2rem; }
-    .tab-btn {
-      padding: 1rem 1.5rem;
-      background: none;
-      border: none;
-      color: var(--text-secondary);
-      cursor: pointer;
-      font-size: 0.95rem;
-      font-weight: 600;
-      border-bottom: 2px solid transparent;
-      transition: all 0.3s;
-    }
-    .tab-btn:hover { color: var(--text-primary); }
-    .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
-    .tab-panel { display: none; animation: fadeIn 0.3s; }
-    .tab-panel.active { display: block; }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        nav .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
 
-    .form-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 2rem; margin-bottom: 2rem; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
-    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem; }
-    .form-group { display: flex; flex-direction: column; }
-    .form-group label { font-weight: 600; margin-bottom: 0.5rem; font-size: 0.95rem; color: var(--text-primary); }
-    .form-group input,
-    .form-group select {
-      padding: 0.75rem;
-      background: #FFFFFF;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      color: var(--text-primary);
-      font-family: inherit;
-      font-size: 0.95rem;
-      transition: border-color 0.2s;
-    }
-    .form-group input:focus,
-    .form-group select:focus {
-      outline: none;
-      border-color: var(--accent);
-      box-shadow: 0 0 0 2px rgba(139, 115, 85, 0.1);
-    }
-    .adresse-wrap { position: relative; }
-    .suggestions {
-      position: absolute;
-      top: 100%;
-      left: 0;
-      right: 0;
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-top: none;
-      border-radius: 0 0 8px 8px;
-      max-height: 200px;
-      overflow-y: auto;
-      display: none;
-      z-index: 10;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    }
-    .suggestions.open { display: block; }
-    .sug-item {
-      padding: 0.75rem 1rem;
-      cursor: pointer;
-      border-bottom: 1px solid var(--border);
-      font-size: 0.9rem;
-      transition: background 0.2s;
-      color: var(--text-primary);
-    }
-    .sug-item:hover { background: var(--accent-light); }
-    .sug-item:last-child { border-bottom: none; }
+        nav .logo {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
 
-    .checkboxes { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
-    .checkboxes label { display: flex; align-items: center; cursor: pointer; font-size: 0.95rem; gap: 0.5rem; color: var(--text-primary); }
-    .checkboxes input { cursor: pointer; }
+        nav .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
 
-    .btn-primary {
-      padding: 0.85rem 2rem;
-      background: var(--accent);
-      color: #FFFFFF;
-      border: none;
-      border-radius: 8px;
-      font-weight: 700;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: background 0.2s;
-      width: 100%;
-      touch-action: manipulation;
-      min-height: 44px;
-    }
-    .btn-primary:hover { background: #7A6347; }
-    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+        nav .nav-links a {
+            text-decoration: none;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            transition: color 0.3s;
+        }
 
-    .result-hero {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 2rem;
-      margin-bottom: 2rem;
-      display: none;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-    }
-    .result-hero.visible { display: block; }
-    .result-hero-header { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 1.5rem; align-items: start; }
-    .result-hero-info h2 { font-size: 1.5rem; margin-bottom: 0.5rem; color: var(--text-primary); }
-    .result-hero-info .sub-text { color: var(--text-secondary); font-size: 0.95rem; }
-    .result-hero-price { display: flex; align-items: baseline; gap: 0.5rem; margin-top: 1rem; }
-    .result-hero-price .big-number { font-size: 2.5rem; font-weight: 700; color: var(--accent); }
-    .result-hero-price .unit { color: var(--text-secondary); }
-    .result-tags { display: flex; flex-wrap: wrap; gap: 0.8rem; margin-top: 1rem; }
-    .tag { display: inline-block; padding: 0.4rem 0.8rem; background: var(--accent-light); border: 1px solid rgba(139, 115, 85, 0.25); border-radius: 20px; font-size: 0.85rem; color: var(--accent); }
-    .fourchette { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
-    .fourchette-item { text-align: center; padding: 1rem; background: var(--accent-light); border-radius: 8px; }
-    .fourchette-label { color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.3rem; }
-    .fourchette-val { font-size: 1.5rem; font-weight: 700; color: var(--accent); }
+        nav .nav-links a:hover {
+            color: var(--accent);
+        }
 
-    .volets-tabs { display: none; gap: 1rem; border-bottom: 1px solid var(--border); margin-bottom: 2rem; }
-    .volets-tabs.visible { display: flex; }
-    .volets-tab-btn {
-      padding: 1rem 1.5rem;
-      background: none;
-      border: none;
-      color: var(--text-secondary);
-      cursor: pointer;
-      font-size: 0.95rem;
-      font-weight: 600;
-      border-bottom: 2px solid transparent;
-      transition: all 0.3s;
-    }
-    .volets-tab-btn:hover { color: var(--text-primary); }
-    .volets-tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
-    .volets-panel { display: none; }
-    .volets-panel.active { display: block; }
+        nav .nav-links a.active {
+            color: var(--accent);
+            font-weight: 600;
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 0.25rem;
+        }
 
-    .result-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
-    .result-card h3 { color: var(--text-primary); margin-bottom: 1rem; }
-    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
-    .kpi-card { padding: 1.5rem; background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
-    .kpi-card .label { color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em; }
-    .kpi-card .value { font-size: 1.8rem; font-weight: 700; color: var(--text-primary); }
-    .kpi-card .sub { color: var(--text-secondary); font-size: 0.8rem; margin-top: 0.3rem; }
+        .burger {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
 
-    .score-ring { width: 200px; height: 200px; margin: 0 auto 1.5rem; }
+        @media (max-width: 768px) {
+            nav .nav-links {
+                display: none;
+            }
+            .burger {
+                display: block;
+            }
+            nav .nav-links.active {
+                display: flex;
+                flex-direction: column;
+                position: absolute;
+                top: 60px;
+                left: 0;
+                right: 0;
+                background-color: var(--card-bg);
+                padding: 1rem;
+                border-bottom: 1px solid var(--border);
+                gap: 0.5rem;
+            }
+            nav .nav-links a {
+                padding: 0.5rem;
+            }
+        }
 
-    .score-item { padding: 0.8rem 0; border-bottom: 1px solid var(--border); }
-    .score-item:last-child { border-bottom: none; }
-    .score-item-label { color: var(--text-secondary); font-size: 0.9rem; }
-    .score-item-bar { width: 100%; height: 6px; background: rgba(0,0,0,0.06); border-radius: 3px; margin-top: 0.5rem; overflow: hidden; }
-    .score-item-fill { height: 100%; background: linear-gradient(90deg, var(--accent), #7A6347); border-radius: 3px; }
-    .score-item-val { color: var(--accent); font-weight: 600; font-size: 0.9rem; }
+        /* GENERAL */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
 
-    .table-responsive { overflow-x: auto; margin: 1rem 0; }
-    table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
-    th { background: var(--bg-alt); padding: 1rem; text-align: left; font-weight: 600; color: var(--text-primary); }
-    td { padding: 0.8rem 1rem; border-bottom: 1px solid var(--border); color: var(--text-primary); }
-    tr:hover { background: var(--accent-light); }
+        .section {
+            padding: 4rem 0;
+        }
 
-    .dpe-badge { display: inline-block; width: 100px; height: 100px; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 700; color: white; text-align: center; }
-    .dpe-a { background: #4A7C59; }
-    .dpe-b { background: #5A8C69; }
-    .dpe-c { background: #7B9A7C; color: #FFFFFF; }
-    .dpe-d { background: #9B8B5B; color: #FFFFFF; }
-    .dpe-e { background: #B89B6B; color: #FFFFFF; }
-    .dpe-f { background: #9B4D4D; }
-    .dpe-g { background: #8B3B3B; }
+        /* HERO */
+        .hero {
+            text-align: center;
+            padding: 3rem 2rem;
+        }
 
-    .dpe-scale { display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.5rem; margin: 1rem 0; }
-    .dpe-scale-item { text-align: center; padding: 1rem 0.5rem; border-radius: 6px; font-weight: 600; font-size: 0.85rem; border: 2px solid transparent; transition: all 0.2s; background: var(--bg-alt); color: var(--text-primary); }
-    .dpe-scale-item.active { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(139, 115, 85, 0.15); }
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
 
-    .chart-box { background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
-    .charts-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+        .hero p {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
 
-    .risques-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; }
-    .risque-card { padding: 1rem; background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
-    .risque-card .label { color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.5rem; }
-    .risque-card .value { font-size: 1.3rem; font-weight: 700; color: var(--text-primary); }
-    .risque-card.yes { border-color: var(--danger); }
-    .risque-card.yes .value { color: var(--danger); }
+        /* FORM CARD */
+        .form-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 800px;
+            margin: 2rem auto;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
 
-    .plu-donut { width: 200px; height: 200px; margin: 0 auto 1rem; }
-    .plu-legend { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 1rem; margin-top: 1rem; }
-    .plu-legend-item { padding: 0.8rem; background: var(--bg-alt); border-radius: 6px; font-size: 0.9rem; color: var(--text-primary); }
-    .plu-legend-item .pct { font-weight: 700; color: var(--accent); }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
 
-    .ml-block { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 2rem; margin: 2rem 0; display: none; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
-    .ml-block.visible { display: block; }
-    .ml-block-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 1.5rem; color: var(--text-primary); }
-    .ml-cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; }
-    .ml-card { padding: 1.5rem; background: var(--bg-alt); border: 1px solid var(--border); border-radius: 8px; }
-    .ml-card.full { grid-column: 1 / -1; }
-    .ml-card-label { color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 1rem; text-transform: uppercase; }
-    .ml-card h4 { color: var(--text-primary); }
+        label {
+            display: block;
+            font-size: 0.95rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
 
-    #fiche-investisseur { display: none; }
+        input[type="text"],
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            color: var(--text-primary);
+            background-color: var(--card-bg);
+            transition: border-color 0.3s;
+        }
 
-    @media print {
-      nav, .hero, .tabs, .form-card, .error-box, .result-hero, .volets-tabs, .volets-panel,
-      #ml-block, footer { display: none !important; }
-      #fiche-investisseur { display: block !important; }
-      body { background: white !important; }
-      @page { margin: 1.5cm; }
-    }
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(139, 115, 85, 0.1);
+        }
 
-    @media (max-width: 768px) {
-      .container { padding: 1rem; }
-      .hero { padding: 2rem 1rem; }
-      .hero h1 { font-size: 1.8rem; }
-      .form-grid { grid-template-columns: 1fr; }
-      .result-hero-header { grid-template-columns: 1fr; gap: 1.5rem; }
-      .kpi-grid { grid-template-columns: 1fr; }
-      .charts-row { grid-template-columns: 1fr; }
-      .btn-primary { min-height: 44px; }
-    }
+        .autocomplete-dropdown {
+            position: absolute;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 100;
+            width: 100%;
+            margin-top: 0.25rem;
+        }
 
-    footer {
-      background: var(--nav-bg);
-      border-top: 1px solid var(--border);
-      padding: 2rem;
-      margin-top: 3rem;
-      text-align: center;
-      color: var(--text-secondary);
-      font-size: 0.9rem;
-    }
-    footer a { color: var(--accent); text-decoration: none; transition: color 0.2s; }
-    footer a:hover { color: var(--text-primary); }
-    .footer-email { display: inline-block; margin: 0.5rem 0; }
-    .footer-legal, .footer-disclaimer, .footer-copy { margin: 0.5rem 0; font-size: 0.85rem; }
-  </style>
+        .autocomplete-dropdown .suggestion {
+            padding: 0.75rem;
+            cursor: pointer;
+            border-bottom: 1px solid var(--bg-alt);
+            transition: background-color 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .autocomplete-dropdown .suggestion:hover {
+            background-color: var(--bg-alt);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 640px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .form-checkbox-group {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: 0.5rem;
+        }
+
+        .form-checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: var(--accent);
+        }
+
+        .form-checkbox-item label {
+            margin: 0;
+            cursor: pointer;
+        }
+
+        .btn {
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn:hover {
+            background-color: #7A6349;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 1rem;
+            font-size: 1.05rem;
+            margin-top: 1rem;
+        }
+
+        /* RESULT HERO */
+        .result-hero {
+            display: none;
+            background-color: var(--card-bg);
+            border: 2px solid var(--accent);
+            border-radius: 12px;
+            padding: 3rem 2rem;
+            max-width: 900px;
+            margin: 2rem auto;
+            box-shadow: 0 4px 16px rgba(139, 115, 85, 0.15);
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        .result-hero.show {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-hero-content {
+            text-align: center;
+        }
+
+        .result-header {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        .result-price {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 1rem;
+        }
+
+        .result-sub-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+            text-align: left;
+        }
+
+        @media (max-width: 640px) {
+            .result-sub-info {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .result-kpi {
+            display: flex;
+            justify-content: space-between;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .result-kpi:last-child {
+            border-bottom: none;
+        }
+
+        .result-kpi-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .result-kpi-value {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .result-tags {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 1.5rem;
+        }
+
+        .tag {
+            background-color: var(--bg-alt);
+            color: var(--text-primary);
+            padding: 0.35rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .tag.confidence-high {
+            background-color: #D4E8DC;
+            color: #2D5A3D;
+        }
+
+        .tag.confidence-medium {
+            background-color: #FFF3CD;
+            color: #856404;
+        }
+
+        .tag.confidence-low {
+            background-color: #F8D7DA;
+            color: #721C24;
+        }
+
+        /* TABS */
+        .tabs-section {
+            display: none;
+            margin-top: 4rem;
+        }
+
+        .tabs-section.show {
+            display: block;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        .tabs-nav {
+            display: flex;
+            gap: 0;
+            border-bottom: 2px solid var(--border);
+            overflow-x: auto;
+            margin-bottom: 2rem;
+            scroll-behavior: smooth;
+        }
+
+        .tabs-nav::-webkit-scrollbar {
+            height: 4px;
+        }
+
+        .tabs-nav::-webkit-scrollbar-thumb {
+            background-color: var(--accent);
+            border-radius: 2px;
+        }
+
+        .tab-button {
+            background: none;
+            border: none;
+            padding: 1rem 1.5rem;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            white-space: nowrap;
+            transition: all 0.3s;
+        }
+
+        .tab-button.active {
+            color: var(--text-primary);
+            border-bottom-color: var(--accent);
+        }
+
+        .tab-button:hover {
+            color: var(--text-primary);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* KPI GRID */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .kpi-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .kpi-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .kpi-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 0.25rem;
+        }
+
+        .kpi-sub {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        /* CHARTS */
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin: 2rem 0;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .chart-container canvas {
+            max-height: 300px;
+        }
+
+        /* TABLE */
+        .table-wrapper {
+            overflow-x: auto;
+            margin: 2rem 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        thead {
+            background-color: var(--bg-alt);
+        }
+
+        th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 1px solid var(--border);
+        }
+
+        td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* SCORE RING */
+        .score-ring-container {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+
+        .score-ring {
+            flex-shrink: 0;
+        }
+
+        .score-breakdown {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .breakdown-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .breakdown-label {
+            flex: 0 0 120px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .breakdown-bar {
+            flex: 1;
+            height: 8px;
+            background-color: var(--bg-alt);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .breakdown-fill {
+            height: 100%;
+            background-color: var(--accent);
+            transition: width 0.3s ease;
+        }
+
+        .breakdown-value {
+            flex: 0 0 40px;
+            text-align: right;
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        /* SLIDER */
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: var(--bg-alt);
+            outline: none;
+            -webkit-appearance: none;
+            margin: 0.5rem 0;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--accent);
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--accent);
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .slider-container {
+            margin: 1.5rem 0;
+            padding: 1rem;
+            background-color: var(--bg-alt);
+            border-radius: 8px;
+        }
+
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .slider-value {
+            font-size: 1.1rem;
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        /* LOADING */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 3px solid var(--bg-alt);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ERROR */
+        .error-message {
+            display: none;
+            background-color: #F8D7DA;
+            color: #721C24;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border: 1px solid #F5C6CB;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        /* DPE BADGE */
+        .dpe-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 100px;
+            height: 100px;
+            border-radius: 8px;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: white;
+            margin: 1rem auto;
+        }
+
+        .dpe-A { background-color: #2D8C4E; }
+        .dpe-B { background-color: #7DBE4D; }
+        .dpe-C { background-color: #F4C430; }
+        .dpe-D { background-color: #F5A623; }
+        .dpe-E { background-color: #FF6B35; }
+        .dpe-F { background-color: #E63946; }
+        .dpe-G { background-color: #8B0000; }
+
+        /* HIDDEN */
+        .hidden {
+            display: none;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 1.8rem;
+            }
+            .result-price {
+                font-size: 2rem;
+            }
+            .form-card {
+                padding: 1.5rem;
+            }
+            .section {
+                padding: 2rem 0;
+            }
+        }
+    </style>
 </head>
 <body>
-
-<nav>
-  <a href="/" class="nav-logo">Intent Analytics</a>
-  <button class="burger" id="burger" aria-label="Menu">
-    <span></span><span></span><span></span>
-  </button>
-  <ul class="nav-links" id="nav-links">
-    <li><a href="/projet">Le projet</a></li>
-    <li><a href="/donnees">Données</a></li>
-    <li><a href="/methodologie">Méthodologie</a></li>
-    <li><a href="/explorations">Explorations</a></li>
-    <li><a href="/estimation">Estimation</a></li>
-    <li><a href="/documentation">Documentation</a></li>
-    <li><a href="/a-propos">À propos</a></li>
-  </ul>
-</nav>
-
-<section class="hero">
-  <span class="hero-tag">Outil expérimental</span>
-  <h1>Estimation <span>&</span> Exploration</h1>
-  <p>Croisement de données publiques DVF, DPE et équipements pour estimer un bien ou explorer une commune.</p>
-</section>
-
-<div class="container">
-  <div class="tabs">
-    <button class="tab-btn active" data-tab="estimation">Estimation</button>
-    <button class="tab-btn" data-tab="commune">Profil commune</button>
-  </div>
-
-  <div class="tab-panel active" id="tab-estimation">
-    <div class="form-card">
-      <form id="estimation-form">
-        <div class="form-grid">
-          <div class="form-group adresse-wrap" style="grid-column:1/-1">
-            <label for="adresse">Adresse du bien</label>
-            <input type="text" id="adresse" name="adresse" placeholder="Ex : 12 rue de Rivoli, Paris" autocomplete="off" required />
-            <div class="suggestions" id="adresse-suggestions"></div>
-          </div>
-          <div class="form-group">
-            <label for="type_bien">Type de bien</label>
-            <select id="type_bien" name="type_bien">
-              <option value="Appartement">Appartement</option>
-              <option value="Maison">Maison</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="surface">Surface (m²)</label>
-            <input type="number" id="surface" name="surface" min="5" max="1000" value="65" required />
-          </div>
-          <div class="form-group">
-            <label for="nb_pieces">Pièces</label>
-            <input type="number" id="nb_pieces" name="nb_pieces" min="1" max="20" value="3" />
-          </div>
-          <div class="form-group">
-            <label for="dpe">Classe DPE</label>
-            <select id="dpe" name="dpe">
-              <option value="D" selected>D</option>
-              <option value="A">A</option>
-              <option value="B">B</option>
-              <option value="C">C</option>
-              <option value="E">E</option>
-              <option value="F">F</option>
-              <option value="G">G</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="etat">État du bien</label>
-            <select id="etat" name="etat">
-              <option value="bon" selected>Bon</option>
-              <option value="excellent">Excellent / Neuf</option>
-              <option value="tres_bon">Très bon</option>
-              <option value="moyen">Moyen</option>
-              <option value="mauvais">À rénover</option>
-            </select>
-          </div>
-          <!-- Champs appartement uniquement -->
-          <div class="form-group" id="field-etage">
-            <label for="etage">Étage</label>
-            <select id="etage" name="etage">
-              <option value="rdc">Rez-de-chaussée</option>
-              <option value="1-2">1er ou 2e étage</option>
-              <option value="3-4" selected>3e ou 4e étage</option>
-              <option value="5+">5e étage ou plus</option>
-            </select>
-          </div>
-          <div class="form-group" id="field-nb_sdb">
-            <label for="nb_sdb">Salle(s) de bain</label>
-            <select id="nb_sdb" name="nb_sdb">
-              <option value="1" selected>1</option>
-              <option value="2+">2 ou plus</option>
-            </select>
-          </div>
-          <!-- Champs maison uniquement -->
-          <div class="form-group" id="field-surface_terrain" style="display:none">
-            <label for="surface_terrain">Surface terrain (m²)</label>
-            <select id="surface_terrain" name="surface_terrain">
-              <option value="none">Sans terrain</option>
-              <option value="lt200">Moins de 200 m²</option>
-              <option value="200-500" selected>200 à 500 m²</option>
-              <option value="500-1000">500 à 1 000 m²</option>
-              <option value="1000+">Plus de 1 000 m²</option>
-            </select>
-          </div>
-          <div class="form-group" id="field-mitoyennete" style="display:none">
-            <label for="mitoyennete">Mitoyenneté</label>
-            <select id="mitoyennete" name="mitoyennete">
-              <option value="non" selected>Non mitoyenne</option>
-              <option value="semi">Semi-mitoyenne (1 côté)</option>
-              <option value="oui">Mitoyenne (2 côtés)</option>
-            </select>
-          </div>
+    <!-- NAV BAR -->
+    <nav>
+        <div class="container">
+            <div class="logo">SAHAR</div>
+            <button class="burger" id="burgerBtn">☰</button>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="index.html">Accueil</a></li>
+                <li><a href="estimation.html" class="active">Estimation</a></li>
+                <li><a href="explorations.html">Explorations</a></li>
+                <li><a href="methodologie.html">Méthodologie</a></li>
+                <li><a href="donnees.html">Données</a></li>
+                <li><a href="documentation.html">Documentation</a></li>
+                <li><a href="a-propos.html">À propos</a></li>
+            </ul>
         </div>
-        <div class="checkboxes">
-          <label><input type="checkbox" id="has_parking"> Parking</label>
-          <label><input type="checkbox" id="has_balcony"> Balcon / Terrasse</label>
-          <label><input type="checkbox" id="has_garden"> Jardin</label>
-          <label><input type="checkbox" id="has_view"> Vue dégagée</label>
-          <label><input type="checkbox" id="has_cave"> Cave / Sous-sol</label>
-          <label id="label-ascenseur"><input type="checkbox" id="has_ascenseur"> Ascenseur</label>
+    </nav>
+
+    <!-- HERO -->
+    <section class="hero section">
+        <div class="container">
+            <h1>Estimation immobilière</h1>
+            <p>Analyse complète pour professionnels de l'immobilier, de la rénovation et de l'urbanisme</p>
         </div>
-        <button type="submit" class="btn-primary" id="btn-submit">Estimer</button>
-      </form>
-    </div>
-
-    <div class="error-box" id="error-box"></div>
-
-    <div class="result-hero" id="result-hero">
-      <div class="result-hero-header">
-        <div class="result-hero-info">
-          <h2 id="rh-type">—</h2>
-          <p class="sub-text" id="rh-commune">—</p>
-          <div class="result-hero-price">
-            <span class="big-number" id="rh-prix">—</span>
-            <span class="unit">€</span>
-          </div>
-          <p class="sub-text" id="rh-prix-m2" style="margin-top: 0.3rem;">—</p>
-        </div>
-        <div>
-          <div class="fourchette" id="rh-fourchette"></div>
-        </div>
-      </div>
-      <div class="result-tags" id="rh-tags"></div>
-    </div>
-
-    <div class="volets-tabs" id="volets-tabs">
-      <button class="volets-tab-btn active" data-volet="immobilier">Immobilier</button>
-      <button class="volets-tab-btn" data-volet="energie">Énergie & DPE</button>
-      <button class="volets-tab-btn" data-volet="environnement">Environnement</button>
-    </div>
-
-    <div class="volets-panel active" id="volet-immobilier">
-      <div class="kpi-grid" id="volet-immo-kpi"></div>
-      <div class="result-card">
-        <h3>Score commune</h3>
-        <svg class="score-ring" id="score-commune-ring" viewBox="0 0 200 200"></svg>
-        <div id="score-commune-breakdown"></div>
-      </div>
-      <div class="result-card">
-        <h3>Évolution prix 5 dernières années</h3>
-        <canvas id="historique-prix"></canvas>
-      </div>
-      <div class="result-card">
-        <h3>Comparaison marché</h3>
-        <div class="table-responsive">
-          <table id="comparaison-marche"></table>
-        </div>
-      </div>
-      <div class="result-card">
-        <h3>Rendement locatif</h3>
-        <div class="kpi-grid" id="rendement-grid"></div>
-      </div>
-      <div class="result-card">
-        <h3>Fiscalité & Sécurité</h3>
-        <div class="kpi-grid" id="fiscalite-grid"></div>
-      </div>
-      <div class="result-card" id="batiment-card" style="display:none">
-        <h3>Bâtiment & Construction</h3>
-        <div class="kpi-grid" id="batiment-grid"></div>
-      </div>
-    </div>
-
-    <div class="volets-panel" id="volet-energie">
-      <div class="result-card">
-        <h3>DPE du bien</h3>
-        <div style="display:flex; align-items:center; gap:2rem; margin:1.5rem 0;">
-          <div id="dpe-badge-large"></div>
-          <div id="dpe-impact"></div>
-        </div>
-      </div>
-      <div class="result-card">
-        <h3>Échelle DPE — Impact sur le prix</h3>
-        <div class="dpe-scale" id="dpe-scale-view"></div>
-      </div>
-      <div class="result-card">
-        <h3>Répartition DPE — Commune</h3>
-        <div id="dpe-repartition"></div>
-      </div>
-      <div class="result-card">
-        <h3>Climat & Confort</h3>
-        <div class="kpi-grid" id="climat-grid"></div>
-      </div>
-      <div class="result-card" id="aides-renov-card">
-        <h3>Aides rénovation énergétique</h3>
-        <div id="aides-renov-panel"></div>
-      </div>
-    </div>
-
-    <div class="volets-panel" id="volet-environnement">
-      <div class="result-card">
-        <h3>Risques naturels</h3>
-        <div class="risques-grid" id="risques-grid"></div>
-      </div>
-      <div class="result-card">
-        <h3>Zonage PLU</h3>
-        <svg class="plu-donut" id="plu-donut" viewBox="0 0 200 200"></svg>
-        <div class="plu-legend" id="plu-legend"></div>
-      </div>
-      <div class="result-card">
-        <h3>Qualité de l'eau</h3>
-        <div class="table-responsive" id="eau-table"></div>
-      </div>
-      <div class="result-card">
-        <h3>Sécurité & Climat</h3>
-        <div class="kpi-grid" id="securite-climat-grid"></div>
-      </div>
-    </div>
-
-    <div class="ml-block" id="ml-block">
-      <div class="ml-block-title">Analyse du bien et du secteur</div>
-      <div class="ml-cards-grid">
-        <div class="ml-card">
-          <div class="ml-card-label">Fourchette de prix</div>
-          <div id="ml-range"></div>
-        </div>
-        <div class="ml-card">
-          <div class="ml-card-label">Fiabilité de l'estimation</div>
-          <div id="ml-fiability"></div>
-        </div>
-        <div class="ml-card full">
-          <div class="ml-card-label">Pourquoi ce prix ?</div>
-          <div id="ml-factors"></div>
-        </div>
-      </div>
-    </div>
-
-
-  </div>
-
-  <div class="tab-panel" id="tab-commune">
-    <div class="result-card">
-      <p style="text-align:center; color:var(--text-secondary);">Sélectionnez une adresse et cliquez sur "Estimer" pour découvrir le profil détaillé de la commune.</p>
-    </div>
-  </div>
-</div>
-
-<div id="fiche-investisseur"></div>
-
-<footer>
-  <p><strong>Intent Analytics</strong> — Exploration de données territoriales</p>
-  <a href="mailto:contact@intentanalytics.fr" class="footer-email">contact@intentanalytics.fr</a>
-  <p class="footer-legal">
-    <a href="/legal/mentions-legales">Mentions légales</a> ·
-    <a href="/legal/cgu">CGU</a> ·
-    <a href="/legal/politique-confidentialite">Confidentialité</a>
-  </p>
-  <p class="footer-disclaimer">
-    Exploration à titre indicatif. Ne constitue pas une expertise immobilière certifiée.
-  </p>
-  <p class="footer-copy">© 2026 Intent Analytics</p>
-</footer>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
-
-<script>
-const SUPA_URL = "https://wwvdpixzfaviaapixarb.supabase.co";
-const SUPA_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3dmRwaXh6ZmF2aWFhcGl4YXJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3Mzk0NDgsImV4cCI6MjA5MDMxNTQ0OH0.NjOeWzUCo2BJPcxnkEJNm215GJBr1RAHba1eL_EF758";
-const BAN_URL = "https://api-adresse.data.gouv.fr/search/";
-
-const fmt = (n) => new Intl.NumberFormat('fr-FR', { style:'currency', currency:'EUR', maximumFractionDigits:0 }).format(n);
-const fmtN = (n) => new Intl.NumberFormat('fr-FR').format(n);
-
-async function supaFetch(table, params) {
-  const qs = new URLSearchParams(params).toString();
-  const r = await fetch(`${SUPA_URL}/rest/v1/${table}?${qs}`, {
-    headers: { apikey: SUPA_ANON, Authorization: `Bearer ${SUPA_ANON}` }
-  });
-  if (!r.ok) return [];
-  return r.json();
-}
-
-// Affichage conditionnel selon type de bien
-function updateFormFields() {
-  const type = document.getElementById('type_bien').value;
-  const isAppart = type === 'Appartement';
-  // Champs appartement
-  document.getElementById('field-etage').style.display = isAppart ? '' : 'none';
-  document.getElementById('field-nb_sdb').style.display = isAppart ? '' : 'none';
-  document.getElementById('label-ascenseur').style.display = isAppart ? '' : 'none';
-  // Champs maison
-  document.getElementById('field-surface_terrain').style.display = isAppart ? 'none' : '';
-  document.getElementById('field-mitoyennete').style.display = isAppart ? 'none' : '';
-}
-document.getElementById('type_bien').addEventListener('change', updateFormFields);
-updateFormFields();
-
-document.querySelectorAll('.tab-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-    btn.classList.add('active');
-    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
-  });
-});
-
-document.querySelectorAll('.volets-tab-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.volets-tab-btn').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.volets-panel').forEach(p => p.classList.remove('active'));
-    btn.classList.add('active');
-    document.getElementById('volet-' + btn.dataset.volet).classList.add('active');
-  });
-});
-
-let _selectedGeo = null;
-let _acTimeout;
-const adresseInput = document.getElementById('adresse');
-const adresseSug = document.getElementById('adresse-suggestions');
-
-adresseInput.addEventListener('input', (e) => {
-  clearTimeout(_acTimeout);
-  const q = e.target.value.trim();
-  if (q.length < 3) { adresseSug.classList.remove('open'); adresseSug.innerHTML = ''; return; }
-  _acTimeout = setTimeout(async () => {
-    try {
-      const r = await fetch(`${BAN_URL}?q=${encodeURIComponent(q)}&limit=5`);
-      const d = await r.json();
-      const feats = d.features || [];
-      if (!feats.length) {
-        adresseSug.innerHTML = '<div class="sug-item" style="color:var(--text-secondary)">Aucune adresse trouvée</div>';
-        adresseSug.classList.add('open');
-        return;
-      }
-      adresseSug.innerHTML = feats.map(f => {
-        const p = f.properties;
-        return `<div class="sug-item" data-label="${p.label}" data-lat="${f.geometry.coordinates[1]}" data-lon="${f.geometry.coordinates[0]}" data-citycode="${p.citycode}" data-city="${p.city}" data-postcode="${p.postcode}">${p.label}</div>`;
-      }).join('');
-      adresseSug.classList.add('open');
-      adresseSug.querySelectorAll('.sug-item').forEach(item => {
-        item.addEventListener('click', () => {
-          adresseInput.value = item.dataset.label;
-          adresseSug.classList.remove('open');
-          _selectedGeo = {
-            label: item.dataset.label,
-            lat: parseFloat(item.dataset.lat),
-            lon: parseFloat(item.dataset.lon),
-            citycode: item.dataset.citycode,
-            commune: item.dataset.city,
-            cp: item.dataset.postcode
-          };
-        });
-      });
-    } catch (err) { console.error('BAN error:', err); }
-  }, 300);
-});
-document.addEventListener('click', (e) => { if (!e.target.closest('.adresse-wrap')) adresseSug.classList.remove('open'); });
-
-async function dvfRest(params) {
-  // PostgREST direct avec service_role via anon + GRANT (appliqué)
-  const cols = 'id,date_mutation,valeur_fonciere,surface_reelle_bati,type_local,nombre_pieces_principales,surface_terrain';
-  const qs = new URLSearchParams({
-    ...params,
-    nature_mutation: 'eq.Vente',
-    valeur_fonciere: 'gte.10000',
-    surface_reelle_bati: 'gte.5',
-    select: cols,
-    order: 'date_mutation.desc',
-    limit: '500'
-  }).toString();
-  const r = await fetch(`${SUPA_URL}/rest/v1/dvf_mutations?${qs}`, {
-    headers: {
-      apikey: SUPA_ANON,
-      Authorization: `Bearer ${SUPA_ANON}`,
-      Accept: 'application/json',
-      'Accept-Profile': 'public'
-    }
-  });
-  if (!r.ok) {
-    const txt = await r.text();
-    console.error('DVF REST', r.status, txt);
-    return [];
-  }
-  return r.json();
-}
-
-async function fetchDVF(citycode, typeBien) {
-  try {
-    const rows = await dvfRest({ 'code_commune': `eq.${citycode}` });
-    if (!rows.length) return [];
-    if (typeBien) {
-      const tf = typeBien === "Appartement" ? "Appartement" : "Maison";
-      const filtered = rows.filter(r => (r.type_local || "").includes(tf));
-      if (filtered.length >= 8) return filtered;
-    }
-    return rows;
-  } catch (err) { console.error('DVF error:', err); return []; }
-}
-
-async function fetchDVFFallback(codeDept, typeBien) {
-  try {
-    const rows = await dvfRest({ 'code_departement': `eq.${codeDept}` });
-    if (!rows.length) return { rows: [], fallback: true };
-    if (typeBien) {
-      const tf = typeBien === "Appartement" ? "Appartement" : "Maison";
-      const filtered = rows.filter(r => (r.type_local || "").includes(tf));
-      if (filtered.length >= 8) return { rows: filtered, fallback: true };
-    }
-    return { rows, fallback: true };
-  } catch (err) { console.error('DVF fallback error:', err); return { rows: [], fallback: true }; }
-}
-
-async function fetchSupp(citycode, cp) {
-  const [dpeArr, poiArr, propArr, locArr, eauArr, geoArr] = await Promise.all([
-    supaFetch('dpe_commune_agg', { code_postal: `eq.${cp}`, limit: '1' }),
-    supaFetch('poi_scores_commune', { code_commune: `eq.${citycode}`, limit: '1' }),
-    supaFetch('property_index', { code_commune: `eq.${citycode}`, select: '*', limit: '1' }),
-    supaFetch('score_localisation_commune', { code_commune: `eq.${citycode}`, limit: '1' }),
-    supaFetch('data_qualite_eau', { code_insee: `eq.${citycode}`, limit: '1' }),
-    supaFetch('data_georisques', { code_commune: `eq.${citycode}`, limit: '1' })
-  ]);
-  return {
-    dpe: dpeArr[0] || null,
-    poi: poiArr[0] || null,
-    zone: propArr[0] || null,
-    loc: locArr[0] || null,
-    eau: eauArr[0] || null,
-    geo: geoArr[0] || null
-  };
-}
-
-function renderSVGRing(containerId, score) {
-  const svg = document.getElementById(containerId);
-  if (!svg) return;
-  const radius = 90;
-  const circumference = 2 * Math.PI * radius;
-  const offset = circumference * (1 - score / 100);
-  const color = score >= 70 ? '#8B7355' : score >= 50 ? '#F4B860' : '#9B4D4D';
-  svg.innerHTML = `
-    <circle cx="100" cy="100" r="${radius}" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="8"/>
-    <circle cx="100" cy="100" r="${radius}" fill="none" stroke="${color}" stroke-width="8"
-            stroke-dasharray="${circumference}" stroke-dashoffset="${offset}"
-            stroke-linecap="round" transform="rotate(-90 100 100)"/>
-    <text x="100" y="100" text-anchor="middle" dy="0.3em" font-size="32" font-weight="700" fill="${color}">${Math.round(score)}</text>
-    <text x="100" y="125" text-anchor="middle" font-size="14" fill="var(--text-secondary)">/100</text>
-  `;
-}
-
-function renderHistoriquePrix(validDVF) {
-  const byYear = {};
-  validDVF.forEach(r => {
-    if (!r.date_mutation) return;
-    const year = r.date_mutation.substring(0, 4);
-    if (!byYear[year]) byYear[year] = [];
-    byYear[year].push(r.prixM2);
-  });
-  const labels = Object.keys(byYear).sort();
-  const data = labels.map(y => {
-    const arr = byYear[y];
-    return arr.reduce((a,b) => a+b, 0) / arr.length;
-  });
-  const ctx = document.getElementById('historique-prix')?.getContext('2d');
-  if (ctx && window.Chart) {
-    new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: labels,
-        datasets: [{
-          label: 'Prix médian m²',
-          data: data,
-          borderColor: '#8B7355',
-          backgroundColor: 'rgba(139, 115, 85, 0.08)',
-          tension: 0.4,
-          fill: true,
-          pointBackgroundColor: '#8B7355'
-        }]
-      },
-      options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: false, ticks: { color: 'var(--text-secondary)' }, grid: { color: 'rgba(0,0,0,0.06)' } }, x: { ticks: { color: 'var(--text-secondary)' }, grid: { display: false } } } }
-    });
-  }
-}
-
-function renderDPEScale(currentDPE) {
-  const dpes = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
-  const colors = { A:'#319834', B:'#4A7C59', C:'#cbfc34', D:'#fcfc32', E:'#fccc32', F:'#fc9834', G:'#fc0000' };
-  const impacts = { A:6, B:4, C:2, D:0, E:-4, F:-8, G:-8 };
-  const html = dpes.map(d => `
-    <div class="dpe-scale-item ${d === currentDPE ? 'active' : ''}" style="background:${colors[d]}; color:${['C','D','E'].includes(d) ? '#000' : '#fff'};">
-      <div>${d}</div>
-      <div style="font-size:0.7rem; margin-top:0.2rem;">${impacts[d]>=0?'+':''}${impacts[d]}%</div>
-    </div>
-  `).join('');
-  const el = document.getElementById('dpe-scale-view');
-  if (el) el.innerHTML = html;
-}
-
-function renderDPERepartition(dpeData) {
-  if (!dpeData) return;
-  const labels = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
-  const colors = { A:'#319834', B:'#4A7C59', C:'#cbfc34', D:'#fcfc32', E:'#fccc32', F:'#fc9834', G:'#fc0000' };
-  const html = labels.map(l => {
-    const key = `pct_${l.toLowerCase()}`;
-    const pct = parseFloat(dpeData[key]) || 0;
-    return `
-      <div class="score-item">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-          <span class="score-item-label">DPE ${l}</span>
-          <span class="score-item-val">${pct.toFixed(1)}%</span>
-        </div>
-        <div class="score-item-bar"><div class="score-item-fill" style="width:${pct}%; background:${colors[l]};"></div></div>
-      </div>
-    `;
-  }).join('');
-  const el = document.getElementById('dpe-repartition');
-  if (el) el.innerHTML = html;
-}
-
-function renderRisques(geoData) {
-  const html = `
-    <div class="risque-card ${geoData.risque_inondation ? 'yes' : ''}">
-      <div class="label">Inondation</div>
-      <div class="value">${geoData.risque_inondation ? 'Oui' : 'Non'}</div>
-    </div>
-    <div class="risque-card ${geoData.risque_argile ? 'yes' : ''}">
-      <div class="label">Argile</div>
-      <div class="value">${geoData.risque_argile ? 'Oui' : 'Non'}</div>
-    </div>
-    <div class="risque-card">
-      <div class="label">Séisme</div>
-      <div class="value">${['—', 'Très faible', 'Faible', 'Modéré', 'Moyen', 'Fort'][geoData.risque_seisme || 0] || '—'}</div>
-    </div>
-    <div class="risque-card">
-      <div class="label">Radon</div>
-      <div class="value">${['—', 'Faible', 'Moyen', 'Élevé'][geoData.risque_radon || 0] || '—'}</div>
-    </div>
-    <div class="risque-card ${geoData.pprn_prescrit ? 'yes' : ''}">
-      <div class="label">PPRN</div>
-      <div class="value">${geoData.pprn_prescrit ? 'Oui' : 'Non'}</div>
-    </div>
-    <div class="risque-card ${geoData.pprt_prescrit ? 'yes' : ''}">
-      <div class="label">PPRT</div>
-      <div class="value">${geoData.pprt_prescrit ? 'Oui' : 'Non'}</div>
-    </div>
-    <div class="risque-card">
-      <div class="label">Catastrophe naturelle</div>
-      <div class="value">${geoData.nb_catnat || 0}</div>
-    </div>
-  `;
-  const el = document.getElementById('risques-grid');
-  if (el) el.innerHTML = html;
-}
-
-function renderPLU(pluData) {
-  if (!pluData) return;
-  const total = (pluData.pct_zone_u || 0) + (pluData.pct_zone_au || 0) + (pluData.pct_zone_n || 0) + (pluData.pct_zone_a || 0);
-  if (total === 0) return;
-  const values = [pluData.pct_zone_u || 0, pluData.pct_zone_au || 0, pluData.pct_zone_n || 0, pluData.pct_zone_a || 0];
-  const labels = ['U', 'AU', 'N', 'A'];
-  const colors = ['#8B7355', '#F4B860', '#9B9B9B', '#4A7C59'];
-  const radius = 70;
-  const circumference = 2 * Math.PI * radius;
-  let offset = 0;
-  const svgEl = document.getElementById('plu-donut');
-  if (!svgEl) return;
-  let svg = `<circle cx="100" cy="100" r="${radius}" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="25"/>`;
-  values.forEach((v, i) => {
-    const pct = v / total;
-    const arcLen = circumference * pct;
-    svg += `<circle cx="100" cy="100" r="${radius}" fill="none" stroke="${colors[i]}" stroke-width="25"
-            stroke-dasharray="${arcLen} ${circumference}" stroke-dashoffset="-${offset}"
-            stroke-linecap="round" transform="rotate(-90 100 100)"/>`;
-    offset += arcLen;
-  });
-  svgEl.innerHTML = svg;
-  const legend = labels.map((l, i) => `
-    <div class="plu-legend-item">
-      <div style="display:flex; align-items:center; gap:0.5rem;">
-        <div style="width:12px; height:12px; background:${colors[i]}; border-radius:2px;"></div>
-        <span>${l}: <span class="pct">${(values[i] / total * 100).toFixed(1)}%</span></span>
-      </div>
-    </div>
-  `).join('');
-  const legEl = document.getElementById('plu-legend');
-  if (legEl) legEl.innerHTML = legend;
-}
-
-function renderEauQualite(eauData) {
-  if (!eauData) return;
-  const html = `
-    <tr><th>Paramètre</th><th>Valeur</th></tr>
-    <tr><td>Conformité globale</td><td>${eauData.taux_conformite_global ? eauData.taux_conformite_global.toFixed(1) + '%' : '—'}</td></tr>
-    <tr><td>Nitrates</td><td>${eauData.nitrates_mg_l ? eauData.nitrates_mg_l.toFixed(1) + ' mg/L' : '—'}</td></tr>
-    <tr><td>Conformité bactériologique</td><td>${eauData.conformite_bacterio ? 'Conforme' : 'Non conforme'}</td></tr>
-    <tr><td>Conformité chimique</td><td>${eauData.conformite_chimique ? 'Conforme' : 'Non conforme'}</td></tr>
-    <tr><td>Pesticides détectés</td><td>${eauData.pesticides_detectes ? 'Oui' : 'Non'}</td></tr>
-    <tr><td>Plomb</td><td>${eauData.plomb_conforme ? 'Conforme' : 'Non conforme'}</td></tr>
-    <tr><td>Dureté</td><td>${eauData.durete ? eauData.durete + ' mg CaCO₃/L' : '—'}</td></tr>
-  `;
-  const el = document.getElementById('eau-table');
-  if (el) el.innerHTML = `<table>${html}</table>`;
-}
-
-document.getElementById('estimation-form').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const btn = document.getElementById('btn-submit');
-  btn.disabled = true; btn.textContent = 'Calcul en cours...';
-  const errorBox = document.getElementById('error-box');
-  errorBox.classList.remove('visible');
-
-  try {
-    const fd = new FormData(e.target);
-    const typeBien = fd.get('type_bien');
-    const surface = parseFloat(fd.get('surface'));
-    const nb_pieces = parseInt(fd.get('nb_pieces')) || 3;
-    const dpe = fd.get('dpe');
-    const etat = fd.get('etat');
-    const geo = _selectedGeo;
-    if (!geo) throw new Error('Veuillez sélectionner une adresse dans les suggestions.');
-
-    let dvfRows = await fetchDVF(geo.citycode, typeBien);
-    let dvfFallback = false;
-
-    // Fallback département si commune trop petite (< 15 transactions)
-    if (dvfRows.length < 15) {
-      const codeDept = geo.citycode.length >= 5 ? geo.citycode.slice(0, 2) : geo.citycode.slice(0, 2);
-      const fb = await fetchDVFFallback(codeDept, typeBien);
-      if (fb.rows.length >= 3) {
-        dvfRows = fb.rows;
-        dvfFallback = true;
-      }
-    }
-
-    if (dvfRows.length < 3) throw new Error(`Données insuffisantes pour ${geo.commune} (${dvfRows.length} transactions). Marché local trop restreint.`);
-
-    const supp = await fetchSupp(geo.citycode, geo.cp);
-
-    const rawDVF = dvfRows
-      .filter(r => r.surface_reelle_bati >= 9 && r.valeur_fonciere >= 5000)
-      .map(r => ({ prixM2: r.valeur_fonciere / r.surface_reelle_bati, prix: r.valeur_fonciere, surface: r.surface_reelle_bati, date: r.date_mutation, type: r.type_local }))
-      .sort((a, b) => a.prixM2 - b.prixM2);
-    if (rawDVF.length < 3) throw new Error('Pas assez de transactions valides.');
-
-    const rawQ1 = rawDVF[Math.floor(rawDVF.length * 0.25)].prixM2;
-    const rawQ3 = rawDVF[Math.floor(rawDVF.length * 0.75)].prixM2;
-    const iqr = rawQ3 - rawQ1;
-    const lowerFence = rawQ1 - 1.5 * iqr;
-    const upperFence = rawQ3 + 1.5 * iqr;
-    const validDVF = rawDVF.filter(r => r.prixM2 >= lowerFence && r.prixM2 <= upperFence);
-    if (validDVF.length < 3) throw new Error('Pas assez de transactions valides.');
-
-    const medianPrixM2 = validDVF[Math.floor(validDVF.length / 2)].prixM2;
-    const q1 = validDVF[Math.floor(validDVF.length * 0.25)].prixM2;
-    const q3 = validDVF[Math.floor(validDVF.length * 0.75)].prixM2;
-    const meanPrixM2 = validDVF.reduce((s, r) => s + r.prixM2, 0) / validDVF.length;
-
-    const dpeAdj = { A:0.06, B:0.04, C:0.02, D:0, E:-0.04, F:-0.08, G:-0.08 }[dpe] || 0;
-    const stateAdj = { mauvais:-0.10, moyen:-0.05, bon:0, tres_bon:0.05, excellent:0.10 }[etat] || 0;
-    let featBonus = 0;
-    if (document.getElementById('has_parking').checked) featBonus += 0.03;
-    if (document.getElementById('has_balcony').checked) featBonus += 0.02;
-    if (document.getElementById('has_garden').checked) featBonus += 0.04;
-    if (document.getElementById('has_view').checked) featBonus += 0.02;
-
-    // ── Ajustements données enrichies ──────────────────────────────────
-    // Score localisation composite (0-100, centré sur 50 = neutre)
-    // ±4% max : score 80 → +2.4%, score 30 → -1.6%
-    let locAdj = 0;
-    const scoreLoc = supp.loc?.score_localisation ?? null;
-    if (scoreLoc !== null) locAdj = ((scoreLoc - 50) / 50) * 0.04;
-
-    // Score POI global (0-100) — accessibilité équipements
-    // ±3% max
-    let poiAdj = 0;
-    const scorePoi = supp.poi?.score_global ?? supp.loc?.score_accessibilite ?? null;
-    if (scorePoi !== null) poiAdj = ((scorePoi - 50) / 50) * 0.03;
-
-    // Risques naturels — malus progressif
-    let risqueAdj = 0;
-    const nbRisques = supp.geo?.nb_catnat != null
-      ? Math.min(supp.geo.nb_catnat, 10) / 10 * -0.03
-      : supp.loc?.score_risques_naturels != null
-        ? ((50 - supp.loc.score_risques_naturels) / 50) * -0.025
-        : 0;
-    risqueAdj = Math.max(-0.03, Math.min(0, nbRisques));
-
-    // Tendance marché 12m
-    let marcheAdj = 0;
-    const evo12m = supp.zone?.evolution_12m_zone ?? null;
-    if (evo12m !== null) marcheAdj = Math.max(-0.02, Math.min(0.02, (parseFloat(evo12m) / 100) * 0.4));
-
-    // Score énergie zone
-    let energieAdj = 0;
-    const scoreEnergie = supp.dpe?.score_energie ?? null;
-    if (scoreEnergie !== null) energieAdj = ((scoreEnergie - 50) / 50) * 0.015;
-
-    // ── Nouveaux ajustements déclaratifs calibrés ──────────────────────
-    // Étage (appartement) — calibré sur études de marché France
-    let etageAdj = 0;
-    if (typeBien === 'Appartement') {
-      const etage = document.getElementById('etage').value;
-      etageAdj = { rdc: -0.05, '1-2': 0, '3-4': 0.03, '5+': 0.05 }[etage] || 0;
-    }
-
-    // Ascenseur (appartement, pertinent seulement à partir du 3e étage)
-    let ascenseurAdj = 0;
-    if (typeBien === 'Appartement' && document.getElementById('has_ascenseur').checked) {
-      const etage = document.getElementById('etage').value;
-      if (etage === '3-4' || etage === '5+') ascenseurAdj = 0.02;
-    }
-
-    // Surface terrain (maison) — calibré sur DVF 2022-2024
-    // Référence : 200-500m² = neutre, sans terrain = -3%, > 1000m² = +4%
-    let terrainAdj = 0;
-    if (typeBien === 'Maison') {
-      const terrain = document.getElementById('surface_terrain').value;
-      terrainAdj = { none: -0.03, lt200: -0.01, '200-500': 0, '500-1000': 0.02, '1000+': 0.04 }[terrain] || 0;
-    }
-
-    // Mitoyenneté (maison) — impact négatif sur valeur
-    let mitoyenneteAdj = 0;
-    if (typeBien === 'Maison') {
-      const mito = document.getElementById('mitoyennete').value;
-      mitoyenneteAdj = { non: 0, semi: -0.03, oui: -0.06 }[mito] || 0;
-    }
-
-    // Cave/sous-sol
-    let caveAdj = document.getElementById('has_cave').checked ? 0.015 : 0;
-
-    // Salle de bain supplémentaire
-    let sdbAdj = 0;
-    if (typeBien === 'Appartement' && document.getElementById('nb_sdb').value === '2+') sdbAdj = 0.02;
-
-    const totalAdj = dpeAdj + stateAdj + featBonus + locAdj + poiAdj + risqueAdj + marcheAdj + energieAdj
-                   + etageAdj + ascenseurAdj + terrainAdj + mitoyenneteAdj + caveAdj + sdbAdj;
-    const estPrixM2 = medianPrixM2 * (1 + totalAdj);
-    const estPrice = estPrixM2 * surface;
-
-    const ecartType = Math.sqrt(validDVF.reduce((s, r) => s + Math.pow(r.prixM2 - meanPrixM2, 2), 0) / validDVF.length);
-    const marginPct = parseFloat(((ecartType / meanPrixM2) * 100).toFixed(1));
-
-    let conf = 30;
-    if (validDVF.length >= 100) conf += 25;
-    else if (validDVF.length >= 50) conf += 20;
-    else if (validDVF.length >= 20) conf += 15;
-    else if (validDVF.length >= 10) conf += 10;
-    const latestDate = validDVF.reduce((mx, r) => r.date > mx ? r.date : mx, '2000-01-01');
-    const daysSince = Math.floor((Date.now() - new Date(latestDate).getTime()) / 86400000);
-    if (daysSince <= 90) conf += 15; else if (daysSince <= 180) conf += 10; else if (daysSince <= 365) conf += 5;
-    if (marginPct < 20) conf += 15; else if (marginPct < 35) conf += 10; else if (marginPct < 50) conf += 5;
-    if (supp.dpe) conf += 5;
-    if (supp.poi) conf += 5;
-    if (supp.loc) conf += 5;
-    if (supp.geo) conf += 3;
-    if (supp.zone) conf += 2;
-    conf = Math.min(95, conf);
-
-    document.getElementById('result-hero').classList.add('visible');
-    document.getElementById('rh-type').textContent = `${typeBien} ${nb_pieces} pièce${nb_pieces > 1 ? 's' : ''} — ${fmtN(surface)} m²`;
-    document.getElementById('rh-commune').textContent = `${geo.commune}, ${geo.cp}`;
-    document.getElementById('rh-prix').textContent = fmtN(Math.round(estPrice));
-    document.getElementById('rh-prix-m2').textContent = `${fmtN(estPrixM2.toFixed(0))} €/m²`;
-
-    const fourchette = document.getElementById('rh-fourchette');
-    fourchette.innerHTML = `
-      <div class="fourchette-item"><div class="fourchette-label">Estimation basse</div><div class="fourchette-val">${fmt(q1 * surface)}</div></div>
-      <div class="fourchette-item"><div class="fourchette-label">Estimation haute</div><div class="fourchette-val">${fmt(q3 * surface)}</div></div>
-    `;
-
-    const tags = [
-      `${validDVF.length} comparables`,
-      `Confiance ${Math.round(conf)}%`,
-      dpe === 'G' || dpe === 'F' ? 'Impact DPE −' : dpe === 'A' || dpe === 'B' ? 'Impact DPE +' : 'Impact DPE neutre'
-    ];
-    if (supp.loc?.score_localisation) tags.push(`Localisation ${Math.round(supp.loc.score_localisation)}/100`);
-    if (supp.loc?.detail_risques?.nb_risques !== undefined) tags.push(`${supp.loc.detail_risques.nb_risques} risque${supp.loc.detail_risques.nb_risques !== 1 ? 's' : ''} naturel${supp.loc.detail_risques.nb_risques !== 1 ? 's' : ''}`);
-    if (dvfFallback) tags.push(`Marché départemental (commune peu active)`);
-    document.getElementById('rh-tags').innerHTML = tags.map(t => `<div class="tag">${t}</div>`).join('');
-
-    document.getElementById('volets-tabs').classList.add('visible');
-
-    const kpiImmo = [
-      { label: 'Prix médian (m²)', value: fmtN(medianPrixM2.toFixed(0)) + ' €', sub: validDVF.length + ' transactions' },
-      { label: 'Évolution 12m', value: (supp.zone?.evolution_12m_zone || 0) >= 0 ? '+' + (supp.zone?.evolution_12m_zone || 0).toFixed(1) + '%' : (supp.zone?.evolution_12m_zone || 0).toFixed(1) + '%', sub: 'Prix/m² annuel' },
-      { label: 'Transactions', value: fmtN(validDVF.length), sub: 'Dynamisme du marché' },
-      { label: 'Délai de vente', value: supp.zone?.rotation_quartier ? (365 / parseFloat(supp.zone.rotation_quartier)).toFixed(0) + ' j' : '—', sub: 'Estimé' }
-    ];
-    const kpiHtml = kpiImmo.map(k => `
-      <div class="kpi-card">
-        <div class="label">${k.label}</div>
-        <div class="value">${k.value}</div>
-        <div class="sub">${k.sub}</div>
-      </div>
-    `).join('');
-    const volImmoKpi = document.getElementById('volet-immo-kpi');
-    if (volImmoKpi) volImmoKpi.innerHTML = kpiHtml;
-
-    const scoreCommune = supp.loc?.score_localisation || supp.zone?.score_investissement || supp.zone?.score_vente || 50;
-    renderSVGRing('score-commune-ring', scoreCommune);
-
-    const breakdown = [
-      { label: 'Accessibilité', val: supp.loc?.score_accessibilite ?? supp.poi?.score_transport ?? 0 },
-      { label: 'Sécurité', val: supp.loc?.score_securite ?? 0 },
-      { label: 'Services', val: supp.loc?.score_services ?? supp.poi?.score_sante ?? 0 },
-      { label: 'Risques naturels', val: supp.loc?.score_risques_naturels ?? 0 },
-      { label: 'Dynamisme', val: supp.loc?.score_dynamisme ?? supp.poi?.score_commerce ?? 0 }
-    ];
-    const breakdownHtml = breakdown.map(b => `
-      <div class="score-item">
-        <div style="display:flex; justify-content:space-between;">
-          <span class="score-item-label">${b.label}</span>
-          <span class="score-item-val">${b.val}/100</span>
-        </div>
-        <div class="score-item-bar"><div class="score-item-fill" style="width:${Math.min(b.val, 100)}%;"></div></div>
-      </div>
-    `).join('');
-    const breakEl = document.getElementById('score-commune-breakdown');
-    if (breakEl) breakEl.innerHTML = breakdownHtml;
-
-    renderHistoriquePrix(validDVF);
-
-    // Bloc bâtiment / construction (BDNB + Sitadel via score_localisation_commune)
-    const batCard = document.getElementById('batiment-card');
-    const batGrid = document.getElementById('batiment-grid');
-    if (batCard && batGrid && supp.loc) {
-      const bat = supp.loc.detail_batiment;
-      const constr = supp.loc.detail_construction;
-      if (bat || constr) {
-        batCard.style.display = '';
-        batGrid.innerHTML = [
-          bat?.annee_moy ? `<div class="kpi-card"><div class="label">Année moy. construction</div><div class="value">${Math.round(bat.annee_moy)}</div><div class="sub">Parc bâti</div></div>` : '',
-          bat?.materiaux ? `<div class="kpi-card"><div class="label">Matériau mur dominant</div><div class="value">${bat.materiaux}</div><div class="sub">BDNB</div></div>` : '',
-          bat?.chauffage ? `<div class="kpi-card"><div class="label">Chauffage dominant</div><div class="value">${bat.chauffage}</div><div class="sub">BDNB</div></div>` : '',
-          constr?.permis_recents != null ? `<div class="kpi-card"><div class="label">Permis récents</div><div class="value">${fmtN(constr.permis_recents)}</div><div class="sub">Sitadel</div></div>` : '',
-          constr?.logements_crees != null ? `<div class="kpi-card"><div class="label">Logements créés</div><div class="value">${fmtN(constr.logements_crees)}</div><div class="sub">Sitadel</div></div>` : '',
-          constr?.logements_sociaux != null ? `<div class="kpi-card"><div class="label">Logements sociaux</div><div class="value">${fmtN(constr.logements_sociaux)}</div><div class="sub">Sitadel</div></div>` : ''
-        ].join('');
-      }
-    }
-
-    const comparaison = document.getElementById('comparaison-marche');
-    if (comparaison) {
-      const appts = validDVF.filter(r => (r.type || '').includes('Appartement'));
-      const maisons = validDVF.filter(r => (r.type || '').includes('Maison'));
-      const medAppt = appts.length > 0 ? appts[Math.floor(appts.length / 2)].prixM2 : null;
-      const medMais = maisons.length > 0 ? maisons[Math.floor(maisons.length / 2)].prixM2 : null;
-      const surfAppt = appts.length > 0 ? Math.round(appts.reduce((s,r) => s + r.surface, 0) / appts.length) : '—';
-      const surfMais = maisons.length > 0 ? Math.round(maisons.reduce((s,r) => s + r.surface, 0) / maisons.length) : '—';
-      comparaison.innerHTML = `
-        <tr><th>Type</th><th>Prix/m² médian</th><th>Surface moy.</th><th>Transactions</th></tr>
-        <tr><td>Appartement</td><td>${medAppt ? fmtN(medAppt.toFixed(0)) + ' €' : '—'}</td><td>${surfAppt !== '—' ? surfAppt + ' m²' : '—'}</td><td>${appts.length}</td></tr>
-        <tr><td>Maison</td><td>${medMais ? fmtN(medMais.toFixed(0)) + ' €' : '—'}</td><td>${surfMais !== '—' ? surfMais + ' m²' : '—'}</td><td>${maisons.length}</td></tr>
-      `;
-    }
-
-    // Rendement locatif — estimation réaliste
-    // Loyer/m² estimé : environ 0.4% à 0.6% du prix/m² selon zone
-    const rendementBrut = typeBien === 'Appartement' ? 5.2 : 4.0;
-    const loyerM2Mois = (medianPrixM2 * rendementBrut / 100) / 12;
-    const loyerMensuel = loyerM2Mois * surface;
-    const rendementEl = document.getElementById('rendement-grid');
-    if (rendementEl) {
-      rendementEl.innerHTML = `
-        <div class="kpi-card">
-          <div class="label">Loyer estimé (m²)</div>
-          <div class="value">${loyerM2Mois.toFixed(1)} €</div>
-          <div class="sub">Par m² par mois</div>
-        </div>
-        <div class="kpi-card">
-          <div class="label">Loyer mensuel</div>
-          <div class="value">${fmt(loyerMensuel)}</div>
-          <div class="sub">Pour ce bien</div>
-        </div>
-        <div class="kpi-card">
-          <div class="label">Rendement brut</div>
-          <div class="value">${rendementBrut.toFixed(1)}%</div>
-          <div class="sub">Loyer annuel / prix</div>
-        </div>
-      `;
-    }
-
-    const fiscalEl = document.getElementById('fiscalite-grid');
-    if (fiscalEl) {
-      const revenu = supp.zone?.revenu_median_zone ? fmtN(Math.round(parseFloat(supp.zone.revenu_median_zone))) + ' €' : '—';
-      const chomage = supp.zone?.taux_chomage_zone ? parseFloat(supp.zone.taux_chomage_zone).toFixed(1) + '%' : '—';
-      const pop = supp.zone?.population_commune ? fmtN(supp.zone.population_commune) : '—';
-      fiscalEl.innerHTML = `
-        <div class="kpi-card">
-          <div class="label">Taxe foncière</div>
-          <div class="value">~${fmtN(Math.round(estPrice * 0.008))}</div>
-          <div class="sub">Estimation annuelle</div>
-        </div>
-        <div class="kpi-card">
-          <div class="label">Revenu médian</div>
-          <div class="value">${revenu}</div>
-          <div class="sub">Par ménage</div>
-        </div>
-        <div class="kpi-card">
-          <div class="label">Taux chômage</div>
-          <div class="value">${chomage}</div>
-          <div class="sub">Zone d'emploi</div>
-        </div>
-        <div class="kpi-card">
-          <div class="label">Population</div>
-          <div class="value">${pop}</div>
-          <div class="sub">Commune</div>
-        </div>
-      `;
-    }
-
-    const dpeBadge = document.getElementById('dpe-badge-large');
-    if (dpeBadge) {
-      const colors = { A:'#319834', B:'#4A7C59', C:'#cbfc34', D:'#fcfc32', E:'#fccc32', F:'#fc9834', G:'#fc0000' };
-      const impacts = { A:'+6%', B:'+4%', C:'+2%', D:'0%', E:'-4%', F:'-8%', G:'-8%' };
-      const textColor = ['C', 'D', 'E'].includes(dpe) ? '#000' : '#fff';
-      dpeBadge.innerHTML = `
-        <div style="background:${colors[dpe]}; color:${textColor}; width:100px; height:100px; border-radius:8px; display:flex; flex-direction:column; align-items:center; justify-content:center;">
-          <div style="font-size:2.5rem; font-weight:700;">${dpe}</div>
-          <div style="font-size:0.85rem; margin-top:0.3rem;">Impact: ${impacts[dpe]}</div>
-        </div>
-      `;
-    }
-
-    const dpeImpact = document.getElementById('dpe-impact');
-    if (dpeImpact) {
-      dpeImpact.innerHTML = `
-        <div style="font-size:0.95rem; color:var(--text-secondary);">
-          <strong>Classe énergétique actuelle:</strong> ${dpe}<br/>
-          <strong>Impact estimation:</strong> ${dpeAdj >= 0 ? '+' : ''}${(dpeAdj * 100).toFixed(1)}%<br/>
-          <strong>Impact prix:</strong> ${fmt(estPrice * dpeAdj)}
-        </div>
-      `;
-    }
-
-    renderDPEScale(dpe);
-    renderDPERepartition(supp.dpe);
-
-    const [climData, pluData] = await Promise.all([
-      supaFetch('data_climat', { code_commune: `eq.${geo.citycode}`, limit: '1' }),
-      supaFetch('data_plu_communes', { code_commune: `eq.${geo.citycode}`, limit: '1' })
-    ]);
-
-    // Utiliser supp.geo et supp.eau déjà fetchés dans fetchSupp
-    const geoData = [supp.geo || {}];
-    const eauData = [supp.eau || {}];
-
-    const clim = climData[0];
-    const climatEl = document.getElementById('climat-grid');
-    if (climatEl) {
-      climatEl.innerHTML = `
-        <div class="kpi-card">
-          <div class="label">Zone climatique</div>
-          <div class="value">${clim?.zone_climatique || '—'}</div>
-          <div class="sub">Classification</div>
-        </div>
-        <div class="kpi-card">
-          <div class="label">Température moy.</div>
-          <div class="value">${clim?.temperature_moy_annuelle?.toFixed(1) || '—'}°C</div>
-          <div class="sub">Annuelle</div>
-        </div>
-        <div class="kpi-card">
-          <div class="label">Ensoleillement</div>
-          <div class="value">${clim?.ensoleillement_h_an ? fmtN(clim.ensoleillement_h_an) : '—'} h</div>
-          <div class="sub">Par an</div>
-        </div>
-        <div class="kpi-card">
-          <div class="label">Risque canicule</div>
-          <div class="value">${clim?.risque_canicule ? 'Oui' : 'Non'}</div>
-          <div class="sub">Probable</div>
-        </div>
-      `;
-    }
-
-    const aidesPanel = document.getElementById('aides-renov-panel');
-    if (aidesPanel) {
-      if (['E', 'F', 'G'].includes(dpe)) {
-        aidesPanel.innerHTML = `<div style="color:var(--text-secondary); font-size:0.9rem;">Simulation en cours…</div>`;
-        try {
-          const renoResp = await fetch(`${SUPA_URL}/rest/v1/rpc/renovation_simulate`, {
-            method: 'POST',
-            headers: { apikey: SUPA_ANON, Authorization: `Bearer ${SUPA_ANON}`, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ p_code_commune: geo.citycode, p_classe_dpe: dpe, p_surface: surface })
-          });
-          const reno = renoResp.ok ? await renoResp.json() : null;
-          if (reno && reno.cout_total_estime) {
-            const pctCouvert = reno.pct_couvert ? (reno.pct_couvert * 100).toFixed(0) : '—';
-            const gestesHtml = (reno.details_gestes || []).map(g => `
-              <tr>
-                <td>${g.geste || '—'}</td>
-                <td>${g.cout ? fmt(g.cout) : '—'}</td>
-                <td style="color:#8B7355">${g.mpr ? fmt(g.mpr) : '—'}</td>
-                <td style="color:#F4B860">${g.cee ? fmt(g.cee) : '—'}</td>
-              </tr>
-            `).join('');
-            aidesPanel.innerHTML = `
-              <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:1rem; margin-bottom:1.5rem;">
-                <div class="kpi-card"><div class="label">Coût total travaux</div><div class="value">${fmt(reno.cout_total_estime)}</div><div class="sub">Estimation</div></div>
-                <div class="kpi-card"><div class="label">MaPrimeRénov'</div><div class="value" style="color:#8B7355">${reno.mpr_total ? fmt(reno.mpr_total) : '—'}</div><div class="sub">Aide État</div></div>
-                <div class="kpi-card"><div class="label">CEE</div><div class="value" style="color:#F4B860">${reno.cee_total ? fmt(reno.cee_total) : '—'}</div><div class="sub">Certificats énergie</div></div>
-                <div class="kpi-card"><div class="label">Reste à charge</div><div class="value" style="color:${reno.reste_a_charge > reno.cout_total_estime * 0.5 ? '#9B4D4D' : '#8B7355'}">${reno.reste_a_charge ? fmt(reno.reste_a_charge) : '—'}</div><div class="sub">${pctCouvert}% couvert</div></div>
-              </div>
-              ${gestesHtml ? `
-              <div class="table-responsive">
-                <table>
-                  <tr><th>Geste</th><th>Coût</th><th>MPR</th><th>CEE</th></tr>
-                  ${gestesHtml}
-                </table>
-              </div>` : ''}
-              <div style="margin-top:1rem; padding:0.8rem; background:rgba(244, 184, 96, 0.1); border-left:3px solid #F4B860; border-radius:4px; font-size:0.85rem;">
-                Classe actuelle <strong>${dpe}</strong> — Zone ${reno.zone_climatique || '—'} — Revenus ${reno.revenu_classe || '—'}
-              </div>
-            `;
-          } else {
-            throw new Error('No reno data');
-          }
-        } catch {
-          const targetDpe = dpe === 'G' ? 'F' : 'E';
-          aidesPanel.innerHTML = `
-            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-bottom:1rem;">
-              <div style="padding:1rem; background:rgba(139, 115, 85, 0.04); border-radius:6px;"><strong>MaPrimeRénov'</strong><p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.3rem;">Aide de l'État pour rénover votre habitation.</p></div>
-              <div style="padding:1rem; background:rgba(139, 115, 85, 0.04); border-radius:6px;"><strong>CEE</strong><p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.3rem;">Certificats d'Économie d'Énergie.</p></div>
-              <div style="padding:1rem; background:rgba(139, 115, 85, 0.04); border-radius:6px;"><strong>Éco-PTZ</strong><p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.3rem;">Prêt à taux zéro pour rénovation.</p></div>
-              <div style="padding:1rem; background:rgba(139, 115, 85, 0.04); border-radius:6px;"><strong>TVA réduite</strong><p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.3rem;">5,5% sur travaux énergétiques.</p></div>
+    </section>
+
+    <!-- FORM -->
+    <section class="section">
+        <div class="container">
+            <div class="form-card">
+                <form id="estimationForm">
+                    <div id="errorMessage" class="error-message"></div>
+
+                    <!-- ADDRESS -->
+                    <div class="form-group">
+                        <label for="address">Adresse</label>
+                        <div style="position: relative;">
+                            <input type="text" id="address" placeholder="Entrez une adresse..." autocomplete="off">
+                            <div id="autocompleteDropdown" class="autocomplete-dropdown hidden"></div>
+                        </div>
+                    </div>
+
+                    <!-- PROPERTY TYPE & BASICS -->
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="typeBien">Type de bien</label>
+                            <select id="typeBien" required>
+                                <option value="">-- Sélectionner --</option>
+                                <option value="Appartement">Appartement</option>
+                                <option value="Maison">Maison</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="surface">Surface habitable (m²)</label>
+                            <input type="number" id="surface" min="9" step="1" required>
+                        </div>
+                    </div>
+
+                    <!-- ROOMS & DPE -->
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="pieces">Nombre de pièces</label>
+                            <select id="pieces" required>
+                                <option value="">-- Sélectionner --</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                                <option value="6">6</option>
+                                <option value="7">7+</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="dpe">DPE</label>
+                            <select id="dpe" required>
+                                <option value="">-- Sélectionner --</option>
+                                <option value="A">A</option>
+                                <option value="B">B</option>
+                                <option value="C">C</option>
+                                <option value="D">D</option>
+                                <option value="E">E</option>
+                                <option value="F">F</option>
+                                <option value="G">G</option>
+                                <option value="Non renseigné">Non renseigné</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- CONDITION -->
+                    <div class="form-group">
+                        <label for="etatGeneral">État général</label>
+                        <select id="etatGeneral" required>
+                            <option value="">-- Sélectionner --</option>
+                            <option value="Mauvais">Mauvais</option>
+                            <option value="Moyen">Moyen</option>
+                            <option value="Bon">Bon</option>
+                            <option value="Très bon">Très bon</option>
+                            <option value="Excellent">Excellent</option>
+                        </select>
+                    </div>
+
+                    <!-- APARTMENT FIELDS -->
+                    <div id="apartmentFields" class="hidden">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="etage">Étage</label>
+                                <select id="etage">
+                                    <option value="">-- Sélectionner --</option>
+                                    <option value="RDC">RDC</option>
+                                    <option value="1-2">1-2</option>
+                                    <option value="3-4">3-4</option>
+                                    <option value="5+">5+</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="sdb">Nombre de SDB</label>
+                                <select id="sdb">
+                                    <option value="">-- Sélectionner --</option>
+                                    <option value="1">1</option>
+                                    <option value="2+">2+</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="form-checkbox-item">
+                                <input type="checkbox" id="ascenseur">
+                                <label for="ascenseur">Ascenseur</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- HOUSE FIELDS -->
+                    <div id="houseFields" class="hidden">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="terrain">Surface terrain</label>
+                                <select id="terrain">
+                                    <option value="">-- Sélectionner --</option>
+                                    <option value="Sans terrain">Sans terrain</option>
+                                    <option value="<200">< 200 m²</option>
+                                    <option value="200-500">200-500 m²</option>
+                                    <option value="500-1000">500-1000 m²</option>
+                                    <option value=">1000">> 1000 m²</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="mitoyennete">Mitoyenneté</label>
+                                <select id="mitoyennete">
+                                    <option value="">-- Sélectionner --</option>
+                                    <option value="Non">Non</option>
+                                    <option value="Semi">Semi</option>
+                                    <option value="Oui">Oui</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- FEATURES -->
+                    <div class="form-group">
+                        <label>Équipements & Caractéristiques</label>
+                        <div class="form-checkbox-group">
+                            <div class="form-checkbox-item">
+                                <input type="checkbox" id="parking">
+                                <label for="parking">Parking</label>
+                            </div>
+                            <div class="form-checkbox-item">
+                                <input type="checkbox" id="balcon">
+                                <label for="balcon">Balcon</label>
+                            </div>
+                            <div class="form-checkbox-item">
+                                <input type="checkbox" id="jardin">
+                                <label for="jardin">Jardin</label>
+                            </div>
+                            <div class="form-checkbox-item">
+                                <input type="checkbox" id="vue">
+                                <label for="vue">Vue dégagée</label>
+                            </div>
+                            <div class="form-checkbox-item">
+                                <input type="checkbox" id="cave">
+                                <label for="cave">Cave</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-submit">Estimer ce bien</button>
+                </form>
             </div>
-            <div style="padding:1rem; background:rgba(244, 184, 96, 0.1); border-radius:6px; border-left:3px solid #F4B860;">
-              <strong>Cible estimée :</strong> Passage de ${dpe} à ${targetDpe}
+        </div>
+    </section>
+
+    <!-- RESULT HERO -->
+    <section class="section">
+        <div class="container">
+            <div id="loading" class="loading">
+                <div class="spinner"></div>
+                <p>Calcul de l'estimation en cours...</p>
             </div>
-          `;
+            <div id="resultHero" class="result-hero">
+                <div class="result-hero-content">
+                    <div class="result-header" id="resultHeader"></div>
+                    <div class="result-price" id="resultPrice"></div>
+                    <div class="result-sub-info">
+                        <div>
+                            <div class="result-kpi">
+                                <span class="result-kpi-label">Prix au m²</span>
+                                <span class="result-kpi-value" id="resultPrixM2"></span>
+                            </div>
+                            <div class="result-kpi">
+                                <span class="result-kpi-label">Fourchette basse</span>
+                                <span class="result-kpi-value" id="resultQ1"></span>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="result-kpi">
+                                <span class="result-kpi-label">Fourchette haute</span>
+                                <span class="result-kpi-value" id="resultQ3"></span>
+                            </div>
+                            <div class="result-kpi">
+                                <span class="result-kpi-label">Confiance</span>
+                                <span class="result-kpi-value" id="resultConfidence"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="result-tags" id="resultTags"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- TABS -->
+    <section id="tabsSection" class="tabs-section">
+        <div class="container">
+            <div class="tabs-nav">
+                <button class="tab-button active" data-tab="marche-local">Marché Local</button>
+                <button class="tab-button" data-tab="rentabilite">Rentabilité</button>
+                <button class="tab-button" data-tab="renovation">Rénovation & Énergie</button>
+                <button class="tab-button" data-tab="cadre-vie">Cadre de Vie</button>
+                <button class="tab-button" data-tab="risques">Risques & Urbanisme</button>
+                <button class="tab-button" data-tab="methodologie">Méthodologie</button>
+            </div>
+
+            <!-- TAB 1: MARCHE LOCAL -->
+            <div id="marche-local" class="tab-content active">
+                <h2>Marché Local</h2>
+
+                <h3 style="margin-top: 2rem;">Indicateurs clés</h3>
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-label">Prix médian /m²</div>
+                        <div class="kpi-value" id="km-prixMedian">-</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">Évolution 12 mois</div>
+                        <div class="kpi-value" id="km-evolution">-</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">Volume transactions</div>
+                        <div class="kpi-value" id="km-volume">-</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">Délai vente estimé</div>
+                        <div class="kpi-value" id="km-delai">-</div>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <canvas id="chartHistorique"></canvas>
+                </div>
+
+                <h3>Comparaison Appartement vs Maison</h3>
+                <div class="table-wrapper">
+                    <table id="tableComparaison">
+                        <thead>
+                            <tr>
+                                <th>Type</th>
+                                <th>Prix médian /m²</th>
+                                <th>Surface moyenne</th>
+                                <th>Nb transactions</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+
+                <h3>Données Démographiques</h3>
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-label">Population</div>
+                        <div class="kpi-value" id="km-population">-</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">Densité /km²</div>
+                        <div class="kpi-value" id="km-densite">-</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">Évolution pop 5 ans</div>
+                        <div class="kpi-value" id="km-evolPop">-</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">Âge moyen</div>
+                        <div class="kpi-value" id="km-ageMoyen">-</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: RENTABILITE -->
+            <div id="rentabilite" class="tab-content">
+                <h2>Rentabilité</h2>
+
+                <h3 style="margin-top: 2rem;">Potentiel locatif</h3>
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-label">Loyer estimé /m²</div>
+                        <div class="kpi-value" id="rent-loyerM2">-</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">Loyer mensuel</div>
+                        <div class="kpi-value" id="rent-loyerMensuel">-</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">Rendement brut</div>
+                        <div class="kpi-value" id="rent-rendementBrut">-</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">Rendement net estimé</div>
+                        <div class="kpi-value" id="rent-rendementNet">-</div>
+                    </div>
+                </div>
+
+                <h3>Fiscalité locale</h3>
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-label">Taxe foncière annuelle</div>
+                        <div class="kpi-value" id="rent-taxeFonciere">-</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">Budget commune /hab</div>
+                        <div class="kpi-value" id="rent-budgetCommune">-</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">Dette /hab</div>
+                        <div class="kpi-value" id="rent-dettePar">-</div>
+                    </div>
+                </div>
+
+                <h3>Simulation crédit immobilier</h3>
+                <div style="background-color: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin: 1.5rem 0;">
+                    <div class="slider-container">
+                        <div class="slider-label">
+                            <span>Montant à emprunter</span>
+                            <span class="slider-value" id="sliderMontantValue">-</span>
+                        </div>
+                        <input type="range" id="sliderMontant" min="0" max="100" value="80" step="1">
+                    </div>
+
+                    <div class="slider-container">
+                        <div class="slider-label">
+                            <span>Durée du crédit</span>
+                            <span class="slider-value" id="sliderDureeValue">20 ans</span>
+                        </div>
+                        <input type="range" id="sliderDuree" min="10" max="30" value="20" step="1">
+                    </div>
+
+                    <div class="slider-container">
+                        <div class="slider-label">
+                            <span>Taux d'intérêt annuel</span>
+                            <span class="slider-value" id="sliderTauxValue">3.5%</span>
+                        </div>
+                        <input type="range" id="sliderTaux" min="1" max="6" value="3.5" step="0.1">
+                    </div>
+
+                    <div class="slider-container">
+                        <div class="slider-label">
+                            <span>Apport personnel</span>
+                            <span class="slider-value" id="sliderApportValue">20%</span>
+                        </div>
+                        <input type="range" id="sliderApport" min="0" max="50" value="20" step="1">
+                    </div>
+
+                    <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border);">
+                        <div class="kpi-grid">
+                            <div class="kpi-card">
+                                <div class="kpi-label">Mensualité crédit</div>
+                                <div class="kpi-value" id="rent-mensualite">-</div>
+                            </div>
+                            <div class="kpi-card">
+                                <div class="kpi-label">Coût total crédit</div>
+                                <div class="kpi-value" id="rent-coutTotal">-</div>
+                            </div>
+                            <div class="kpi-card">
+                                <div class="kpi-label">Cash-flow mensuel</div>
+                                <div class="kpi-value" id="rent-cashFlow">-</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <h3>Contexte socio-économique</h3>
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-label">Revenu médian</div>
+                        <div class="kpi-value" id="rent-revenus">-</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">Taux chômage</div>
+                        <div class="kpi-value" id="rent-chomage">-</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">% Propriétaires</div>
+                        <div class="kpi-value" id="rent-proprio">-</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">Dynamisme éco</div>
+                        <div class="kpi-value" id="rent-dynamisme">-</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: RENOVATION & ENERGIE -->
+            <div id="renovation" class="tab-content">
+                <h2>Rénovation & Énergie</h2>
+
+                <h3 style="margin-top: 2rem;">Diagnostic de Performance Énergétique</h3>
+                <div style="text-align: center;">
+                    <div class="dpe-badge" id="dpeBadge">-</div>
+                    <p id="dpeImpact" style="margin-top: 1rem; font-size: 0.95rem; color: var(--text-secondary);"></p>
+                </div>
+
+                <h3>Répartition DPE dans la commune</h3>
+                <div class="chart-container">
+                    <canvas id="chartDPE"></canvas>
+                </div>
+
+                <h3>Données énergétiques</h3>
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-label">Conso moy /m²</div>
+                        <div class="kpi-value" id="ren-conso">-</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">% Passoires thermiques</div>
+                        <div class="kpi-value" id="ren-passoires">-</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">Zone climatique</div>
+                        <div class="kpi-value" id="ren-zone">-</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">Température moy</div>
+                        <div class="kpi-value" id="ren-temp">-</div>
+                    </div>
+                </div>
+
+                <div id="renovationSim" class="hidden">
+                    <h3>Potentiel de rénovation</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: 1rem;">Analyse des travaux recommandés pour optimiser la performance énergétique.</p>
+
+                    <div class="kpi-grid">
+                        <div class="kpi-card">
+                            <div class="kpi-label">Coût travaux estimé</div>
+                            <div class="kpi-value" id="ren-coutTravaux">-</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-label">MaPrimeRénov' estimée</div>
+                            <div class="kpi-value" id="ren-mpr">-</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-label">CEE estimés</div>
+                            <div class="kpi-value" id="ren-cee">-</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-label">Reste à charge</div>
+                            <div class="kpi-value" id="ren-rac">-</div>
+                        </div>
+                    </div>
+
+                    <h3>Gestes de rénovation prioritaires</h3>
+                    <div class="table-wrapper">
+                        <table id="tableGestes">
+                            <thead>
+                                <tr>
+                                    <th>Geste</th>
+                                    <th>Coût estimé</th>
+                                    <th>Gain énergétique</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Isolation murs</td>
+                                    <td id="ren-isolation-murs">-</td>
+                                    <td>++</td>
+                                </tr>
+                                <tr>
+                                    <td>Isolation toiture</td>
+                                    <td id="ren-isolation-toit">-</td>
+                                    <td>+++</td>
+                                </tr>
+                                <tr>
+                                    <td>Changement fenêtres</td>
+                                    <td id="ren-fenetes">-</td>
+                                    <td>++</td>
+                                </tr>
+                                <tr>
+                                    <td>Système chauffage</td>
+                                    <td id="ren-chauffage">-</td>
+                                    <td>+++</td>
+                                </tr>
+                                <tr>
+                                    <td>VMC double flux</td>
+                                    <td id="ren-vmc">-</td>
+                                    <td>+</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="kpi-grid" style="margin-top: 1.5rem;">
+                        <div class="kpi-card">
+                            <div class="kpi-label">ROI rénovation</div>
+                            <div class="kpi-value" id="ren-roi">-</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-label">Délai rentabilité</div>
+                            <div class="kpi-value" id="ren-delai">-</div>
+                        </div>
+                    </div>
+                </div>
+
+                <h3>Climat et météo</h3>
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-label">Ensoleillement</div>
+                        <div class="kpi-value" id="ren-ensoleillement">-</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">DJU chauffage</div>
+                        <div class="kpi-value" id="ren-dju">-</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">Précipitations/an</div>
+                        <div class="kpi-value" id="ren-precip">-</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 4: CADRE DE VIE -->
+            <div id="cadre-vie" class="tab-content">
+                <h2>Cadre de Vie</h2>
+
+                <h3 style="margin-top: 2rem;">Score Localisation</h3>
+                <div class="score-ring-container">
+                    <div class="score-ring">
+                        <svg width="200" height="200" viewBox="0 0 200 200" style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.05));">
+                            <circle cx="100" cy="100" r="90" fill="none" stroke="var(--bg-alt)" stroke-width="30"/>
+                            <circle id="scoreRing" cx="100" cy="100" r="90" fill="none" stroke="var(--accent)" stroke-width="30" stroke-linecap="round" stroke-dasharray="0 565.5" transform="rotate(-90 100 100)"/>
+                            <text x="100" y="100" text-anchor="middle" dominant-baseline="central" font-family="'Space Grotesk', sans-serif" font-size="32" font-weight="700" fill="var(--accent)" id="scoreValue">-</text>
+                            <text x="100" y="125" text-anchor="middle" dominant-baseline="central" font-family="'Inter', sans-serif" font-size="12" fill="var(--text-secondary)">/100</text>
+                        </svg>
+                    </div>
+                    <div class="score-breakdown">
+                        <div class="breakdown-item">
+                            <span class="breakdown-label">Accessibilité</span>
+                            <div class="breakdown-bar"><div class="breakdown-fill" id="break-acces" style="width: 0%"></div></div>
+                            <span class="breakdown-value" id="break-acces-val">-</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span class="breakdown-label">Sécurité</span>
+                            <div class="breakdown-bar"><div class="breakdown-fill" id="break-secu" style="width: 0%"></div></div>
+                            <span class="breakdown-value" id="break-secu-val">-</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span class="breakdown-label">Services</span>
+                            <div class="breakdown-bar"><div class="breakdown-fill" id="break-services" style="width: 0%"></div></div>
+                            <span class="breakdown-value" id="break-services-val">-</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span class="breakdown-label">Risques</span>
+                            <div class="breakdown-bar"><div class="breakdown-fill" id="break-risques" style="width: 0%"></div></div>
+                            <span class="breakdown-value" id="break-risques-val">-</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span class="breakdown-label">Dynamisme</span>
+                            <div class="breakdown-bar"><div class="breakdown-fill" id="break-dynamisme" style="width: 0%"></div></div>
+                            <span class="breakdown-value" id="break-dynamisme-val">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <h3>Proximité Services</h3>
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-label">Transport</div>
+                        <div class="kpi-value" id="cdv-transport">-</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">Éducation</div>
+                        <div class="kpi-value" id="cdv-education">-</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">Santé</div>
+                        <div class="kpi-value" id="cdv-sante">-</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">Commerce</div>
+                        <div class="kpi-value" id="cdv-commerce">-</div>
+                    </div>
+                </div>
+
+                <h3>Démographie locale</h3>
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-label">Population</div>
+                        <div class="kpi-value" id="cdv-population">-</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">Densité /km²</div>
+                        <div class="kpi-value" id="cdv-densite">-</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">Ménages</div>
+                        <div class="kpi-value" id="cdv-menages">-</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">Taille ménage</div>
+                        <div class="kpi-value" id="cdv-tailleMenage">-</div>
+                    </div>
+                </div>
+
+                <h3>Composition</h3>
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-label">% Couples + enfants</div>
+                        <div class="kpi-value" id="cdv-couples">-</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">% Personnes seules</div>
+                        <div class="kpi-value" id="cdv-seules">-</div>
+                    </div>
+                </div>
+
+                <h3>Établissements scolaires</h3>
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-label">Maternelles</div>
+                        <div class="kpi-value" id="cdv-maternelle">-</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">Élémentaires</div>
+                        <div class="kpi-value" id="cdv-elementaire">-</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">Collèges</div>
+                        <div class="kpi-value" id="cdv-college">-</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">Lycées</div>
+                        <div class="kpi-value" id="cdv-lycee">-</div>
+                    </div>
+                </div>
+
+                <h3>Transport</h3>
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-label">Arrêts transports</div>
+                        <div class="kpi-value" id="cdv-arrets">-</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">Gares SNCF</div>
+                        <div class="kpi-value" id="cdv-gares">-</div>
+                    </div>
+                </div>
+
+                <h3>Histoire locale</h3>
+                <div style="background-color: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin: 1.5rem 0;">
+                    <p id="cdv-description" style="color: var(--text-secondary); margin-bottom: 1rem;">-</p>
+                    <p id="cdv-points" style="color: var(--text-secondary); font-size: 0.9rem; font-style: italic;">-</p>
+                </div>
+
+                <h3>Qualité de l'eau</h3>
+                <div class="table-wrapper">
+                    <table id="tableEau">
+                        <thead>
+                            <tr>
+                                <th>Paramètre</th>
+                                <th>Valeur</th>
+                                <th>Conformité</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB 5: RISQUES & URBANISME -->
+            <div id="risques" class="tab-content">
+                <h2>Risques & Urbanisme</h2>
+
+                <h3 style="margin-top: 2rem;">Risques Naturels & Technologiques</h3>
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-label">Inondation</div>
+                        <div class="kpi-value" id="ris-inondation">-</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">Retrait argile</div>
+                        <div class="kpi-value" id="ris-argile">-</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">Séisme</div>
+                        <div class="kpi-value" id="ris-seisme">-</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">Radon</div>
+                        <div class="kpi-value" id="ris-radon">-</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">PPRN</div>
+                        <div class="kpi-value" id="ris-pprn">-</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">PPRT</div>
+                        <div class="kpi-value" id="ris-pprt">-</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">CatNat (5 ans)</div>
+                        <div class="kpi-value" id="ris-catnat">-</div>
+                    </div>
+                </div>
+
+                <h3>Plan Local d'Urbanisme</h3>
+                <div style="display: flex; gap: 2rem; margin: 2rem 0; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 250px;">
+                        <div style="text-align: center;">
+                            <svg width="180" height="180" viewBox="0 0 180 180" style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.05));">
+                                <circle cx="90" cy="90" r="80" fill="none" stroke="var(--bg-alt)" stroke-width="25"/>
+                                <circle id="pluRing" cx="90" cy="90" r="80" fill="none" stroke="var(--accent)" stroke-width="25" stroke-linecap="round" stroke-dasharray="0 502.6" transform="rotate(-90 90 90)"/>
+                                <text x="90" y="90" text-anchor="middle" dominant-baseline="central" font-family="'Inter', sans-serif" font-size="12" fill="var(--text-secondary)" id="pluLabel">-</text>
+                            </svg>
+                        </div>
+                    </div>
+                    <div style="flex: 1; min-width: 250px;">
+                        <div class="kpi-card">
+                            <div class="kpi-label">Zone dominante</div>
+                            <div class="kpi-value" id="ris-zonePLU">-</div>
+                        </div>
+                        <div class="kpi-card" style="margin-top: 1rem;">
+                            <div class="kpi-label">Approbation PLU</div>
+                            <div class="kpi-value" id="ris-approbation">-</div>
+                        </div>
+                    </div>
+                </div>
+
+                <h3>Contexte constructif</h3>
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-label">Année construction moy</div>
+                        <div class="kpi-value" id="ris-anneeConstruction">-</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">Matériau dominant</div>
+                        <div class="kpi-value" id="ris-materiau">-</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">Chauffage dominant</div>
+                        <div class="kpi-value" id="ris-chauffageType">-</div>
+                    </div>
+                </div>
+
+                <h3>Construction récente (SITADEL)</h3>
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-label">Logements créés (3 ans)</div>
+                        <div class="kpi-value" id="ris-sitadelRecent">-</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">Taux annuel</div>
+                        <div class="kpi-value" id="ris-sitadelRate">-</div>
+                    </div>
+                </div>
+
+                <h3>Marchés publics BTP (département)</h3>
+                <div class="table-wrapper">
+                    <table id="tableMarchesPublics">
+                        <thead>
+                            <tr>
+                                <th>Objet</th>
+                                <th>Montant</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB 6: METHODOLOGIE -->
+            <div id="methodologie" class="tab-content">
+                <h2>Méthodologie d'Estimation</h2>
+
+                <h3 style="margin-top: 2rem;">Principes généraux</h3>
+                <p style="color: var(--text-secondary); line-height: 1.8; margin-bottom: 1.5rem;">
+                    Cette estimation est basée sur une analyse comparative de marché utilisant les données DVF (Demandes de Valeurs Foncières) de la Fiscalité Française, complétées par des données démographiques, climatiques et urbanistiques.
+                    La méthode applique des ajustements successifs au prix médian observé pour refléter les caractéristiques spécifiques du bien.
+                </p>
+
+                <h3>Données source</h3>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Source</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>DVF</strong></td>
+                                <td>Mutations immobilières publiées par la Fiscalité (24 derniers mois)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>INSEE</strong></td>
+                                <td>Données démographiques, économiques, éducation</td>
+                            </tr>
+                            <tr>
+                                <td><strong>DPE</strong></td>
+                                <td>Diagnostics de Performance Énergétique</td>
+                            </tr>
+                            <tr>
+                                <td><strong>BDNB</strong></td>
+                                <td>Base de Données Nationale du Bâtiment</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Géorisques</strong></td>
+                                <td>Aléas naturels et technologiques</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Qualité eau</strong></td>
+                                <td>Analyse qualité eaux distribuées</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3 style="margin-top: 2rem;">Processus d'ajustement</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                    À partir du prix médian au m² observé, les ajustements suivants sont appliqués séquentiellement :
+                </p>
+                <div id="adjustmentTable" class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Facteur</th>
+                                <th>Valeur appliquée</th>
+                                <th>Impact</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+
+                <h3 style="margin-top: 2rem;">Score de confiance</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                    Le score de confiance (0-100%) reflète la fiabilité de l'estimation et prend en compte :
+                </p>
+                <div style="background-color: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin: 1.5rem 0;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div>
+                            <p style="font-weight: 600; margin-bottom: 0.5rem;">Facteurs positifs</p>
+                            <ul style="list-style: none; color: var(--text-secondary); font-size: 0.95rem;">
+                                <li>✓ Volume de transactions élevé</li>
+                                <li>✓ Données récentes (< 6 mois)</li>
+                                <li>✓ Faible dispersion (IQR réduit)</li>
+                                <li>✓ Données complètes</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <p style="font-weight: 600; margin-bottom: 0.5rem;">Facteurs négatifs</p>
+                            <ul style="list-style: none; color: var(--text-secondary); font-size: 0.95rem;">
+                                <li>✗ Peu de transactions</li>
+                                <li>✗ Données anciennes (> 12 mois)</li>
+                                <li>✗ Forte dispersion</li>
+                                <li>✗ Données manquantes</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <h3>Filtrage des données</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                    Pour garantir la qualité de l'estimation :
+                </p>
+                <ul style="color: var(--text-secondary); margin-bottom: 1.5rem;">
+                    <li><strong>Surface minimum :</strong> 9 m² (exclusion des très petits lots)</li>
+                    <li><strong>Prix minimum :</strong> 5 000 EUR (exclusion des transactions anormales)</li>
+                    <li><strong>Outliers :</strong> Exclusion des prix par m² sortant de [Q1-1.5*IQR ; Q3+1.5*IQR]</li>
+                    <li><strong>Homogénéité :</strong> Comparables du même type (Appt ou Maison)</li>
+                </ul>
+
+                <h3>Limitations</h3>
+                <div style="background-color: #FFF3CD; border: 1px solid #FFEAA7; border-radius: 8px; padding: 1rem; margin: 1.5rem 0; color: #856404;">
+                    <p style="margin: 0; font-size: 0.95rem;">
+                        Cette estimation est fournie à titre informatif. Elle ne constitue pas une évaluation juridique ou professionnelle.
+                        Pour une estimation précise, consultez un expert immobilier local qui pourra vérifier l'état réel du bien et intégrer des informations non disponibles publiquement.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // CONSTANTS
+        const SUPA_URL = 'https://wwvdpixzfaviaapixarb.supabase.co';
+        const SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3dmRwaXh6ZmF2aWFhcGl4YXJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3Mzk0NDgsImV4cCI6MjA5MDMxNTQ0OH0.NjOeWzUCo2BJPcxnkEJNm215GJBr1RAHba1eL_EF758';
+        const BAN_URL = 'https://api-adresse.data.gouv.fr/search/';
+
+        let _selectedGeo = null;
+        let _estimation = null;
+        let charts = {};
+
+        // FORMATTING
+        const fmt = v => new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(v);
+        const fmtN = v => new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 }).format(v);
+        const fmtP = v => (v * 100).toFixed(1) + '%';
+        const fmtD = (v, d = 1) => v.toFixed(d);
+
+        // SUPABASE FETCH
+        async function supaFetch(table, params = {}) {
+            let url = `${SUPA_URL}/rest/v1/${table}?`;
+            for (const [k, v] of Object.entries(params)) {
+                if (Array.isArray(v)) url += `${k}=in.(${v.join(',')})&`;
+                else if (typeof v === 'object') url += `${k}=${JSON.stringify(v).replace(/"/g, '%22')}&`;
+                else url += `${k}=eq.${v}&`;
+            }
+            const res = await fetch(url, {
+                headers: { 'apikey': SUPA_ANON, 'Authorization': `Bearer ${SUPA_ANON}` }
+            });
+            return res.json();
         }
-      } else {
-        aidesPanel.innerHTML = `<p style="color:var(--text-secondary); font-size:0.9rem;">Ce bien (classe ${dpe}) ne nécessite pas de rénovation prioritaire. Les aides sont principalement disponibles pour les classes E, F et G.</p>`;
-      }
-    }
 
-    if (geoData[0]) renderRisques(geoData[0]);
-    if (pluData[0]) renderPLU(pluData[0]);
-    if (eauData[0]) renderEauQualite(eauData[0]);
+        // DVF FETCH
+        async function fetchDVF(citycode, typeBien) {
+            const url = `${SUPA_URL}/rest/v1/dvf_mutations?code_commune=eq.${citycode}&select=valeur_fonciere,surface_reelle_bati,type_local,date_mutation,code_commune,code_departement`;
+            const res = await fetch(url, {
+                headers: { 'apikey': SUPA_ANON, 'Authorization': `Bearer ${SUPA_ANON}` }
+            });
+            let data = await res.json();
+            if (data.length > 0) {
+                data = data.filter(r => r.surface_reelle_bati >= 9 && r.valeur_fonciere >= 5000);
+                if (typeBien && typeBien === 'Appartement') {
+                    const appts = data.filter(r => r.type_local === 'Appartement');
+                    if (appts.length >= 15) return appts;
+                } else if (typeBien && typeBien === 'Maison') {
+                    const maisons = data.filter(r => r.type_local === 'Maison');
+                    if (maisons.length >= 15) return maisons;
+                }
+            }
+            return data;
+        }
 
-    const securiEl = document.getElementById('securite-climat-grid');
-    if (securiEl && clim) {
-      const geo0 = supp.geo || {};
-      const nbCatnat = geo0.nb_catnat || 0;
-      const nbRisques = [geo0.risque_inondation, geo0.risque_argile, geo0.pprn_prescrit, geo0.pprt_prescrit].filter(Boolean).length;
-      const sec = supp.loc?.detail_securite;
-      securiEl.innerHTML = `
-        <div class="kpi-card">
-          <div class="label">Catastrophes naturelles</div>
-          <div class="value">${nbCatnat}</div>
-          <div class="sub">Arrêtés CatNat</div>
-        </div>
-        <div class="kpi-card">
-          <div class="label">Risques identifiés</div>
-          <div class="value">${nbRisques}/4</div>
-          <div class="sub">Inondation, argile, PPRN, PPRT</div>
-        </div>
-        ${sec ? `
-        <div class="kpi-card">
-          <div class="label">Cambriolages</div>
-          <div class="value" style="color:${(sec.cambriolages_1000||0) > 10 ? '#9B4D4D' : '#8B7355'}">${sec.cambriolages_1000 != null ? sec.cambriolages_1000.toFixed(1) : '—'}</div>
-          <div class="sub">Pour 1 000 hab.</div>
-        </div>
-        <div class="kpi-card">
-          <div class="label">Violences</div>
-          <div class="value" style="color:${(sec.violences_1000||0) > 15 ? '#9B4D4D' : '#8B7355'}">${sec.violences_1000 != null ? sec.violences_1000.toFixed(1) : '—'}</div>
-          <div class="sub">Pour 1 000 hab.</div>
-        </div>
-        <div class="kpi-card">
-          <div class="label">Gendarmerie / Police</div>
-          <div class="value">${sec.gendarmerie ? '✓ Présente' : '—'}</div>
-          <div class="sub">Sur la commune</div>
-        </div>
-        <div class="kpi-card">
-          <div class="label">Eau potable</div>
-          <div class="value" style="color:${sec.eau === true ? '#8B7355' : sec.eau === false ? '#9B4D4D' : 'var(--text-secondary)'}">${sec.eau === true ? 'Conforme' : sec.eau === false ? 'Non conforme' : '—'}</div>
-          <div class="sub">Conformité</div>
-        </div>
-        ` : `
-        <div class="kpi-card">
-          <div class="label">DJU Chauffage</div>
-          <div class="value">${clim.dju_chauffage || '—'}</div>
-          <div class="sub">Degrés-jours</div>
-        </div>
-        <div class="kpi-card">
-          <div class="label">Précipitations</div>
-          <div class="value">${clim.precipitations_mm_an ? fmtN(clim.precipitations_mm_an) : '—'} mm</div>
-          <div class="sub">Annuelles</div>
-        </div>
-        `}
-      `;
-    }
+        // DVF FALLBACK
+        async function fetchDVFFallback(codeDept, typeBien) {
+            const url = `${SUPA_URL}/rest/v1/dvf_mutations?code_departement=eq.${codeDept}&select=valeur_fonciere,surface_reelle_bati,type_local,date_mutation,code_commune,code_departement`;
+            const res = await fetch(url, {
+                headers: { 'apikey': SUPA_ANON, 'Authorization': `Bearer ${SUPA_ANON}` }
+            });
+            let data = await res.json();
+            if (data.length > 0) {
+                data = data.filter(r => r.surface_reelle_bati >= 9 && r.valeur_fonciere >= 5000);
+                if (typeBien === 'Appartement') {
+                    return data.filter(r => r.type_local === 'Appartement');
+                } else if (typeBien === 'Maison') {
+                    return data.filter(r => r.type_local === 'Maison');
+                }
+            }
+            return data;
+        }
 
-    const mlBlock = document.getElementById('ml-block');
-    mlBlock.classList.add('visible');
-    document.getElementById('ml-range').innerHTML = `
-      <div style="text-align:center; font-size:0.95rem;">
-        Entre <strong>${fmt(q1 * surface)}</strong> et <strong>${fmt(q3 * surface)}</strong>
-      </div>
-    `;
-    document.getElementById('ml-fiability').innerHTML = `
-      <div style="font-size:1.5rem; color:${conf >= 70 ? '#8B7355' : conf >= 50 ? '#F4B860' : '#9B4D4D'}; font-weight:700;">
-        ${Math.round(conf)}%
-      </div>
-      <div style="margin-top:0.5rem; color:var(--text-secondary); font-size:0.85rem;">
-        ${conf >= 70 ? 'Très fiable' : conf >= 50 ? 'Acceptable' : 'À considérer'}
-      </div>
-    `;
-    const factors = [
-      `${validDVF.length} transactions DVF filtrées (IQR ±1.5)`,
-      `Médiane brute : ${fmtN(medianPrixM2.toFixed(0))} €/m²`,
-      dpeAdj !== 0 ? `DPE ${dpe} : ${dpeAdj >= 0 ? '+' : ''}${(dpeAdj*100).toFixed(0)}%` : null,
-      stateAdj !== 0 ? `État du bien : ${stateAdj >= 0 ? '+' : ''}${(stateAdj*100).toFixed(0)}%` : null,
-      featBonus !== 0 ? `Options (parking/balcon/jardin/vue) : +${(featBonus*100).toFixed(0)}%` : null,
-      etageAdj !== 0 ? `Étage : ${etageAdj >= 0 ? '+' : ''}${(etageAdj*100).toFixed(0)}%` : null,
-      ascenseurAdj !== 0 ? `Ascenseur : +${(ascenseurAdj*100).toFixed(0)}%` : null,
-      terrainAdj !== 0 ? `Terrain : ${terrainAdj >= 0 ? '+' : ''}${(terrainAdj*100).toFixed(0)}%` : null,
-      mitoyenneteAdj !== 0 ? `Mitoyenneté : ${(mitoyenneteAdj*100).toFixed(0)}%` : null,
-      caveAdj !== 0 ? `Cave : +${(caveAdj*100).toFixed(1)}%` : null,
-      sdbAdj !== 0 ? `2 SDB ou plus : +${(sdbAdj*100).toFixed(0)}%` : null,
-      locAdj !== 0 ? `Score localisation ${Math.round(scoreLoc)}/100 : ${locAdj >= 0 ? '+' : ''}${(locAdj*100).toFixed(1)}%` : null,
-      poiAdj !== 0 ? `Score équipements ${Math.round(scorePoi)}/100 : ${poiAdj >= 0 ? '+' : ''}${(poiAdj*100).toFixed(1)}%` : null,
-      risqueAdj !== 0 ? `Risques naturels : ${(risqueAdj*100).toFixed(1)}%` : null,
-      marcheAdj !== 0 ? `Tendance marché 12m : ${marcheAdj >= 0 ? '+' : ''}${(marcheAdj*100).toFixed(1)}%` : null,
-      energieAdj !== 0 ? `Performance énergétique zone : ${energieAdj >= 0 ? '+' : ''}${(energieAdj*100).toFixed(1)}%` : null,
-      `Ajustement total : ${totalAdj >= 0 ? '+' : ''}${(totalAdj*100).toFixed(1)}%`,
-      `Marge de dispersion DVF : ±${marginPct}%`
-    ].filter(Boolean);
-    document.getElementById('ml-factors').innerHTML = factors.map(f => `<div style="padding:0.5rem 0; border-bottom:1px solid var(--border); font-size:0.9rem;">${f}</div>`).join('');
+        // FETCH ALL DATA
+        async function fetchAllData(citycode, cp, typeBien, codeDept) {
+            try {
+                const [dpe, poi, index, score, eau, risques, climat, plu, fiscal, demo, loyers, wiki, schools, transports, sitadel, bdnb, marches] = await Promise.all([
+                    supaFetch('dpe_commune_agg', { code_postal: cp }).catch(() => []),
+                    supaFetch('poi_scores_commune', { code_commune: citycode }).catch(() => []),
+                    supaFetch('property_index', { code_commune: citycode }).catch(() => []),
+                    supaFetch('score_localisation_commune', { code_commune: citycode }).catch(() => []),
+                    supaFetch('data_qualite_eau', { code_commune: citycode }).catch(() => []),
+                    supaFetch('data_georisques', { code_commune: citycode }).catch(() => []),
+                    supaFetch('data_climat', { code_commune: citycode }).catch(() => []),
+                    supaFetch('data_plu_communes', { code_commune: citycode }).catch(() => []),
+                    supaFetch('data_fiscalite_locale', { code_commune: citycode }).catch(() => []),
+                    supaFetch('data_demographie_commune', { code_commune: citycode }).catch(() => []),
+                    supaFetch('data_loyers_observes', { code_commune: citycode }).catch(() => []),
+                    supaFetch('commune_wiki', { code_commune: citycode }).catch(() => []),
+                    supaFetch('data_etablissements_scolaires', { code_commune: citycode }).catch(() => []),
+                    supaFetch('data_transport', { code_commune: citycode }).catch(() => []),
+                    supaFetch('data_sitadel_logements', { code_commune: citycode }).catch(() => []),
+                    supaFetch('data_bdnb_batiments', { code_commune_insee: citycode }).catch(() => []),
+                    supaFetch('data_decp_marches', { is_btp: true }).catch(() => [])
+                ]);
+                return { dpe: dpe[0] || {}, poi: poi[0] || {}, index: index[0] || {}, score: score[0] || {}, eau, risques: risques[0] || {}, climat: climat[0] || {}, plu: plu[0] || {}, fiscal: fiscal[0] || {}, demo: demo[0] || {}, loyers, wiki: wiki[0] || {}, schools, transports, sitadel, bdnb, marches };
+            } catch (e) {
+                console.error('Error fetching data:', e);
+                return {};
+            }
+        }
 
+        // CALCULATION
+        function calcMensualite(capital, tauxAnnuel, dureeMois) {
+            const r = tauxAnnuel / 100 / 12;
+            if (r === 0) return capital / dureeMois;
+            return capital * r / (1 - Math.pow(1 + r, -dureeMois));
+        }
 
-    document.getElementById('result-hero').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        function calculateEstimation(dvf, form, allData) {
+            if (!dvf || dvf.length < 5) return null;
 
-  } catch (err) {
-    errorBox.textContent = err.message || 'Erreur lors du calcul.';
-    errorBox.classList.add('visible');
-  } finally {
-    btn.disabled = false; btn.textContent = 'Estimer';
-  }
-});
+            let prixM2s = dvf.map(r => r.valeur_fonciere / r.surface_reelle_bati);
+            prixM2s = prixM2s.sort((a, b) => a - b);
+            const q1 = prixM2s[Math.floor(prixM2s.length * 0.25)];
+            const q3 = prixM2s[Math.floor(prixM2s.length * 0.75)];
+            const iqr = q3 - q1;
+            const lower = q1 - 1.5 * iqr;
+            const upper = q3 + 1.5 * iqr;
+            prixM2s = prixM2s.filter(p => p >= lower && p <= upper);
 
+            const median = prixM2s[Math.floor(prixM2s.length / 2)];
+            const mean = prixM2s.reduce((a, b) => a + b) / prixM2s.length;
+            const newQ1 = prixM2s[Math.floor(prixM2s.length * 0.25)];
+            const newQ3 = prixM2s[Math.floor(prixM2s.length * 0.75)];
 
+            let adjustedPrixM2 = median;
+            const adjustments = [];
 
-// Burger menu
-document.getElementById('burger').addEventListener('click', function() {
-  this.classList.toggle('open');
-  document.getElementById('nav-links').classList.toggle('open');
-});
-document.querySelectorAll('.nav-links a').forEach(a => {
-  a.addEventListener('click', () => {
-    document.getElementById('burger').classList.remove('open');
-    document.getElementById('nav-links').classList.remove('open');
-  });
-});
-</script>
+            const dpeMap = { A: 0.06, B: 0.04, C: 0.02, D: 0, E: -0.04, F: -0.08, G: -0.08 };
+            const dpeAdj = dpeMap[form.dpe] || 0;
+            if (dpeAdj !== 0) {
+                adjustedPrixM2 *= (1 + dpeAdj);
+                adjustments.push({ factor: 'DPE ' + form.dpe, value: dpeAdj });
+            }
+
+            const etatMap = { 'Mauvais': -0.1, 'Moyen': -0.05, 'Bon': 0, 'Très bon': 0.05, 'Excellent': 0.1 };
+            const etatAdj = etatMap[form.etat] || 0;
+            if (etatAdj !== 0) {
+                adjustedPrixM2 *= (1 + etatAdj);
+                adjustments.push({ factor: 'État ' + form.etat, value: etatAdj });
+            }
+
+            if (form.parking) { adjustedPrixM2 *= 1.03; adjustments.push({ factor: 'Parking', value: 0.03 }); }
+            if (form.balcon) { adjustedPrixM2 *= 1.02; adjustments.push({ factor: 'Balcon', value: 0.02 }); }
+            if (form.jardin) { adjustedPrixM2 *= 1.04; adjustments.push({ factor: 'Jardin', value: 0.04 }); }
+            if (form.vue) { adjustedPrixM2 *= 1.02; adjustments.push({ factor: 'Vue dégagée', value: 0.02 }); }
+            if (form.cave) { adjustedPrixM2 *= 1.015; adjustments.push({ factor: 'Cave', value: 0.015 }); }
+
+            if (form.type === 'Appartement') {
+                const etageMap = { 'RDC': -0.05, '1-2': 0, '3-4': 0.03, '5+': 0.05 };
+                const etageAdj = etageMap[form.etage] || 0;
+                if (etageAdj !== 0) {
+                    adjustedPrixM2 *= (1 + etageAdj);
+                    adjustments.push({ factor: 'Étage ' + form.etage, value: etageAdj });
+                }
+                if (form.ascenseur && ['3-4', '5+'].includes(form.etage)) {
+                    adjustedPrixM2 *= 1.02;
+                    adjustments.push({ factor: 'Ascenseur', value: 0.02 });
+                }
+                if (form.sdb === '2+') {
+                    adjustedPrixM2 *= 1.02;
+                    adjustments.push({ factor: 'SDB 2+', value: 0.02 });
+                }
+            }
+
+            if (form.type === 'Maison') {
+                const terrainMap = { 'Sans terrain': -0.03, '<200': -0.01, '200-500': 0, '500-1000': 0.02, '>1000': 0.04 };
+                const terrainAdj = terrainMap[form.terrain] || 0;
+                if (terrainAdj !== 0) {
+                    adjustedPrixM2 *= (1 + terrainAdj);
+                    adjustments.push({ factor: 'Terrain ' + form.terrain, value: terrainAdj });
+                }
+                const mitoyMap = { 'Non': 0, 'Semi': -0.03, 'Oui': -0.06 };
+                const mitoyAdj = mitoyMap[form.mitoy] || 0;
+                if (mitoyAdj !== 0) {
+                    adjustedPrixM2 *= (1 + mitoyAdj);
+                    adjustments.push({ factor: 'Mitoyenneté ' + form.mitoy, value: mitoyAdj });
+                }
+            }
+
+            const locScore = allData.score?.score_localisation || 50;
+            if (locScore < 40) {
+                adjustedPrixM2 *= 0.96;
+                adjustments.push({ factor: 'Score localisation faible', value: -0.04 });
+            } else if (locScore > 70) {
+                adjustedPrixM2 *= 1.04;
+                adjustments.push({ factor: 'Score localisation excellent', value: 0.04 });
+            }
+
+            let confidence = 70;
+            if (prixM2s.length > 30) confidence += 10;
+            else if (prixM2s.length < 10) confidence -= 10;
+            if (dvf[0]?.date_mutation && new Date(dvf[0].date_mutation).getTime() > Date.now() - 6 * 30 * 24 * 60 * 60 * 1000) confidence += 5;
+            else if (dvf[0]?.date_mutation && new Date(dvf[0].date_mutation).getTime() < Date.now() - 12 * 30 * 24 * 60 * 60 * 1000) confidence -= 10;
+            confidence = Math.min(95, Math.max(40, confidence));
+
+            const estimatedPrice = adjustedPrixM2 * form.surface;
+            const q1Price = newQ1 * form.surface;
+            const q3Price = newQ3 * form.surface;
+
+            return {
+                price: estimatedPrice,
+                prixM2: adjustedPrixM2,
+                q1: q1Price,
+                q3: q3Price,
+                median,
+                confidence,
+                nbComparables: prixM2s.length,
+                adjustments
+            };
+        }
+
+        // FORM VALIDATION
+        function getFormData() {
+            if (!_selectedGeo) {
+                showError('Veuillez sélectionner une adresse valide');
+                return null;
+            }
+            const typeBien = document.getElementById('typeBien').value;
+            const surface = parseInt(document.getElementById('surface').value);
+            const pieces = document.getElementById('pieces').value;
+            const dpe = document.getElementById('dpe').value;
+            const etat = document.getElementById('etatGeneral').value;
+
+            if (!typeBien || !surface || !pieces || !dpe || !etat) {
+                showError('Veuillez remplir tous les champs obligatoires');
+                return null;
+            }
+
+            const form = {
+                type: typeBien,
+                surface,
+                pieces,
+                dpe,
+                etat,
+                parking: document.getElementById('parking').checked,
+                balcon: document.getElementById('balcon').checked,
+                jardin: document.getElementById('jardin').checked,
+                vue: document.getElementById('vue').checked,
+                cave: document.getElementById('cave').checked
+            };
+
+            if (typeBien === 'Appartement') {
+                form.etage = document.getElementById('etage').value || '';
+                form.sdb = document.getElementById('sdb').value || '';
+                form.ascenseur = document.getElementById('ascenseur').checked;
+            } else {
+                form.terrain = document.getElementById('terrain').value || '';
+                form.mitoy = document.getElementById('mitoyennete').value || '';
+            }
+
+            return form;
+        }
+
+        // UI HELPERS
+        function showError(msg) {
+            const el = document.getElementById('errorMessage');
+            el.textContent = msg;
+            el.classList.add('show');
+            setTimeout(() => el.classList.remove('show'), 5000);
+        }
+
+        function hideError() {
+            document.getElementById('errorMessage').classList.remove('show');
+        }
+
+        function showLoading(show = true) {
+            document.getElementById('loading').classList.toggle('show', show);
+        }
+
+        // BAN AUTOCOMPLETE
+        let banTimeout;
+        document.getElementById('address').addEventListener('input', async (e) => {
+            const q = e.target.value;
+            clearTimeout(banTimeout);
+            if (q.length < 3) {
+                document.getElementById('autocompleteDropdown').classList.add('hidden');
+                return;
+            }
+            banTimeout = setTimeout(async () => {
+                try {
+                    const res = await fetch(BAN_URL + `?q=${encodeURIComponent(q)}&limit=5`);
+                    const data = await res.json();
+                    const dropdown = document.getElementById('autocompleteDropdown');
+                    dropdown.innerHTML = '';
+                    if (data.features && data.features.length > 0) {
+                        data.features.forEach(f => {
+                            const div = document.createElement('div');
+                            div.className = 'suggestion';
+                            div.textContent = f.properties.label;
+                            div.onclick = () => selectAddress(f.properties);
+                            dropdown.appendChild(div);
+                        });
+                        dropdown.classList.remove('hidden');
+                    } else {
+                        dropdown.classList.add('hidden');
+                    }
+                } catch (e) {
+                    console.error('BAN error:', e);
+                }
+            }, 300);
+        });
+
+        function selectAddress(props) {
+            _selectedGeo = {
+                citycode: props.citycode,
+                cp: props.postcode,
+                commune: props.city,
+                label: props.label,
+                lat: props.y,
+                lon: props.x
+            };
+            document.getElementById('address').value = props.label;
+            document.getElementById('autocompleteDropdown').classList.add('hidden');
+            hideError();
+        }
+
+        // TYPE BIEN CONDITIONAL
+        document.getElementById('typeBien').addEventListener('change', (e) => {
+            document.getElementById('apartmentFields').classList.toggle('hidden', e.target.value !== 'Appartement');
+            document.getElementById('houseFields').classList.toggle('hidden', e.target.value !== 'Maison');
+        });
+
+        // MOBILE BURGER
+        document.getElementById('burgerBtn').addEventListener('click', () => {
+            document.getElementById('navLinks').classList.toggle('active');
+        });
+
+        // FORM SUBMIT
+        document.getElementById('estimationForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            hideError();
+            const form = getFormData();
+            if (!form) return;
+
+            showLoading(true);
+            try {
+                const dvf = await fetchDVF(_selectedGeo.citycode, form.type);
+                let dvfToUse = dvf;
+                if (dvf.length < 15 && _selectedGeo.citycode.substring(0, 2)) {
+                    const fallback = await fetchDVFFallback(_selectedGeo.citycode.substring(0, 2), form.type);
+                    if (fallback.length > dvf.length) dvfToUse = fallback;
+                }
+
+                const allData = await fetchAllData(_selectedGeo.citycode, _selectedGeo.cp, form.type, _selectedGeo.citycode.substring(0, 2));
+                const estimation = calculateEstimation(dvfToUse, form, allData);
+
+                if (!estimation) {
+                    showError('Pas assez de données pour cette zone. Veuillez essayer une autre adresse.');
+                    showLoading(false);
+                    return;
+                }
+
+                _estimation = { ...estimation, form, geo: _selectedGeo, allData, dvf: dvfToUse };
+                displayResult();
+                displayTabs();
+                showLoading(false);
+                document.getElementById('resultHero').classList.add('show');
+                document.getElementById('tabsSection').classList.add('show');
+                document.getElementById('resultHero').scrollIntoView({ behavior: 'smooth' });
+            } catch (err) {
+                console.error('Error:', err);
+                showError('Erreur lors du calcul. Veuillez réessayer.');
+                showLoading(false);
+            }
+        });
+
+        // DISPLAY RESULT
+        function displayResult() {
+            const e = _estimation;
+            document.getElementById('resultHeader').textContent = `${e.form.type} - ${e.form.surface} m² - ${e.geo.commune}`;
+            document.getElementById('resultPrice').textContent = fmt(e.price);
+            document.getElementById('resultPrixM2').textContent = fmt(e.prixM2) + '/m²';
+            document.getElementById('resultQ1').textContent = fmt(e.q1);
+            document.getElementById('resultQ3').textContent = fmt(e.q3);
+            document.getElementById('resultConfidence').textContent = e.confidence.toFixed(0) + '%';
+
+            const confLevel = e.confidence >= 80 ? 'Très élevée' : e.confidence >= 60 ? 'Élevée' : 'Modérée';
+            const confTag = e.confidence >= 80 ? 'confidence-high' : e.confidence >= 60 ? 'confidence-medium' : 'confidence-low';
+            const tags = [
+                `<span class="tag">${e.nbComparables} comparables</span>`,
+                `<span class="tag ${confTag}">${confLevel}</span>`,
+                `<span class="tag">DPE ${e.form.dpe}</span>`,
+                `<span class="tag">Localisation: ${Math.round((e.allData.score?.score_localisation || 50) / 10) * 10}/100</span>`
+            ];
+            if (e.dvf.length < 30) tags.push('<span class="tag">Données partielles</span>');
+            document.getElementById('resultTags').innerHTML = tags.join('');
+        }
+
+        // TABS
+        document.querySelectorAll('.tab-button').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById(btn.dataset.tab).classList.add('active');
+            });
+        });
+
+        // DISPLAY TABS
+        function displayTabs() {
+            if (!_estimation) return;
+            const e = _estimation;
+            const d = e.allData;
+
+            // TAB 1: MARCHE LOCAL
+            const dvfByYear = {};
+            e.dvf.forEach(r => {
+                const y = r.date_mutation.substring(0, 4);
+                if (!dvfByYear[y]) dvfByYear[y] = [];
+                dvfByYear[y].push(r.valeur_fonciere / r.surface_reelle_bati);
+            });
+            const years = Object.keys(dvfByYear).sort();
+            const medians = years.map(y => dvfByYear[y].reduce((a, b) => a + b) / dvfByYear[y].length);
+            document.getElementById('km-prixMedian').textContent = fmt(e.median) + '/m²';
+            document.getElementById('km-evolution').textContent = years.length > 1 ? fmtP((medians[medians.length - 1] - medians[0]) / medians[0]) : '-';
+            document.getElementById('km-volume').textContent = fmtN(e.dvf.length);
+            document.getElementById('km-delai').textContent = e.confidence > 70 ? '30-45 jours' : '45-60 jours';
+            document.getElementById('km-population').textContent = fmtN(d.demo?.population_2024 || 0);
+            document.getElementById('km-densite').textContent = fmtN(d.demo?.densite_hab_km2 || 0);
+            document.getElementById('km-evolPop').textContent = d.demo?.evolution_pop_5ans_pct ? fmtP(d.demo.evolution_pop_5ans_pct / 100) : '-';
+            document.getElementById('km-ageMoyen').textContent = d.demo?.age_moyen ? fmtD(d.demo.age_moyen) : '-';
+
+            if (window.chartHistorique) window.chartHistorique.destroy();
+            const ctx = document.getElementById('chartHistorique').getContext('2d');
+            window.chartHistorique = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: years,
+                    datasets: [{
+                        label: 'Prix médian /m²',
+                        data: medians,
+                        borderColor: 'var(--accent)',
+                        backgroundColor: 'rgba(139, 115, 85, 0.1)',
+                        tension: 0.3,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: false } }
+                }
+            });
+
+            // Comparison table
+            const appts = e.dvf.filter(r => r.type_local === 'Appartement');
+            const maisons = e.dvf.filter(r => r.type_local === 'Maison');
+            const calcStats = (arr) => {
+                if (arr.length === 0) return { prixM2: 0, surface: 0, count: 0 };
+                const prixM2s = arr.map(r => r.valeur_fonciere / r.surface_reelle_bati);
+                return {
+                    prixM2: prixM2s.reduce((a, b) => a + b) / prixM2s.length,
+                    surface: arr.reduce((a, r) => a + r.surface_reelle_bati, 0) / arr.length,
+                    count: arr.length
+                };
+            };
+            const statsAppt = calcStats(appts);
+            const statsM = calcStats(maisons);
+            document.getElementById('tableComparaison').querySelector('tbody').innerHTML = `
+                <tr><td>Appartement</td><td>${fmt(statsAppt.prixM2)}</td><td>${fmtD(statsAppt.surface)} m²</td><td>${statsAppt.count}</td></tr>
+                <tr><td>Maison</td><td>${fmt(statsM.prixM2)}</td><td>${fmtD(statsM.surface)} m²</td><td>${statsM.count}</td></tr>
+            `;
+
+            // TAB 2: RENTABILITE
+            const loyerM2 = d.loyers?.[0]?.loyer_median_m2 || (e.median * 0.005);
+            const loyerMensuel = loyerM2 * e.form.surface;
+            const rendementBrut = (loyerMensuel * 12) / e.price;
+            document.getElementById('rent-loyerM2').textContent = fmt(loyerM2) + '/m²';
+            document.getElementById('rent-loyerMensuel').textContent = fmt(loyerMensuel);
+            document.getElementById('rent-rendementBrut').textContent = fmtP(rendementBrut);
+            const charges = loyerMensuel * 0.15;
+            const taxeFonciere = (e.price * (d.fiscal?.taux_taxe_fonciere_bati || 0.008)) / 12;
+            const rendementNet = (loyerMensuel - charges - taxeFonciere) * 12 / e.price;
+            document.getElementById('rent-rendementNet').textContent = fmtP(Math.max(0, rendementNet));
+            document.getElementById('rent-taxeFonciere').textContent = fmt((e.price * (d.fiscal?.taux_taxe_fonciere_bati || 0.008)));
+            document.getElementById('rent-budgetCommune').textContent = d.fiscal?.budget_commune_par_hab ? fmt(d.fiscal.budget_commune_par_hab) : '-';
+            document.getElementById('rent-dettePar').textContent = d.fiscal?.dette_commune_par_hab ? fmt(d.fiscal.dette_commune_par_hab) : '-';
+            document.getElementById('rent-revenus').textContent = d.index?.revenu_median_zone ? fmt(d.index.revenu_median_zone) : '-';
+            document.getElementById('rent-chomage').textContent = d.index?.taux_chomage_zone ? fmtP(d.index.taux_chomage_zone / 100) : '-';
+            document.getElementById('rent-proprio').textContent = d.index?.part_proprietaires_zone ? fmtP(d.index.part_proprietaires_zone / 100) : '-';
+            document.getElementById('rent-dynamisme').textContent = d.index?.indice_dynamisme_eco ? (d.index.indice_dynamisme_eco > 60 ? 'Bon' : 'Moyen') : '-';
+
+            // Simulation crédit
+            const updateCredit = () => {
+                const pourcent = parseInt(document.getElementById('sliderApport').value);
+                const montant = e.price * (1 - pourcent / 100);
+                const duree = parseInt(document.getElementById('sliderDuree').value);
+                const taux = parseFloat(document.getElementById('sliderTaux').value);
+                const mensualite = calcMensualite(montant, taux, duree * 12);
+                const coutTotal = mensualite * duree * 12;
+                const cashFlow = loyerMensuel - mensualite - charges;
+
+                document.getElementById('sliderMontantValue').textContent = fmt(montant);
+                document.getElementById('sliderDureeValue').textContent = duree + ' ans';
+                document.getElementById('sliderTauxValue').textContent = fmtD(taux, 1) + '%';
+                document.getElementById('sliderApportValue').textContent = pourcent + '%';
+                document.getElementById('rent-mensualite').textContent = fmt(mensualite);
+                document.getElementById('rent-coutTotal').textContent = fmt(coutTotal);
+                document.getElementById('rent-cashFlow').textContent = fmt(cashFlow);
+            };
+            document.getElementById('sliderMontant').addEventListener('input', updateCredit);
+            document.getElementById('sliderDuree').addEventListener('input', updateCredit);
+            document.getElementById('sliderTaux').addEventListener('input', updateCredit);
+            document.getElementById('sliderApport').addEventListener('input', updateCredit);
+            updateCredit();
+
+            // TAB 3: RENOVATION
+            const dpeColors = { A: 'dpe-A', B: 'dpe-B', C: 'dpe-C', D: 'dpe-D', E: 'dpe-E', F: 'dpe-F', G: 'dpe-G' };
+            if (e.form.dpe && e.form.dpe !== 'Non renseigné') {
+                document.getElementById('dpeBadge').textContent = e.form.dpe;
+                document.getElementById('dpeBadge').className = 'dpe-badge ' + dpeColors[e.form.dpe];
+                const impact = { A: '+6%', B: '+4%', C: '+2%', D: '0%', E: '-4%', F: '-8%', G: '-8%' };
+                document.getElementById('dpeImpact').textContent = 'Impact sur l\'estimation: ' + impact[e.form.dpe];
+            }
+            document.getElementById('ren-conso').textContent = d.dpe?.conso_moy_kwh_m2 ? fmtD(d.dpe.conso_moy_kwh_m2) + ' kWh/m²' : '-';
+            document.getElementById('ren-passoires').textContent = d.dpe?.pct_passoire ? fmtP(d.dpe.pct_passoire / 100) : '-';
+            document.getElementById('ren-zone').textContent = d.climat?.zone_climatique || '-';
+            document.getElementById('ren-temp').textContent = d.climat?.temperature_moy_annuelle ? fmtD(d.climat.temperature_moy_annuelle) + '°C' : '-';
+            document.getElementById('ren-ensoleillement').textContent = d.climat?.ensoleillement_h_an ? fmtN(d.climat.ensoleillement_h_an) + ' h' : '-';
+            document.getElementById('ren-dju').textContent = d.climat?.dju_chauffage ? fmtN(d.climat.dju_chauffage) : '-';
+            document.getElementById('ren-precip').textContent = d.climat?.precipitations_mm_an ? fmtD(d.climat.precipitations_mm_an) + ' mm' : '-';
+
+            if (['E', 'F', 'G'].includes(e.form.dpe) && e.form.dpe !== 'Non renseigné') {
+                document.getElementById('renovationSim').classList.remove('hidden');
+                const coutTravaux = e.price * 0.15;
+                const mpr = coutTravaux * 0.4;
+                const cee = coutTravaux * 0.2;
+                const rac = coutTravaux - mpr - cee;
+                const roi = (e.price * 0.08) / rac;
+                document.getElementById('ren-coutTravaux').textContent = fmt(coutTravaux);
+                document.getElementById('ren-mpr').textContent = fmt(mpr);
+                document.getElementById('ren-cee').textContent = fmt(cee);
+                document.getElementById('ren-rac').textContent = fmt(rac);
+                document.getElementById('ren-roi').textContent = fmtP(roi);
+                document.getElementById('ren-delai').textContent = fmtD(rac / 1000) + ' ans';
+                document.getElementById('ren-isolation-murs').textContent = fmt(coutTravaux * 0.3);
+                document.getElementById('ren-isolation-toit').textContent = fmt(coutTravaux * 0.2);
+                document.getElementById('ren-fenetes').textContent = fmt(coutTravaux * 0.2);
+                document.getElementById('ren-chauffage').textContent = fmt(coutTravaux * 0.2);
+                document.getElementById('ren-vmc').textContent = fmt(coutTravaux * 0.1);
+            }
+
+            if (window.chartDPE) window.chartDPE.destroy();
+            const dpeData = [
+                d.dpe?.pct_a || 0,
+                d.dpe?.pct_b || 0,
+                d.dpe?.pct_c || 0,
+                d.dpe?.pct_d || 0,
+                d.dpe?.pct_e || 0,
+                d.dpe?.pct_f || 0,
+                d.dpe?.pct_g || 0
+            ];
+            const ctxDpe = document.getElementById('chartDPE').getContext('2d');
+            window.chartDPE = new Chart(ctxDpe, {
+                type: 'bar',
+                data: {
+                    labels: ['A', 'B', 'C', 'D', 'E', 'F', 'G'],
+                    datasets: [{
+                        label: 'Répartition DPE',
+                        data: dpeData,
+                        backgroundColor: ['#2D8C4E', '#7DBE4D', '#F4C430', '#F5A623', '#FF6B35', '#E63946', '#8B0000']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+
+            // TAB 4: CADRE DE VIE
+            const score = d.score?.score_localisation || 50;
+            const scoreRatio = (score / 100) * 565.5;
+            document.getElementById('scoreRing').setAttribute('stroke-dasharray', `${scoreRatio} 565.5`);
+            document.getElementById('scoreValue').textContent = Math.round(score);
+            const breakdown = [
+                { id: 'acces', val: d.score?.score_accessibilite || 0 },
+                { id: 'secu', val: d.score?.score_securite || 0 },
+                { id: 'services', val: d.score?.score_services || 0 },
+                { id: 'risques', val: 100 - (d.score?.score_risques_naturels || 0) },
+                { id: 'dynamisme', val: d.score?.score_dynamisme || 0 }
+            ];
+            breakdown.forEach(b => {
+                document.getElementById(`break-${b.id}`).style.width = b.val + '%';
+                document.getElementById(`break-${b.id}-val`).textContent = Math.round(b.val);
+            });
+            document.getElementById('cdv-transport').textContent = d.poi?.score_transport || '-';
+            document.getElementById('cdv-education').textContent = d.poi?.score_education || '-';
+            document.getElementById('cdv-sante').textContent = d.poi?.score_sante || '-';
+            document.getElementById('cdv-commerce').textContent = d.poi?.score_commerce || '-';
+            document.getElementById('cdv-population').textContent = fmtN(d.demo?.population_2024 || 0);
+            document.getElementById('cdv-densite').textContent = fmtN(d.demo?.densite_hab_km2 || 0);
+            document.getElementById('cdv-menages').textContent = fmtN(d.demo?.nb_menages || 0);
+            document.getElementById('cdv-tailleMenage').textContent = fmtD(d.demo?.taille_menage_moy || 0, 1);
+            document.getElementById('cdv-couples').textContent = d.demo?.pct_couples_avec_enfants ? fmtP(d.demo.pct_couples_avec_enfants / 100) : '-';
+            document.getElementById('cdv-seules').textContent = d.demo?.pct_personnes_seules ? fmtP(d.demo.pct_personnes_seules / 100) : '-';
+            const schoolTypes = {};
+            d.schools.forEach(s => {
+                schoolTypes[s.type] = (schoolTypes[s.type] || 0) + 1;
+            });
+            document.getElementById('cdv-maternelle').textContent = schoolTypes['Maternelle'] || 0;
+            document.getElementById('cdv-elementaire').textContent = schoolTypes['Élémentaire'] || 0;
+            document.getElementById('cdv-college').textContent = schoolTypes['Collège'] || 0;
+            document.getElementById('cdv-lycee').textContent = schoolTypes['Lycée'] || 0;
+            const transportTypes = {};
+            d.transports.forEach(t => {
+                transportTypes[t.type_transport] = (transportTypes[t.type_transport] || 0) + 1;
+            });
+            const totalTransports = Object.values(transportTypes).reduce((a, b) => a + b, 0);
+            document.getElementById('cdv-arrets').textContent = totalTransports;
+            document.getElementById('cdv-gares').textContent = d.transports.filter(t => t.type_transport === 'SNCF').length || 0;
+            document.getElementById('cdv-description').textContent = d.wiki?.description || 'Aucune information disponible';
+            document.getElementById('cdv-points').textContent = d.wiki?.points_interet ? d.wiki.points_interet.join(', ') : 'Aucun point d\'intérêt';
+
+            // Qualité eau
+            const eauData = Array.isArray(d.eau) ? d.eau[0] : d.eau;
+            if (eauData) {
+                document.getElementById('tableEau').querySelector('tbody').innerHTML = `
+                    <tr><td>Conformité globale</td><td>${eauData.taux_conformite_global ? fmtD(eauData.taux_conformite_global) + '%' : '—'}</td><td>${eauData.taux_conformite_global >= 95 ? 'Conforme' : 'Attention'}</td></tr>
+                    <tr><td>Nitrates</td><td>${eauData.nitrates_mg_l ? fmtD(eauData.nitrates_mg_l) + ' mg/L' : '—'}</td><td>${eauData.nitrates_mg_l < 50 ? 'Conforme' : 'Non conforme'}</td></tr>
+                    <tr><td>Bactériologie</td><td>${eauData.conformite_bacterio ? 'Conforme' : 'Non conforme'}</td><td>${eauData.conformite_bacterio ? 'Conforme' : 'Non conforme'}</td></tr>
+                    <tr><td>Chimique</td><td>${eauData.conformite_chimique ? 'Conforme' : 'Non conforme'}</td><td>${eauData.conformite_chimique ? 'Conforme' : 'Non conforme'}</td></tr>
+                    <tr><td>Pesticides</td><td>${eauData.pesticides_detectes ? 'Détectés' : 'Non détectés'}</td><td>${eauData.pesticides_detectes ? 'Attention' : 'Conforme'}</td></tr>
+                    <tr><td>Plomb</td><td>${eauData.plomb_conforme ? 'Conforme' : 'Non conforme'}</td><td>${eauData.plomb_conforme ? 'Conforme' : 'Non conforme'}</td></tr>
+                    <tr><td>Dureté</td><td>${eauData.durete ? eauData.durete + ' mg CaCO₃/L' : '—'}</td><td>Info</td></tr>
+                `;
+            }
+
+            // TAB 5: RISQUES
+            document.getElementById('ris-inondation').textContent = d.risques?.risque_inondation ? 'Oui' : 'Non';
+            document.getElementById('ris-argile').textContent = d.risques?.risque_argile ? 'Oui' : 'Non';
+            document.getElementById('ris-seisme').textContent = ['—', 'Très faible', 'Faible', 'Modéré', 'Moyen', 'Fort'][d.risques?.risque_seisme || 0] || '—';
+            document.getElementById('ris-radon').textContent = ['—', 'Faible', 'Moyen', 'Élevé'][d.risques?.risque_radon || 0] || '—';
+            document.getElementById('ris-pprn').textContent = d.risques?.pprn_prescrit ? 'Oui' : 'Non';
+            document.getElementById('ris-pprt').textContent = d.risques?.pprt_prescrit ? 'Oui' : 'Non';
+            document.getElementById('ris-catnat').textContent = d.risques?.nb_catnat || 0;
+
+            const pluZones = {
+                U: parseFloat(d.plu?.pct_zone_u) || 0,
+                AU: parseFloat(d.plu?.pct_zone_au) || 0,
+                N: parseFloat(d.plu?.pct_zone_n) || 0,
+                A: parseFloat(d.plu?.pct_zone_a) || 0
+            };
+            const totalZone = Object.values(pluZones).reduce((a, b) => a + b, 0) || 1;
+            const maxZone = Math.max(...Object.values(pluZones));
+            const dominant = Object.entries(pluZones).find(([k, v]) => v === maxZone)?.[0] || (d.plu?.zone_dominante || '-');
+            const pluRatio = (maxZone / totalZone) * 502.6;
+            document.getElementById('pluRing').setAttribute('stroke-dasharray', `${pluRatio} 502.6`);
+            document.getElementById('pluLabel').textContent = dominant;
+            document.getElementById('ris-zonePLU').textContent = d.plu?.zone_dominante || dominant;
+            document.getElementById('ris-approbation').textContent = d.plu?.date_approbation || '-';
+            document.getElementById('ris-anneeConstruction').textContent = d.bdnb?.[0]?.annee_construction || '-';
+            document.getElementById('ris-materiau').textContent = d.bdnb?.[0]?.mat_mur_txt || '-';
+            document.getElementById('ris-chauffageType').textContent = d.bdnb?.[0]?.type_energie_chauffage || '-';
+            const sitadelRecent = d.sitadel?.filter(s => parseInt(s.an_depot) >= 2021).reduce((a, s) => a + (s.nb_lgt_tot_crees || 0), 0) || 0;
+            document.getElementById('ris-sitadelRecent').textContent = sitadelRecent;
+            const sitadelAvg = d.sitadel?.length > 0 ? Math.round(sitadelRecent / 3) : 0;
+            document.getElementById('ris-sitadelRate').textContent = sitadelAvg + '/an';
+
+            // Marchés publics
+            const deptCode = e.geo.citycode.substring(0, 2);
+            const marchesFiltered = (d.marches || []).filter(m => m.lieu_exec_code?.startsWith(deptCode)).slice(0, 5);
+            if (marchesFiltered.length > 0) {
+                document.getElementById('tableMarchesPublics').querySelector('tbody').innerHTML = marchesFiltered.map(m => `
+                    <tr><td>${m.objet?.substring(0, 40) || '-'}</td><td>${fmt(m.montant || 0)}</td><td>${m.date_notification?.substring?.(0, 10) || '-'}</td></tr>
+                `).join('');
+            } else {
+                document.getElementById('tableMarchesPublics').querySelector('tbody').innerHTML = '<tr><td colspan="3">Aucun marché récent</td></tr>';
+            }
+
+            // TAB 6: METHODOLOGIE
+            const adjTable = document.getElementById('adjustmentTable').querySelector('tbody');
+            adjTable.innerHTML = `
+                <tr><td>Prix/m² marché (médian)</td><td>${fmt(e.median)}</td><td>Base</td></tr>
+                ${e.adjustments.map(a => `<tr><td>${a.factor}</td><td>×${(1 + a.value).toFixed(3)}</td><td>${fmtP(a.value)}</td></tr>`).join('')}
+                <tr style="font-weight: 600; border-top: 2px solid var(--border);"><td>Prix/m² ajusté</td><td>${fmt(e.prixM2)}</td><td>Estimé</td></tr>
+            `;
+        }
+    </script>
 </body>
 </html>
