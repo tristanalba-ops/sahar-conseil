@@ -2052,7 +2052,7 @@
             document.getElementById('km-evolPop').textContent = d.demo?.evolution_pop_5ans_pct ? fmtP(d.demo.evolution_pop_5ans_pct / 100) : '-';
             document.getElementById('km-ageMoyen').textContent = d.demo?.age_moyen ? fmtD(d.demo.age_moyen) : '-';
 
-            if (window.chartHistorique) window.chartHistorique.destroy();
+            if (window.chartHistorique && typeof window.chartHistorique.destroy === 'function') window.chartHistorique.destroy();
             const ctx = document.getElementById('chartHistorique').getContext('2d');
             window.chartHistorique = new Chart(ctx, {
                 type: 'line',
@@ -2173,7 +2173,7 @@
                 document.getElementById('ren-vmc').textContent = fmt(coutTravaux * 0.1);
             }
 
-            if (window.chartDPE) window.chartDPE.destroy();
+            if (window.chartDPE && typeof window.chartDPE.destroy === 'function') window.chartDPE.destroy();
             const dpeData = [
                 d.dpe?.pct_a || 0,
                 d.dpe?.pct_b || 0,
