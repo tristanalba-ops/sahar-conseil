@@ -1,4 +1,4 @@
-# Back-Test OOT XGBoost Prix/m² — SAHAR v2
+# Back-Test OOT XGBoost Prix/m² — Intent Analytics v2
 
 **Généré le :** 2026-04-03T12:46:46Z
 **Version :** v2 — jointures réelles sur tables Supabase (iris_demographics, dpe_commune_agg, poi_scores_commune, data_demographie_commune)

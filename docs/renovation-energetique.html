@@ -727,7 +727,6 @@
     <li><a href="/methodologie">Méthodologie</a></li>
     <li><a href="/explorations">Explorations</a></li>
     <li><a href="/renovation-energetique">Rénovation énergétique</a></li>
-    <li><a href="/documentation">Documentation</a></li>
     <li><a href="/a-propos">À propos</a></li>
   </ul>
 </nav>
@@ -768,7 +767,7 @@
         <div class="dpe-stat">Consommation: <strong id="dpe-kwhm2">0</strong> kWh/m²</div>
         <div class="dpe-stat">Zone: <strong id="dpe-zone">IDF</strong></div>
         <div class="dpe-confidence" id="dpe-confidence-text">DPE trouvé pour cette adresse</div>
-        <div style="font-size: 0.75rem; color: var(--text-gray); margin-top: 0.8rem; font-style: italic;">DPE ADEME — base address_profile SAHAR Conseil</div>
+        <div style="font-size: 0.75rem; color: var(--text-gray); margin-top: 0.8rem; font-style: italic;">DPE ADEME — base address_profile Intent Analytics</div>
       </div>
       <div class="dpe-dist">
         <h4>Distribution locale</h4>
@@ -962,7 +961,7 @@
       <h5>Sources des données</h5>
       <div>• Barèmes MaPrimeRénov': Guide des aides financières ANAH, février 2026, p.16-18</div>
       <div>• Coûts travaux: Observatoire ADEME 2026</div>
-      <div>• DPE: Base ADEME via SAHAR Conseil</div>
+      <div>• DPE: Base ADEME via Intent Analytics</div>
       <div>• Barèmes revenus: Guide ANAH 2026, p.8</div>
       <div>• CEE estimés: barèmes de récupération 2026</div>
     </div>
@@ -1000,7 +999,7 @@
 
 <!-- FOOTER -->
 <footer>
-  <p style="margin-bottom: 1rem;">SAHAR Conseil — Données ouvertes françaises</p>
+  <p style="margin-bottom: 1rem;">Intent Analytics — Données ouvertes françaises</p>
   <div class="footer-legal">
     <a href="/legal/mentions-legales">Mentions légales</a> —
     <a href="/legal/cgu">CGU</a> —
@@ -1016,6 +1015,15 @@
 const SUPA_URL = "https://wwvdpixzfaviaapixarb.supabase.co";
 const SUPA_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3dmRwaXh6ZmF2aWFhcGl4YXJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3Mzk0NDgsImV4cCI6MjA5MDMxNTQ0OH0.NjOeWzUCo2BJPcxnkEJNm215GJBr1RAHba1eL_EF758";
 const BAN_URL = "https://api-adresse.data.gouv.fr/search/";
+
+function showError(msg) {
+  const box = document.getElementById('error-box');
+  if (box) {
+    box.textContent = msg;
+    box.classList.add('visible');
+    setTimeout(() => box.classList.remove('visible'), 5000);
+  }
+}
 
 async function supaFetch(table, params) {
   const qs = new URLSearchParams(params).toString();
