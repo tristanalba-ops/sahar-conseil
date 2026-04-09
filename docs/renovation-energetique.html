@@ -888,10 +888,23 @@
       </div>
     </div>
 
-    <!-- Aides locales -->
-    <div class="detail-section" style="background: rgba(0, 220, 130, 0.03); border-color: rgba(0, 220, 130, 0.2);">
-      <h4>Aides locales et complémentaires</h4>
-      <p style="font-size: 0.9rem; color: var(--text-gray); line-height: 1.8;">Consultez les aides spécifiques de votre région et commune sur <a href="https://france-renov.gouv.fr/aides/collectivites-locales" target="_blank" rel="noopener">France Rénov' — Aides des collectivités</a>. Des subventions régionales, départementales ou communales peuvent compléter ces aides nationales.</p>
+    <!-- Aides locales (dynamique) -->
+    <div id="aides-locales-section" class="detail-section" style="background: rgba(0, 220, 130, 0.03); border-color: rgba(0, 220, 130, 0.2);">
+      <h4 style="display: flex; align-items: center; gap: 0.5rem;">
+        Aides locales disponibles
+        <span id="aides-locales-count" style="background: var(--accent-green); color: #000; font-size: 0.75rem; padding: 2px 8px; border-radius: 10px; font-weight: 700; display: none;">0</span>
+      </h4>
+      <div id="aides-locales-loading" style="display: none; font-size: 0.9rem; color: var(--text-gray);">Recherche des aides pour votre territoire...</div>
+      <div id="aides-locales-list"></div>
+      <div id="aides-locales-total" style="display: none; border-top: 1px solid rgba(0, 220, 130, 0.3); padding-top: 0.8rem; margin-top: 0.8rem;">
+        <div class="detail-row">
+          <span class="detail-label" style="font-weight: 700; color: var(--accent-green);">Total aides locales estimé</span>
+          <span class="detail-value" style="color: var(--accent-green);" id="aides-locales-montant">0 €</span>
+        </div>
+        <div style="font-size: 0.8rem; color: var(--text-gray); margin-top: 0.3rem;">Montants indicatifs — vérifiez l'éligibilité auprès de chaque organisme</div>
+      </div>
+      <p id="aides-locales-empty" style="display: none; font-size: 0.9rem; color: var(--text-gray); line-height: 1.8;">Aucune aide locale identifiée pour votre territoire dans notre base. D'autres aides peuvent exister : consultez <a href="https://france-renov.gouv.fr/aides/collectivites-locales" target="_blank" rel="noopener">France Rénov'</a> ou <a href="https://www.anil.org/aides-locales-travaux/" target="_blank" rel="noopener">ANIL</a>.</p>
+      <p style="font-size: 0.8rem; color: var(--text-gray); margin-top: 0.5rem;">Sources : sites officiels des collectivités, ANAH, France Rénov'. Données vérifiées avril 2026.</p>
     </div>
 
     <!-- Crêtement -->
@@ -1011,6 +1024,119 @@ async function supaFetch(table, params) {
   });
   if (!r.ok) return [];
   return r.json();
+}
+
+// ─── AIDES LOCALES ───
+let aidesLocalesCache = [];
+
+async function fetchAidesLocales(codeDept, codeCommune, codePostal) {
+  document.getElementById('aides-locales-loading').style.display = 'block';
+  document.getElementById('aides-locales-list').innerHTML = '';
+  document.getElementById('aides-locales-empty').style.display = 'none';
+  document.getElementById('aides-locales-total').style.display = 'none';
+  document.getElementById('aides-locales-count').style.display = 'none';
+
+  // Récupérer le code_region via ref_region_departement
+  let codeRegion = null;
+  try {
+    const rdRows = await supaFetch('ref_region_departement', {
+      select: 'code_region',
+      code_departement: `eq.${codeDept}`,
+      limit: 1
+    });
+    if (rdRows.length > 0) codeRegion = rdRows[0].code_region;
+  } catch(e) {}
+
+  // Construire le filtre OR : region, departement, commune
+  const filters = [];
+  if (codeRegion) filters.push(`and(niveau.eq.region,code_region.eq.${codeRegion})`);
+  filters.push(`and(niveau.eq.departement,code_departement.eq.${codeDept})`);
+  if (codeCommune) filters.push(`and(niveau.eq.commune,code_commune.eq.${codeCommune})`);
+  // EPCI : on matche via département pour l'instant (pas de code EPCI côté client)
+  if (codeDept) filters.push(`and(niveau.eq.epci,code_departement.eq.${codeDept})`);
+
+  const orFilter = `or(${filters.join(',')})`;
+
+  try {
+    const aides = await supaFetch('aides_locales_renovation', {
+      select: '*',
+      actif: 'eq.true',
+      or: `(${filters.join(',')})`,
+      order: 'niveau.asc,montant_max.desc.nullslast'
+    });
+
+    aidesLocalesCache = aides;
+    renderAidesLocales(aides);
+  } catch(e) {
+    console.error('Erreur aides locales:', e);
+    aidesLocalesCache = [];
+  }
+  document.getElementById('aides-locales-loading').style.display = 'none';
+}
+
+function renderAidesLocales(aides) {
+  const list = document.getElementById('aides-locales-list');
+  const countBadge = document.getElementById('aides-locales-count');
+  const totalDiv = document.getElementById('aides-locales-total');
+  const emptyDiv = document.getElementById('aides-locales-empty');
+
+  if (!aides || aides.length === 0) {
+    emptyDiv.style.display = 'block';
+    return;
+  }
+
+  countBadge.textContent = aides.length;
+  countBadge.style.display = 'inline';
+
+  let totalEstime = 0;
+  const niveauLabels = { region: '🏛 Région', departement: '🏢 Département', epci: '🏙 Métropole/EPCI', commune: '🏠 Commune' };
+
+  list.innerHTML = aides.map(a => {
+    let montantStr = '';
+    if (a.montant_fixe) {
+      montantStr = `${a.montant_fixe.toLocaleString('fr-FR')} €`;
+      totalEstime += a.montant_fixe;
+    } else if (a.montant_max) {
+      montantStr = a.montant_min ? `${a.montant_min.toLocaleString('fr-FR')} à ${a.montant_max.toLocaleString('fr-FR')} €` : `jusqu'à ${a.montant_max.toLocaleString('fr-FR')} €`;
+      totalEstime += (a.montant_min || a.montant_max * 0.5);
+    } else if (a.taux_pct) {
+      montantStr = `${a.taux_pct}% du coût HT`;
+    } else {
+      montantStr = 'Montant variable';
+    }
+
+    const niv = niveauLabels[a.niveau] || a.niveau;
+    const org = a.nom_region || a.nom_departement || a.nom_epci || a.nom_commune || a.organisme_financeur;
+    const conditions = [a.conditions_revenus, a.conditions_logement, a.conditions_travaux, a.conditions_autres].filter(Boolean).join(' · ');
+
+    return `<div style="padding: 0.8rem 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem;">
+        <div>
+          <div style="font-weight: 600; color: #fff; font-size: 0.95rem;">${a.nom_aide}</div>
+          <div style="font-size: 0.8rem; color: var(--text-gray); margin-top: 2px;">${niv} · ${org}</div>
+          ${conditions ? `<div style="font-size: 0.78rem; color: var(--text-gray); margin-top: 4px; opacity: 0.8;">${conditions}</div>` : ''}
+        </div>
+        <div style="text-align: right; white-space: nowrap;">
+          <div style="font-weight: 700; color: var(--accent-green); font-size: 1rem;">${montantStr}</div>
+          ${a.source_url ? `<a href="${a.source_url}" target="_blank" rel="noopener" style="font-size: 0.75rem; color: var(--accent-green); opacity: 0.7;">Source ↗</a>` : ''}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  if (totalEstime > 0) {
+    totalDiv.style.display = 'block';
+    document.getElementById('aides-locales-montant').textContent = `~${Math.round(totalEstime).toLocaleString('fr-FR')} €`;
+  }
+}
+
+function getAidesLocalesTotalEstime() {
+  let total = 0;
+  aidesLocalesCache.forEach(a => {
+    if (a.montant_fixe) total += a.montant_fixe;
+    else if (a.montant_max) total += (a.montant_min || a.montant_max * 0.5);
+  });
+  return total;
 }
 
 // ─── DATA STORAGE ───
@@ -1333,6 +1459,12 @@ function proceedToStep4() {
   document.getElementById('step3').style.opacity = '0.5';
   document.getElementById('step3').style.pointerEvents = 'none';
   calculateResults(startTime);
+
+  // Charger les aides locales en parallèle
+  const codeDept = selectedAddress.cp.substring(0, 2);
+  const codeCommune = selectedAddress.citycode;
+  fetchAidesLocales(codeDept, codeCommune, selectedAddress.cp);
+
   document.getElementById('step4').classList.add('visible');
   window.scrollTo(0, document.getElementById('step4').offsetTop - 100);
 }
@@ -1542,6 +1674,12 @@ async function saveSimulation(startTime, totalCostHT, tva5, totalMpr, cee, tvaSa
     roi_annees: roi < 100 ? roi : 100,
     score_confiance: confScore,
     taux_ecretement_applique: Math.round(ecretementApplied * 100),
+    aides_locales_total: Math.round(getAidesLocalesTotalEstime()),
+    aides_locales_detail: JSON.stringify(aidesLocalesCache.map(a => ({
+      id: a.id, nom: a.nom_aide, niveau: a.niveau, organisme: a.organisme_financeur,
+      montant_fixe: a.montant_fixe, montant_min: a.montant_min, montant_max: a.montant_max,
+      taux_pct: a.taux_pct, source: a.source_url
+    }))),
     version_baremes: '2026-02',
     processing_time_ms: processingTime,
     created_at: new Date().toISOString()
@@ -1589,57 +1727,4 @@ async function submitLead() {
       consent_contact: consent,
       consent_date: new Date().toISOString(),
       source: 'renovation-energetique',
-      user_agent: navigator.userAgent,
-      ip_hash: null
-    };
-
-    const r = await fetch(`${SUPA_URL}/rest/v1/renovation_leads`, {
-      method: 'POST',
-      headers: {
-        'apikey': SUPA_ANON,
-        'Authorization': `Bearer ${SUPA_ANON}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(leadData)
-    });
-
-    if (r.ok) {
-      const lead = await r.json();
-      const leadId = lead[0]?.id;
-
-      // Update simulation with lead_id if we have one
-      if (lastSimulationId && leadId) {
-        await fetch(`${SUPA_URL}/rest/v1/renovation_simulation_requests?session_id=eq.${lastSimulationId}`, {
-          method: 'PATCH',
-          headers: {
-            'apikey': SUPA_ANON,
-            'Authorization': `Bearer ${SUPA_ANON}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ lead_id: leadId })
-        });
-      }
-
-      alert('Merci! Nous vous recontacterons bientôt avec votre bilan personnalisé.');
-      document.getElementById('lead-nom').value = '';
-      document.getElementById('lead-email').value = '';
-      document.getElementById('lead-tel').value = '';
-      document.getElementById('lead-consent').checked = false;
-    } else {
-      showError('Erreur lors de l\'envoi du formulaire');
-    }
-  } catch (e) {
-    showError('Erreur réseau: ' + e.message);
-  }
-}
-
-function showError(msg) {
-  const box = document.getElementById('error-box');
-  box.textContent = msg;
-  box.classList.add('visible');
-  setTimeout(() => box.classList.remove('visible'), 5000);
-}
-</script>
-
-</body>
-</html>
+ 
