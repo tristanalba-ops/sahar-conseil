@@ -989,7 +989,7 @@
     <div class="checkboxes" style="margin-top: 1.5rem;">
       <label>
         <input type="checkbox" id="lead-consent" />
-        J'accepte d'être recontacté pour un accompagnement personnalisé
+        J'accepte les <a href="/legal/cgu" target="_blank">conditions générales d'utilisation</a> de Intent Analytics
       </label>
     </div>
     <button class="btn-primary" onclick="submitLead()">Recevoir mon bilan</button>
@@ -1735,9 +1735,7 @@ async function submitLead() {
       consent_contact: consent,
       consent_date: new Date().toISOString(),
       source: 'renovation-energetique',
-      simulation_id: lastSimulationId,
-      code_postal: selectedAddress?.cp || null,
-      code_commune: selectedAddress?.citycode || null
+      statut: 'nouveau'
     };
 
     const r = await fetch(`${SUPA_URL}/rest/v1/renovation_leads`, {
