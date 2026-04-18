@@ -1,462 +1,309 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta http-equiv="X-Content-Type-Options" content="nosniff" />
-  <meta http-equiv="X-Frame-Options" content="SAMEORIGIN" />
-  <meta name="referrer" content="strict-origin-when-cross-origin" />
-  <title>Intent Analytics — Exploration de données publiques françaises</title>
-  <meta name="description" content="Projet expérimental d'analyse et de visualisation de données ouvertes françaises : transactions immobilières DVF, diagnostics énergétiques DPE, équipements et démographie INSEE." />
-  <link rel="canonical" href="https://intentanalytics.fr/" />
-  <meta name="robots" content="noindex, nofollow" />
-
-  <meta name="geo.region" content="FR" />
-  <meta name="language" content="fr" />
-  <meta name="author" content="Intent Analytics" />
-  <meta name="keywords" content="open data, données publiques, DVF, DPE ADEME, INSEE, exploration données, analyse statistique, data science, France" />
-
-  <meta property="og:title" content="Intent Analytics — Exploration de données publiques françaises" />
-  <meta property="og:description" content="Projet expérimental d'analyse et de visualisation de données ouvertes françaises : DVF, DPE ADEME, INSEE." />
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://intentanalytics.fr/" />
-  <meta property="og:locale" content="fr_FR" />
-  <meta property="og:site_name" content="Intent Analytics" />
-
-  <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="Intent Analytics — Exploration de données publiques" />
-  <meta name="twitter:description" content="Projet expérimental autour des open data françaises : DVF, DPE, INSEE." />
-
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    "name": "Intent Analytics",
-    "url": "https://intentanalytics.fr",
-    "description": "Projet expérimental d'exploration de données publiques françaises."
-  }
-  </script>
-
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%2300DC82'/><text y='.9em' font-size='75' x='12'>IA</text></svg>" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet" />
-
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    :root {
-      --dark-bg: #0D0D0D;
-      --dark-bg-light: #1A1A2E;
-      --accent-green: #00DC82;
-      --text-white: #FFFFFF;
-      --text-gray: #A0A0A0;
-      --border-color: #2A2A3E;
-    }
-
-    body {
-      font-family: 'Inter', sans-serif;
-      background: var(--dark-bg);
-      color: var(--text-white);
-      line-height: 1.6;
-    }
-
-    /* NAV */
-    nav {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 1.2rem 5%;
-      background: rgba(13, 13, 13, 0.95);
-      backdrop-filter: blur(10px);
-      border-bottom: 1px solid var(--border-color);
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-
-    .nav-logo {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 1.35rem;
-      font-weight: 700;
-      color: var(--accent-green);
-      text-decoration: none;
-    }
-
-    .nav-links {
-      display: flex;
-      gap: 2rem;
-      list-style: none;
-      align-items: center;
-    }
-
-    .nav-links a {
-      color: var(--text-white);
-      text-decoration: none;
-      font-size: 0.9rem;
-      transition: color 0.2s;
-    }
-
-    .nav-links a:hover { color: var(--accent-green); }
-
-    /* HERO */
-    .hero {
-      padding: 8rem 5% 6rem;
-      text-align: center;
-      max-width: 900px;
-      margin: 0 auto;
-    }
-
-    .hero h1 {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: clamp(2.5rem, 5vw, 3.8rem);
-      font-weight: 700;
-      line-height: 1.1;
-      margin-bottom: 1.5rem;
-    }
-
-    .hero h1 span { color: var(--accent-green); }
-
-    .hero-sub {
-      font-size: 1.15rem;
-      color: var(--text-gray);
-      max-width: 700px;
-      margin: 0 auto 2.5rem;
-      line-height: 1.8;
-    }
-
-    .hero-link {
-      display: inline-block;
-      color: var(--accent-green);
-      font-weight: 600;
-      text-decoration: none;
-      font-size: 1rem;
-      border-bottom: 2px solid transparent;
-      transition: border-color 0.2s;
-    }
-
-    .hero-link:hover { border-color: var(--accent-green); }
-
-    /* DATA CARDS */
-    .data-section {
-      padding: 5rem 5%;
-      border-top: 1px solid var(--border-color);
-    }
-
-    .section-header {
-      text-align: center;
-      margin-bottom: 3rem;
-    }
-
-    .section-label {
-      font-size: 0.75rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.15em;
-      color: var(--accent-green);
-      margin-bottom: 0.75rem;
-    }
-
-    .section-title {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: clamp(1.8rem, 4vw, 2.5rem);
-      font-weight: 700;
-      margin-bottom: 1rem;
-    }
-
-    .section-sub {
-      font-size: 1rem;
-      color: var(--text-gray);
-      max-width: 600px;
-      margin: 0 auto;
-    }
-
-    .data-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 1.5rem;
-      max-width: 1100px;
-      margin: 0 auto;
-    }
-
-    .data-card {
-      background: rgba(26, 26, 46, 0.5);
-      border: 1px solid var(--border-color);
-      border-radius: 16px;
-      padding: 2rem;
-      transition: all 0.3s;
-    }
-
-    .data-card:hover {
-      border-color: rgba(0, 220, 130, 0.3);
-      background: rgba(26, 26, 46, 0.8);
-    }
-
-    .data-card-icon {
-      font-size: 2rem;
-      margin-bottom: 1rem;
-    }
-
-    .data-card-name {
-      font-family: 'Space Grotesk', sans-serif;
-      font-weight: 700;
-      font-size: 1.05rem;
-      margin-bottom: 0.5rem;
-    }
-
-    .data-card-vol {
-      font-size: 0.8rem;
-      color: var(--accent-green);
-      font-weight: 600;
-      margin-bottom: 0.75rem;
-    }
-
-    .data-card-desc {
-      font-size: 0.88rem;
-      color: var(--text-gray);
-      line-height: 1.6;
-    }
-
-    /* EXPLORATIONS */
-    .explorations-section {
-      padding: 5rem 5%;
-      background: var(--dark-bg-light);
-      border-top: 1px solid var(--border-color);
-      border-bottom: 1px solid var(--border-color);
-    }
-
-    .exploration-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 1.5rem;
-      max-width: 1100px;
-      margin: 0 auto;
-    }
-
-    .exploration-card {
-      background: rgba(13, 13, 13, 0.6);
-      border: 1px solid var(--border-color);
-      border-top: 3px solid var(--accent-green);
-      border-radius: 16px;
-      padding: 2rem;
-      transition: all 0.3s;
-    }
-
-    .exploration-card:hover {
-      transform: translateY(-4px);
-      border-color: rgba(0, 220, 130, 0.3);
-      border-top-color: var(--accent-green);
-    }
-
-    .exploration-badge {
-      display: inline-block;
-      font-size: 0.7rem;
-      font-weight: 700;
-      padding: 0.3rem 0.8rem;
-      border-radius: 100px;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-bottom: 1rem;
-    }
-
-    .badge-live {
-      background: rgba(0, 220, 130, 0.15);
-      color: var(--accent-green);
-    }
-
-    .badge-wip {
-      background: rgba(160, 160, 160, 0.15);
-      color: var(--text-gray);
-    }
-
-    .exploration-title {
-      font-family: 'Space Grotesk', sans-serif;
-      font-weight: 700;
-      font-size: 1.05rem;
-      margin-bottom: 0.75rem;
-    }
-
-    .exploration-desc {
-      font-size: 0.88rem;
-      color: var(--text-gray);
-      line-height: 1.6;
-      margin-bottom: 1rem;
-    }
-
-    .exploration-source {
-      font-size: 0.78rem;
-      color: var(--accent-green);
-      font-weight: 600;
-    }
-
-    /* METHODO PREVIEW */
-    .methodo-section {
-      padding: 5rem 5%;
-    }
-
-    .methodo-content {
-      max-width: 800px;
-      margin: 0 auto;
-      text-align: center;
-    }
-
-    .methodo-text {
-      font-size: 1.05rem;
-      color: var(--text-gray);
-      line-height: 1.8;
-      margin-bottom: 2rem;
-    }
-
-    /* FOOTER */
-    footer {
-      padding: 3rem 5%;
-      border-top: 1px solid var(--border-color);
-      text-align: center;
-      font-size: 0.85rem;
-      color: var(--text-gray);
-    }
-
-    footer a {
-      color: var(--text-gray);
-      text-decoration: none;
-      transition: color 0.2s;
-    }
-
-    footer a:hover { color: var(--accent-green); }
-
-    .footer-email {
-      color: var(--accent-green);
-      margin: 0.75rem 0;
-      display: block;
-    }
-
-    .footer-legal {
-      margin: 0.75rem 0;
-    }
-
-    .footer-copy {
-      margin-top: 1rem;
-      font-size: 0.78rem;
-      color: rgba(160, 160, 160, 0.6);
-    }
-
-    /* MOBILE */
-    @media (max-width: 768px) {
-      .nav-links { display: none; }
-      .hero { padding: 5rem 5% 4rem; }
-      .data-grid, .exploration-grid { grid-template-columns: 1fr; }
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Intent Analytics — La donnée publique française, rendue lisible.</title>
+<meta name="description" content="Sept référentiels ouverts français — DVF, DPE, BDNB, BAN, BPE, IRIS, Cadastre — croisés en un socle unique." />
+<meta name="robots" content="noindex, nofollow" />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect width='24' height='24' rx='5' fill='black'/><path d='M6 17V7l6 6 6-6v10' stroke='white' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Inter+Tight:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="./assets/style.css" />
 </head>
 <body>
 
-  <!-- NAV -->
-  <nav>
-    <a href="/" class="nav-logo">Intent Analytics</a>
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="./index.html" class="brand">
+      <span class="brand-mark"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 17V7l6 6 6-6v10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      Intent Analytics
+    </a>
     <ul class="nav-links">
-      <li><a href="/projet">Le projet</a></li>
-      <li><a href="/donnees">Données</a></li>
-      <li><a href="/methodologie">Méthodologie</a></li>
-      <li><a href="/explorations">Explorations</a></li>
-      <li><a href="/renovation-energetique">Rénovation énergétique</a></li>
-      <li><a href="/a-propos">À propos</a></li>
+      <li><a href="./index.html" class="active">Accueil</a></li>
+      <li><a href="./projet.html">Projet</a></li>
+      <li><a href="./donnees.html">Données</a></li>
+      <li><a href="./methodologie.html">Méthodologie</a></li>
+      <li><a href="./explorations.html">Explorations</a></li>
+      <li><a href="./renovation-energetique.html">Rénovation</a></li>
     </ul>
-  </nav>
+    <div class="nav-actions">
+      <a href="./a-propos.html" class="btn">À propos</a>
+      <a href="./explorations.html" class="btn btn-primary">Explorer<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M7 7h10v10"/></svg></a>
+    </div>
+    <button class="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+  </div>
+</nav>
 
-  <!-- HERO -->
-  <section class="hero">
-    <h1><span>Intent Analytics</span></h1>
-    <p class="hero-sub">
-      Exploration de données publiques françaises.
-      Transactions immobilières (DVF), diagnostics de performance énergétique (DPE ADEME),
-      équipements et démographie (INSEE). Ce projet les croise et les rend lisibles.
+<div class="mobile-overlay"></div>
+<aside class="mobile-drawer" aria-label="Menu">
+  <button class="mobile-close" aria-label="Fermer">✕</button>
+  <a href="./index.html">Accueil</a>
+  <a href="./projet.html">Projet</a>
+  <a href="./donnees.html">Données</a>
+  <a href="./methodologie.html">Méthodologie</a>
+  <a href="./explorations.html">Explorations</a>
+  <a href="./renovation-energetique.html">Rénovation</a>
+  <a href="./a-propos.html">À propos</a>
+</aside>
+
+<section class="hero">
+  <div class="hero-inner">
+    <div class="tag-live reveal">
+      <span class="dot"></span>
+      <span>Pipeline actif</span>
+      <span>— 163 M d'enregistrements indexés</span>
+    </div>
+    <h1 class="reveal" data-delay="1">
+      La donnée publique française,<br><span class="accent">rendue lisible.</span>
+    </h1>
+    <p class="hero-sub reveal" data-delay="2">
+      Sept référentiels ouverts — <strong>DVF, DPE, BDNB, BAN, BPE, IRIS, Cadastre</strong> — collectés, nettoyés, géocodés et croisés en un socle unique. Une seule lecture pour tout un territoire.
     </p>
-    <a href="/projet" class="hero-link">En savoir plus sur le projet →</a>
-  </section>
+    <div class="hero-cta reveal" data-delay="3">
+      <a href="./donnees.html" class="btn btn-primary btn-lg">Voir les données<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a>
+      <a href="./methodologie.html" class="btn btn-lg">Méthodologie</a>
+    </div>
 
-  <!-- DONNÉES TRAITÉES -->
-  <section class="data-section">
-    <div class="section-header">
-      <div class="section-label">Sources</div>
-      <h2 class="section-title">Données traitées</h2>
+    <div class="hero-metrics reveal" data-delay="4">
+      <div class="m"><div class="m-val">23,6 M</div><div class="m-label">Adresses BAN</div><div class="m-sub">101 / 101 dépts</div></div>
+      <div class="m"><div class="m-val">12,2 M</div><div class="m-label">Transactions DVF</div><div class="m-sub">2014 — 2025</div></div>
+      <div class="m"><div class="m-val">14,6 M</div><div class="m-label">Diagnostics DPE</div><div class="m-sub">2013 — 2026</div></div>
+      <div class="m"><div class="m-val">95 M</div><div class="m-label">Parcelles cadastrales</div><div class="m-sub">16 979 communes</div></div>
     </div>
-    <div class="data-grid">
-      <div class="data-card">
-        <div class="data-card-icon">📊</div>
-        <div class="data-card-name">DVF</div>
-        <div class="data-card-desc">Transactions immobilières</div>
-      </div>
-      <div class="data-card">
-        <div class="data-card-icon">⚡</div>
-        <div class="data-card-name">DPE</div>
-        <div class="data-card-desc">Diagnostics énergétiques</div>
-      </div>
-      <div class="data-card">
-        <div class="data-card-icon">🏗️</div>
-        <div class="data-card-name">BPE</div>
-        <div class="data-card-desc">Équipements et services</div>
-      </div>
-      <div class="data-card">
-        <div class="data-card-icon">📍</div>
-        <div class="data-card-name">BAN</div>
-        <div class="data-card-desc">Adresses géocodées</div>
-      </div>
-    </div>
-  </section>
+  </div>
+</section>
 
-  <!-- EXPLORATIONS -->
-  <section class="explorations-section">
-    <div class="section-header">
-      <div class="section-label">Prototypes</div>
-      <h2 class="section-title">Explorations disponibles</h2>
-      <p class="section-sub">Ces explorations illustrent ce qu'il est possible d'extraire des données publiques en les croisant et en appliquant des méthodes statistiques documentées.</p>
+<section class="producers">
+  <div class="wrap">
+    <div class="producers-label">Producteurs publics utilisés</div>
+    <div class="producers-list">
+      <span class="producer">DGFiP</span>
+      <span class="producer">ADEME</span>
+      <span class="producer">IGN</span>
+      <span class="producer">ANCT</span>
+      <span class="producer">INSEE</span>
+      <span class="producer">CSTB</span>
     </div>
-    <div class="exploration-grid">
-      <div class="exploration-card">
-        <span class="exploration-badge badge-live">Disponible</span>
-        <div class="exploration-title">Analyse DVF</div>
-        <div class="exploration-desc">Exploration des transactions immobilières par commune. Distribution des prix au m², volume de ventes, évolution temporelle.</div>
-        <div class="exploration-source">Source : DGFiP DVF</div>
-      </div>
-      <div class="exploration-card">
-        <span class="exploration-badge badge-live">Disponible</span>
-        <div class="exploration-title">Scanner DPE</div>
-        <div class="exploration-desc">Exploration du registre des diagnostics énergétiques par commune. Répartition des classes énergie, identification des logements les moins performants.</div>
-        <div class="exploration-source">Source : ADEME DPE</div>
-      </div>
-      <div class="exploration-card">
-        <span class="exploration-badge badge-wip">En cours</span>
-        <div class="exploration-title">Score équipements</div>
-        <div class="exploration-desc">Score de proximité des équipements par commune : transports, commerces, santé, éducation. Échelle 0-100 basée sur le BPE INSEE.</div>
-        <div class="exploration-source">Source : INSEE BPE</div>
-      </div>
-    </div>
-  </section>
+  </div>
+</section>
 
-  <!-- METHODO PREVIEW -->
-  <section class="methodo-section">
-    <div class="section-header">
-      <div class="section-label">Approche</div>
-      <h2 class="section-title">Méthodologie</h2>
+<section class="section" id="donnees">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div class="section-label">01 · Référentiels</div>
+      <h2 class="section-title">Sept sources officielles. <span class="mute">Un seul socle.</span></h2>
     </div>
-    <div class="methodo-content">
-      <p class="methodo-text">
-        Les analyses s'appuient sur des données officielles et un indice de confiance accompagne chaque résultat.
-      </p>
-      <a href="/methodologie" style="color: var(--accent-green); font-weight: 600; text-decoration: none; border-bottom: 2px solid transparent; transition: border-color 0.2s;" onmouseover="this.style.borderColor='var(--accent-green)'" onmouseout="this.style.borderColor='transparent'">Lire la méthodologie complète →</a>
+
+    <div class="ds-grid">
+      <article class="ds">
+        <div class="ds-head"><div class="ds-name">DVF</div><div class="ds-src">DGFiP</div></div>
+        <div class="ds-val">12 184 661</div>
+        <div class="ds-val-lbl">transactions</div>
+        <div class="ds-desc">Toutes les mutations immobilières enregistrées. Prix, surface, nature du bien, parcelle.</div>
+        <div class="ds-meta"><span class="ds-tag">2014 → 2025</span><span class="ds-tag">Semestrielle</span><span class="ds-tag">Licence 2.0</span></div>
+      </article>
+      <article class="ds">
+        <div class="ds-head"><div class="ds-name">DPE</div><div class="ds-src">ADEME</div></div>
+        <div class="ds-val">14 568 137</div>
+        <div class="ds-val-lbl">diagnostics</div>
+        <div class="ds-desc">Diagnostics de performance énergétique. Classes A–G, consommation, GES, isolation, chauffage.</div>
+        <div class="ds-meta"><span class="ds-tag">2013 → 2026</span><span class="ds-tag">Mensuelle</span><span class="ds-tag">ODbL</span></div>
+      </article>
+      <article class="ds">
+        <div class="ds-head"><div class="ds-name">BDNB</div><div class="ds-src">CSTB</div></div>
+        <div class="ds-val">5 225 123</div>
+        <div class="ds-val-lbl">bâtiments</div>
+        <div class="ds-desc">Base Nationale des Bâtiments. Typologie, matériaux, hauteur, emprise, année de construction.</div>
+        <div class="ds-meta"><span class="ds-tag">Millésime 2025</span><span class="ds-tag">13 tables</span><span class="ds-tag">Licence 2.0</span></div>
+      </article>
+      <article class="ds">
+        <div class="ds-head"><div class="ds-name">BAN</div><div class="ds-src">IGN · ANCT</div></div>
+        <div class="ds-val">23 644 840</div>
+        <div class="ds-val-lbl">adresses</div>
+        <div class="ds-desc">Base Adresse Nationale. Référentiel officiel : identifiant pérenne et géocodage.</div>
+        <div class="ds-meta"><span class="ds-tag">101/101 dépts</span><span class="ds-tag">Hebdo</span><span class="ds-tag">Licence 2.0</span></div>
+      </article>
+      <article class="ds">
+        <div class="ds-head"><div class="ds-name">BPE</div><div class="ds-src">INSEE</div></div>
+        <div class="ds-val">2 100 116</div>
+        <div class="ds-val-lbl">équipements</div>
+        <div class="ds-desc">Commerces, santé, éducation, transports, loisirs. 190 types, couverture nationale.</div>
+        <div class="ds-meta"><span class="ds-tag">Millésime 2024</span><span class="ds-tag">Annuelle</span><span class="ds-tag">Licence ouverte</span></div>
+      </article>
+      <article class="ds">
+        <div class="ds-head"><div class="ds-name">Cadastre</div><div class="ds-src">DGFiP · cquest</div></div>
+        <div class="ds-val">95 013 184</div>
+        <div class="ds-val-lbl">parcelles</div>
+        <div class="ds-desc">Géométries officielles. Section, numéro, superficie. Liaison DVF et BDNB.</div>
+        <div class="ds-meta"><span class="ds-tag">16 979 communes</span><span class="ds-tag">Trimestrielle</span><span class="ds-tag">Licence ouverte</span></div>
+      </article>
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- FOOTER -->
-  <footer>
-    <p><strong>Intent Analytics</strong> — Exploration de données territoriales</p>
-    <a href="mailto:contact@intentanalytics.fr" class="footer-email">contact@intentanalytics.fr</a>
-    <p class="footer-legal">
-      <a href="/legal/mentions-legales">Mentions légales</a> ·
-      <a href="/legal/cgu">CGU</a> ·
-      <a href="/legal/politique-confidentialite">Confidentialité</a>
-    </p>
-    <p class="footer-copy">© 2026 Intent Analytics</p>
-  </footer>
+<section class="section" id="methodologie">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div class="section-label">02 · Pipeline</div>
+      <h2 class="section-title">Du brut à la lecture, <span class="mute">en quatre étapes.</span></h2>
+    </div>
+    <div class="method-grid">
+      <div class="step reveal"><div class="step-num">01</div><h3>Collecte</h3><p>Récupération programmée depuis data.gouv.fr, ademe.fr, insee.fr, cquest.org. Versioning par millésime.</p></div>
+      <div class="step reveal" data-delay="1"><div class="step-num">02</div><h3>Nettoyage</h3><p>Typage strict, déduplication, rejet des valeurs aberrantes. Flag des ventes groupées.</p></div>
+      <div class="step reveal" data-delay="2"><div class="step-num">03</div><h3>Croisement</h3><p>Liaison par ban_id, code_insee, id_parcelle. Scoring de la qualité du match.</p></div>
+      <div class="step reveal" data-delay="3"><div class="step-num">04</div><h3>Exposition</h3><p>Indicateurs dérivés, mise à jour incrémentale, journal d'audit public.</p></div>
+    </div>
+  </div>
+</section>
 
+<section class="section" id="explorations">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div class="section-label">03 · Prototypes</div>
+      <h2 class="section-title">Ce que les données <span class="mute">permettent de voir.</span></h2>
+    </div>
+    <div class="explo-grid">
+      <article class="explo reveal">
+        <div class="explo-top"><span>EXPLO-01</span><span class="status">Disponible</span></div>
+        <div class="explo-viz">
+          <svg viewBox="0 0 600 220" preserveAspectRatio="none">
+            <g stroke="#EAEAEA" stroke-width="1"><line x1="0" y1="55" x2="600" y2="55"/><line x1="0" y1="110" x2="600" y2="110"/><line x1="0" y1="165" x2="600" y2="165"/></g>
+            <path d="M0 180 L60 170 L120 145 L180 130 L240 140 L300 115 L360 95 L420 105 L480 75 L540 60 L600 50" stroke="#0A0A0A" stroke-width="2" fill="none"/>
+            <path d="M0 180 L60 170 L120 145 L180 130 L240 140 L300 115 L360 95 L420 105 L480 75 L540 60 L600 50 L600 220 L0 220 Z" fill="#0A0A0A" fill-opacity="0.04"/>
+            <g fill="#0A0A0A"><circle cx="60" cy="170" r="3"/><circle cx="180" cy="130" r="3"/><circle cx="300" cy="115" r="3"/><circle cx="420" cy="105" r="3"/><circle cx="540" cy="60" r="3"/></g>
+          </svg>
+        </div>
+        <h3>Valeurs foncières</h3>
+        <p>Prix médian au m² par commune sur 10 ans. Distribution p10 / p50 / p90 et volume trimestriel.</p>
+        <span class="explo-cta">Ouvrir<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M7 7h10v10"/></svg></span>
+      </article>
+      <article class="explo reveal" data-delay="1">
+        <div class="explo-top"><span>EXPLO-02</span><span class="status">Disponible</span></div>
+        <div class="explo-viz">
+          <svg viewBox="0 0 600 220" preserveAspectRatio="none">
+            <g>
+              <rect x="30"  y="140" width="70" height="60" fill="#0A0A0A"/>
+              <rect x="115" y="95"  width="70" height="105" fill="#0A0A0A" fill-opacity="0.82"/>
+              <rect x="200" y="65"  width="70" height="135" fill="#0A0A0A" fill-opacity="0.65"/>
+              <rect x="285" y="85"  width="70" height="115" fill="#0A0A0A" fill-opacity="0.48"/>
+              <rect x="370" y="115" width="70" height="85" fill="#0A0A0A" fill-opacity="0.32"/>
+              <rect x="455" y="160" width="70" height="40" fill="#0A0A0A" fill-opacity="0.18"/>
+              <rect x="540" y="178" width="50" height="22" fill="#0A0A0A" fill-opacity="0.1"/>
+            </g>
+            <g font-family="JetBrains Mono, monospace" font-size="11" fill="#6B6B6B" text-anchor="middle"><text x="65" y="215">A</text><text x="150" y="215">B</text><text x="235" y="215">C</text><text x="320" y="215">D</text><text x="405" y="215">E</text><text x="490" y="215">F</text><text x="565" y="215">G</text></g>
+          </svg>
+        </div>
+        <h3>Performance énergétique</h3>
+        <p>Répartition des classes DPE par commune et IRIS. Passoires thermiques, priorités de rénovation.</p>
+        <span class="explo-cta">Ouvrir<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M7 7h10v10"/></svg></span>
+      </article>
+      <article class="explo reveal" data-delay="2">
+        <div class="explo-top"><span>EXPLO-03</span><span class="status wip">En cours</span></div>
+        <div class="explo-viz">
+          <svg viewBox="0 0 600 220" preserveAspectRatio="none">
+            <defs><radialGradient id="heat" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#0A0A0A" stop-opacity="0.85"/><stop offset="100%" stop-color="#0A0A0A" stop-opacity="0"/></radialGradient></defs>
+            <circle cx="150" cy="85"  r="65" fill="url(#heat)"/>
+            <circle cx="330" cy="130" r="85" fill="url(#heat)"/>
+            <circle cx="480" cy="75"  r="55" fill="url(#heat)"/>
+            <circle cx="220" cy="170" r="45" fill="url(#heat)"/>
+            <g stroke="#0A0A0A" stroke-width="0.6" fill="none" opacity="0.35"><path d="M0 110 Q150 90 300 115 T600 100"/><path d="M0 160 Q225 140 450 160 T600 155"/></g>
+          </svg>
+        </div>
+        <h3>Score équipements</h3>
+        <p>Score 0–100 basé sur la densité et la diversité des équipements BPE à 800 m de chaque adresse.</p>
+        <span class="explo-cta">Suivre<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M7 7h10v10"/></svg></span>
+      </article>
+      <article class="explo reveal" data-delay="3">
+        <div class="explo-top"><span>EXPLO-04</span><span class="status wip">En cours</span></div>
+        <div class="explo-viz">
+          <svg viewBox="0 0 600 220" preserveAspectRatio="none">
+            <g stroke="#0A0A0A" stroke-width="1.4" fill="none"><path d="M50 180 L130 150 L210 155 L290 125 L370 140 L450 95 L530 80"/></g>
+            <g fill="#0A0A0A"><circle cx="50" cy="180" r="3"/><circle cx="130" cy="150" r="3"/><circle cx="210" cy="155" r="3"/><circle cx="290" cy="125" r="3"/><circle cx="370" cy="140" r="3"/><circle cx="450" cy="95" r="3"/><circle cx="530" cy="80" r="3"/></g>
+            <g stroke="#0A0A0A" stroke-width="0.5" stroke-dasharray="3 3" opacity="0.4"><line x1="450" y1="95" x2="450" y2="200"/></g>
+            <text x="450" y="215" font-family="JetBrains Mono, monospace" font-size="9" fill="#6B6B6B" text-anchor="middle">T3'25</text>
+          </svg>
+        </div>
+        <h3>Typologie du bâti</h3>
+        <p>Croisement BDNB × DPE. Année de construction, matériaux, performance. Lecture territoriale.</p>
+        <span class="explo-cta">Suivre<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M7 7h10v10"/></svg></span>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div class="section-label">04 · Qualité</div>
+      <h2 class="section-title">La fiabilité, <span class="mute">la première brique du socle.</span></h2>
+    </div>
+    <div class="q-inner">
+      <div class="q-copy reveal">
+        <p>Chaque enregistrement porte un indice de confiance documenté : qualité du géocodage, cohérence de l'adresse, fraîcheur de la source.</p>
+        <p>Les croisements faibles — similarité d'adresse sous seuil, distance géographique excessive — sont flagués puis purgés par un processus automatisé, avec journal d'audit public.</p>
+        <p>Un seuil minimum de <strong>70 / 100</strong> est appliqué pour les analyses publiées.</p>
+      </div>
+      <div class="q-metrics reveal" data-delay="1">
+        <div class="q-metric" style="--pct:0.999"><span class="q-metric-label">Géocodage DPE</span><span class="q-metric-bar"><span></span></span><span class="q-metric-val">99,9 %</span></div>
+        <div class="q-metric" style="--pct:0.952"><span class="q-metric-label">ML training v8</span><span class="q-metric-bar"><span></span></span><span class="q-metric-val">95,2 %</span></div>
+        <div class="q-metric" style="--pct:0.895"><span class="q-metric-label">Match DVF</span><span class="q-metric-bar"><span></span></span><span class="q-metric-val">89,5 %</span></div>
+        <div class="q-metric" style="--pct:0.843"><span class="q-metric-label">Property index</span><span class="q-metric-bar"><span></span></span><span class="q-metric-val">84,3 %</span></div>
+        <div class="q-metric" style="--pct:0.183"><span class="q-metric-label">BDNB (ingestion)</span><span class="q-metric-bar"><span></span></span><span class="q-metric-val">18,3 %</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer" id="contact">
+  <div class="wrap">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="./index.html" class="brand">
+          <span class="brand-mark"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 17V7l6 6 6-6v10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          Intent Analytics
+        </a>
+        <p>Exploration de données publiques territoriales françaises. Projet expérimental indépendant, mis en ligne en mars 2026.</p>
+      </div>
+      <div>
+        <h4>DÉCOUVRIR</h4>
+        <ul>
+          <li><a href="./projet.html">Le projet</a></li>
+          <li><a href="./donnees.html">Données</a></li>
+          <li><a href="./methodologie.html">Méthodologie</a></li>
+          <li><a href="./explorations.html">Explorations</a></li>
+          <li><a href="./renovation-energetique.html">Rénovation</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>SOURCES</h4>
+        <ul>
+          <li><a href="https://data.gouv.fr" target="_blank" rel="noopener">data.gouv.fr ↗</a></li>
+          <li><a href="https://data.ademe.fr" target="_blank" rel="noopener">data.ademe.fr ↗</a></li>
+          <li><a href="https://adresse.data.gouv.fr" target="_blank" rel="noopener">adresse.data.gouv ↗</a></li>
+          <li><a href="https://www.insee.fr" target="_blank" rel="noopener">insee.fr ↗</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>CONTACT</h4>
+        <ul>
+          <li><a href="mailto:contact@intentanalytics.fr">contact@intentanalytics.fr</a></li>
+          <li><a href="./a-propos.html">À propos</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Intent Analytics</span>
+      <ul>
+        <li><a href="./legal/mentions-legales.html">Mentions légales</a></li>
+        <li><a href="./legal/cgu.html">CGU</a></li>
+        <li><a href="./legal/politique-confidentialite.html">Confidentialité</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+<script src="./assets/script.js"></script>
 </body>
 </html>

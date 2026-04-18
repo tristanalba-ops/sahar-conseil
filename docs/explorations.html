@@ -1,344 +1,187 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="robots" content="noindex, nofollow" />
-    <title>Explorations — Intent Analytics</title>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg: #0D0D0D;
-            --bg-alt: #1A1A2E;
-            --accent: #00DC82;
-            --accent-light: rgba(0, 220, 130, 0.08);
-            --text-primary: #FFFFFF;
-            --text-secondary: #A0A0A0;
-            --border: #2A2A3E;
-            --card-bg: rgba(26, 26, 46, 0.5);
-            --nav-bg: rgba(13, 13, 13, 0.95);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            background-color: var(--bg);
-            color: var(--text-primary);
-            font-family: 'Inter', sans-serif;
-            font-weight: 400;
-            line-height: 1.6;
-            overflow-x: hidden;
-        }
-
-        a {
-            color: var(--accent);
-            text-decoration: none;
-            border-bottom: 2px solid transparent;
-            transition: border-color 0.2s;
-        }
-
-        a:hover {
-            border-color: var(--accent);
-        }
-
-        nav {
-            background: var(--nav-bg);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--border);
-            padding: 1.5rem 5%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .nav-logo {
-            font-family: 'Space Grotesk', sans-serif;
-            font-weight: 700;
-            font-size: 1.3rem;
-            color: var(--accent);
-            text-decoration: none;
-        }
-
-        .nav-links {
-            display: flex;
-            list-style: none;
-            gap: 2rem;
-            align-items: center;
-        }
-
-        .nav-links a {
-            color: var(--text-primary);
-            font-weight: 500;
-            transition: color 0.2s;
-            min-height: 44px;
-            display: flex;
-            align-items: center;
-            border-bottom: 2px solid transparent;
-        }
-
-        .nav-links a:hover {
-            color: var(--accent);
-            border-color: var(--accent);
-        }
-
-        .hamburger {
-            display: none;
-            flex-direction: column;
-            gap: 6px;
-            cursor: pointer;
-            padding: 8px;
-            background: none;
-            border: none;
-        }
-
-        .hamburger span {
-            display: block;
-            width: 24px;
-            height: 2px;
-            background: var(--text-primary);
-            transition: 0.3s;
-        }
-
-        .hamburger.active span:nth-child(1) {
-            transform: rotate(45deg) translate(8px, 8px);
-        }
-
-        .hamburger.active span:nth-child(2) {
-            opacity: 0;
-        }
-
-        .hamburger.active span:nth-child(3) {
-            transform: rotate(-45deg) translate(7px, -6px);
-        }
-
-        main {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 4rem 5%;
-        }
-
-        h1 {
-            font-family: 'Space Grotesk', sans-serif;
-            font-weight: 700;
-            font-size: clamp(2rem, 5vw, 3rem);
-            margin-bottom: 1rem;
-            color: var(--text-primary);
-        }
-
-        .intro {
-            font-size: 1.1rem;
-            color: var(--text-secondary);
-            margin-bottom: 3rem;
-            line-height: 1.8;
-        }
-
-        .explorations-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 2rem;
-            margin-top: 2rem;
-        }
-
-        .exploration-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 2rem;
-            transition: all 0.2s;
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-        }
-
-        .exploration-card:hover {
-            border-color: var(--accent);
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-        }
-
-        .card-icon {
-            font-size: 0;
-            margin-bottom: 1rem;
-        }
-
-        .card-title {
-            font-family: 'Space Grotesk', sans-serif;
-            font-weight: 700;
-            font-size: 1.3rem;
-            color: var(--accent);
-            margin-bottom: 1rem;
-        }
-
-        .card-description {
-            color: var(--text-secondary);
-            margin-bottom: 1.5rem;
-            flex-grow: 1;
-            line-height: 1.7;
-        }
-
-        .card-source {
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-            padding-top: 1rem;
-            border-top: 1px solid var(--border);
-            margin-top: 1rem;
-        }
-
-        .source-label {
-            font-weight: 500;
-            color: var(--text-primary);
-        }
-
-        .status-badge {
-            display: inline-block;
-            margin-top: 0.5rem;
-            padding: 0.3rem 0.8rem;
-            background-color: var(--accent-light);
-            color: var(--accent);
-            border-radius: 100px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .status-badge.coming-soon {
-            background-color: rgba(107, 101, 96, 0.08);
-            color: var(--text-secondary);
-        }
-
-        footer {
-            background-color: var(--bg-alt);
-            border-top: 1px solid var(--border);
-            padding: 3rem 5%;
-            margin-top: 6rem;
-            text-align: center;
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            line-height: 1.8;
-        }
-
-        footer a {
-            color: var(--accent);
-            border-bottom: 2px solid transparent;
-            transition: border-color 0.2s;
-        }
-
-        footer a:hover {
-            border-color: var(--accent);
-        }
-
-        @media (max-width: 768px) {
-            nav {
-                padding: 1rem 5%;
-                flex-direction: row;
-            }
-
-            .nav-links {
-                display: none;
-                position: absolute;
-                top: 100%;
-                left: 0;
-                right: 0;
-                flex-direction: column;
-                background: var(--nav-bg);
-                border-bottom: 1px solid var(--border);
-                padding: 1rem 5%;
-                gap: 0;
-                z-index: 99;
-            }
-
-            .nav-links.active {
-                display: flex;
-            }
-
-            .nav-links li {
-                min-height: 44px;
-                display: flex;
-                align-items: center;
-            }
-
-            .hamburger {
-                display: flex;
-            }
-
-            h1 {
-                font-size: 2rem;
-            }
-
-            main {
-                padding: 2rem 5%;
-            }
-
-            .explorations-grid {
-                grid-template-columns: 1fr;
-                gap: 1.5rem;
-            }
-
-            .intro {
-                font-size: 1rem;
-            }
-
-            .card-icon {
-                font-size: 0;
-            }
-        }
-    </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Explorations — Intent Analytics</title>
+<meta name="description" content="Prototypes d'analyses à partir des données ouvertes françaises croisées." />
+<meta name="robots" content="noindex, nofollow" />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect width='24' height='24' rx='5' fill='black'/><path d='M6 17V7l6 6 6-6v10' stroke='white' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Inter+Tight:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="./assets/style.css" />
 </head>
 <body>
-    <nav>
-        <a href="/" class="nav-logo">Intent Analytics</a>
-        <button class="hamburger" onclick="this.classList.toggle('active'); document.querySelector('.nav-links').classList.toggle('active');">
-            <span></span>
-            <span></span>
-            <span></span>
-        </button>
-        <ul class="nav-links">
-            <li><a href="/projet">Le projet</a></li>
-            <li><a href="/donnees">Données</a></li>
-            <li><a href="/methodologie">Méthodologie</a></li>
-            <li><a href="/explorations">Explorations</a></li>
-            <li><a href="/renovation-energetique">Rénovation énergétique</a></li>
-            <li><a href="/a-propos">À propos</a></li>
-        </ul>
-    </nav>
 
-    <main>
-        <h1>Explorations</h1>
-        <p class="intro">Analyses expérimentales à partir de données ouvertes.</p>
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="./index.html" class="brand">
+      <span class="brand-mark"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 17V7l6 6 6-6v10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      Intent Analytics
+    </a>
+    <ul class="nav-links">
+      <li><a href="./index.html">Accueil</a></li>
+      <li><a href="./projet.html">Projet</a></li>
+      <li><a href="./donnees.html">Données</a></li>
+      <li><a href="./methodologie.html">Méthodologie</a></li>
+      <li><a href="./explorations.html" class="active">Explorations</a></li>
+      <li><a href="./renovation-energetique.html">Rénovation</a></li>
+    </ul>
+    <div class="nav-actions">
+      <a href="./a-propos.html" class="btn">À propos</a>
+      <a href="./explorations.html" class="btn btn-primary">Explorer<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M7 7h10v10"/></svg></a>
+    </div>
+    <button class="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+  </div>
+</nav>
 
-        <div class="explorations-grid">
-            <div class="exploration-card">
-                <div class="card-title">Prix immobiliers</div>
-                <div class="card-description">Données DVF par territoire.</div>
-                <div class="status-badge">Disponible</div>
-            </div>
+<div class="mobile-overlay"></div>
+<aside class="mobile-drawer">
+  <button class="mobile-close">✕</button>
+  <a href="./index.html">Accueil</a><a href="./projet.html">Projet</a><a href="./donnees.html">Données</a><a href="./methodologie.html">Méthodologie</a><a href="./explorations.html">Explorations</a><a href="./renovation-energetique.html">Rénovation</a><a href="./a-propos.html">À propos</a>
+</aside>
 
-            <div class="exploration-card">
-                <div class="card-title">Performance énergétique</div>
-                <div class="card-description">Données DPE par territoire.</div>
-                <div class="status-badge">Disponible</div>
-            </div>
+<header class="wrap">
+  <div class="page-head reveal">
+    <span class="eyebrow">04 · Prototypes</span>
+    <h1>Des analyses qui rendent la donnée parlante.</h1>
+    <p class="lead">Chaque exploration applique une méthode statistique documentée à un croisement précis. Les résultats sont publiés avec un <strong>indice de confiance</strong>.</p>
+  </div>
+</header>
 
-            <div class="exploration-card">
-                <div class="card-title">Équipements</div>
-                <div class="card-description">Données BPE par territoire.</div>
-                <div class="status-badge coming-soon">En cours</div>
-            </div>
-        </div>
-    </main>
+<section class="wrap">
+  <div class="explo-grid">
 
-    <footer>
-        Intent Analytics — Exploration de données territoriales<br>
-        <a href="mailto:contact@intentanalytics.fr">contact@intentanalytics.fr</a><br>
-        <a href="/legal/mentions-legales">Mentions légales</a> • <a href="/legal/cgu">CGU</a> • <a href="/legal/politique-confidentialite">Confidentialité</a><br>
-        © 2026 Intent Analytics
-    </footer>
+    <article class="explo reveal">
+      <div class="explo-top"><span>EXPLO-01</span><span class="status">Disponible</span></div>
+      <div class="explo-viz">
+        <svg viewBox="0 0 600 220" preserveAspectRatio="none">
+          <g stroke="#EAEAEA" stroke-width="1"><line x1="0" y1="55" x2="600" y2="55"/><line x1="0" y1="110" x2="600" y2="110"/><line x1="0" y1="165" x2="600" y2="165"/></g>
+          <path d="M0 180 L60 170 L120 145 L180 130 L240 140 L300 115 L360 95 L420 105 L480 75 L540 60 L600 50" stroke="#0A0A0A" stroke-width="2" fill="none"/>
+          <path d="M0 180 L60 170 L120 145 L180 130 L240 140 L300 115 L360 95 L420 105 L480 75 L540 60 L600 50 L600 220 L0 220 Z" fill="#0A0A0A" fill-opacity="0.04"/>
+          <g fill="#0A0A0A"><circle cx="60" cy="170" r="3"/><circle cx="180" cy="130" r="3"/><circle cx="300" cy="115" r="3"/><circle cx="420" cy="105" r="3"/><circle cx="540" cy="60" r="3"/></g>
+        </svg>
+      </div>
+      <h3>Valeurs foncières · DVF</h3>
+      <p>Évolution du prix médian au m² par commune, département et typologie de bien. Distribution p10/p50/p90 en fenêtre glissante 24 mois. Volumes trimestriels sur 10 ans.</p>
+      <span class="explo-cta">Ouvrir l'exploration<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M7 7h10v10"/></svg></span>
+    </article>
+
+    <article class="explo reveal" data-delay="1">
+      <div class="explo-top"><span>EXPLO-02</span><span class="status">Disponible</span></div>
+      <div class="explo-viz">
+        <svg viewBox="0 0 600 220" preserveAspectRatio="none">
+          <g>
+            <rect x="30" y="140" width="70" height="60" fill="#0A0A0A"/>
+            <rect x="115" y="95" width="70" height="105" fill="#0A0A0A" fill-opacity="0.82"/>
+            <rect x="200" y="65" width="70" height="135" fill="#0A0A0A" fill-opacity="0.65"/>
+            <rect x="285" y="85" width="70" height="115" fill="#0A0A0A" fill-opacity="0.48"/>
+            <rect x="370" y="115" width="70" height="85" fill="#0A0A0A" fill-opacity="0.32"/>
+            <rect x="455" y="160" width="70" height="40" fill="#0A0A0A" fill-opacity="0.18"/>
+            <rect x="540" y="178" width="50" height="22" fill="#0A0A0A" fill-opacity="0.1"/>
+          </g>
+          <g font-family="JetBrains Mono, monospace" font-size="11" fill="#6B6B6B" text-anchor="middle"><text x="65" y="215">A</text><text x="150" y="215">B</text><text x="235" y="215">C</text><text x="320" y="215">D</text><text x="405" y="215">E</text><text x="490" y="215">F</text><text x="565" y="215">G</text></g>
+        </svg>
+      </div>
+      <h3>Performance énergétique · DPE</h3>
+      <p>Répartition des classes DPE par commune, département et IRIS. Identification des poches de logements classés F et G. Comparaison moyenne nationale.</p>
+      <span class="explo-cta">Ouvrir l'exploration<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M7 7h10v10"/></svg></span>
+    </article>
+
+    <article class="explo reveal" data-delay="2">
+      <div class="explo-top"><span>EXPLO-03</span><span class="status wip">En cours</span></div>
+      <div class="explo-viz">
+        <svg viewBox="0 0 600 220" preserveAspectRatio="none">
+          <defs><radialGradient id="heat" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#0A0A0A" stop-opacity="0.85"/><stop offset="100%" stop-color="#0A0A0A" stop-opacity="0"/></radialGradient></defs>
+          <circle cx="150" cy="85" r="65" fill="url(#heat)"/>
+          <circle cx="330" cy="130" r="85" fill="url(#heat)"/>
+          <circle cx="480" cy="75" r="55" fill="url(#heat)"/>
+          <circle cx="220" cy="170" r="45" fill="url(#heat)"/>
+          <g stroke="#0A0A0A" stroke-width="0.6" fill="none" opacity="0.35"><path d="M0 110 Q150 90 300 115 T600 100"/><path d="M0 160 Q225 140 450 160 T600 155"/></g>
+        </svg>
+      </div>
+      <h3>Score équipements · BPE</h3>
+      <p>Score de proximité 0–100 calculé à 800 m autour de chaque adresse. Diversité et densité des commerces, transports, santé, éducation.</p>
+      <span class="explo-cta">Suivre l'avancement<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M7 7h10v10"/></svg></span>
+    </article>
+
+    <article class="explo reveal" data-delay="3">
+      <div class="explo-top"><span>EXPLO-04</span><span class="status wip">En cours</span></div>
+      <div class="explo-viz">
+        <svg viewBox="0 0 600 220" preserveAspectRatio="none">
+          <g stroke="#0A0A0A" stroke-width="1.4" fill="none"><path d="M50 180 L130 150 L210 155 L290 125 L370 140 L450 95 L530 80"/></g>
+          <g fill="#0A0A0A"><circle cx="50" cy="180" r="3"/><circle cx="130" cy="150" r="3"/><circle cx="210" cy="155" r="3"/><circle cx="290" cy="125" r="3"/><circle cx="370" cy="140" r="3"/><circle cx="450" cy="95" r="3"/><circle cx="530" cy="80" r="3"/></g>
+          <g stroke="#0A0A0A" stroke-width="0.5" stroke-dasharray="3 3" opacity="0.4"><line x1="450" y1="95" x2="450" y2="200"/></g>
+          <text x="450" y="215" font-family="JetBrains Mono, monospace" font-size="9" fill="#6B6B6B" text-anchor="middle">T3'25</text>
+        </svg>
+      </div>
+      <h3>Typologie du bâti · BDNB</h3>
+      <p>Croisement bâti, adresse BAN, DPE : année de construction, matériaux, hauteur, qualité énergétique. Lecture territoriale de l'ancienneté.</p>
+      <span class="explo-cta">Suivre l'avancement<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M7 7h10v10"/></svg></span>
+    </article>
+
+    <article class="explo reveal" data-delay="4">
+      <div class="explo-top"><span>EXPLO-05</span><span class="status wip">En cours</span></div>
+      <div class="explo-viz">
+        <svg viewBox="0 0 600 220" preserveAspectRatio="none">
+          <g stroke="#0A0A0A" stroke-width="1.4" fill="none"><path d="M50 200 L120 160 L190 170 L260 130 L330 140 L400 100 L470 110 L540 80"/></g>
+          <g fill="#0A0A0A"><circle cx="120" cy="160" r="3"/><circle cx="260" cy="130" r="3"/><circle cx="400" cy="100" r="3"/><circle cx="540" cy="80" r="3"/></g>
+          <g font-family="JetBrains Mono, monospace" font-size="9" fill="#6B6B6B"><text x="50" y="215">2020</text><text x="260" y="215">2023</text><text x="540" y="215">2026</text></g>
+        </svg>
+      </div>
+      <h3>Liquidité de marché</h3>
+      <p>Volume de mutations trimestriel, délai médian de commercialisation et taux de rotation par commune. Zones actives vs zones atones.</p>
+      <span class="explo-cta">Suivre l'avancement<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M7 7h10v10"/></svg></span>
+    </article>
+
+    <article class="explo reveal">
+      <div class="explo-top"><span>EXPLO-06</span><span class="status wip">Bientôt</span></div>
+      <div class="explo-viz">
+        <svg viewBox="0 0 600 220" preserveAspectRatio="none">
+          <g stroke="#0A0A0A" stroke-width="1" fill="none"><path d="M100 40 L100 210 L500 210 L500 40 Z"/><path d="M100 40 L300 80 L500 40" opacity="0.5"/><path d="M100 210 L300 170 L500 210" opacity="0.5"/><line x1="300" y1="80" x2="300" y2="170"/></g>
+          <g font-family="JetBrains Mono, monospace" font-size="10" fill="#6B6B6B"><text x="300" y="215" text-anchor="middle">Parcelle cadastrale</text></g>
+        </svg>
+      </div>
+      <h3>Parcelles cadastrales</h3>
+      <p>Géométries officielles, superficie, liaison DVF et BDNB. Densification urbaine, morcellement foncier, usages.</p>
+      <span class="explo-cta">Aperçu<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M7 7h10v10"/></svg></span>
+    </article>
+
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="prose reveal">
+      <h2>Accès aux explorations</h2>
+      <p>Les explorations disponibles sont accessibles via une interface web interactive. Un accès sur demande est proposé aux acteurs publics, aux chercheurs et aux journalistes souhaitant les utiliser dans le cadre de leurs travaux.</p>
+      <div class="callout">
+        <strong>Expérimental par nature.</strong>
+        <p>Les prototypes servent à illustrer ce que les données publiques permettent de voir une fois croisées. Ils ne constituent pas une expertise professionnelle et ne sauraient se substituer à un avis qualifié.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="./index.html" class="brand">
+          <span class="brand-mark"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 17V7l6 6 6-6v10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          Intent Analytics
+        </a>
+        <p>Exploration de données publiques territoriales françaises.</p>
+      </div>
+      <div><h4>DÉCOUVRIR</h4><ul><li><a href="./projet.html">Le projet</a></li><li><a href="./donnees.html">Données</a></li><li><a href="./methodologie.html">Méthodologie</a></li><li><a href="./explorations.html">Explorations</a></li><li><a href="./renovation-energetique.html">Rénovation</a></li></ul></div>
+      <div><h4>SOURCES</h4><ul><li><a href="https://data.gouv.fr" target="_blank" rel="noopener">data.gouv.fr ↗</a></li><li><a href="https://data.ademe.fr" target="_blank" rel="noopener">data.ademe.fr ↗</a></li><li><a href="https://adresse.data.gouv.fr" target="_blank" rel="noopener">adresse.data.gouv ↗</a></li><li><a href="https://www.insee.fr" target="_blank" rel="noopener">insee.fr ↗</a></li></ul></div>
+      <div><h4>CONTACT</h4><ul><li><a href="mailto:contact@intentanalytics.fr">contact@intentanalytics.fr</a></li><li><a href="./a-propos.html">À propos</a></li></ul></div>
+    </div>
+    <div class="footer-bottom"><span>© 2026 Intent Analytics</span><ul><li><a href="./legal/mentions-legales.html">Mentions légales</a></li><li><a href="./legal/cgu.html">CGU</a></li><li><a href="./legal/politique-confidentialite.html">Confidentialité</a></li></ul></div>
+  </div>
+</footer>
+
+<script src="./assets/script.js"></script>
 </body>
 </html>
