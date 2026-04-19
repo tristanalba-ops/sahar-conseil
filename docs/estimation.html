@@ -11,6 +11,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Inter+Tight:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="./assets/style.css" />
+<style>@keyframes spin { to { transform: rotate(360deg); } }</style>
 </head>
 <body>
 
@@ -29,18 +30,17 @@
 
 <main class="app-shell">
 
-  <!-- Formulaire à gauche -->
   <section class="app-form">
     <div class="reveal">
       <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--mute);">— Explorer une adresse</span>
       <h1 style="margin-top: 12px;">Renseignez un bien.</h1>
-      <p class="intro">Intent Analytics compose une lecture basée sur les données publiques croisées (DVF, DPE, BDNB, BAN). Aucune donnée n'est stockée côté utilisateur.</p>
+      <p class="intro">Intent Analytics compose une lecture basée sur les données publiques croisées (DVF, DPE, BDNB, BAN, INSEE). Aucune donnée n'est stockée côté utilisateur.</p>
     </div>
 
     <form id="explore-form" style="margin-top: 8px;" class="reveal" data-delay="1">
       <div class="app-field">
         <label for="adresse">Adresse complète</label>
-        <input type="text" id="adresse" name="adresse" placeholder="44 Grande Rue, 60420 Coivrel" autocomplete="off" />
+        <input type="text" id="adresse" name="adresse" placeholder="44 Grande Rue, 60420 Coivrel" autocomplete="off" required />
       </div>
 
       <div class="app-field-row">
@@ -49,20 +49,18 @@
           <select id="type" name="type">
             <option>Maison</option>
             <option>Appartement</option>
-            <option>Local commercial</option>
-            <option>Terrain</option>
           </select>
         </div>
         <div class="app-field">
           <label for="surface">Surface (m²)</label>
-          <input type="number" id="surface" name="surface" placeholder="102" min="1" />
+          <input type="number" id="surface" name="surface" placeholder="102" min="9" max="2000" required />
         </div>
       </div>
 
       <div class="app-field-row">
         <div class="app-field">
           <label for="pieces">Pièces</label>
-          <input type="number" id="pieces" name="pieces" placeholder="6" min="1" />
+          <input type="number" id="pieces" name="pieces" placeholder="6" min="1" max="20" />
         </div>
         <div class="app-field">
           <label for="terrain">Terrain (m²)</label>
@@ -76,7 +74,7 @@
       </div>
 
       <div class="app-field" style="margin-top: 40px;">
-        <button type="submit" class="btn btn-primary btn-lg" style="width: 100%; justify-content: center;">
+        <button type="submit" id="submit-btn" class="btn btn-primary btn-lg" style="width: 100%; justify-content: center;">
           Explorer les données du bien
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
         </button>
@@ -88,49 +86,54 @@
     </form>
   </section>
 
-  <!-- Résultats à droite -->
   <section class="app-result">
-    <div class="app-result-card reveal" data-delay="2">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-        <div>
-          <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--mute);">Lecture indicative · 44 Grande Rue, 60420 Coivrel</div>
-          <div style="font-family: 'Inter Tight', sans-serif; font-size: 15px; font-weight: 500; margin-top: 6px;">Maison · 102 m² · 6 pièces</div>
-        </div>
-        <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--mute); padding: 3px 8px; border: 1px solid var(--line); border-radius: 4px;">DÉMO</span>
-      </div>
-
-      <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--mute); margin-top: 8px;">Valeur de référence estimée</div>
-      <div class="amount">170 100 €</div>
-      <div class="range">165 000 € — 178 000 € · 1 618–1 745 €/m²</div>
-
-      <!-- Mini chart DVF -->
-      <div style="height: 80px; margin-bottom: 32px; border: 1px solid var(--line); border-radius: 6px; padding: 12px;">
-        <svg viewBox="0 0 400 56" preserveAspectRatio="none" style="width: 100%; height: 100%;">
-          <g stroke="#EAEAEA" stroke-width="0.8"><line x1="0" y1="14" x2="400" y2="14"/><line x1="0" y1="28" x2="400" y2="28"/><line x1="0" y1="42" x2="400" y2="42"/></g>
-          <path d="M0 38 L50 35 L100 30 L150 28 L200 32 L250 25 L300 22 L350 18 L400 20" stroke="#0A0A0A" stroke-width="1.4" fill="none"/>
-          <path d="M0 38 L50 35 L100 30 L150 28 L200 32 L250 25 L300 22 L350 18 L400 20 L400 56 L0 56 Z" fill="#0A0A0A" fill-opacity="0.04"/>
-          <circle cx="350" cy="18" r="2.5" fill="#2563EB"/>
-        </svg>
-      </div>
-
-      <div class="app-confidence"><strong>50 transactions comparables</strong><span>Secteur 60420, 80–130 m², 2024</span></div>
-      <div class="app-confidence"><strong>Médiane secteur · 1 660 €/m²</strong><span>p10 1 010 · p90 2 159</span></div>
-      <div class="app-confidence"><strong>DPE C / GES C</strong><span>Chauffage gaz · PV</span></div>
-      <div class="app-confidence"><strong>Parcelles B 731 + B 732</strong><span>Contenance 897 m²</span></div>
-
-      <div style="margin-top: 24px; padding: 16px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px;">
-        <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--mute); margin-bottom: 8px;">Indice de confiance</div>
-        <div style="display: flex; align-items: center; gap: 12px;">
-          <div style="flex: 1; height: 4px; background: var(--line); border-radius: 2px; overflow: hidden;">
-            <div style="width: 84%; height: 100%; background: var(--ink);"></div>
+    <div class="app-result-card reveal" data-delay="2" id="result-card">
+      <div id="result-placeholder" style="padding: 24px 0;">
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--mute); margin-bottom: 24px;">En attente d'une adresse</div>
+        <div style="font-family: 'Inter Tight', sans-serif; font-size: 32px; font-weight: 600; letter-spacing: -0.03em; line-height: 1.1; margin-bottom: 24px; color: var(--mute-2);">Entrez une adresse et lancez l'exploration pour obtenir une lecture.</div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 32px;">
+          <div style="padding: 16px; border: 1px solid var(--line); border-radius: 8px;">
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--mute); margin-bottom: 6px;">Sources croisées</div>
+            <div style="font-size: 13px;">DVF · DPE · BDNB · BAN · BPE</div>
           </div>
-          <span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 500;">84 / 100</span>
+          <div style="padding: 16px; border: 1px solid var(--line); border-radius: 8px;">
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--mute); margin-bottom: 6px;">Modèle</div>
+            <div style="font-size: 13px;">XGBoost · 571 arbres · 43 features</div>
+          </div>
         </div>
-        <div style="font-size: 12px; color: var(--mute); margin-top: 8px; line-height: 1.5;">Bon appariement BAN (score 100), volume de comparables suffisant, DPE récent, écart terrain standard.</div>
       </div>
 
-      <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line); font-size: 12px; color: var(--mute); line-height: 1.5;">
-        Cette lecture est générée à partir de données publiques croisées. Elle <strong style="color: var(--ink);">ne constitue pas une expertise</strong> et ne saurait se substituer à un avis qualifié.
+      <div id="result-loading" style="display: none; padding: 60px 0; text-align: center;">
+        <div style="width: 24px; height: 24px; margin: 0 auto 20px; border: 2px solid var(--line); border-top-color: var(--ink); border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--mute);">Croisement des sources · géocodage BAN · prédiction XGBoost…</div>
+      </div>
+
+      <div id="result-data" style="display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+          <div>
+            <div id="result-address" style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--mute);">—</div>
+            <div id="result-bien" style="font-family: 'Inter Tight', sans-serif; font-size: 15px; font-weight: 500; margin-top: 6px;">—</div>
+          </div>
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #2563EB; padding: 3px 8px; border: 1px solid #2563EB; border-radius: 4px;">LIVE</span>
+        </div>
+
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--mute); margin-top: 8px;">Valeur de référence estimée</div>
+        <div class="amount" id="result-amount">—</div>
+        <div class="range" id="result-range">—</div>
+
+        <div class="app-confidence" id="cf-model"><strong>—</strong><span>—</span></div>
+        <div class="app-confidence" id="cf-time"><strong>—</strong><span>—</span></div>
+        <div class="app-confidence" id="cf-features"><strong>—</strong><span>—</span></div>
+        <div class="app-confidence" id="cf-risques"><strong>—</strong><span>—</span></div>
+
+        <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line); font-size: 12px; color: var(--mute); line-height: 1.5;">
+          Cette lecture est générée à partir de données publiques croisées. Elle <strong style="color: var(--ink);">ne constitue pas une expertise</strong> et ne saurait se substituer à un avis qualifié.
+        </div>
+      </div>
+
+      <div id="result-error" style="display: none; padding: 40px 0;">
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #9B3A2F; margin-bottom: 8px;">Erreur</div>
+        <div id="result-error-msg" style="font-size: 14px; color: var(--ink);">—</div>
       </div>
     </div>
   </section>
@@ -138,11 +141,98 @@
 
 <script src="./assets/script.js"></script>
 <script>
-  // Empêche la soumission pour la démo
-  document.getElementById('explore-form')?.addEventListener('submit', (e) => {
-    e.preventDefault();
-    // Ici brancher l'API de résolution BAN + appel au backend Intent Analytics
-  });
+(() => {
+  const API_URL = 'https://wwvdpixzfaviaapixarb.supabase.co/functions/v1/ml-predict';
+  const ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3dmRwaXh6ZmF2aWFhcGl4YXJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3Mzk0NDgsImV4cCI6MjA5MDMxNTQ0OH0.NjOeWzUCo2BJPcxnkEJNm215GJBr1RAHba1eL_EF758';
+
+  const fmtEUR = (n) => new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(n);
+  const fmtNum = (n) => new Intl.NumberFormat('fr-FR').format(n);
+  const $ = (id) => document.getElementById(id);
+
+  const switchState = (state) => {
+    ['placeholder', 'loading', 'data', 'error'].forEach(s => {
+      const el = $('result-' + s);
+      if (el) el.style.display = (s === state) ? 'block' : 'none';
+    });
+  };
+
+  const setError = (msg) => { $('result-error-msg').textContent = msg; switchState('error'); };
+
+  const renderResult = (result, input) => {
+    $('result-address').textContent = 'Lecture · ' + (input.adresse || input.code_postal || '');
+    const biens = [input.type_bien];
+    if (input.surface) biens.push(input.surface + ' m²');
+    if (input.nb_pieces) biens.push(input.nb_pieces + ' pièces');
+    $('result-bien').textContent = biens.join(' · ');
+
+    $('result-amount').textContent = fmtEUR(result.prediction.prix_total);
+    $('result-range').textContent = fmtEUR(result.prediction.fourchette_basse) + ' — ' + fmtEUR(result.prediction.fourchette_haute) + ' · ' + fmtNum(result.prediction.prix_m2) + ' €/m²';
+
+    const m = result.model || {};
+    $('cf-model').innerHTML = '<strong>' + (m.type || '—') + ' · ' + (m.n_trees || '—') + ' arbres</strong><span>' + (m.id || '') + '</span>';
+
+    const meta = result.metadata || {};
+    $('cf-time').innerHTML = '<strong>Calcul ' + (meta.processing_time_ms ? meta.processing_time_ms + ' ms' : '—') + '</strong><span>' + (meta.version || '') + '</span>';
+    $('cf-features').innerHTML = '<strong>' + (meta.features_non_null || '—') + ' / ' + (meta.features_used || '—') + ' features actives</strong><span>KNN ' + (meta.knn_available ? 'disponible' : 'indisponible') + '</span>';
+
+    const r = result.risques || {};
+    const risquesList = [];
+    if (r.inondation) risquesList.push('inondation');
+    if (r.argile) risquesList.push('argile');
+    if (r.seisme) risquesList.push('séisme');
+    if (r.radon) risquesList.push('radon');
+    $('cf-risques').innerHTML = '<strong>' + (risquesList.length ? risquesList.length + ' risque' + (risquesList.length > 1 ? 's' : '') : 'Aucun risque flagué') + '</strong><span>' + (risquesList.join(' · ') || 'Source : Géorisques') + '</span>';
+
+    switchState('data');
+  };
+
+  const getFormData = () => {
+    const f = $('explore-form');
+    const g = (name) => {
+      const el = f.elements[name];
+      return el && el.value ? el.value.trim() : '';
+    };
+    return {
+      adresse: g('adresse'),
+      type_bien: g('type') === 'Maison' ? 'Maison' : 'Appartement',
+      surface: Number(g('surface')) || undefined,
+      nb_pieces: g('pieces') ? Number(g('pieces')) : undefined,
+    };
+  };
+
+  const form = $('explore-form');
+  if (form) {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const input = getFormData();
+
+      if (!input.adresse) { setError('Entrez une adresse complète (ex. 44 Grande Rue, 60420 Coivrel).'); return; }
+      if (!input.surface || input.surface < 9) { setError('La surface doit être supérieure à 9 m².'); return; }
+
+      switchState('loading');
+      $('submit-btn').disabled = true;
+
+      try {
+        const resp = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + ANON_KEY },
+          body: JSON.stringify(input),
+        });
+        if (!resp.ok) {
+          const text = await resp.text();
+          throw new Error('Erreur API (' + resp.status + ') : ' + text.slice(0, 200));
+        }
+        const result = await resp.json();
+        if (result.error) throw new Error(result.error + (result.detail ? ' — ' + result.detail : ''));
+        renderResult(result, input);
+      } catch (err) {
+        setError(err.message || 'Erreur réseau.');
+      } finally {
+        $('submit-btn').disabled = false;
+      }
+    });
+  }
+})();
 </script>
 </body>
 </html>
