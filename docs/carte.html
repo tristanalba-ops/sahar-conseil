@@ -280,6 +280,16 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:var(--sans);backgro
       </div>
 
       <div class="sec">
+        <div class="sh"><span class="si">🌬️</span><span class="stag ta">Qualité de l'air</span><span class="stitle">Temps réel · WAQI</span></div>
+        <div id="airD"><div class="card"><span class="empty">Chargement…</span></div></div>
+      </div>
+
+      <div class="sec">
+        <div class="sh"><span class="si">☀️</span><span class="stag ty">Climat</span><span class="stitle">Météo & ensoleillement · Open-Meteo</span></div>
+        <div id="climatD"><div class="card"><span class="empty">Chargement…</span></div></div>
+      </div>
+
+      <div class="sec">
         <div class="sh"><span class="si">🏘️</span><span class="stag tp">address_profile</span><span class="stitle">Profil enrichi IA</span></div>
         <div class="kpig" id="apK"></div>
         <div class="card" id="apD"></div>
@@ -291,7 +301,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:var(--sans);backgro
       </div>
 
       <div class="sources" id="sources">
-        Sources : DVF/Bercy · ADEME · Géorisques/BRGM · Hub'Eau · IGN/BAN · INSEE · BPE · BDNB/CSTB · GPU Urbanisme
+        Sources : DVF/Bercy · ADEME · Géorisques/BRGM · Hub'Eau · IGN/BAN · INSEE · BPE · BDNB/CSTB · GPU Urbanisme · WAQI · Open-Meteo
       </div>
     </div>
   </div>
@@ -454,7 +464,7 @@ function loadReport(){
   });
 }
 
-function renderAll(d){rsc(d);rdvf(d);rdpe(d);rreno(d);rrisk(d);reau(d);rbdnb(d);rplu(d);rpoi(d);rdemo(d);rap(d);}
+function renderAll(d){rsc(d);rdvf(d);rdpe(d);rreno(d);rrisk(d);reau(d);rbdnb(d);rplu(d);rpoi(d);rdemo(d);rap(d);rair(d);rclimat(d);}
 
 function rsc(d){
   var s=d.sc;
@@ -617,6 +627,95 @@ function copyLink(){
 function printReport(){
   toast('Ouverture impression…');
   setTimeout(function(){window.print();},300);
+}
+
+function rair(d){
+  var el=document.getElementById('airD');
+  if(!d.geo||!d.geo.y||!d.geo.x){el.innerHTML='<div class="card"><span class="empty">Coordonnées manquantes</span></div>';return;}
+  var lat=d.geo.y,lng=d.geo.x;
+  // WAQI API avec token demo (limité mais fonctionnel)
+  fetch('https://api.waqi.info/feed/geo:'+lat+';'+lng+'/?token=demo')
+    .then(function(r){return r.json();})
+    .then(function(res){
+      if(res.status!=='ok'||!res.data){
+        el.innerHTML='<div class="card"><span class="empty">Données air non disponibles pour cette zone</span></div>';
+        return;
+      }
+      var aqi=res.data.aqi;
+      var city=res.data.city&&res.data.city.name?res.data.city.name:'';
+      var iaqi=res.data.iaqi||{};
+      var col=aqi<=50?'var(--g)':aqi<=100?'var(--y)':aqi<=150?'var(--o)':'var(--r)';
+      var qual=aqi<=50?'Bon':aqi<=100?'Modéré':aqi<=150?'Mauvais pour groupes sensibles':'Mauvais';
+      var html='<div class="kpig">';
+      html+=kpi('','IQA (AQI)',aqi,''+qual);
+      if(iaqi.pm25)html+=kpi('','PM2.5',iaqi.pm25.v+' µg/m³','particules fines');
+      if(iaqi.pm10)html+=kpi('','PM10',iaqi.pm10.v+' µg/m³','particules');
+      if(iaqi.no2)html+=kpi('','NO₂',iaqi.no2.v+' µg/m³','dioxyde azote');
+      html+='</div>';
+      html+='<div class="card" style="margin-top:0">';
+      html+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:.5rem">';
+      html+='<div style="font-family:var(--head);font-size:2rem;font-weight:800;color:'+col+'">'+aqi+'</div>';
+      html+='<div><div style="font-size:.82rem;font-weight:600;color:'+col+'">'+qual+'</div>';
+      html+='<div style="font-family:var(--mono);font-size:.65rem;color:var(--m)">Station : '+city+'</div></div></div>';
+      html+=dr('Indice qualité air','AQI '+aqi);
+      if(iaqi.o3)html+=dr('Ozone (O₃)',iaqi.o3.v+' µg/m³');
+      if(iaqi.co)html+=dr('CO',iaqi.co.v);
+      html+='<div style="margin-top:.5rem;font-size:.65rem;color:var(--m)">Source : WAQI · Données temps réel</div>';
+      html+='</div>';
+      el.innerHTML=html;
+    }).catch(function(){
+      el.innerHTML='<div class="card"><span class="empty">Qualité de l\'air non disponible</span></div>';
+    });
+}
+
+function rclimat(d){
+  var el=document.getElementById('climatD');
+  if(!d.geo||!d.geo.y||!d.geo.x){el.innerHTML='<div class="card"><span class="empty">Coordonnées manquantes</span></div>';return;}
+  var lat=d.geo.y,lng=d.geo.x;
+  // Open-Meteo API — totalement gratuite, sans clé
+  var url='https://api.open-meteo.com/v1/forecast?latitude='+lat+'&longitude='+lng
+    +'&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,sunshine_duration,wind_speed_10m_max'
+    +'&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m'
+    +'&timezone=Europe/Paris&forecast_days=3';
+  fetch(url)
+    .then(function(r){return r.json();})
+    .then(function(res){
+      var cur=res.current||{};
+      var daily=res.daily||{};
+      var wc=cur.weather_code||0;
+      // Interprétation code météo WMO simplifié
+      var wdesc=wc===0?'☀️ Ciel dégagé':wc<=3?'⛅ Nuageux':wc<=49?'🌫️ Brouillard':wc<=69?'🌧️ Pluie':wc<=79?'🌨️ Neige':wc<=99?'⛈️ Orage':'❓';
+      // Calcul sunshine en heures (secondes → heures)
+      var sunH=daily.sunshine_duration?Math.round(daily.sunshine_duration[0]/3600):null;
+      var html='<div class="kpig">';
+      html+=kpi('y','Température',cur.temperature_2m!=null?Math.round(cur.temperature_2m)+'°C':'—','actuelle');
+      html+=kpi('','Humidité',cur.relative_humidity_2m!=null?cur.relative_humidity_2m+'%':'—','relative');
+      html+=kpi('g','Ensoleillement',sunH!=null?sunH+'h':'—','aujourd\'hui');
+      html+=kpi('','Vent',cur.wind_speed_10m!=null?Math.round(cur.wind_speed_10m)+' km/h':'—','actuel');
+      html+='</div>';
+      html+='<div class="card" style="margin-top:0">';
+      html+=dr('Conditions',wdesc);
+      if(daily.temperature_2m_max&&daily.temperature_2m_min){
+        html+=dr('Min / Max',Math.round(daily.temperature_2m_min[0])+'° / '+Math.round(daily.temperature_2m_max[0])+'°');
+      }
+      if(daily.precipitation_sum){
+        var rain=daily.precipitation_sum[0];
+        html+=dr('Précipitations',rain>0?rain.toFixed(1)+' mm':'Aucune prévue');
+      }
+      if(daily.wind_speed_10m_max){
+        html+=dr('Vent max',Math.round(daily.wind_speed_10m_max[0])+' km/h');
+      }
+      // Moyennes saisonnières — prévisions 3j
+      if(daily.temperature_2m_max&&daily.temperature_2m_max.length>=3){
+        var tMoy=Math.round(daily.temperature_2m_max.reduce(function(a,b){return a+b;})/daily.temperature_2m_max.length);
+        html+=dr('Moy. T° 3 prochains jours',tMoy+'°C');
+      }
+      html+='<div style="margin-top:.5rem;font-size:.65rem;color:var(--m)">Source : Open-Meteo · Données temps réel</div>';
+      html+='</div>';
+      el.innerHTML=html;
+    }).catch(function(){
+      el.innerHTML='<div class="card"><span class="empty">Données météo non disponibles</span></div>';
+    });
 }
 
 function toast(msg){
