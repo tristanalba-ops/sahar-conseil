@@ -11,273 +11,351 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
-  --bg:#08090e;--s1:#0c0e18;--s2:#10131f;--s3:#161928;--b0:#181b2a;--b1:#1d2133;--b2:#252a3e;
-  --a:#4f7cff;--a2:#7c5dfc;--g:#2cd87e;--r:#f54f4f;--y:#f5c43a;--o:#ff7a2f;
-  --t:#d8dced;--m:#606882;--f:#101320;
+  --bg:#08090e;--s1:#0d0f1a;--s2:#111320;--b1:#1e2135;--b2:#282d45;
+  --a:#4d7cff;--a2:#7b5fff;--g:#25d67a;--r:#ff4b4b;--y:#f5c63a;--o:#ff7b2f;
+  --t:#dce0f0;--m:#697090;--f:#13152a;
   --mono:'JetBrains Mono',monospace;--sans:'Inter',sans-serif;--head:'Syne',sans-serif;
-  --panel:390px;
 }
-html,body{width:100%;height:100%;overflow:hidden;font-family:var(--sans);background:var(--bg);color:var(--t);font-size:13px}
+html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--t);font-family:var(--sans)}
 
-/* LOCK */
-#lock{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:9999}
-.lcard{width:330px;padding:2.25rem 1.75rem;background:var(--s1);border:1px solid var(--b1);border-radius:18px;text-align:center;box-shadow:0 0 60px rgba(79,124,255,.08)}
-.llogo{font-family:var(--head);font-size:1.4rem;font-weight:800;margin-bottom:.2rem}
-.llogo em{color:var(--a);font-style:normal}
-.lsub{font-size:.75rem;color:var(--m);margin-bottom:1.5rem}
-.lcard input{width:100%;padding:.75rem;background:var(--bg);border:1px solid var(--b1);border-radius:9px;color:var(--t);font-family:var(--mono);font-size:.9rem;text-align:center;letter-spacing:4px;outline:none;transition:border-color .2s}
-.lcard input:focus{border-color:var(--a)}
-.lcard button{width:100%;margin-top:.65rem;padding:.75rem;background:linear-gradient(135deg,var(--a),var(--a2));border:none;border-radius:9px;color:#fff;font-family:var(--head);font-size:.88rem;font-weight:700;cursor:pointer;transition:opacity .15s}
-.lcard button:hover{opacity:.82}
-.lerr{font-size:.7rem;color:var(--r);margin-top:.45rem;min-height:14px}
+/* ── LOCK ─────────────────────────────────── */
+#lock{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:9000}
+.lbox{width:340px;padding:2.5rem 2rem;background:var(--s1);border:1px solid var(--b1);border-radius:18px;text-align:center}
+.lname{font-family:var(--head);font-size:1.5rem;font-weight:800;margin-bottom:.2rem}
+.lname em{color:var(--a);font-style:normal}
+.lsub{font-size:.78rem;color:var(--m);margin-bottom:1.5rem}
+.lpin{width:100%;padding:.75rem;background:var(--bg);border:1px solid var(--b1);border-radius:9px;color:var(--t);font-family:var(--mono);text-align:center;letter-spacing:4px;outline:none;margin-bottom:.75rem;font-size:.95rem}
+.lpin:focus{border-color:var(--a)}
+.lgo{width:100%;padding:.75rem;background:linear-gradient(135deg,var(--a),var(--a2));border:none;border-radius:9px;color:#fff;font-family:var(--head);font-size:.9rem;font-weight:700;cursor:pointer}
+.lerr{font-size:.73rem;color:var(--r);margin-top:.5rem;min-height:14px}
 
-/* APP */
-#app{width:100%;height:100%;display:flex;flex-direction:column}
+/* ── LAYOUT ───────────────────────────────── */
+#app{position:fixed;inset:0;display:flex;flex-direction:column}
 
-/* TOPBAR */
-#topbar{height:50px;flex-shrink:0;background:rgba(8,9,14,.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--b0);display:flex;align-items:center;gap:.7rem;padding:0 .875rem;z-index:400}
-.tlogo{font-family:var(--head);font-size:.88rem;font-weight:800;white-space:nowrap;flex-shrink:0}
-.tlogo em{color:var(--a);font-style:normal}
-#searchWrap{flex:1;max-width:440px;position:relative}
-#si{width:100%;padding:.48rem .85rem;background:var(--s2);border:1px solid var(--b1);border-radius:8px;color:var(--t);font-family:var(--sans);font-size:.8rem;outline:none;transition:border-color .2s}
-#si:focus{border-color:rgba(79,124,255,.45)}
+/* topbar */
+#bar{height:52px;flex-shrink:0;background:rgba(8,9,14,.95);backdrop-filter:blur(14px);border-bottom:1px solid var(--b1);display:flex;align-items:center;gap:.6rem;padding:0 1rem;z-index:400}
+.blogo{font-family:var(--head);font-size:.88rem;font-weight:800;white-space:nowrap;flex-shrink:0}
+.blogo em{color:var(--a);font-style:normal}
+#sw{flex:1;position:relative;max-width:500px}
+#si{width:100%;padding:.45rem .9rem;background:rgba(13,15,26,.9);border:1px solid var(--b1);border-radius:8px;color:var(--t);font-family:var(--sans);font-size:.83rem;outline:none}
+#si:focus{border-color:var(--a);box-shadow:0 0 0 3px rgba(77,124,255,.1)}
 #si::placeholder{color:var(--m)}
-#sdd{position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--s1);border:1px solid var(--b1);border-radius:9px;z-index:600;max-height:190px;overflow-y:auto;display:none;box-shadow:0 10px 36px rgba(0,0,0,.55)}
-.sg{padding:.55rem .85rem;cursor:pointer;font-size:.78rem;border-bottom:1px solid var(--b0);color:var(--t);transition:background .1s;display:flex;align-items:center;gap:5px}
-.sg::before{content:'📍';font-size:.68rem;opacity:.5;flex-shrink:0}
+#sdd{position:absolute;top:calc(100%+4px);left:0;right:0;background:rgba(11,13,22,.98);border:1px solid var(--b1);border-radius:10px;z-index:600;display:none;max-height:220px;overflow-y:auto;box-shadow:0 8px 30px rgba(0,0,0,.5)}
+.sg{padding:.55rem .9rem;cursor:pointer;font-size:.8rem;border-bottom:1px solid var(--b1);display:flex;align-items:center;gap:6px}
+.sg::before{content:'📍';font-size:.72rem;flex-shrink:0}
 .sg:last-child{border-bottom:none}
-.sg:hover{background:rgba(79,124,255,.06);color:var(--a)}
-#locBtn{padding:.48rem .7rem;background:var(--s2);border:1px solid var(--b1);border-radius:8px;color:var(--m);cursor:pointer;font-size:.82rem;flex-shrink:0;transition:all .15s}
-#locBtn:hover{border-color:var(--a);color:var(--a)}
-.sep{width:1px;height:20px;background:var(--b1);flex-shrink:0}
-/* Facette buttons */
-.facettes{display:flex;gap:4px;flex-shrink:0}
-.fbt{display:flex;align-items:center;gap:4px;padding:.32rem .6rem;border-radius:6px;cursor:pointer;border:1px solid var(--b1);font-family:var(--mono);font-size:.62rem;font-weight:500;transition:all .18s;white-space:nowrap;background:var(--s2);color:var(--m)}
-.fbt .fd{width:6px;height:6px;border-radius:50%;flex-shrink:0;transition:opacity .2s}
-.fbt.off{opacity:.4}
-.fbt.on[data-l="transport"]{background:rgba(79,124,255,.1);border-color:rgba(79,124,255,.22);color:var(--a)}
-.fbt.on[data-l="transport"] .fd{background:var(--a)}
-.fbt.on[data-l="ecoles"]{background:rgba(44,216,126,.09);border-color:rgba(44,216,126,.2);color:var(--g)}
-.fbt.on[data-l="ecoles"] .fd{background:var(--g)}
-.fbt.on[data-l="sante"]{background:rgba(245,79,79,.08);border-color:rgba(245,79,79,.2);color:var(--r)}
-.fbt.on[data-l="sante"] .fd{background:var(--r)}
-.fbt.on[data-l="commerces"]{background:rgba(245,196,58,.09);border-color:rgba(245,196,58,.2);color:var(--y)}
-.fbt.on[data-l="commerces"] .fd{background:var(--y)}
-.fbt.on[data-l="parcelle"]{background:rgba(124,93,252,.09);border-color:rgba(124,93,252,.2);color:var(--a2)}
-.fbt.on[data-l="parcelle"] .fd{background:var(--a2);border-radius:2px}
-@media(max-width:860px){.facettes{display:none}.sep{display:none}.tlogo{display:none}}
+.sg:hover{background:rgba(77,124,255,.08)}
+#locbtn{padding:.45rem .7rem;background:rgba(13,15,26,.9);border:1px solid var(--b1);border-radius:8px;color:var(--t);cursor:pointer;font-size:.85rem;flex-shrink:0}
+#locbtn:hover{border-color:var(--a)}
+/* layer toggles */
+.lbtns{display:flex;gap:3px;flex-shrink:0}
+.lb{padding:.3rem .55rem;background:rgba(13,15,26,.9);border:1px solid var(--b1);border-radius:6px;color:var(--m);cursor:pointer;font-family:var(--mono);font-size:.58rem;letter-spacing:.5px;white-space:nowrap}
+.lb.on{background:rgba(77,124,255,.12);border-color:rgba(77,124,255,.45);color:var(--a)}
+@media(max-width:600px){.lbtns{display:none}.blogo{display:none}}
 
-/* MAIN SPLIT */
-#main{flex:1;display:flex;overflow:hidden}
+/* content row */
+#content{flex:1;display:flex;min-height:0;overflow:hidden}
 
-/* MAP — toujours visible, jamais caché */
-#mapw{flex:1;min-width:0;position:relative}
-#map{width:100%;height:100%}
-.leaflet-tile{filter:brightness(.7) saturate(.55) hue-rotate(185deg) contrast(1.05)}
-.leaflet-control-zoom{border:1px solid var(--b1)!important;background:rgba(9,10,18,.88)!important;border-radius:8px!important;overflow:hidden}
-.leaflet-control-zoom a{background:transparent!important;color:var(--t)!important;border-bottom:1px solid var(--b0)!important;width:26px!important;height:26px!important;line-height:26px!important;font-size:.85rem!important}
-.leaflet-control-zoom a:last-child{border-bottom:none!important}
-.leaflet-control-zoom a:hover{background:rgba(79,124,255,.1)!important}
-.leaflet-control-attribution{background:rgba(6,7,11,.75)!important;color:var(--m)!important;font-size:9px!important}
-.leaflet-popup-content-wrapper{background:var(--s1)!important;border:1px solid var(--b1)!important;border-radius:9px!important;color:var(--t)!important;box-shadow:0 6px 20px rgba(0,0,0,.5)!important;font-family:var(--sans)!important;font-size:.75rem!important}
-.leaflet-popup-tip{background:var(--s1)!important}
-.leaflet-popup-content{margin:8px 12px!important}
+/* ── MAP ──────────────────────────────────── */
+#mwrap{flex:1;position:relative;min-width:0;overflow:hidden}
+#map{position:absolute;inset:0}
+.leaflet-tile{filter:brightness(.72) saturate(.55) hue-rotate(188deg)}
+.leaflet-control-zoom{border:1px solid var(--b1)!important;background:rgba(11,13,22,.92)!important}
+.leaflet-control-zoom a{background:transparent!important;color:var(--t)!important;border-bottom:1px solid var(--b1)!important}
+.leaflet-control-zoom a:hover{background:rgba(77,124,255,.15)!important}
+.leaflet-control-attribution{background:rgba(7,8,14,.8)!important;color:var(--m)!important;font-size:9px!important}
+/* legend */
+#legend{position:absolute;bottom:14px;left:14px;z-index:200;background:rgba(8,9,14,.88);backdrop-filter:blur(10px);border:1px solid var(--b1);border-radius:8px;padding:.5rem .75rem;display:none}
+#legend.on{display:block}
+.li{display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:.62rem;color:var(--m);margin-bottom:3px}
+.li:last-child{margin-bottom:0}
+.ldot{width:9px;height:9px;border-radius:50%;border:1.5px solid rgba(255,255,255,.25);flex-shrink:0}
 
-/* Legend */
-#legend{position:absolute;bottom:14px;left:14px;z-index:300;background:rgba(9,10,18,.88);backdrop-filter:blur(10px);border:1px solid var(--b1);border-radius:9px;padding:.5rem .75rem;display:none;flex-direction:column;gap:4px}
-#legend.show{display:flex}
-.lg-row{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:.6rem;color:var(--m)}
-.lg-d{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.lg-s{width:8px;height:8px;border-radius:2px;flex-shrink:0}
-
-/* PANEL */
-#panel{width:var(--panel);height:100%;flex-shrink:0;background:var(--s1);border-left:1px solid var(--b0);display:flex;flex-direction:column;overflow:hidden}
-@media(max-width:860px){
-  #main{flex-direction:column}
-  #mapw{height:42vh;flex:none}
-  #panel{width:100%;height:58vh;border-left:none;border-top:1px solid var(--b0)}
+/* ── PANEL ────────────────────────────────── */
+#panel{width:400px;height:100%;background:var(--s1);border-left:1px solid var(--b1);overflow-y:auto;overflow-x:hidden;flex-shrink:0;display:flex;flex-direction:column}
+#panel::-webkit-scrollbar{width:3px}
+#panel::-webkit-scrollbar-thumb{background:var(--b2);border-radius:2px}
+@media(max-width:800px){
+  #content{flex-direction:column}
+  #mwrap{height:45vh;flex:none}
+  #panel{width:100%;flex:1;border-left:none;border-top:1px solid var(--b1)}
 }
-#panel::-webkit-scrollbar{width:0}
 
-/* Empty */
-#pEm{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:2rem;gap:.5rem}
-.em-ico{font-size:2rem;opacity:.18}
-.em-h{font-family:var(--head);font-size:.88rem;color:var(--m)}
-.em-p{font-size:.72rem;color:var(--m);opacity:.5;line-height:1.65;max-width:210px}
-
-/* Loading */
-#pLoad{flex:1;display:none;flex-direction:column;align-items:center;justify-content:center;gap:.65rem}
-#pLoad.on{display:flex}
-.sp{width:22px;height:22px;border:2px solid var(--b2);border-top-color:var(--a);border-radius:50%;animation:rot .7s linear infinite}
+/* panel states */
+#pempty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;text-align:center;color:var(--m)}
+#pempty .icon{font-size:2.2rem;margin-bottom:.75rem;opacity:.2}
+#pempty p{font-size:.78rem;line-height:1.7;max-width:210px}
+#pload{flex:1;display:none;flex-direction:column;align-items:center;justify-content:center;gap:.75rem}
+#pload.on{display:flex}
+.spin{width:26px;height:26px;border:2px solid var(--b2);border-top-color:var(--a);border-radius:50%;animation:rot .75s linear infinite}
 @keyframes rot{to{transform:rotate(360deg)}}
-#pLoad p{font-size:.72rem;color:var(--m)}
+#pload p{font-size:.76rem;color:var(--m)}
+#pbody{display:none}
+#pbody.on{display:block}
 
-/* Body */
-#pBody{flex:1;overflow-y:auto;display:none;flex-direction:column;min-height:0}
-#pBody.show{display:flex}
-#pBody::-webkit-scrollbar{width:3px}
-#pBody::-webkit-scrollbar-thumb{background:var(--b2);border-radius:2px}
+/* panel header */
+.phead{padding:.9rem 1rem .75rem;border-bottom:1px solid var(--b1);background:linear-gradient(180deg,var(--s2),var(--s1));position:sticky;top:0;z-index:10}
+.paddr{font-family:var(--head);font-size:.92rem;font-weight:700;line-height:1.3;margin-bottom:.15rem}
+.psub{font-family:var(--mono);font-size:.62rem;color:var(--m)}
+.pclose{float:right;background:none;border:none;color:var(--m);cursor:pointer;font-size:.95rem;line-height:1;margin-top:-2px}
+/* score header */
+.score-strip{display:flex;align-items:center;gap:.75rem;margin-top:.65rem}
+.snum{font-family:var(--head);font-size:2rem;font-weight:800;line-height:1}
+.sbars{flex:1;display:flex;flex-direction:column;gap:2px}
+.sbar{display:flex;align-items:center;gap:4px}
+.sl{font-size:.58rem;color:var(--m);flex:0 0 62px;font-family:var(--mono)}
+.sr{flex:1;height:2.5px;background:var(--b1);border-radius:2px;overflow:hidden}
+.sf{height:2.5px;border-radius:2px}
 
-/* Panel header */
-.ph{background:linear-gradient(160deg,var(--s2) 0%,var(--s1) 100%);padding:.85rem .9rem .75rem;border-bottom:1px solid var(--b0);flex-shrink:0;position:sticky;top:0;z-index:10}
-.ph-top{display:flex;justify-content:space-between;align-items:flex-start;gap:.5rem;margin-bottom:.55rem}
-.ph-addr{font-family:var(--head);font-size:.85rem;font-weight:700;line-height:1.3;color:var(--t)}
-.ph-sub{font-family:var(--mono);font-size:.58rem;color:var(--m);margin-top:.1rem}
-.ph-x{background:none;border:none;color:var(--m);cursor:pointer;font-size:.9rem;padding:2px;line-height:1;transition:color .15s;flex-shrink:0;margin-top:1px}
-.ph-x:hover{color:var(--t)}
-.sc-row{display:flex;align-items:center;gap:.8rem}
-.sc-num{font-family:var(--head);font-size:2rem;font-weight:800;line-height:1}
-.sc-lab{font-family:var(--mono);font-size:.55rem;color:var(--m);margin-top:1px}
-.sc-bars{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:2px 8px}
-.sb{display:flex;align-items:center;gap:4px}
-.sb-l{font-size:.57rem;color:var(--m);flex:0 0 58px;font-family:var(--mono)}
-.sb-b{flex:1;height:2px;background:var(--b1);border-radius:2px;overflow:hidden}
-.sb-f{height:2px;border-radius:2px}
+/* panel body */
+.pbody{padding:.65rem 1rem 2rem}
 
-/* Panel body content */
-.pb{padding:.65rem .875rem 1.5rem}
-
-/* Estim card */
-.ec{background:linear-gradient(135deg,rgba(79,124,255,.07),rgba(124,93,252,.04));border:1px solid rgba(79,124,255,.17);border-radius:11px;padding:.8rem;margin-bottom:.7rem;position:relative;overflow:hidden}
-.ec::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--a),var(--a2))}
-.ec-tag{font-family:var(--mono);font-size:.57rem;letter-spacing:2px;text-transform:uppercase;color:var(--a);margin-bottom:.4rem;display:flex;align-items:center;gap:5px}
-.ec-tag::before{content:'';width:4px;height:4px;border-radius:50%;background:var(--a);animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
-.ec-price{font-family:var(--head);font-size:1.75rem;font-weight:800;color:var(--a);line-height:1}
-.ec-unit{font-size:.78rem;color:var(--m);font-weight:400}
-.ec-line{display:flex;justify-content:space-between;align-items:flex-end;margin-top:.4rem;gap:.65rem;flex-wrap:wrap}
-.ec-sub{font-size:.68rem;color:var(--m);line-height:1.5}
-.ec-box{background:rgba(79,124,255,.09);border:1px solid rgba(79,124,255,.16);border-radius:7px;padding:.45rem .7rem;text-align:center;flex-shrink:0}
-.ec-bval{font-family:var(--head);font-size:1.05rem;font-weight:700}
-.ec-blbl{font-family:var(--mono);font-size:.52rem;letter-spacing:1px;text-transform:uppercase;color:var(--m);margin-top:1px}
-.ec-meta{display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.6rem;padding-top:.55rem;border-top:1px solid rgba(79,124,255,.09)}
-.em{font-family:var(--mono);font-size:.57rem;color:var(--m);background:var(--f);border:1px solid var(--b0);border-radius:4px;padding:1px 5px}
+/* ESTIM card */
+.ecard{background:linear-gradient(135deg,rgba(77,124,255,.08),rgba(123,95,255,.05));border:1px solid rgba(77,124,255,.22);border-radius:12px;padding:.9rem;margin-bottom:.75rem;position:relative;overflow:hidden}
+.ecard::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--a),var(--a2))}
+.etag{font-family:var(--mono);font-size:7.5px;letter-spacing:2px;text-transform:uppercase;color:var(--a);margin-bottom:.4rem}
+.eprice{font-family:var(--head);font-size:1.85rem;font-weight:800;color:var(--a);line-height:1}
+.eunit{font-size:.78rem;color:var(--m);font-weight:400}
+.erow{display:flex;justify-content:space-between;align-items:flex-end;margin-top:.4rem;gap:.5rem;flex-wrap:wrap}
+.esub{font-size:.7rem;color:var(--m)}
+.erange{font-family:var(--mono);font-size:.62rem;color:var(--m);margin-top:.15rem}
+.etot{background:rgba(77,124,255,.12);border:1px solid rgba(77,124,255,.2);border-radius:8px;padding:.4rem .8rem;text-align:center;flex-shrink:0}
+.etval{font-family:var(--head);font-size:1.05rem;font-weight:700}
+.etlbl{font-family:var(--mono);font-size:7px;letter-spacing:1px;text-transform:uppercase;color:var(--m)}
+.emeta{display:flex;gap:.3rem;flex-wrap:wrap;margin-top:.6rem;padding-top:.6rem;border-top:1px solid rgba(77,124,255,.1)}
+.em{font-family:var(--mono);font-size:8.5px;color:var(--m);background:var(--f);border:1px solid var(--b1);border-radius:4px;padding:2px 6px}
 .em strong{color:var(--t)}
 
-/* Sections */
-.sec{margin-bottom:.55rem}
-.sh{display:flex;align-items:center;gap:5px;margin-bottom:.45rem;padding-bottom:.35rem;border-bottom:1px solid var(--b0)}
-.stag{font-family:var(--mono);font-size:.55rem;letter-spacing:1.5px;text-transform:uppercase;padding:2px 5px;border-radius:3px;flex-shrink:0}
-.ta{background:rgba(79,124,255,.09);color:var(--a);border:1px solid rgba(79,124,255,.17)}
-.tg{background:rgba(44,216,126,.08);color:var(--g);border:1px solid rgba(44,216,126,.16)}
-.tr{background:rgba(245,79,79,.07);color:var(--r);border:1px solid rgba(245,79,79,.16)}
-.ty{background:rgba(245,196,58,.08);color:var(--y);border:1px solid rgba(245,196,58,.16)}
-.tp{background:rgba(124,93,252,.09);color:var(--a2);border:1px solid rgba(124,93,252,.18)}
-.to{background:rgba(255,122,47,.08);color:var(--o);border:1px solid rgba(255,122,47,.16)}
-.stitle{font-size:.76rem;font-weight:600}
-.si{font-size:.8rem;flex-shrink:0}
+/* section grid layout */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.75rem}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.5rem;margin-bottom:.75rem}
 
-/* Cards */
-.card{background:var(--s2);border:1px solid var(--b0);border-radius:9px;padding:.65rem}
-.card+.card{margin-top:5px}
-.kpig{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:5px}
-.kpi{background:var(--s2);border:1px solid var(--b0);border-radius:7px;padding:.55rem .65rem;position:relative;overflow:hidden}
+/* sections */
+.sec{margin-bottom:.75rem}
+.sh{display:flex;align-items:center;gap:5px;margin-bottom:.5rem;padding-bottom:.4rem;border-bottom:1px solid var(--b1)}
+.si2{font-size:.85rem;flex-shrink:0}
+.stag{font-family:var(--mono);font-size:7.5px;letter-spacing:1.5px;text-transform:uppercase;padding:2px 5px;border-radius:3px;flex-shrink:0}
+.ta{background:rgba(77,124,255,.12);color:var(--a);border:1px solid rgba(77,124,255,.2)}
+.tg{background:rgba(37,214,122,.1);color:var(--g);border:1px solid rgba(37,214,122,.2)}
+.tr{background:rgba(255,75,75,.08);color:var(--r);border:1px solid rgba(255,75,75,.2)}
+.ty{background:rgba(245,198,58,.1);color:var(--y);border:1px solid rgba(245,198,58,.2)}
+.tp{background:rgba(123,95,255,.1);color:var(--a2);border:1px solid rgba(123,95,255,.2)}
+.to{background:rgba(255,123,47,.1);color:var(--o);border:1px solid rgba(255,123,47,.2)}
+.stitle{font-size:.8rem;font-weight:600}
+.card{background:var(--s2);border:1px solid var(--b1);border-radius:9px;padding:.75rem}
+/* KPI tiles */
+.kpi{background:var(--s2);border:1px solid var(--b1);border-radius:8px;padding:.6rem .75rem;position:relative;overflow:hidden}
 .kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:1.5px}
 .kpi.a::before{background:var(--a)}.kpi.g::before{background:var(--g)}.kpi.r::before{background:var(--r)}.kpi.y::before{background:var(--y)}.kpi.p::before{background:var(--a2)}.kpi.o::before{background:var(--o)}
-.klbl{font-family:var(--mono);font-size:.55rem;letter-spacing:1.2px;text-transform:uppercase;color:var(--m);margin-bottom:3px}
-.kval{font-family:var(--head);font-size:1.02rem;font-weight:700;line-height:1}
-.kval.a{color:var(--a)}.kval.g{color:var(--g)}.kval.r{color:var(--r)}.kval.y{color:var(--y)}.kval.p{color:var(--a2)}
-.ksub{font-size:.6rem;color:var(--m);margin-top:1px;font-family:var(--mono)}
-.dr{display:flex;justify-content:space-between;align-items:baseline;padding:3.5px 0;border-bottom:1px solid rgba(255,255,255,.022);font-size:.73rem}
+.klbl{font-family:var(--mono);font-size:7px;letter-spacing:1.5px;text-transform:uppercase;color:var(--m);margin-bottom:2px}
+.kval{font-family:var(--head);font-size:1.05rem;font-weight:700;line-height:1.1}
+.kval.a{color:var(--a)}.kval.g{color:var(--g)}.kval.r{color:var(--r)}.kval.y{color:var(--y)}.kval.p{color:var(--a2)}.kval.o{color:var(--o)}
+.ksub{font-size:.6rem;color:var(--m);margin-top:2px;font-family:var(--mono)}
+/* data rows */
+.dr{display:flex;justify-content:space-between;align-items:baseline;padding:3.5px 0;border-bottom:1px solid rgba(255,255,255,.03);font-size:.74rem}
 .dr:last-child{border-bottom:none}
-.dl{color:var(--m)}.dv{font-family:var(--mono);font-size:.68rem;font-weight:500;text-align:right;color:var(--t)}
+.dl{color:var(--m)}
+.dv{font-family:var(--mono);font-size:.68rem;font-weight:500;text-align:right}
+/* score bars */
 .bb{display:flex;align-items:center;gap:5px;margin-bottom:4px}
-.bbl{flex:0 0 76px;font-size:.65rem;color:var(--m)}.bbr{flex:1;height:3px;background:var(--b1);border-radius:2px;overflow:hidden}.bbf{height:3px;border-radius:2px;transition:width .4s .1s ease}
-.bbv{flex:0 0 22px;text-align:right;font-family:var(--mono);font-size:.6rem;font-weight:600}
-.dpe-stack{display:flex;height:13px;gap:1px;border-radius:2px;overflow:hidden;margin:5px 0}
-.ds{display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:.5rem;font-weight:700;color:#fff}
+.bbl{flex:0 0 75px;font-size:.68rem;color:var(--m)}
+.bbr{flex:1;height:3px;background:var(--b1);border-radius:2px;overflow:hidden}
+.bbf{height:3px;border-radius:2px;transition:width .5s ease}
+.bbv{flex:0 0 22px;text-align:right;font-family:var(--mono);font-size:8px;font-weight:600}
+/* DPE */
+.dpe-stack{display:flex;height:14px;gap:1px;border-radius:3px;overflow:hidden;margin:4px 0}
+.ds{display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:7px;font-weight:700;color:#fff}
 .dA{background:#1a7a4a}.dB{background:#5a9a2a}.dC{background:#a0c040;color:#111}.dD{background:#e8c020;color:#111}.dE{background:#e88020}.dF{background:#cc3030}.dG{background:#881010}
-.tbl{width:100%;border-collapse:collapse}
-.tbl th{background:var(--f);padding:4px 6px;text-align:left;font-family:var(--mono);font-size:.55rem;letter-spacing:.8px;text-transform:uppercase;color:var(--m);border-bottom:1px solid var(--b0)}
-.tbl td{padding:4px 6px;border-bottom:1px solid rgba(255,255,255,.018);font-size:.7rem}
+/* table */
+.tbl{width:100%;border-collapse:collapse;font-size:.7rem}
+.tbl th{background:var(--f);padding:4px 6px;text-align:left;font-family:var(--mono);font-size:6.5px;letter-spacing:1px;text-transform:uppercase;color:var(--m);border-bottom:1px solid var(--b1)}
+.tbl td{padding:4px 6px;border-bottom:1px solid rgba(255,255,255,.025)}
 .tbl tr:last-child td{border-bottom:none}
-.tbl tr:hover td{background:rgba(255,255,255,.01)}
-.poi-item{display:flex;align-items:center;gap:7px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.02);font-size:.72rem}
-.poi-item:last-child{border-bottom:none}
-.poi-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-.reno-card{background:linear-gradient(135deg,rgba(255,122,47,.05),rgba(245,196,58,.03));border:1px solid rgba(255,122,47,.16);border-radius:9px;padding:.65rem}
-.reno-r{display:flex;justify-content:space-between;align-items:center;padding:3.5px 0;border-bottom:1px solid rgba(255,122,47,.07);font-size:.72rem}
-.reno-r:last-child{border-bottom:none}
-.risk-item{display:flex;align-items:center;gap:6px;padding:3.5px 0;border-bottom:1px solid rgba(255,255,255,.022);font-size:.72rem}
-.risk-item:last-child{border-bottom:none}
-.rb{font-family:var(--mono);font-size:.6rem;padding:1px 5px;border-radius:3px;flex-shrink:0}
-.rb-y{background:rgba(245,79,79,.1);color:var(--r);border:1px solid rgba(245,79,79,.18)}
-.rb-n{background:rgba(44,216,126,.08);color:var(--g);border:1px solid rgba(44,216,126,.14)}
-.src-note{font-family:var(--mono);font-size:.56rem;color:var(--m);opacity:.45;margin-top:5px}
-.empty-note{color:var(--m);font-size:.7rem}
-.share-row{display:flex;gap:5px;margin-top:.7rem;padding-top:.65rem;border-top:1px solid var(--b0)}
-.sbtn{flex:1;padding:.5rem;background:var(--f);border:1px solid var(--b0);border-radius:7px;color:var(--m);font-family:var(--sans);font-size:.7rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px;transition:all .15s}
-.sbtn:hover{border-color:var(--a);color:var(--a)}
-.sbtn.p{background:linear-gradient(135deg,var(--a),var(--a2));border:none;color:#fff;font-weight:600}
-.sbtn.p:hover{opacity:.85}
-.src-list{font-family:var(--mono);font-size:.55rem;color:var(--m);opacity:.35;line-height:1.9;margin-top:.65rem;padding-top:.6rem;border-top:1px solid var(--b0)}
+/* risk badges */
+.rbadge{font-family:var(--mono);font-size:.62rem;padding:1px 5px;border-radius:3px;flex-shrink:0}
+.rb-y{background:rgba(255,75,75,.1);color:var(--r);border:1px solid rgba(255,75,75,.2)}
+.rb-n{background:rgba(37,214,122,.07);color:var(--g);border:1px solid rgba(37,214,122,.15)}
+.rrow{display:flex;align-items:center;gap:6px;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.03);font-size:.73rem}
+.rrow:last-child{border-bottom:none}
+/* bottom bar */
+.pfoot{display:flex;gap:5px;padding:.75rem 1rem;border-top:1px solid var(--b1);flex-shrink:0;position:sticky;bottom:0;background:var(--s1)}
+.fbtn{flex:1;padding:.5rem;background:var(--f);border:1px solid var(--b1);border-radius:8px;color:var(--t);font-size:.73rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px}
+.fbtn:hover{border-color:var(--a);color:var(--a)}
+.fbtn.p{background:linear-gradient(135deg,var(--a),var(--a2));border:none;font-weight:600}
+.sources{font-family:var(--mono);font-size:.58rem;color:var(--m);line-height:1.7;padding:.6rem 1rem;border-top:1px solid var(--b1)}
+.empty{color:var(--m);font-size:.73rem}
 
-#toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:rgba(12,14,24,.94);border:1px solid var(--b1);border-radius:8px;padding:.45rem 1rem;font-size:.75rem;z-index:9000;opacity:0;transition:opacity .25s;pointer-events:none;backdrop-filter:blur(10px)}
-#toast.show{opacity:1}
-@media print{#topbar,#mapw,#legend,#pEm,#pLoad,.ph-x,.share-row{display:none!important}#main{flex-direction:column}#panel{width:100%;height:auto;border:none;overflow:visible}}
+#toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:rgba(11,13,22,.96);border:1px solid var(--b1);border-radius:8px;padding:.45rem 1rem;font-size:.78rem;z-index:1000;opacity:0;transition:opacity .3s;pointer-events:none}
+#toast.on{opacity:1}
+.hidden{display:none!important}
 </style>
 </head>
 <body>
 
+<!-- LOCK -->
 <div id="lock">
-  <div class="lcard">
-    <div class="llogo">Intent<em>.Analytics</em></div>
-    <div class="lsub">Carte — Usage interne</div>
-    <input type="password" id="lpin" placeholder="••••••••" autocomplete="off">
-    <button onclick="unlock()">Accéder →</button>
+  <div class="lbox">
+    <div class="lname">Intent<em>.Analytics</em></div>
+    <div class="lsub">Carte · Accès restreint</div>
+    <input type="password" id="lpin" class="lpin" placeholder="••••••••" autocomplete="off">
+    <button class="lgo" onclick="unlock()">Accéder →</button>
     <div id="lerr" class="lerr"></div>
   </div>
 </div>
 
-<div id="app" style="display:none">
-  <div id="topbar">
-    <div class="tlogo">Intent<em>.Analytics</em></div>
-    <div id="searchWrap">
-      <input type="text" id="si" placeholder="Rechercher une adresse…" autocomplete="off">
+<!-- APP -->
+<div id="app" class="hidden">
+  <!-- TOPBAR -->
+  <div id="bar">
+    <div class="blogo">Intent<em>.Analytics</em></div>
+    <div id="sw">
+      <input type="text" id="si" placeholder="🔍  Rechercher une adresse…" autocomplete="off">
       <div id="sdd"></div>
     </div>
-    <button id="locBtn" onclick="locate()" title="Me localiser">📍</button>
-    <div class="sep"></div>
-    <div class="facettes">
-      <div class="fbt on" data-l="transport" onclick="toggleL(this)"><span class="fd"></span>Transports</div>
-      <div class="fbt on" data-l="ecoles" onclick="toggleL(this)"><span class="fd"></span>Écoles</div>
-      <div class="fbt on" data-l="sante" onclick="toggleL(this)"><span class="fd"></span>Santé</div>
-      <div class="fbt on" data-l="commerces" onclick="toggleL(this)"><span class="fd"></span>Commerces</div>
-      <div class="fbt on" data-l="parcelle" onclick="toggleL(this)"><span class="fd"></span>Parcelle</div>
+    <button id="locbtn" onclick="locate()" title="Me localiser">📍</button>
+    <div class="lbtns">
+      <button class="lb on" id="lb-t" onclick="tgl('t')">🚌</button>
+      <button class="lb on" id="lb-s" onclick="tgl('s')">🏫</button>
+      <button class="lb on" id="lb-h" onclick="tgl('h')">🏥</button>
+      <button class="lb" id="lb-p" onclick="tgl('p')">📐</button>
     </div>
   </div>
 
-  <div id="main">
-    <div id="mapw">
+  <!-- CONTENT -->
+  <div id="content">
+    <!-- MAP -->
+    <div id="mwrap">
       <div id="map"></div>
       <div id="legend">
-        <div class="lg-row"><span class="lg-d" style="background:var(--a)"></span>Transports</div>
-        <div class="lg-row"><span class="lg-d" style="background:var(--g)"></span>Écoles</div>
-        <div class="lg-row"><span class="lg-d" style="background:var(--r)"></span>Santé</div>
-        <div class="lg-row"><span class="lg-d" style="background:var(--y)"></span>Commerces</div>
-        <div class="lg-row"><span class="lg-s" style="background:rgba(124,93,252,.4);border:1.5px solid var(--a2)"></span>Parcelle</div>
+        <div class="li"><div class="ldot" style="background:#4d7cff"></div>Transports</div>
+        <div class="li"><div class="ldot" style="background:#25d67a"></div>Écoles</div>
+        <div class="li"><div class="ldot" style="background:#ff4b4b"></div>Santé</div>
       </div>
     </div>
 
+    <!-- PANEL -->
     <div id="panel">
-      <div id="pEm">
-        <div class="em-ico">🗺️</div>
-        <div class="em-h">Cliquez sur la carte</div>
-        <div class="em-p">ou recherchez une adresse pour afficher le rapport complet</div>
+      <div id="pempty">
+        <div class="icon">🗺️</div>
+        <p>Cliquez sur la carte ou recherchez une adresse pour afficher son rapport</p>
       </div>
-      <div id="pLoad"><div class="sp"></div><p>Chargement…</p></div>
-      <div id="pBody">
-        <div class="ph">
-          <div class="ph-top">
-            <div><div class="ph-addr" id="phAddr">—</div><div class="ph-sub" id="phSub">—</div></div>
-            <button class="ph-x" onclick="closePanel()">✕</button>
-          </div>
-          <div class="sc-row" id="scRow" style="display:none">
-            <div><div class="sc-num" id="scNum">—</div><div class="sc-lab">/100 · localisation</div></div>
-            <div class="sc-bars" id="scBars"></div>
+      <div id="pload"><div class="spin"></div><p>Chargement…</p></div>
+      <div id="pbody">
+        <div class="phead">
+          <button class="pclose" onclick="reset()">✕</button>
+          <div class="paddr" id="paddr"></div>
+          <div class="psub" id="psub"></div>
+          <div class="score-strip" id="sstrip" style="display:none">
+            <div>
+              <div class="snum" id="snum"></div>
+              <div style="font-family:var(--mono);font-size:.58rem;color:var(--m);margin-top:1px">/100 score localisation</div>
+            </div>
+            <div class="sbars" id="sbars"></div>
           </div>
         </div>
-        <div class="pb" id="pb"></div>
+
+        <div class="pbody">
+          <!-- ESTIMATION -->
+          <div id="esec"></div>
+
+          <!-- DVF + DPE côte à côte -->
+          <div class="sec">
+            <div class="sh"><span class="si2">💰</span><span class="stag ty">DVF · Transactions</span></div>
+            <div class="grid3" id="dvfK"></div>
+            <div class="card" style="overflow:auto;max-height:185px">
+              <table class="tbl"><thead><tr><th>Date</th><th>Type</th><th>Surf.</th><th>€/m²</th></tr></thead>
+              <tbody id="dvfT"></tbody></table>
+            </div>
+          </div>
+
+          <div class="sec">
+            <div class="sh"><span class="si2">⚡</span><span class="stag tg">DPE · Énergie</span></div>
+            <div class="grid2" id="dpeK"></div>
+            <div class="card">
+              <div class="dpe-stack" id="dpeStack"></div>
+              <div id="dpeI" style="margin-top:.35rem;font-size:.7rem"></div>
+            </div>
+          </div>
+
+          <!-- RENO -->
+          <div class="sec">
+            <div class="sh"><span class="si2">🔧</span><span class="stag to">Rénovation · Estimation</span></div>
+            <div id="renoD"></div>
+          </div>
+
+          <!-- POI scores -->
+          <div class="sec">
+            <div class="sh"><span class="si2">📍</span><span class="stag ta">POI · Scores équipements</span></div>
+            <div class="card" id="poiD"></div>
+          </div>
+
+          <!-- Scolaire + Santé -->
+          <div class="sec">
+            <div class="sh"><span class="si2">🏫</span><span class="stag tg">Carte scolaire · 1km</span></div>
+            <div id="scolD"><div class="card"><span class="empty">Chargement…</span></div></div>
+          </div>
+
+          <div class="sec">
+            <div class="sh"><span class="si2">🏥</span><span class="stag tr">Santé · Proximité</span></div>
+            <div id="santeD"><div class="card"><span class="empty">Chargement…</span></div></div>
+          </div>
+
+          <!-- Géorisques + Eau -->
+          <div class="sec">
+            <div class="sh"><span class="si2">🛡️</span><span class="stag tr">Géorisques</span></div>
+            <div class="card" id="riskD"></div>
+          </div>
+
+          <div class="sec">
+            <div class="sh"><span class="si2">💧</span><span class="stag ta">Eau potable · Hub'Eau</span></div>
+            <div class="card" id="eauD"></div>
+          </div>
+
+          <!-- Cadastre + BDNB + PLU -->
+          <div class="sec">
+            <div class="sh"><span class="si2">📐</span><span class="stag ta">Cadastre · Bâtiment · PLU</span></div>
+            <div class="grid2" style="margin-bottom:.5rem">
+              <div id="cadastreD"><div class="card"><span class="empty">…</span></div></div>
+              <div id="bdnbD"><div class="card"><span class="empty">…</span></div></div>
+            </div>
+            <div id="pluD"><div class="card"><span class="empty">…</span></div></div>
+          </div>
+
+          <!-- INSEE + Commune -->
+          <div class="sec">
+            <div class="sh"><span class="si2">👥</span><span class="stag ta">INSEE · Démographie</span></div>
+            <div class="grid3" id="demoK"></div>
+            <div class="card" id="demoD"></div>
+          </div>
+
+          <!-- Air + Météo -->
+          <div class="sec">
+            <div class="sh"><span class="si2">🌬️☀️</span><span class="stag ta">Air · Météo temps réel</span></div>
+            <div class="grid2">
+              <div id="airD"><div class="card"><span class="empty">…</span></div></div>
+              <div id="climatD"><div class="card"><span class="empty">…</span></div></div>
+            </div>
+          </div>
+
+          <!-- SIRENE + RGE -->
+          <div class="sec">
+            <div class="sh"><span class="si2">💼</span><span class="stag ta">Tissu économique · SIRENE</span></div>
+            <div id="sireneD"><div class="card"><span class="empty">Chargement…</span></div></div>
+          </div>
+
+          <!-- address_profile IA -->
+          <div class="sec">
+            <div class="sh"><span class="si2">🔬</span><span class="stag tp">Intent Analytics · Profil enrichi</span></div>
+            <div class="grid2" id="apK"></div>
+            <div class="card" id="apD"></div>
+          </div>
+        </div>
+
+        <div class="pfoot">
+          <button class="fbtn" onclick="copyLink()">🔗 Partager</button>
+          <button class="fbtn p" onclick="window.print()">⬇ PDF</button>
+        </div>
+        <div class="sources">DVF · DPE/ADEME · Géorisques · Hub'Eau · IGN/BAN · IGN Cadastre · INSEE · BPE · BDNB · GPU · WAQI · Open-Meteo · RGE · ARCEP · geo.api.gouv.fr · MEN · SIRENE · OSM</div>
       </div>
     </div>
   </div>
@@ -286,118 +364,157 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:var(--sans);backgro
 <div id="toast"></div>
 
 <script>
-var PASS='intent2026';
+/* ── AUTH ─────────────────────────────── */
+function unlock(){
+  if(document.getElementById('lpin').value==='intent2026'){
+    document.getElementById('lock').classList.add('hidden');
+    document.getElementById('app').classList.remove('hidden');
+    // Init carte APRÈS que le DOM soit visible
+    setTimeout(initMap, 50);
+  } else {
+    document.getElementById('lerr').textContent='Mot de passe incorrect.';
+    document.getElementById('lpin').value='';
+  }
+}
+document.addEventListener('DOMContentLoaded',function(){
+  document.getElementById('lpin').addEventListener('keydown',function(e){if(e.key==='Enter')unlock();});
+});
+
+/* ── CONFIG ───────────────────────────── */
 var SU='https://wwvdpixzfaviaapixarb.supabase.co';
 var SA='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3dmRwaXh6ZmF2aWFhcGl4YXJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3Mzk0NDgsImV4cCI6MjA5MDMxNTQ0OH0.NjOeWzUCo2BJPcxnkEJNm215GJBr1RAHba1eL_EF758';
-var H={'apikey':SA,'Authorization':'Bearer '+SA};
-var map,addrMark,geo=null;
-var LG={transport:null,ecoles:null,sante:null,commerces:null,parcelle:null};
-var LS={transport:true,ecoles:true,sante:true,commerces:true,parcelle:true};
+var AH={'apikey':SA,'Authorization':'Bearer '+SA};
 
-function unlock(){
-  if(document.getElementById('lpin').value===PASS){
-    document.getElementById('lock').style.display='none';
-    document.getElementById('app').style.display='flex';
-    initMap();
-  }else{document.getElementById('lerr').textContent='Incorrect.';document.getElementById('lpin').value='';}
-}
-document.addEventListener('DOMContentLoaded',function(){document.getElementById('lpin').addEventListener('keydown',function(e){if(e.key==='Enter')unlock();});});
+/* ── MAP ──────────────────────────────── */
+var map, pin=null;
+var LG={t:null,s:null,h:null,p:null};
+var LS={t:true,s:true,h:true,p:false};
 
-function fmt(v){return new Intl.NumberFormat('fr-FR',{style:'currency',currency:'EUR',maximumFractionDigits:0}).format(v);}
-function fmtN(v){return new Intl.NumberFormat('fr-FR',{maximumFractionDigits:0}).format(v||0);}
-function sf(t,p,l){var u=SU+'/rest/v1/'+t+'?';for(var k in p)u+=k+'=eq.'+encodeURIComponent(p[k])+'&';u+='limit='+(l||200);return fetch(u,{headers:H}).then(function(r){return r.ok?r.json():[];}).catch(function(){return[];});}
-function sr(p){return fetch(SU+'/rest/v1/'+p,{headers:H}).then(function(r){return r.ok?r.json():[];}).catch(function(){return[];});}
-function rpc(fn,b){return fetch(SU+'/rest/v1/rpc/'+fn,{method:'POST',headers:Object.assign({'Content-Type':'application/json'},H),body:JSON.stringify(b)}).then(function(r){return r.ok?r.json():null;}).catch(function(){return null;});}
-function toast(m){var e=document.getElementById('toast');e.textContent=m;e.classList.add('show');setTimeout(function(){e.classList.remove('show');},2200);}
-function kpi(c,l,v,s){return'<div class="kpi '+(c||'')+'"><div class="klbl">'+l+'</div><div class="kval '+(c||'')+'">'+v+'</div>'+(s?'<div class="ksub">'+s+'</div>':'')+'</div>';}
-function dr(l,v){return'<div class="dr"><span class="dl">'+l+'</span><span class="dv">'+(v!=null&&v!==''?v:'—')+'</span></div>';}
-function bb(l,v){var c=v>=70?'var(--g)':v>=40?'var(--y)':'var(--r)';return'<div class="bb"><div class="bbl">'+l+'</div><div class="bbr"><div class="bbf" style="width:'+v+'%;background:'+c+'"></div></div><div class="bbv" style="color:'+c+'">'+Math.round(v)+'</div></div>';}
-function sec(ico,tag,cls,title,content){return'<div class="sec"><div class="sh"><span class="si">'+ico+'</span><span class="stag '+cls+'">'+tag+'</span><span class="stitle">'+title+'</span></div>'+content+'</div>';}
-
-/* MAP */
 function initMap(){
-  map=L.map('map',{zoomControl:true}).setView([46.5,2.3],6);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap',maxZoom:19}).addTo(map);
-  for(var k in LG){LG[k]=L.layerGroup().addTo(map);}
-  map.on('click',function(e){reverseGeocode(e.latlng.lat,e.latlng.lng);});
-  var p=new URLSearchParams(window.location.search);
-  if(p.get('lat')&&p.get('lng'))reverseGeocode(+p.get('lat'),+p.get('lng'));
+  map=L.map('map',{zoomControl:true,preferCanvas:true}).setView([46.5,2.3],6);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+    attribution:'© OpenStreetMap',maxZoom:19
+  }).addTo(map);
+  LG.t=L.layerGroup().addTo(map);
+  LG.s=L.layerGroup().addTo(map);
+  LG.h=L.layerGroup().addTo(map);
+  LG.p=L.layerGroup(); // off par défaut
+  map.on('click',function(e){rgc(e.latlng.lat,e.latlng.lng);});
+  // URL params
+  var p=new URLSearchParams(location.search);
+  if(p.get('lat')&&p.get('lng'))rgc(+p.get('lat'),+p.get('lng'));
+  // Force redraw après 100ms
+  setTimeout(function(){map.invalidateSize();},100);
 }
 
-function toggleL(btn){
-  var l=btn.dataset.l;
-  LS[l]=!LS[l];
-  btn.classList.toggle('on',LS[l]);
-  btn.classList.toggle('off',!LS[l]);
-  if(LS[l])map.addLayer(LG[l]);else map.removeLayer(LG[l]);
+function tgl(k){
+  LS[k]=!LS[k];
+  var btn=document.getElementById('lb-'+k);
+  if(LS[k]){LG[k].addTo(map);btn.classList.add('on');}
+  else{map.removeLayer(LG[k]);btn.classList.remove('on');}
+  var any=LS.t||LS.s||LS.h;
+  document.getElementById('legend').className=any?'on':'';
 }
 
-function clearLayers(){for(var k in LG)LG[k].clearLayers();}
-
-function poiIcon(color,shape){
-  var r=shape==='sq'?'3px':'50%';
-  return L.divIcon({className:'',html:'<div style="width:9px;height:9px;background:'+color+';border:2px solid rgba(255,255,255,.35);border-radius:'+r+';box-shadow:0 1px 5px rgba(0,0,0,.4)"></div>',iconSize:[9,9],iconAnchor:[4,4]});
-}
-
-function reverseGeocode(lat,lng){
-  fetch('https://api-adresse.data.gouv.fr/reverse/?lon='+lng+'&lat='+lat)
-    .then(function(r){return r.json();})
-    .then(function(res){
-      if(res.features&&res.features.length){var p=res.features[0].properties;p.x=lng;p.y=lat;geo=p;loadReport();}
-      else toast('Aucune adresse trouvée ici');
-    }).catch(function(){toast('Erreur');});
+function mkIcon(color,shape){
+  var r=shape==='sq'?'2':'50%';
+  return L.divIcon({className:'',
+    html:'<div style="width:10px;height:10px;background:'+color+';border-radius:'+r+';border:1.5px solid rgba(255,255,255,.7);box-shadow:0 1px 5px rgba(0,0,0,.4)"></div>',
+    iconSize:[10,10],iconAnchor:[5,5]});
 }
 
 function locate(){
   if(!navigator.geolocation)return toast('Non supporté');
-  navigator.geolocation.getCurrentPosition(function(p){
-    map.setView([p.coords.latitude,p.coords.longitude],17);
-    reverseGeocode(p.coords.latitude,p.coords.longitude);
-  },function(){toast('Refusé');});
+  navigator.geolocation.getCurrentPosition(
+    function(p){map.setView([p.coords.latitude,p.coords.longitude],17);rgc(p.coords.latitude,p.coords.longitude);},
+    function(){toast('Localisation refusée');}
+  );
 }
 
-/* SEARCH */
+/* ── GEOCODING ────────────────────────── */
+var geo=null;
+function rgc(lat,lng){
+  fetch('https://api-adresse.data.gouv.fr/reverse/?lon='+lng+'&lat='+lat)
+    .then(function(r){return r.json();})
+    .then(function(res){
+      if(!res.features||!res.features.length){toast('Adresse non trouvée');return;}
+      geo=res.features[0].properties;geo.x=+lng;geo.y=+lat;
+      loadReport();
+    }).catch(function(){toast('Erreur géocodage');});
+}
+
+/* ── SEARCH ───────────────────────────── */
 var deb;
 document.getElementById('si').addEventListener('input',function(){
-  clearTimeout(deb);var q=this.value.trim(),dd=document.getElementById('sdd');
+  clearTimeout(deb);var q=this.value.trim();var dd=document.getElementById('sdd');
   if(q.length<3){dd.style.display='none';return;}
   deb=setTimeout(function(){
     fetch('https://api-adresse.data.gouv.fr/search/?q='+encodeURIComponent(q)+'&limit=6')
       .then(function(r){return r.json();})
       .then(function(res){
         if(!res.features||!res.features.length){dd.style.display='none';return;}
-        dd.innerHTML=res.features.map(function(f){return'<div class="sg" data-p=\''+JSON.stringify(f.properties).replace(/'/g,"&#x27;")+'\'>'+ f.properties.label+'</div>';}).join('');
+        dd.innerHTML=res.features.map(function(f){
+          return '<div class="sg" data-p=\''+JSON.stringify(f.properties).replace(/'/g,"&#x27;")+'\'>'+f.properties.label+'</div>';
+        }).join('');
         dd.style.display='block';
         dd.querySelectorAll('.sg').forEach(function(el){
           el.addEventListener('click',function(){
             var p=JSON.parse(this.dataset.p.replace(/&#x27;/g,"'"));
-            document.getElementById('si').value=p.label;geo=p;dd.style.display='none';
-            map.setView([p.y,p.x],17);loadReport();
+            document.getElementById('si').value=p.label;
+            geo=p; dd.style.display='none';
+            // Centre la carte ET charge le rapport
+            map.setView([p.y,p.x],17);
+            loadReport();
           });
         });
       }).catch(function(){});
-  },300);
+  },280);
 });
-document.addEventListener('click',function(e){if(!e.target.closest('#searchWrap'))document.getElementById('sdd').style.display='none';});
+document.addEventListener('click',function(e){
+  if(!e.target.closest('#sw'))document.getElementById('sdd').style.display='none';
+});
 
-/* LOAD */
+/* ── DATA FETCH ───────────────────────── */
+function sf(t,p,l){
+  var u=SU+'/rest/v1/'+t+'?';
+  for(var k in p)u+=k+'=eq.'+encodeURIComponent(p[k])+'&';
+  u+='limit='+(l||200);
+  return fetch(u,{headers:AH}).then(function(r){return r.ok?r.json():[];}).catch(function(){return[];});
+}
+function sr(p){return fetch(SU+'/rest/v1/'+p,{headers:AH}).then(function(r){return r.ok?r.json():[];}).catch(function(){return[];});}
+function rpc(fn,b){return fetch(SU+'/rest/v1/rpc/'+fn,{method:'POST',headers:Object.assign({'Content-Type':'application/json'},AH),body:JSON.stringify(b)}).then(function(r){return r.ok?r.json():null;}).catch(function(){return null;});}
+
+/* ── REPORT ───────────────────────────── */
 function loadReport(){
   if(!geo)return;
-  if(addrMark)map.removeLayer(addrMark);
-  addrMark=L.marker([geo.y,geo.x],{icon:L.divIcon({className:'',html:'<div style="width:18px;height:18px;background:linear-gradient(135deg,#4f7cff,#7c5dfc);border-radius:50%;border:3px solid rgba(255,255,255,.3);box-shadow:0 2px 14px rgba(79,124,255,.6)"></div>',iconSize:[18,18],iconAnchor:[9,9]})}).addTo(map);
-  clearLayers();
-  document.getElementById('pEm').style.display='none';
-  document.getElementById('pLoad').classList.add('on');
-  document.getElementById('pBody').classList.remove('show');
-  document.getElementById('scRow').style.display='none';
-  document.getElementById('phAddr').textContent=geo.label||'—';
-  document.getElementById('phSub').textContent=(geo.postcode||'')+' '+(geo.city||'')+(geo.citycode?' · INSEE '+geo.citycode:'');
   var cc=geo.citycode,cp=geo.postcode,lat=geo.y,lng=geo.x;
-  if(!cc)return toast('Commune non identifiée');
+  if(!cc){toast('Code INSEE introuvable');return;}
+
+  // PIN sur carte
+  if(pin)map.removeLayer(pin);
+  pin=L.marker([lat,lng],{icon:L.divIcon({className:'',
+    html:'<div style="width:18px;height:18px;background:linear-gradient(135deg,#4d7cff,#7b5fff);border-radius:50%;border:2.5px solid rgba(255,255,255,.85);box-shadow:0 2px 14px rgba(77,124,255,.65)"></div>',
+    iconSize:[18,18],iconAnchor:[9,9]})}).addTo(map);
+
+  // Centre carte sur adresse
+  map.setView([lat,lng],16);
+  map.invalidateSize();
+
+  // Clear POI layers
+  LG.t.clearLayers();LG.s.clearLayers();LG.h.clearLayers();LG.p.clearLayers();
+
+  // Panel loading
+  document.getElementById('pempty').style.display='none';
+  document.getElementById('pload').classList.add('on');
+  document.getElementById('pbody').classList.remove('on');
+  document.getElementById('paddr').textContent=geo.label||'—';
+  document.getElementById('psub').textContent=(cp||'')+' '+(geo.city||geo.nom_commune||'')+(cc?' · INSEE '+cc:'');
+
+  // Fetch all Supabase
   Promise.all([
     sf('address_profile',{code_commune:cc},3),
     sf('score_localisation_commune',{code_commune:cc},1),
-    sr('dvf_mutations?code_commune=eq.'+cc+'&select=valeur_fonciere,surface_reelle_bati,type_local,date_mutation&order=date_mutation.desc&limit=150'),
+    sr('dvf_mutations?code_commune=eq.'+cc+'&select=valeur_fonciere,surface_reelle_bati,type_local,date_mutation&order=date_mutation.desc&limit=120'),
     sf('dpe_diagnostics',{code_postal:cp},300),
     sf('data_georisques',{code_commune:cc},1),
     sf('data_plu_communes',{code_commune:cc},1),
@@ -405,265 +522,389 @@ function loadReport(){
     sf('data_demographie_commune',{code_commune:cc},1),
     sf('poi_scores_commune',{code_commune:cc},1),
     sf('data_qualite_eau',{code_commune:cc},1),
-    sr('ml_training_v8?code_commune=eq.'+cc+'&select=prix_m2_target,prix_zone_median,revenu_median_commune&limit=20')
+    sr('ml_training_v8?code_commune=eq.'+cc+'&select=prix_m2_target,prix_zone_median,revenu_median_commune,evolution_zone_12m&limit=20'),
+    sf('data_transport',{code_commune:cc},200),
+    sf('data_etablissements_scolaires',{code_commune:cc},100)
   ]).then(function(R){
-    document.getElementById('pLoad').classList.remove('on');
-    document.getElementById('pBody').classList.add('show');
-    var d={geo:geo,cc:cc,cp:cp,lat:lat,lng:lng,ap:R[0],sc:R[1][0]||null,dvf:R[2],dpe:R[3],risk:R[4][0]||null,plu:R[5][0]||null,bdnb:R[6],demo:R[7][0]||null,poi:R[8][0]||null,eau:R[9][0]||null,ml:R[10]};
-    renderPanel(d);
-    loadMapPOI(lat,lng);
-    loadParcel(lat,lng);
-    history.pushState({},'','?lat='+lat+'&lng='+lng);
+    document.getElementById('pload').classList.remove('on');
+    document.getElementById('pbody').classList.add('on');
+    var d={geo:geo,cc:cc,cp:cp,lat:lat,lng:lng,
+      ap:R[0],sc:R[1][0]||null,dvf:R[2],dpe:R[3],
+      risk:R[4][0]||null,plu:R[5][0]||null,bdnb:R[6],
+      demo:R[7][0]||null,poi:R[8][0]||null,eau:R[9][0]||null,
+      ml:R[10],trans:R[11],ecoles:R[12]};
+    render(d);
+    mapLayers(d);
+    asyncSections(d);
+    history.replaceState({},'','?lat='+lat+'&lng='+lng);
   });
 }
 
-/* MAP POI via Overpass */
-function loadMapPOI(lat,lng){
-  var radius=800;
-  var cats=[
-    {l:'transport',col:'#4f7cff',q:'node[highway=bus_stop];node[railway=station];node[railway=tram_stop];node[amenity=bicycle_rental];node[amenity=parking];'},
-    {l:'ecoles',col:'#2cd87e',q:'node[amenity=school];way[amenity=school];node[amenity=kindergarten];node[amenity=college];node[amenity=university];'},
-    {l:'sante',col:'#f54f4f',q:'node[amenity=pharmacy];node[amenity=hospital];node[amenity=clinic];node[amenity=doctors];node[amenity=dentist];'},
-    {l:'commerces',col:'#f5c43a',q:'node[shop=supermarket];node[shop=bakery];node[shop=butcher];node[amenity=bank];node[amenity=restaurant];node[amenity=cafe];node[amenity=post_office];'}
-  ];
-  cats.forEach(function(cat){
-    var body='[out:json][timeout:12];('+cat.q.split(';').filter(Boolean).map(function(q){return q+'(around:'+radius+','+lat+','+lng+');';}).join('')+');out center 50;';
-    fetch('https://overpass-api.de/api/interpreter',{method:'POST',body:'data='+encodeURIComponent(body)})
-      .then(function(r){return r.ok?r.json():null;})
-      .then(function(res){
-        if(!res||!res.elements)return;
-        res.elements.slice(0,40).forEach(function(el){
-          var elat=el.lat||(el.center&&el.center.lat);
-          var elng=el.lon||(el.center&&el.center.lon);
-          if(!elat||!elng)return;
-          var name=(el.tags&&(el.tags.name||el.tags.ref))||'';
-          L.marker([elat,elng],{icon:poiIcon(cat.col,'circle')})
-            .bindPopup('<span style="color:'+cat.col+';font-weight:600">'+(name||cat.l)+'</span>')
-            .addTo(LG[cat.l]);
-        });
-        document.getElementById('legend').classList.add('show');
-      }).catch(function(){});
+function mapLayers(d){
+  // Transports
+  d.trans.forEach(function(t){
+    if(!t.latitude||!t.longitude)return;
+    var m=L.marker([t.latitude,t.longitude],{icon:mkIcon('#4d7cff','round')});
+    m.bindTooltip((t.nom_arret||t.type_transport||'Transport'),{className:'',offset:[0,-5]});
+    LG.t.addLayer(m);
   });
-}
-
-function loadParcel(lat,lng){
-  fetch('https://apicarto.ign.fr/api/cadastre/parcelle?lon='+lng+'&lat='+lat+'&_limit=1')
+  // Écoles
+  d.ecoles.forEach(function(e){
+    if(!e.latitude||!e.longitude)return;
+    var m=L.marker([e.latitude,e.longitude],{icon:mkIcon('#25d67a','sq')});
+    m.bindTooltip((e.nom_etablissement||e.type||'École'),{className:'',offset:[0,-5]});
+    LG.s.addLayer(m);
+  });
+  // Rayon 500m autour de l'adresse
+  L.circle([d.lat,d.lng],{radius:500,color:rgba(77,124,255,.2),fillColor:'rgba(77,124,255,.04)',fillOpacity:1,weight:1,dashArray:'4'}).addTo(LG.t);
+  // Santé via OSM
+  fetch('https://overpass-api.de/api/interpreter?data=[out:json][timeout:8];(node["amenity"~"hospital|pharmacy|doctors|clinic"](around:1500,'+d.lat+','+d.lng+'););out body 20;')
+    .then(function(r){return r.json();})
+    .then(function(res){
+      if(!res.elements)return;
+      res.elements.forEach(function(e){
+        if(!e.lat||!e.lon)return;
+        var m=L.marker([e.lat,e.lon],{icon:mkIcon('#ff4b4b','round')});
+        m.bindTooltip((e.tags&&(e.tags.name||e.tags.amenity))||'Santé',{className:'',offset:[0,-5]});
+        LG.h.addLayer(m);
+      });
+    }).catch(function(){});
+  // Parcelle cadastrale
+  fetch('https://apicarto.ign.fr/api/cadastre/parcelle?lon='+d.lng+'&lat='+d.lat+'&_limit=1')
     .then(function(r){return r.ok?r.json():null;})
     .then(function(res){
       if(!res||!res.features||!res.features.length)return;
-      if(LS.parcelle){
-        L.geoJSON(res.features[0],{style:{color:'#7c5dfc',weight:2.5,fillColor:'rgba(124,93,252,.12)',fillOpacity:.4,dashArray:'5,4'}}).addTo(LG.parcelle);
-      }
-      document.getElementById('legend').classList.add('show');
+      L.geoJSON(res.features[0],{style:{color:'#f5c63a',weight:2,fillColor:'rgba(245,198,58,.12)',fillOpacity:1}}).addTo(LG.p);
+      if(LS.p)LG.p.addTo(map);
     }).catch(function(){});
+  // Legend
+  document.getElementById('legend').className='on';
 }
 
-/* RENDER PANEL */
-function renderPanel(d){
-  renderScore(d);
-  var html='';
-  html+=renderEstim(d);
-  html+=sec('💰','DVF · DGFIP','ty','Transactions notariales',renderDVF(d));
-  html+=sec('⚡','DPE · ADEME','tg','Performances énergétiques',renderDPE(d));
-  html+=sec('🔧','Rénovation','to','Estimation travaux & aides',renderReno(d));
-  html+=sec('📍','POI · BPE INSEE','ta','Équipements à proximité',renderPOI(d));
-  html+=sec('🛡️','Géorisques · BRGM','tr','Risques naturels',renderRisk(d));
-  html+=sec('💧','Eau · Hub\'Eau','ta','Qualité de l\'eau',renderEau(d));
-  html+=sec('🏗️','BDNB · CSTB','ta','Données bâtiment',renderBDNB(d));
-  html+=sec('📐','PLU · GPU','tp','Urbanisme',renderPLU(d));
-  html+=sec('👥','INSEE · Démo','ta','Socio-économique',renderDemo(d));
-  html+=sec('🔬','address_profile','tp','Profil enrichi IA',renderAP(d));
-  html+='<div id="asyncSecs"></div>';
-  html+='<div class="share-row"><button class="sbtn" onclick="copyLink()">🔗 Lien</button><button class="sbtn p" onclick="printReport()">⬇ PDF</button></div>';
-  html+='<div class="src-list">DVF · ADEME · Géorisques · Hub\'Eau · BAN · IGN · INSEE · BPE · BDNB · GPU · WAQI · Open-Meteo · Education Nationale · geo.api.gouv · OSM/Overpass</div>';
-  document.getElementById('pb').innerHTML=html;
-  loadAsync(d);
-}
+function rgba(r,g,b,a){return'rgba('+r+','+g+','+b+','+a+')';}
 
-function renderScore(d){
+function render(d){rsc(d);rdvf(d);rdpe(d);rreno(d);rpoi(d);rrisk(d);reau(d);rdemo(d);rap(d);}
+function asyncSections(d){doEstim(d);rscolaire(d);rsante(d);rair(d);rclimat(d);rsirene(d);rcadastre(d);rbdnb(d);rplu2(d);}
+
+/* ── SCORE ────────────────────────────── */
+function rsc(d){
   var s=d.sc;if(!s)return;
   var sc=Math.round(s.score_localisation||0);
   var col=sc>=60?'var(--g)':sc>=35?'var(--y)':'var(--r)';
-  document.getElementById('scNum').textContent=sc;
-  document.getElementById('scNum').style.color=col;
-  document.getElementById('scRow').style.display='flex';
-  var dims=[{l:'Accès',v:s.score_accessibilite||0},{l:'Sécu.',v:s.score_securite||0},{l:'Services',v:s.score_services||0},{l:'Risques',v:100-(s.score_risques_naturels||0)},{l:'Dynam.',v:s.score_dynamisme||0}];
-  document.getElementById('scBars').innerHTML=dims.map(function(x){
+  document.getElementById('snum').textContent=sc;
+  document.getElementById('snum').style.color=col;
+  document.getElementById('sstrip').style.display='flex';
+  document.getElementById('sbars').innerHTML=[
+    {l:'Accès',v:s.score_accessibilite||0},{l:'Sécurité',v:s.score_securite||0},
+    {l:'Services',v:s.score_services||0},{l:'Risques',v:100-(s.score_risques_naturels||0)},
+    {l:'Dynamisme',v:s.score_dynamisme||0}
+  ].map(function(x){
     var c=x.v>=60?'var(--g)':x.v>=35?'var(--y)':'var(--r)';
-    return'<div class="sb"><div class="sb-l">'+x.l+'</div><div class="sb-b"><div class="sb-f" style="width:'+x.v+'%;background:'+c+'"></div></div></div>';
+    return'<div class="sbar"><div class="sl">'+x.l+'</div><div class="sr"><div class="sf" style="width:'+x.v+'%;background:'+c+'"></div></div></div>';
   }).join('');
 }
 
-function renderEstim(d){
+/* ── ESTIMATION ───────────────────────── */
+function doEstim(d){
+  var el=document.getElementById('esec');
+  el.innerHTML='<div class="ecard"><div class="etag">⏳ Calcul estimation…</div></div>';
   var ap=d.ap[0]||null;
-  var dvfP=d.dvf.filter(function(r){return r.surface_reelle_bati>=9&&r.valeur_fonciere>=5000;}).map(function(r){return r.valeur_fonciere/r.surface_reelle_bati;}).filter(function(v){return v>500&&v<50000;}).sort(function(a,b){return a-b;});
+  var dvfP=d.dvf.filter(function(r){return r.surface_reelle_bati>=9&&r.valeur_fonciere>=5000;})
+    .map(function(r){return r.valeur_fonciere/r.surface_reelle_bati;})
+    .filter(function(v){return v>500&&v<50000;}).sort(function(a,b){return a-b;});
   var pz=ap&&ap.dvf_prix_m2_median?ap.dvf_prix_m2_median:(dvfP.length?dvfP[Math.floor(dvfP.length/2)]:(d.ml[0]&&d.ml[0].prix_zone_median||3000));
-  setTimeout(function(){
-    rpc('predict_hedonic_prix_m2',{p_type_local:'Appartement',p_surface:75,p_prix_zone:Math.round(pz),p_revenu_commune:d.demo&&d.demo.revenu_median_uc?d.demo.revenu_median_uc:(d.ml[0]&&d.ml[0].revenu_median_commune||null),p_score_transport:d.sc&&d.sc.score_accessibilite?d.sc.score_accessibilite:(d.poi&&d.poi.score_transport||null),p_annee_vente:2024}).then(function(res){
-      var el=document.getElementById('estimInner');if(!el)return;
-      if(!res||!res.prix_m2_estime){el.innerHTML='<span class="empty-note">Estimation non disponible</span>';return;}
-      var pm=res.prix_m2_estime,bas=res.prix_m2_bas,haut=res.prix_m2_haut,tot=res.prix_total_estime;
-      el.innerHTML='<div class="ec-tag">HEDONIC v1 · Appt. 75m² type</div>'
-        +'<div class="ec-line"><div><div class="ec-price">'+fmt(pm)+'<span class="ec-unit"> /m²</span></div>'
-        +'<div class="ec-sub" style="margin-top:.25rem">'+d.geo.city+'<br>'+fmt(bas)+' — '+fmt(haut)+' /m²</div></div>'
-        +'<div class="ec-box"><div class="ec-bval">'+fmt(tot)+'</div><div class="ec-blbl">Total</div></div></div>'
-        +'<div class="ec-meta"><div class="em">Zone <strong>'+fmt(Math.round(pz))+'/m²</strong></div><div class="em">MAPE <strong>~25%</strong></div><div class="em">R² <strong>0.77</strong></div><div class="em" style="font-style:italic">Indicatif</div></div>';
-    });
-  },80);
-  return'<div class="sec"><div class="sh"><span class="si">💡</span><span class="stag ta">Estimation · IA</span><span class="stitle">Modèle hédonique v1</span></div>'
-    +'<div class="ec"><div id="estimInner"><div style="display:flex;align-items:center;gap:7px;color:var(--m);font-size:.7rem"><div class="sp" style="width:14px;height:14px;border-width:1.5px"></div>Calcul…</div></div></div></div>';
+  rpc('predict_hedonic_prix_m2',{
+    p_type_local:'Appartement',p_surface:75,p_prix_zone:Math.round(pz),
+    p_loyer_zone:null,
+    p_revenu_commune:d.demo&&d.demo.revenu_median_uc?d.demo.revenu_median_uc:(d.ml[0]&&d.ml[0].revenu_median_commune||null),
+    p_score_transport:d.sc&&d.sc.score_accessibilite||(d.poi&&d.poi.score_transport)||null,
+    p_annee_vente:2024
+  }).then(function(res){
+    if(!res||!res.prix_m2_estime){el.innerHTML='';return;}
+    var pm=res.prix_m2_estime,tot=res.prix_total_estime,bas=res.prix_m2_bas,haut=res.prix_m2_haut;
+    el.innerHTML='<div class="ecard">'
+      +'<div class="etag">ESTIMATION HEDONIC v1 · Intent Analytics</div>'
+      +'<div class="erow"><div>'
+      +'<div class="eprice">'+fmt(pm)+'<span class="eunit"> /m²</span></div>'
+      +'<div class="esub">Appt. type 75m² · '+d.geo.city+'</div>'
+      +'<div class="erange">Fourchette '+fmt(bas)+' — '+fmt(haut)+'</div>'
+      +'</div>'
+      +'<div class="etot"><div class="etval">'+fmt(tot)+'</div><div class="etlbl">Total 75m²</div></div>'
+      +'</div>'
+      +'<div class="emeta"><div class="em">Zone : <strong>'+fmt(Math.round(pz))+'/m²</strong></div>'
+      +'<div class="em">MAPE : <strong>~25%</strong></div>'
+      +'<div class="em">R² : <strong>0.77</strong></div>'
+      +'<div class="em" style="font-style:italic">Indicatif</div></div>'
+      +'</div>';
+  });
 }
 
-function renderDVF(d){
+/* ── DVF ──────────────────────────────── */
+function rdvf(d){
   var f=d.dvf.filter(function(r){return r.surface_reelle_bati>=9&&r.valeur_fonciere>=5000;});
   var p=f.map(function(r){return r.valeur_fonciere/r.surface_reelle_bati;}).filter(function(v){return v>500&&v<50000;}).sort(function(a,b){return a-b;});
-  var med=p.length?p[Math.floor(p.length/2)]:0,moy=p.length?p.reduce(function(a,b){return a+b;})/p.length:0;
-  var html='<div class="kpig">'+kpi('y','Médiane €/m²',med?fmt(med):'—',p.length+' obs.')+kpi('','Transactions',fmtN(d.dvf.length),'')+'</div>';
-  html+='<div class="card" style="overflow:auto;max-height:190px"><table class="tbl"><thead><tr><th>Date</th><th>Type</th><th>Surf.</th><th>€/m²</th></tr></thead><tbody>';
-  html+=f.slice(0,12).map(function(r){var pm=r.valeur_fonciere/r.surface_reelle_bati;var cl=pm<med*.85?'color:var(--r)':pm>med*1.15?'color:var(--g)':'';return'<tr><td style="font-family:var(--mono);font-size:.62rem">'+(r.date_mutation&&r.date_mutation.substring(0,7)||'—')+'</td><td>'+(r.type_local||'—')+'</td><td style="font-family:var(--mono);font-size:.62rem">'+fmtN(r.surface_reelle_bati)+'m²</td><td style="font-family:var(--mono);font-size:.67rem;font-weight:600;'+cl+'">'+fmt(pm)+'</td></tr>';}).join('');
-  html+='</tbody></table></div>';
-  return html;
+  var med=p.length?p[Math.floor(p.length/2)]:0;
+  var moy=p.length?p.reduce(function(a,b){return a+b;})/p.length:0;
+  var dern=f[0]&&f[0].date_mutation?f[0].date_mutation.substring(0,7):'—';
+  document.getElementById('dvfK').innerHTML=kpi('y','Médiane',med?fmt(med):'—',p.length+' obs.')+kpi('','Moyenne',moy?fmt(moy):'—','')+kpi('','Total',fmtN(d.dvf.length),'mutations');
+  document.getElementById('dvfT').innerHTML=f.slice(0,10).map(function(r){
+    var pm=r.valeur_fonciere/r.surface_reelle_bati;
+    var cl=pm<med*.85?'color:var(--r)':pm>med*1.15?'color:var(--g)':'';
+    return'<tr><td style="font-family:var(--mono);font-size:10px">'+(r.date_mutation&&r.date_mutation.substring(0,7)||'—')+'</td>'
+      +'<td style="font-size:.68rem">'+(r.type_local||'—')+'</td>'
+      +'<td style="font-family:var(--mono);font-size:10px">'+fmtN(r.surface_reelle_bati)+'m²</td>'
+      +'<td style="font-family:var(--mono);font-size:10px;font-weight:500;'+cl+'">'+fmt(pm)+'</td></tr>';
+  }).join('')||'<tr><td colspan="4" style="color:var(--m);text-align:center;padding:8px">Aucune transaction</td></tr>';
 }
 
-function renderDPE(d){
-  if(!d.dpe.length)return'<div class="card"><span class="empty-note">Aucun diagnostic</span></div>';
+/* ── DPE ──────────────────────────────── */
+function rdpe(d){
+  if(!d.dpe.length){document.getElementById('dpeK').innerHTML=kpi('r','DPE','Absent','');return;}
   var cnt={A:0,B:0,C:0,D:0,E:0,F:0,G:0};
   d.dpe.forEach(function(r){if(r.classe_energie&&cnt.hasOwnProperty(r.classe_energie))cnt[r.classe_energie]++;});
   var tot=Object.values(cnt).reduce(function(a,b){return a+b;},0)||1;
   var mod=Object.entries(cnt).sort(function(a,b){return b[1]-a[1];})[0][0];
-  var pFG=((cnt.F+cnt.G)/tot*100).toFixed(1),pABC=((cnt.A+cnt.B+cnt.C)/tot*100).toFixed(1);
-  var html='<div class="kpig">'+kpi('y','Classe modale',mod,tot+' bilans')+kpi(parseFloat(pFG)>15?'r':'g','Part F-G',pFG+'%','passoires')+'</div>';
-  html+='<div class="card"><div class="dpe-stack">'+['A','B','C','D','E','F','G'].map(function(c){return cnt[c]?'<div class="ds d'+c+'" style="flex:'+cnt[c]+'">'+(cnt[c]/tot>.1?c:'')+'</div>':'';}).join('')+'</div>';
-  html+=(parseFloat(pFG)>15?'<div style="color:var(--r);font-size:.68rem;margin-top:4px">⚠ '+pFG+'% passoires · impact -5% à -20%</div>':'<div style="color:var(--g);font-size:.68rem;margin-top:4px">✓ Parc performant · '+pABC+'% A-B-C</div>')+'</div>';
-  return html;
+  var pFG=((cnt.F+cnt.G)/tot*100).toFixed(1);
+  var pABC=((cnt.A+cnt.B+cnt.C)/tot*100).toFixed(1);
+  document.getElementById('dpeK').innerHTML=kpi('y','Classe modale',mod,tot+' bilans')+kpi(parseFloat(pFG)>15?'r':'g','Part F-G',pFG+'%','passoires');
+  document.getElementById('dpeStack').innerHTML=['A','B','C','D','E','F','G'].map(function(c){
+    return cnt[c]?'<div class="ds d'+c+'" style="flex:'+cnt[c]+'">'+(cnt[c]/tot>.1?c:'')+'</div>':'';
+  }).join('');
+  document.getElementById('dpeI').innerHTML=parseFloat(pFG)>15
+    ?'<span style="color:var(--r)">'+pFG+'% passoires (F+G) · Impact -5% à -20%</span>'
+    :'<span style="color:var(--g)">Parc performant · '+pABC+'% en A-B-C</span>';
 }
 
-function renderReno(d){
+/* ── RENO ─────────────────────────────── */
+function rreno(d){
   var ap=d.ap[0]||null;
   var dvfP=d.dvf.map(function(r){return r.valeur_fonciere/r.surface_reelle_bati;}).filter(function(v){return v>500&&v<50000;}).sort(function(a,b){return a-b;});
   var pz=ap&&ap.dvf_prix_m2_median?ap.dvf_prix_m2_median:(dvfP.length?dvfP[Math.floor(dvfP.length/2)]:null);
-  if(!pz)return'<div class="card"><span class="empty-note">Données insuffisantes</span></div>';
-  var surf=75,cout=surf*575,aides=surf*250,reste=cout-aides,pv=Math.round(pz*surf*0.17);
-  return'<div class="reno-card">'
-    +'<div style="font-family:var(--mono);font-size:.57rem;color:var(--o);letter-spacing:1px;text-transform:uppercase;margin-bottom:.4rem">Simulation passoire → C · 75m²</div>'
-    +'<div class="reno-r"><span style="color:var(--m)">Coût travaux</span><span style="font-family:var(--mono);font-weight:600">'+fmt(cout)+'</span></div>'
-    +'<div class="reno-r"><span style="color:var(--m)">Aides MaPrimeRénov + CEE</span><span style="font-family:var(--mono);color:var(--g)">− '+fmt(aides)+'</span></div>'
-    +'<div class="reno-r"><span style="color:var(--m)">Reste à charge</span><span style="font-family:var(--mono);font-weight:700">'+fmt(reste)+'</span></div>'
-    +'<div class="reno-r" style="border-top:1px solid rgba(255,122,47,.12);margin-top:3px;padding-top:3px"><span style="color:var(--m)">Plus-value estimée</span><span style="font-family:var(--mono);color:var(--y)">+ '+fmt(pv)+'</span></div>'
+  var el=document.getElementById('renoD');
+  if(!pz){el.innerHTML='<div class="card"><span class="empty">Données prix insuffisantes</span></div>';return;}
+  var s=75,cout=s*575,aides=s*250,reste=cout-aides,pv=Math.round(pz*s*.17);
+  el.innerHTML='<div class="card" style="background:linear-gradient(135deg,rgba(255,123,47,.06),rgba(245,198,58,.04));border-color:rgba(255,123,47,.2)">'
+    +'<div style="font-family:var(--mono);font-size:.6rem;color:var(--o);letter-spacing:1px;text-transform:uppercase;margin-bottom:.4rem">Simulation passoire→C · 75m²</div>'
+    +'<div class="dr"><span class="dl">Coût travaux estimé</span><span class="dv">'+fmt(cout)+'</span></div>'
+    +'<div class="dr"><span class="dl">Aides MaPrimeRénov + CEE</span><span class="dv" style="color:var(--g)">− '+fmt(aides)+'</span></div>'
+    +'<div class="dr"><span class="dl">Reste à charge</span><span class="dv" style="font-weight:700">'+fmt(reste)+'</span></div>'
+    +'<div class="dr" style="border-top:1px solid rgba(255,123,47,.15);margin-top:3px;padding-top:4px"><span class="dl">Plus-value estimée (réno E→C)</span><span class="dv" style="color:var(--y)">+'+fmt(pv)+'</span></div>'
     +'</div>';
 }
 
-function renderPOI(d){
+/* ── POI ──────────────────────────────── */
+function rpoi(d){
   var poi=d.poi;
-  if(!poi)return'<div class="card"><span class="empty-note">Absent</span></div>';
-  return'<div class="card">'+bb('Transport',poi.score_transport||0)+bb('Éducation',poi.score_education||0)+bb('Santé',poi.score_sante||0)+bb('Commerce',poi.score_commerce||0)+bb('Loisirs',poi.score_loisirs||0)+'<div class="src-note">'+fmtN(poi.nb_equipements||0)+' équipements · BPE INSEE · affichés sur la carte →</div></div>';
+  var el=document.getElementById('poiD');
+  if(!poi){el.innerHTML='<span class="empty">Absent</span>';return;}
+  el.innerHTML=bb('Transport',poi.score_transport||0)+bb('Éducation',poi.score_education||0)+bb('Santé',poi.score_sante||0)+bb('Commerce',poi.score_commerce||0)+bb('Loisirs',poi.score_loisirs||0)
+    +'<div style="margin-top:.35rem;font-family:var(--mono);font-size:.6rem;color:var(--m)">'+fmtN(poi.nb_equipements||0)+' équipements recensés</div>';
 }
 
-function renderRisk(d){
-  var r=d.risk;
-  if(!r)return'<div class="card"><span class="empty-note">Absent</span></div>';
-  function ri(l,v){return'<div class="risk-item"><span class="rb '+(v?'rb-y':'rb-n')+'">'+(v?'Oui':'Non')+'</span><span>'+l+'</span></div>';}
-  return'<div class="card">'+ri('Inondation (PPRI)',r.risque_inondation)+ri('Argile retrait-gonflement',r.risque_argile)+ri('PPRN prescrit',r.pprn_prescrit)+ri('PPRT industriel',r.pprt_prescrit)+dr('Sismicité',['—','Zone 1','Zone 2','Zone 3','Zone 4','Zone 5'][r.risque_seisme||0]||'—')+dr('Arrêtés Cat-Nat',r.nb_catnat||0)+'<div class="src-note">Géorisques · BRGM</div></div>';
+/* ── SCOLAIRE (async) ─────────────────── */
+function rscolaire(d){
+  var el=document.getElementById('scolD');
+  fetch('https://data.education.gouv.fr/api/explore/v2.1/catalog/datasets/fr-en-annuaire-education/records?where=within_distance(position%2Cgeom\'POINT('+d.lng+' '+d.lat+')\'%2C1km)&limit=8&select=nom_etablissement%2Ctype_etablissement%2Cstatut_public_prive')
+    .then(function(r){return r.ok?r.json():null;})
+    .then(function(res){
+      if(!res||!res.results||!res.results.length){el.innerHTML='<div class="card"><span class="empty">Aucun établissement dans 1km</span></div>';return;}
+      var html='<div class="card"><div style="font-family:var(--mono);font-size:.58rem;color:var(--m);margin-bottom:.35rem">'+res.total_count+' établissements · 1km</div>';
+      res.results.forEach(function(e){
+        html+='<div style="padding:3px 0;border-bottom:1px solid var(--f)">'
+          +'<div style="font-size:.72rem;font-weight:600">'+e.nom_etablissement+'</div>'
+          +'<div style="font-size:.62rem;color:var(--m)">'+(e.type_etablissement||'')+' · '+(e.statut_public_prive||'')+'</div>'
+          +'</div>';
+      });
+      html+='</div>';
+      el.innerHTML=html;
+    }).catch(function(){el.innerHTML='<div class="card"><span class="empty">Carte scolaire indisponible</span></div>';});
 }
 
-function renderEau(d){
-  var e=d.eau;
-  if(!e)return'<div class="card"><span class="empty-note">Absent</span></div>';
-  return'<div class="card">'+dr('Conformité globale',e.taux_conformite_global!=null?Number(e.taux_conformite_global).toFixed(1)+'%':'—')+dr('Nitrates',e.nitrates_mg_l!=null?Number(e.nitrates_mg_l).toFixed(1)+' mg/L':'—')+dr('Bactériologie',e.conformite_bacterio?'✓ Conforme':'⚠ Non conforme')+dr('Pesticides',e.pesticides_detectes?'⚠ Détectés':'✓ Non détectés')+'<div class="src-note">Hub\'Eau · EauFrance</div></div>';
+/* ── SANTE (async OSM) ────────────────── */
+function rsante(d){
+  var el=document.getElementById('santeD');
+  fetch('https://overpass-api.de/api/interpreter?data=[out:json][timeout:8];(node["amenity"~"hospital|pharmacy|doctors|clinic"](around:1500,'+d.lat+','+d.lng+'););out body 20;')
+    .then(function(r){return r.json();})
+    .then(function(res){
+      if(!res.elements||!res.elements.length){el.innerHTML='<div class="card"><span class="empty">Aucun dans 1.5km</span></div>';return;}
+      var by={};
+      res.elements.forEach(function(e){var t=e.tags&&e.tags.amenity||'autre';if(!by[t])by[t]=[];by[t].push(e.tags&&e.tags.name||t);});
+      var icons={hospital:'🏥',pharmacy:'💊',doctors:'👨‍⚕️',clinic:'🏥'};
+      var html='<div class="card">';
+      Object.keys(by).forEach(function(t){
+        html+='<div style="margin-bottom:.35rem"><div style="font-size:.7rem;font-weight:600;color:var(--r);margin-bottom:.15rem">'+(icons[t]||'⚕️')+' '+(t.charAt(0).toUpperCase()+t.slice(1))+' ('+by[t].length+')</div>';
+        by[t].slice(0,3).forEach(function(n){html+='<div style="font-size:.67rem;color:var(--m);padding:1px 0">'+n+'</div>';});
+        html+='</div>';
+      });
+      html+='<div style="font-family:var(--mono);font-size:.58rem;color:var(--m)">Source : OpenStreetMap</div></div>';
+      el.innerHTML=html;
+    }).catch(function(){el.innerHTML='<div class="card"><span class="empty">Non disponible</span></div>';});
 }
 
-function renderBDNB(d){
-  if(!d.bdnb.length)return'<div class="card"><span class="empty-note">Couverture partielle</span></div>';
+/* ── GÉORISQUES ───────────────────────── */
+function rrisk(d){
+  var r=d.risk,el=document.getElementById('riskD');
+  if(!r){el.innerHTML='<span class="empty">Absent</span>';return;}
+  function ri(l,v){return'<div class="rrow"><span class="rbadge '+(v?'rb-y':'rb-n')+'">'+(v?'Oui':'Non')+'</span><span style="font-size:.73rem">'+l+'</span></div>';}
+  el.innerHTML=ri('Inondation PPRI',r.risque_inondation)+ri('Retrait argile',r.risque_argile)+ri('PPRN prescrit',r.pprn_prescrit)+ri('PPRT industriel',r.pprt_prescrit)
+    +dr('Sismicité',['—','Zone 1','Zone 2','Zone 3','Zone 4','Zone 5'][r.risque_seisme||0]||'—')
+    +dr('Arrêtés Cat-Nat',r.nb_catnat||0);
+}
+
+/* ── EAU ──────────────────────────────── */
+function reau(d){
+  var e=d.eau,el=document.getElementById('eauD');
+  if(!e){el.innerHTML='<span class="empty">Absent</span>';return;}
+  el.innerHTML=dr('Conformité',e.taux_conformite_global!=null?Number(e.taux_conformite_global).toFixed(1)+'%':'—')
+    +dr('Nitrates',e.nitrates_mg_l!=null?Number(e.nitrates_mg_l).toFixed(1)+' mg/L':'—')
+    +dr('Bactériologie',e.conformite_bacterio?'✅ Conforme':'⚠️ Non conforme')
+    +dr('Pesticides',e.pesticides_detectes?'⚠️ Détectés':'✅ Non détectés')
+    +dr('Dureté',e.durete!=null?Math.round(e.durete)+' mg CaCO₃/L':'—');
+}
+
+/* ── CADASTRE (async) ─────────────────── */
+function rcadastre(d){
+  var el=document.getElementById('cadastreD');
+  fetch('https://apicarto.ign.fr/api/cadastre/parcelle?lon='+d.lng+'&lat='+d.lat+'&_limit=1')
+    .then(function(r){return r.ok?r.json():null;})
+    .then(function(res){
+      if(!res||!res.features||!res.features.length){el.innerHTML='<div class="card"><div class="klbl">Cadastre</div><span class="empty">Non trouvée</span></div>';return;}
+      var p=res.features[0].properties;
+      el.innerHTML='<div class="card"><div class="klbl" style="margin-bottom:.3rem">Cadastre · IGN</div>'
+        +dr('Parcelle',p.id||'—')
+        +dr('Section',p.section||'—')
+        +dr('Surface',p.contenance?fmtN(p.contenance)+' m²':'—')
+        +'<div style="font-size:.6rem;color:var(--m);margin-top:.3rem">Activer 📐 pour voir sur carte</div></div>';
+    }).catch(function(){el.innerHTML='<div class="card"><span class="empty">Indisponible</span></div>';});
+}
+
+/* ── BDNB (async) ─────────────────────── */
+function rbdnb(d){
+  var el=document.getElementById('bdnbD');
+  if(!d.bdnb.length){el.innerHTML='<div class="card"><div class="klbl">BDNB</div><span class="empty">Absent</span></div>';return;}
   var b=d.bdnb[0];
-  return'<div class="card">'+dr('Année construction',b.annee_construction||'—')+dr('Hauteur',b.hauteur_mean?Number(b.hauteur_mean).toFixed(1)+'m':'—')+dr('Nb logements',b.nb_log||'—')+dr('Matériaux mur',b.mat_mur_txt||'—')+dr('Classe DPE bât.',b.classe_bilan_dpe||'—')+'<div class="src-note">BDNB · CSTB</div></div>';
+  el.innerHTML='<div class="card"><div class="klbl" style="margin-bottom:.3rem">BDNB · Bâtiment</div>'
+    +dr('Année',b.annee_construction||'—')
+    +dr('Hauteur',b.hauteur_mean?Math.round(b.hauteur_mean)+'m':'—')
+    +dr('Logements',b.nb_log||'—')
+    +dr('Classe DPE',b.classe_bilan_dpe||'—')
+    +'</div>';
 }
 
-function renderPLU(d){
-  var p=d.plu;
-  if(!p)return'<div class="card"><span class="empty-note">PLU non numérisé</span></div>';
-  return'<div class="card">'+dr('Zone dominante',p.zone_dominante||'—')+dr('Zone U',p.pct_zone_u?p.pct_zone_u+'%':'—')+dr('Zone AU',p.pct_zone_au?p.pct_zone_au+'%':'—')+dr('Zone N',p.pct_zone_n?p.pct_zone_n+'%':'—')+dr('Date approbation',p.date_approbation||'—')+'<div class="src-note">Géoportail Urbanisme</div></div>';
+/* ── PLU (async) ──────────────────────── */
+function rplu2(d){
+  var p=d.plu,el=document.getElementById('pluD');
+  if(!p){el.innerHTML='<div class="card"><span class="empty">PLU non numérisé</span></div>';return;}
+  el.innerHTML='<div class="card">'
+    +dr('Zone dominante',p.zone_dominante||'—')
+    +dr('Zone U (constructible)',p.pct_zone_u?p.pct_zone_u+'%':'—')
+    +dr('Zone AU (futur)',p.pct_zone_au?p.pct_zone_au+'%':'—')
+    +dr('Zone N (nature)',p.pct_zone_n?p.pct_zone_n+'%':'—')
+    +dr('Date approbation',p.date_approbation||'—')
+    +'</div>';
 }
 
-function renderDemo(d){
+/* ── INSEE ────────────────────────────── */
+function rdemo(d){
   var dm=d.demo;
-  if(!dm)return'<div class="card"><span class="empty-note">Absent</span></div>';
-  return'<div class="kpig">'+kpi('y','Population',fmtN(dm.population_2024||dm.population_2020||0),'hab.')+kpi('','Revenu médian',dm.revenu_median_uc?fmt(dm.revenu_median_uc):'—','/UC')+'</div>'
-    +'<div class="card">'+dr('Taux chômage',dm.taux_chomage?dm.taux_chomage+'%':'—')+dr('Part propriétaires',dm.part_proprietaires?dm.part_proprietaires+'%':'—')+dr('Taux pauvreté',dm.taux_pauvrete?dm.taux_pauvrete+'%':'—')+'<div class="src-note">INSEE RP 2020</div></div>';
+  if(!dm){document.getElementById('demoK').innerHTML=kpi('r','INSEE','Absent','');document.getElementById('demoD').innerHTML='';return;}
+  document.getElementById('demoK').innerHTML=kpi('y','Population',fmtN(dm.population_2024||dm.population_2020||0),'')+kpi('','Revenu médian',dm.revenu_median_uc?fmt(dm.revenu_median_uc):'—','/UC')+kpi(dm.taux_chomage>12?'r':'g','Chômage',dm.taux_chomage?dm.taux_chomage+'%':'—','');
+  document.getElementById('demoD').innerHTML=dr('Part propriétaires',dm.part_proprietaires?dm.part_proprietaires+'%':'—')+dr('Taux pauvreté',dm.taux_pauvrete?dm.taux_pauvrete+'%':'—')+dr('Part cadres',dm.part_cadres?dm.part_cadres+'%':'—');
 }
 
-function renderAP(d){
-  var ap=d.ap[0]||null;
-  if(!ap)return'<div class="card"><span class="empty-note">Non disponible</span></div>';
-  return'<div class="kpig">'+kpi('y','Prix/m² adresse',ap.dvf_prix_m2_median?fmt(ap.dvf_prix_m2_median):'—','DVF')+kpi('g','DPE modal',ap.dpe_etiquette_modale||'—','')+'</div>'
-    +'<div class="card">'+dr('Prix P25',ap.dvf_prix_m2_p25?fmt(ap.dvf_prix_m2_p25):'—')+dr('Prix P75',ap.dvf_prix_m2_p75?fmt(ap.dvf_prix_m2_p75):'—')+dr('Tendance 1 an',ap.dvf_prix_m2_trend_1y!=null?(ap.dvf_prix_m2_trend_1y>0?'+':'')+Number(ap.dvf_prix_m2_trend_1y*100).toFixed(1)+'%':'—')+dr('Mutations DVF',ap.dvf_nb_mutations||'—')+'</div>';
-}
-
-/* ASYNC */
-function loadAsync(d){loadAir(d);loadClimat(d);loadCommune(d);loadScolaire(d);}
-
-function addAsyncSec(html){
-  var el=document.getElementById('asyncSecs');
-  if(el)el.innerHTML+=html;
-}
-
-function loadAir(d){
+/* ── AIR (async) ──────────────────────── */
+function rair(d){
+  var el=document.getElementById('airD');
   fetch('https://api.waqi.info/feed/geo:'+d.lat+';'+d.lng+'/?token=demo')
     .then(function(r){return r.json();})
     .then(function(res){
-      if(res.status!=='ok'||!res.data)return;
-      var aqi=res.data.aqi,iaqi=res.data.iaqi||{};
+      if(res.status!=='ok'||!res.data){el.innerHTML='<div class="card"><div class="klbl">Air · WAQI</div><span class="empty">Non disponible</span></div>';return;}
+      var aqi=res.data.aqi;
       var col=aqi<=50?'var(--g)':aqi<=100?'var(--y)':aqi<=150?'var(--o)':'var(--r)';
-      var qual=aqi<=50?'Bon':aqi<=100?'Modéré':aqi<=150?'Mauvais groupes sens.':'Mauvais';
-      var html='<div class="kpig">'+kpi('','IQA','<span style="color:'+col+'">'+aqi+'</span>',qual)+(iaqi.pm25?kpi('','PM2.5',iaqi.pm25.v+' µg/m³',''):'')+'</div>';
-      if(iaqi.pm10||iaqi.no2)html+='<div class="card">'+(iaqi.pm10?dr('PM10',iaqi.pm10.v+' µg/m³'):'')+(iaqi.no2?dr('NO₂',iaqi.no2.v+' µg/m³'):'')+(iaqi.o3?dr('O₃',iaqi.o3.v+' µg/m³'):'')+'<div class="src-note">WAQI · temps réel</div></div>';
-      addAsyncSec(sec('🌬️','Qualité air · WAQI','ta','Indice en temps réel',html));
-    }).catch(function(){});
+      var qual=aqi<=50?'Bon':aqi<=100?'Modéré':aqi<=150?'Sensibles':'Mauvais';
+      var iaqi=res.data.iaqi||{};
+      el.innerHTML='<div class="card"><div class="klbl" style="margin-bottom:.3rem">Air · WAQI</div>'
+        +'<div style="font-family:var(--head);font-size:1.5rem;font-weight:800;color:'+col+';line-height:1">'+aqi+'</div>'
+        +'<div style="font-size:.7rem;color:'+col+';margin-bottom:.3rem">'+qual+'</div>'
+        +(iaqi.pm25?dr('PM2.5',iaqi.pm25.v+' µg/m³'):'')
+        +(iaqi.pm10?dr('PM10',iaqi.pm10.v+' µg/m³'):'')
+        +'</div>';
+    }).catch(function(){el.innerHTML='<div class="card"><span class="empty">Non disponible</span></div>';});
 }
 
-function loadClimat(d){
-  fetch('https://api.open-meteo.com/v1/forecast?latitude='+d.lat+'&longitude='+d.lng+'&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,sunshine_duration&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&timezone=Europe/Paris&forecast_days=3')
+/* ── MÉTÉO (async) ────────────────────── */
+function rclimat(d){
+  var el=document.getElementById('climatD');
+  fetch('https://api.open-meteo.com/v1/forecast?latitude='+d.lat+'&longitude='+d.lng+'&daily=temperature_2m_max,temperature_2m_min,sunshine_duration,precipitation_sum&current=temperature_2m,weather_code,wind_speed_10m&timezone=Europe/Paris&forecast_days=1')
     .then(function(r){return r.json();})
     .then(function(res){
       var cur=res.current||{},daily=res.daily||{};
-      var wc=cur.weather_code||0,wd=wc===0?'☀ Dégagé':wc<=3?'⛅ Nuageux':wc<=49?'🌫 Brouillard':wc<=69?'🌧 Pluie':wc<=79?'🌨 Neige':'⛈ Orage';
-      var sunH=daily.sunshine_duration?Math.round(daily.sunshine_duration[0]/3600):null;
-      var html='<div class="kpig">'+kpi('y','Température',cur.temperature_2m!=null?Math.round(cur.temperature_2m)+'°C':'—','actuelle')+kpi('','Ensoleil.',sunH!=null?sunH+'h':'—','aujourd\'hui')+'</div>';
-      html+='<div class="card">'+dr('Conditions',wd)+(daily.temperature_2m_max?dr('Min / Max',Math.round(daily.temperature_2m_min[0])+'° / '+Math.round(daily.temperature_2m_max[0])+'°'):'')+(daily.precipitation_sum?dr('Précip.',daily.precipitation_sum[0]>0?daily.precipitation_sum[0].toFixed(1)+' mm':'Aucune'):'')+'<div class="src-note">Open-Meteo · temps réel</div></div>';
-      addAsyncSec(sec('☀️','Climat · Open-Meteo','ty','Météo & ensoleillement',html));
-    }).catch(function(){});
+      var wc=cur.weather_code||0;
+      var em=wc===0?'☀️':wc<=3?'⛅':wc<=49?'🌫️':wc<=69?'🌧️':wc<=79?'🌨️':'⛈️';
+      var sun=daily.sunshine_duration?Math.round(daily.sunshine_duration[0]/3600)+'h':'—';
+      el.innerHTML='<div class="card"><div class="klbl" style="margin-bottom:.3rem">Météo · Open-Meteo</div>'
+        +'<div style="font-family:var(--head);font-size:1.5rem;font-weight:800;line-height:1">'+em+' '+(cur.temperature_2m!=null?Math.round(cur.temperature_2m)+'°C':'—')+'</div>'
+        +'<div style="font-size:.62rem;color:var(--m);margin-bottom:.3rem">Vent '+Math.round(cur.wind_speed_10m||0)+' km/h</div>'
+        +(daily.temperature_2m_min&&daily.temperature_2m_max?dr('Min / Max',Math.round(daily.temperature_2m_min[0])+'° / '+Math.round(daily.temperature_2m_max[0])+'°'):'')
+        +dr('Ensoleillement',sun)
+        +(daily.precipitation_sum?dr('Précipitations',daily.precipitation_sum[0]>0?daily.precipitation_sum[0].toFixed(1)+' mm':'Aucune'):'')
+        +'</div>';
+    }).catch(function(){el.innerHTML='<div class="card"><span class="empty">Non disponible</span></div>';});
 }
 
-function loadCommune(d){
-  fetch('https://geo.api.gouv.fr/communes/'+d.cc+'?fields=nom,code,codeDepartement,codeRegion,codeEpci,population,surface')
-    .then(function(r){return r.json();})
-    .then(function(res){
-      if(!res)return;
-      var html='<div class="card">'+dr('Nom',res.nom||'—')+dr('INSEE',res.code||'—')+dr('Département',res.codeDepartement||'—')+dr('Région',res.codeRegion||'—')+dr('EPCI',res.codeEpci||'—')+dr('Population',res.population?fmtN(res.population)+' hab.':'—')+dr('Surface',res.surface?fmtN(Math.round(res.surface))+' ha':'—')+'<div class="src-note">geo.api.gouv.fr</div></div>';
-      addAsyncSec(sec('🏛️','Commune','ta','Données administratives',html));
-    }).catch(function(){});
-}
-
-function loadScolaire(d){
-  fetch('https://data.education.gouv.fr/api/explore/v2.1/catalog/datasets/fr-en-annuaire-education/records?where=within_distance(position%2Cgeom\'POINT('+d.lng+' '+d.lat+')\'%2C1km)&limit=8&select=nom_etablissement%2Ctype_etablissement%2Cstatut_public_prive%2Clatitude%2Clongitude')
+/* ── SIRENE (async) ───────────────────── */
+function rsirene(d){
+  var el=document.getElementById('sireneD');
+  fetch('https://recherche-entreprises.api.gouv.fr/search?code_postal='+d.cp+'&per_page=6')
     .then(function(r){return r.ok?r.json():null;})
     .then(function(res){
-      if(!res||!res.results||!res.results.length)return;
-      res.results.forEach(function(e){if(e.latitude&&e.longitude)L.marker([e.latitude,e.longitude],{icon:poiIcon('#2cd87e','circle')}).bindPopup('<b style="color:#2cd87e">'+e.nom_etablissement+'</b>').addTo(LG.ecoles);});
-      var byT={};res.results.forEach(function(e){var t=e.type_etablissement||'Autre';if(!byT[t])byT[t]=[];byT[t].push(e);});
-      var html='<div class="card"><div class="src-note" style="margin-bottom:5px">'+res.total_count+' établissements dans 1km</div>';
-      Object.keys(byT).forEach(function(t){
-        html+='<div style="font-family:var(--mono);font-size:.58rem;color:var(--g);margin:.35rem 0 .2rem;letter-spacing:.8px;text-transform:uppercase">'+t+'</div>';
-        byT[t].slice(0,3).forEach(function(e){html+='<div class="poi-item"><span class="poi-dot" style="background:var(--g)"></span><span>'+e.nom_etablissement+'</span><span style="color:var(--m);font-size:.62rem;margin-left:auto">'+(e.statut_public_prive||'')+'</span></div>';});
+      if(!res||!res.results){el.innerHTML='<div class="card"><span class="empty">Non disponible</span></div>';return;}
+      var html='<div class="card"><div style="font-family:var(--mono);font-size:.58rem;color:var(--m);margin-bottom:.35rem">'+fmtN(res.total_results)+'+ entreprises actives · CP '+d.cp+'</div>';
+      res.results.slice(0,5).forEach(function(e){
+        html+='<div style="padding:2px 0;border-bottom:1px solid var(--f)">'
+          +'<div style="font-size:.72rem;font-weight:600">'+(e.nom_complet||'—').substring(0,38)+'</div>'
+          +'<div style="font-size:.62rem;color:var(--m)">'+(e.activite_principale||'')+'</div>'
+          +'</div>';
       });
-      html+='<div class="src-note">Annuaire Éducation Nationale</div></div>';
-      addAsyncSec(sec('🏫','Carte scolaire · MEN','tg','Établissements à proximité',html));
-    }).catch(function(){});
+      html+='<div style="font-family:var(--mono);font-size:.58rem;color:var(--m);margin-top:.35rem">Source : SIRENE · INSEE</div></div>';
+      el.innerHTML=html;
+    }).catch(function(){el.innerHTML='<div class="card"><span class="empty">Non disponible</span></div>';});
 }
 
-/* ACTIONS */
-function closePanel(){document.getElementById('pBody').classList.remove('show');document.getElementById('pEm').style.display='';}
-function copyLink(){if(!geo){toast('Chargez une adresse');return;}navigator.clipboard.writeText(window.location.href).then(function(){toast('Lien copié ✓');}).catch(function(){toast('Erreur');});}
-function printReport(){toast('Impression…');setTimeout(function(){window.print();},300);}
+/* ── address_profile ──────────────────── */
+function rap(d){
+  var ap=d.ap[0]||null;
+  if(!ap){document.getElementById('apK').innerHTML=kpi('r','address_profile','Absent','');document.getElementById('apD').innerHTML='';return;}
+  document.getElementById('apK').innerHTML=kpi('y','Prix/m² adresse',ap.dvf_prix_m2_median?fmt(ap.dvf_prix_m2_median):'—','DVF agrégé')+kpi('g','DPE modal',ap.dpe_etiquette_modale||'—','');
+  document.getElementById('apD').innerHTML=dr('P25',ap.dvf_prix_m2_p25?fmt(ap.dvf_prix_m2_p25):'—')+dr('P75',ap.dvf_prix_m2_p75?fmt(ap.dvf_prix_m2_p75):'—')+dr('Tendance 1an',ap.dvf_prix_m2_trend_1y!=null?(ap.dvf_prix_m2_trend_1y>0?'+':'')+Number(ap.dvf_prix_m2_trend_1y*100).toFixed(1)+'%':'—')+dr('DPE bilans',ap.dpe_nb_bilans||'—');
+}
+
+/* ── RESET ────────────────────────────── */
+function reset(){
+  document.getElementById('pbody').classList.remove('on');
+  document.getElementById('pempty').style.display='flex';
+  if(pin){map.removeLayer(pin);pin=null;}
+  Object.values(LG).forEach(function(l){l.clearLayers();});
+  document.getElementById('legend').className='';
+}
+
+/* ── UTILS ────────────────────────────── */
+function copyLink(){
+  if(!geo){toast('Chargez d\'abord une adresse');return;}
+  var u=location.origin+location.pathname+'?lat='+geo.y+'&lng='+geo.x;
+  navigator.clipboard.writeText(u).then(function(){toast('Lien copié ✓');}).catch(function(){toast('Erreur');});
+}
+function toast(msg){var el=document.getElementById('toast');el.textContent=msg;el.classList.add('on');setTimeout(function(){el.classList.remove('on');},2400);}
+function fmt(v){return new Intl.NumberFormat('fr-FR',{style:'currency',currency:'EUR',maximumFractionDigits:0}).format(v);}
+function fmtN(v){return new Intl.NumberFormat('fr-FR',{maximumFractionDigits:0}).format(v||0);}
+function kpi(t,l,v,s){return'<div class="kpi '+(t||'')+'"><div class="klbl">'+l+'</div><div class="kval '+(t||'')+'">'+v+'</div>'+(s?'<div class="ksub">'+s+'</div>':'')+'</div>';}
+function dr(l,v){return'<div class="dr"><span class="dl">'+l+'</span><span class="dv">'+(v!=null&&v!==''?v:'—')+'</span></div>';}
+function bb(l,v){var c=v>=70?'var(--g)':v>=40?'var(--y)':'var(--r)';return'<div class="bb"><div class="bbl">'+l+'</div><div class="bbr"><div class="bbf" style="width:'+v+'%;background:'+c+'"></div></div><div class="bbv" style="color:'+c+'">'+Math.round(v)+'</div></div>';}
+
+// Print CSS
+var ps=document.createElement('style');ps.media='print';
+ps.textContent='#map,#bar,.pfoot{display:none!important}#panel{width:100%!important;height:auto!important;overflow:visible!important}#content{display:block!important}body{background:#fff!important;color:#000!important}';
+document.head.appendChild(ps);
 </script>
 </body>
 </html>
