@@ -6,213 +6,213 @@
 <meta name="robots" content="noindex,nofollow">
 <title>Intent Analytics — Explorer</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
-  --bg:#ebebeb;--bg2:#e2e2e2;--white:#ffffff;--black:#111111;
-  --gray1:#f5f5f5;--gray2:#e8e8e8;--gray3:#d0d0d0;--gray4:#a0a0a0;--gray5:#666666;
-  --accent:#111111;--blue:#2563eb;--green:#16a34a;--red:#dc2626;--amber:#d97706;
-  --border:#d8d8d8;
+  --bg:#ebebeb;--w:#fff;--k:#111;
+  --g1:#f5f5f5;--g2:#e8e8e8;--g3:#d0d0d0;--g4:#a0a0a0;--g5:#666;
+  --bd:#d8d8d8;
+  --c-transport:#2563eb;--c-school:#16a34a;--c-health:#dc2626;
+  --c-shop:#d97706;--c-sirene:#7c3aed;--c-parc:#059669;
+  --c-infra:#0891b2;--c-parcelle:#b45309;--c-bat:#64748b;
   --mono:'JetBrains Mono',monospace;--sans:'Inter',sans-serif;
 }
-html,body{width:100%;height:100%;overflow:hidden;font-family:var(--sans);background:var(--bg);color:var(--black)}
+html,body{width:100%;height:100%;overflow:hidden;font-family:var(--sans);background:var(--bg);color:var(--k)}
 
-/* ── LOCK ── */
+/* LOCK */
 #lock{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:9000}
-.lbox{width:360px;padding:2.5rem 2rem;background:var(--white);border:1px solid var(--border);border-radius:4px}
+.lbox{width:360px;padding:2.5rem 2rem;background:var(--w);border:1px solid var(--bd);border-radius:4px}
 .lm{display:flex;align-items:center;gap:.6rem;margin-bottom:1.5rem}
-.lico{width:32px;height:32px;background:var(--black);border-radius:3px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:.85rem}
-.lname{font-size:1rem;font-weight:700;color:var(--black)}
-.ltitle{font-size:1.4rem;font-weight:800;color:var(--black);margin-bottom:.35rem;line-height:1.2}
-.lsub{font-size:.8rem;color:var(--gray5);margin-bottom:1.5rem}
-.lpin{width:100%;padding:.7rem .9rem;background:var(--gray1);border:1px solid var(--border);border-radius:3px;color:var(--black);font-family:var(--mono);font-size:.9rem;text-align:center;letter-spacing:4px;outline:none;transition:border-color .15s}
-.lpin:focus{border-color:var(--black);background:var(--white)}
-.lgo{width:100%;margin-top:.75rem;padding:.75rem;background:var(--black);border:none;border-radius:3px;color:#fff;font-family:var(--sans);font-size:.88rem;font-weight:700;cursor:pointer;letter-spacing:.02em;transition:opacity .15s}
-.lgo:hover{opacity:.82}
-.lerr{font-size:.75rem;color:var(--red);margin-top:.5rem;min-height:14px}
+.lico{width:30px;height:30px;background:var(--k);border-radius:3px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:.8rem}
+.lname{font-size:.95rem;font-weight:800}
+.ltitle{font-size:1.4rem;font-weight:800;line-height:1.2;margin-bottom:.3rem}
+.lsub{font-size:.78rem;color:var(--g5);margin-bottom:1.5rem}
+.lpin{width:100%;padding:.7rem .9rem;background:var(--g1);border:1px solid var(--bd);border-radius:3px;color:var(--k);font-family:var(--mono);font-size:.9rem;text-align:center;letter-spacing:4px;outline:none}
+.lpin:focus{border-color:var(--k);background:var(--w)}
+.lgo{width:100%;margin-top:.75rem;padding:.75rem;background:var(--k);border:none;border-radius:3px;color:#fff;font-size:.88rem;font-weight:700;cursor:pointer}
+.lerr{font-size:.75rem;color:#dc2626;margin-top:.5rem;min-height:14px}
 
-/* ── APP LAYOUT ── */
+/* APP */
 #app{position:fixed;inset:0;display:flex;flex-direction:column}
 
 /* TOPBAR */
-#bar{height:50px;flex-shrink:0;background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.75rem;padding:0 1.25rem;z-index:400}
-.bico{width:26px;height:26px;background:var(--black);border-radius:2px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:.72rem;flex-shrink:0}
-.bname{font-size:.85rem;font-weight:800;color:var(--black);white-space:nowrap;flex-shrink:0;letter-spacing:-.01em}
-.bdiv{width:1px;height:18px;background:var(--border);flex-shrink:0}
-#sw{flex:1;position:relative;max-width:460px}
-#si{width:100%;padding:.45rem .9rem;background:var(--gray1);border:1px solid var(--border);border-radius:3px;color:var(--black);font-family:var(--sans);font-size:.82rem;outline:none;transition:all .15s}
-#si:focus{border-color:var(--black);background:var(--white)}
-#si::placeholder{color:var(--gray4)}
-#sdd{position:absolute;top:calc(100%+3px);left:0;right:0;background:var(--white);border:1px solid var(--border);border-radius:3px;z-index:600;display:none;max-height:220px;overflow-y:auto;box-shadow:0 4px 16px rgba(0,0,0,.08)}
-.sg{padding:.55rem .9rem;cursor:pointer;font-size:.8rem;border-bottom:1px solid var(--gray2);display:flex;align-items:center;gap:6px;color:var(--black)}
-.sg::before{content:'↗';font-size:.7rem;color:var(--gray4);flex-shrink:0}
+#bar{height:50px;flex-shrink:0;background:var(--w);border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:.65rem;padding:0 1rem;z-index:500}
+.bico{width:26px;height:26px;background:var(--k);border-radius:2px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:.72rem;flex-shrink:0}
+.bname{font-size:.85rem;font-weight:800;white-space:nowrap;flex-shrink:0;letter-spacing:-.01em}
+.bdiv{width:1px;height:18px;background:var(--bd);flex-shrink:0}
+#sw{flex:1;position:relative;max-width:460px;z-index:600}
+#si{width:100%;padding:.45rem .9rem;background:var(--g1);border:1px solid var(--bd);border-radius:3px;color:var(--k);font-size:.82rem;outline:none}
+#si:focus{border-color:var(--k);background:var(--w)}
+#si::placeholder{color:var(--g4)}
+#sdd{position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--w);border:1px solid var(--bd);border-radius:3px;z-index:700;display:none;max-height:240px;overflow-y:auto;box-shadow:0 6px 20px rgba(0,0,0,.1)}
+.sg{padding:.55rem .9rem;cursor:pointer;font-size:.8rem;border-bottom:1px solid var(--g2);display:flex;align-items:center;gap:6px}
+.sg::before{content:'↗';font-size:.7rem;color:var(--g4);flex-shrink:0}
 .sg:last-child{border-bottom:none}
-.sg:hover{background:var(--gray1)}
-#locbtn{padding:.45rem .7rem;background:var(--gray1);border:1px solid var(--border);border-radius:3px;color:var(--black);cursor:pointer;font-size:.82rem;flex-shrink:0;transition:all .15s}
-#locbtn:hover{background:var(--black);color:#fff;border-color:var(--black)}
-/* layer toggles */
-.lbtns{display:flex;gap:3px;flex-shrink:0}
-.lb{padding:.32rem .6rem;background:var(--gray1);border:1px solid var(--border);border-radius:3px;color:var(--gray5);cursor:pointer;font-family:var(--mono);font-size:.58rem;letter-spacing:.5px;white-space:nowrap;transition:all .15s}
-.lb.on{background:var(--black);border-color:var(--black);color:#fff}
-@media(max-width:600px){.lbtns,.bdiv,.bname{display:none}}
+.sg:hover{background:var(--g1)}
+#locbtn{padding:.45rem .65rem;background:var(--g1);border:1px solid var(--bd);border-radius:3px;color:var(--k);cursor:pointer;font-size:.8rem;flex-shrink:0}
+#locbtn:hover{background:var(--k);color:#fff;border-color:var(--k)}
+#filterbtn{padding:.35rem .65rem;background:var(--g1);border:1px solid var(--bd);border-radius:3px;color:var(--g5);cursor:pointer;font-size:.75rem;font-weight:600;flex-shrink:0}
+#filterbtn.on{background:var(--k);color:#fff;border-color:var(--k)}
+@media(max-width:600px){.bdiv,.bname{display:none}}
+
+/* FILTER BAR */
+#filterbar{flex-shrink:0;background:var(--w);border-bottom:1px solid var(--bd);padding:.55rem 1rem;display:none;gap:1.5rem;align-items:flex-start;flex-wrap:wrap}
+#filterbar.on{display:flex}
+.fg{display:flex;flex-direction:column;gap:.2rem;min-width:160px}
+.fglbl{font-family:var(--mono);font-size:.58rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--g4)}
+.fsl{display:flex;align-items:center;gap:.4rem;font-size:.7rem;color:var(--g5)}
+.fsl input[type=range]{flex:1;height:3px;accent-color:var(--k);cursor:pointer}
+.fsl span{font-family:var(--mono);font-size:.65rem;color:var(--k);min-width:45px;white-space:nowrap}
+.fchks{display:flex;gap:.3rem;flex-wrap:wrap}
+.fc{padding:.22rem .5rem;border:1px solid var(--bd);border-radius:3px;cursor:pointer;font-size:.67rem;color:var(--g5);background:var(--g1);user-select:none}
+.fc.on{background:var(--k);color:#fff;border-color:var(--k)}
 
 /* CONTENT */
 #content{flex:1;display:flex;min-height:0;overflow:hidden}
-
-/* MAP */
 #mwrap{flex:1;position:relative;min-width:0;overflow:hidden}
 #map{position:absolute;inset:0}
-/* Carte style clair */
-.leaflet-tile{filter:saturate(.9) brightness(1.05)}
-.leaflet-control-zoom{border:1px solid var(--border)!important;background:var(--white)!important;border-radius:3px!important}
-.leaflet-control-zoom a{background:transparent!important;color:var(--black)!important;border-bottom:1px solid var(--border)!important}
-.leaflet-control-zoom a:hover{background:var(--gray1)!important}
-.leaflet-control-attribution{background:rgba(255,255,255,.85)!important;color:var(--gray5)!important;font-size:9px!important}
-#legend{position:absolute;bottom:14px;left:14px;z-index:200;background:var(--white);border:1px solid var(--border);border-radius:3px;padding:.5rem .75rem;display:none}
-#legend.on{display:block}
-.li{display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:.6rem;color:var(--gray5);margin-bottom:3px}
-.li:last-child{margin-bottom:0}
-.ldot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.leaflet-tile{filter:saturate(.88) brightness(1.04)}
+.leaflet-control-zoom{border:1px solid var(--bd)!important;background:var(--w)!important;border-radius:3px!important}
+.leaflet-control-zoom a{background:transparent!important;color:var(--k)!important;border-bottom:1px solid var(--bd)!important}
+.leaflet-control-zoom a:hover{background:var(--g1)!important}
+.leaflet-control-attribution{background:rgba(255,255,255,.85)!important;color:var(--g5)!important;font-size:9px!important}
+
+/* LAYER CONTROL — floating panel on map */
+#layerpanel{position:absolute;top:10px;right:10px;z-index:400;background:var(--w);border:1px solid var(--bd);border-radius:4px;min-width:160px;box-shadow:0 4px 16px rgba(0,0,0,.1)}
+.lphead{padding:.5rem .75rem;border-bottom:1px solid var(--bd);font-family:var(--mono);font-size:.62rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--g4);display:flex;justify-content:space-between;align-items:center}
+.lpbody{padding:.35rem 0}
+.lrow{display:flex;align-items:center;gap:.5rem;padding:.3rem .75rem;cursor:pointer;font-size:.76rem;font-weight:500;color:var(--g5);transition:background .1s}
+.lrow:hover{background:var(--g1)}
+.lrow.on{color:var(--k)}
+.ldot{width:10px;height:10px;border-radius:50%;flex-shrink:0;opacity:.35;transition:opacity .15s}
+.lrow.on .ldot{opacity:1}
+.lcnt{font-family:var(--mono);font-size:.6rem;color:var(--g4);margin-left:auto}
+
+/* POPUP */
+.leaflet-popup-content-wrapper{border-radius:4px!important;border:1px solid var(--bd)!important;box-shadow:0 6px 24px rgba(0,0,0,.12)!important;padding:0!important;max-width:260px}
+.leaflet-popup-content{margin:0!important;width:250px!important}
+.leaflet-popup-tip-container{margin-top:-1px}
+.pop{padding:.75rem}
+.ptag{font-family:var(--mono);font-size:7px;letter-spacing:2px;text-transform:uppercase;color:var(--g4);margin-bottom:.2rem}
+.pname{font-size:.85rem;font-weight:800;color:var(--k);margin-bottom:.1rem;line-height:1.3}
+.prows{margin:.4rem 0}
+.prow{display:flex;justify-content:space-between;font-size:.7rem;padding:2.5px 0;border-bottom:1px solid var(--g2);color:var(--g5)}
+.prow:last-child{border-bottom:none}
+.prow strong{color:var(--k)}
+.plinks{display:flex;gap:.3rem;flex-wrap:wrap;margin-top:.5rem}
+.plink{padding:.22rem .55rem;border-radius:3px;font-size:.65rem;font-weight:600;text-decoration:none;cursor:pointer;display:inline-block}
+.pl-gmaps{background:#4285F4;color:#fff}
+.pl-nav{background:var(--k);color:#fff}
+.pl-web{background:var(--g1);color:var(--k);border:1px solid var(--bd)}
+.pl-web:hover{background:var(--k);color:#fff}
 
 /* PANEL */
-#panel{width:400px;height:100%;background:var(--white);border-left:1px solid var(--border);overflow-y:auto;overflow-x:hidden;flex-shrink:0;display:flex;flex-direction:column}
+#panel{width:400px;height:100%;background:var(--w);border-left:1px solid var(--bd);overflow-y:auto;overflow-x:hidden;flex-shrink:0;display:flex;flex-direction:column}
 #panel::-webkit-scrollbar{width:3px}
-#panel::-webkit-scrollbar-thumb{background:var(--gray3);border-radius:2px}
+#panel::-webkit-scrollbar-thumb{background:var(--g3);border-radius:2px}
 @media(max-width:800px){
   #content{flex-direction:column}
-  #mwrap{height:44vh;flex:none}
-  #panel{width:100%;flex:1;border-left:none;border-top:1px solid var(--border)}
+  #mwrap{height:45vh;flex:none}
+  #panel{width:100%;flex:1;border-left:none;border-top:1px solid var(--bd)}
+  #layerpanel{top:auto;bottom:60px;right:8px;min-width:140px}
 }
-
-/* panel states */
 #pempty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2.5rem;text-align:center}
-#pempty .bigico{font-size:2rem;margin-bottom:.75rem;opacity:.2}
-#pempty h3{font-size:.95rem;font-weight:700;color:var(--black);margin-bottom:.4rem}
-#pempty p{font-size:.78rem;color:var(--gray5);line-height:1.6;max-width:220px}
+#pempty .bigico{font-size:2rem;margin-bottom:.75rem;opacity:.12}
+#pempty h3{font-size:.95rem;font-weight:800;margin-bottom:.35rem}
+#pempty p{font-size:.76rem;color:var(--g5);line-height:1.6;max-width:210px}
 #pload{flex:1;display:none;flex-direction:column;align-items:center;justify-content:center;gap:.75rem}
 #pload.on{display:flex}
-.spin{width:20px;height:20px;border:2px solid var(--gray3);border-top-color:var(--black);border-radius:50%;animation:rot .7s linear infinite}
+.spin{width:20px;height:20px;border:2px solid var(--g3);border-top-color:var(--k);border-radius:50%;animation:rot .7s linear infinite}
 @keyframes rot{to{transform:rotate(360deg)}}
-#pload p{font-size:.75rem;color:var(--gray5)}
+#pload p{font-size:.75rem;color:var(--g5)}
 #pbody{display:none}
 #pbody.on{display:block}
-
-/* PANEL HEADER */
-.phead{padding:.9rem 1.1rem .75rem;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10;background:var(--white)}
+.phead{padding:.9rem 1.1rem .75rem;border-bottom:1px solid var(--bd);position:sticky;top:0;z-index:10;background:var(--w)}
 .phead-top{display:flex;justify-content:space-between;align-items:flex-start}
-.pclose{background:none;border:none;color:var(--gray4);cursor:pointer;font-size:.9rem;padding:2px;line-height:1}
-.pclose:hover{color:var(--black)}
-.paddr{font-size:.95rem;font-weight:800;line-height:1.3;color:var(--black);margin-bottom:.15rem;letter-spacing:-.015em}
-.psub{font-family:var(--mono);font-size:.62rem;color:var(--gray5);margin-bottom:.65rem}
-/* score band */
-.score-band{display:flex;align-items:center;gap:.75rem;padding:.6rem .75rem;background:var(--gray1);border-radius:3px}
+.pclose{background:none;border:none;color:var(--g4);cursor:pointer;font-size:.9rem}
+.pclose:hover{color:var(--k)}
+.paddr{font-size:.95rem;font-weight:800;line-height:1.3;letter-spacing:-.015em;margin-bottom:.15rem}
+.psub{font-family:var(--mono);font-size:.62rem;color:var(--g5);margin-bottom:.65rem}
+.sband{display:flex;align-items:center;gap:.75rem;padding:.6rem .75rem;background:var(--g1);border-radius:3px}
 .snum{font-size:2rem;font-weight:900;line-height:1;letter-spacing:-.04em}
 .sbars{flex:1;display:flex;flex-direction:column;gap:3px}
-.sbar{display:flex;align-items:center;gap:5px}
-.sl{font-size:.58rem;color:var(--gray5);flex:0 0 62px;font-family:var(--mono)}
-.sr{flex:1;height:2.5px;background:var(--gray3);border-radius:2px;overflow:hidden}
+.sbar{display:flex;align-items:center;gap:4px}
+.sl{font-size:.58rem;color:var(--g5);flex:0 0 60px;font-family:var(--mono)}
+.sr{flex:1;height:2.5px;background:var(--g3);border-radius:2px;overflow:hidden}
 .sf{height:2.5px;border-radius:2px}
-
-/* BODY */
 .pbody{padding:.75rem 1.1rem 2rem}
-
-/* ESTIM */
-.ecard{background:var(--black);border-radius:3px;padding:1rem;margin-bottom:.875rem;color:#fff}
-.etag{font-family:var(--mono);font-size:7px;letter-spacing:2.5px;text-transform:uppercase;color:rgba(255,255,255,.45);margin-bottom:.4rem}
+/* estim */
+.ec{background:var(--k);border-radius:3px;padding:1rem;margin-bottom:.875rem;color:#fff}
+.etag{font-family:var(--mono);font-size:7px;letter-spacing:2.5px;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:.4rem}
 .eprice{font-size:2rem;font-weight:900;line-height:1;letter-spacing:-.04em}
-.eunit{font-size:.8rem;font-weight:400;color:rgba(255,255,255,.5)}
+.eunit{font-size:.8rem;font-weight:400;color:rgba(255,255,255,.45)}
 .erow{display:flex;justify-content:space-between;align-items:flex-end;margin-top:.35rem;gap:.5rem;flex-wrap:wrap}
-.esub{font-size:.7rem;color:rgba(255,255,255,.5)}
-.erange{font-family:var(--mono);font-size:.62rem;color:rgba(255,255,255,.4);margin-top:.15rem}
+.esub{font-size:.7rem;color:rgba(255,255,255,.45)}
+.erange{font-family:var(--mono);font-size:.62rem;color:rgba(255,255,255,.35);margin-top:.15rem}
 .etot{background:rgba(255,255,255,.1);border-radius:3px;padding:.4rem .8rem;text-align:center;flex-shrink:0}
 .etval{font-size:1.05rem;font-weight:800;letter-spacing:-.02em}
-.etlbl{font-family:var(--mono);font-size:7px;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.4)}
+.etlbl{font-family:var(--mono);font-size:7px;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.35)}
 .emeta{display:flex;gap:.3rem;flex-wrap:wrap;margin-top:.6rem;padding-top:.6rem;border-top:1px solid rgba(255,255,255,.1)}
-.em{font-family:var(--mono);font-size:8px;color:rgba(255,255,255,.4);background:rgba(255,255,255,.07);border-radius:2px;padding:2px 6px}
+.em{font-family:var(--mono);font-size:8px;color:rgba(255,255,255,.35);background:rgba(255,255,255,.07);border-radius:2px;padding:2px 6px}
 .em strong{color:rgba(255,255,255,.8)}
-
-/* SECTIONS */
+/* sections */
 .sec{margin-bottom:.875rem}
-.sh{display:flex;align-items:center;gap:5px;margin-bottom:.5rem;padding-bottom:.4rem;border-bottom:1px solid var(--gray2)}
+.sh{display:flex;align-items:center;gap:5px;margin-bottom:.5rem;padding-bottom:.4rem;border-bottom:1px solid var(--g2)}
 .stag{font-family:var(--mono);font-size:7.5px;letter-spacing:2px;text-transform:uppercase;padding:2px 6px;border-radius:2px;flex-shrink:0}
-.ta{background:var(--gray2);color:var(--gray5)}
-.tg{background:#dcfce7;color:#15803d}
-.tr{background:#fee2e2;color:#b91c1c}
-.ty{background:#fef3c7;color:#b45309}
-.tp{background:#ede9fe;color:#6d28d9}
-.to{background:#ffedd5;color:#c2410c}
-.stitle{font-size:.78rem;font-weight:700;color:var(--black)}
-.card{background:var(--gray1);border:1px solid var(--border);border-radius:3px;padding:.7rem}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.5rem}
-.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.5rem;margin-bottom:.5rem}
-
-/* KPI tiles */
-.kpi{background:var(--white);border:1px solid var(--border);border-radius:3px;padding:.6rem .75rem}
-.klbl{font-family:var(--mono);font-size:7px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gray4);margin-bottom:2px}
-.kval{font-size:1.05rem;font-weight:800;line-height:1.1;letter-spacing:-.02em;color:var(--black)}
-.kval.g{color:var(--green)}.kval.r{color:var(--red)}.kval.b{color:var(--blue)}.kval.a{color:var(--amber)}
-.ksub{font-size:.6rem;color:var(--gray4);margin-top:2px;font-family:var(--mono)}
-
-/* data rows */
-.dr{display:flex;justify-content:space-between;align-items:baseline;padding:4px 0;border-bottom:1px solid var(--gray2);font-size:.75rem}
+.card{background:var(--g1);border:1px solid var(--bd);border-radius:3px;padding:.7rem}
+.g2c{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.5rem}
+.g3c{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.5rem;margin-bottom:.5rem}
+.kpi{background:var(--w);border:1px solid var(--bd);border-radius:3px;padding:.6rem .75rem}
+.klbl{font-family:var(--mono);font-size:7px;letter-spacing:1.5px;text-transform:uppercase;color:var(--g4);margin-bottom:2px}
+.kval{font-size:1.05rem;font-weight:800;line-height:1.1;letter-spacing:-.02em}
+.kval.g{color:#16a34a}.kval.r{color:#dc2626}.kval.b{color:#2563eb}.kval.a{color:#d97706}
+.ksub{font-size:.6rem;color:var(--g4);margin-top:2px;font-family:var(--mono)}
+.dr{display:flex;justify-content:space-between;align-items:baseline;padding:4px 0;border-bottom:1px solid var(--g2);font-size:.75rem}
 .dr:last-child{border-bottom:none}
-.dl{color:var(--gray5)}
-.dv{font-family:var(--mono);font-size:.7rem;font-weight:500;color:var(--black);text-align:right}
-
-/* score bars */
+.dl{color:var(--g5)}
+.dv{font-family:var(--mono);font-size:.7rem;font-weight:500;color:var(--k);text-align:right}
 .bb{display:flex;align-items:center;gap:5px;margin-bottom:4px}
-.bbl{flex:0 0 78px;font-size:.69rem;color:var(--gray5)}
-.bbr{flex:1;height:3px;background:var(--gray3);border-radius:2px;overflow:hidden}
+.bbl{flex:0 0 78px;font-size:.69rem;color:var(--g5)}
+.bbr{flex:1;height:3px;background:var(--g3);border-radius:2px;overflow:hidden}
 .bbf{height:3px;border-radius:2px}
-.bbv{flex:0 0 22px;text-align:right;font-family:var(--mono);font-size:8px;font-weight:600;color:var(--black)}
-
-/* DPE bar */
+.bbv{flex:0 0 22px;text-align:right;font-family:var(--mono);font-size:8px;font-weight:600}
 .dpe-stack{display:flex;height:14px;gap:1px;border-radius:2px;overflow:hidden;margin:4px 0}
 .ds{display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:6.5px;font-weight:700;color:#fff}
 .dA{background:#1a7a4a}.dB{background:#5a9a2a}.dC{background:#a0c040;color:#111}.dD{background:#e8c020;color:#111}.dE{background:#e88020}.dF{background:#cc3030}.dG{background:#881010}
-
-/* risk badges */
-.rbadge{font-family:var(--mono);font-size:.62rem;padding:1px 5px;border-radius:2px;flex-shrink:0}
-.rb-y{background:#fee2e2;color:#b91c1c}
-.rb-n{background:#dcfce7;color:#15803d}
-.rrow{display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid var(--gray2);font-size:.73rem}
-.rrow:last-child{border-bottom:none}
-
-/* table */
 .tbl{width:100%;border-collapse:collapse;font-size:.7rem}
-.tbl th{background:var(--gray2);padding:4px 6px;text-align:left;font-family:var(--mono);font-size:6.5px;letter-spacing:1px;text-transform:uppercase;color:var(--gray5);border-bottom:1px solid var(--border)}
-.tbl td{padding:4px 6px;border-bottom:1px solid var(--gray2);color:var(--black)}
+.tbl th{background:var(--g2);padding:4px 6px;text-align:left;font-family:var(--mono);font-size:6.5px;letter-spacing:1px;text-transform:uppercase;color:var(--g5);border-bottom:1px solid var(--bd)}
+.tbl td{padding:4px 6px;border-bottom:1px solid var(--g2)}
 .tbl tr:last-child td{border-bottom:none}
-.tbl tr:hover td{background:var(--gray1)}
-
-/* footer */
-.pfoot{display:flex;gap:5px;padding:.75rem 1.1rem;border-top:1px solid var(--border);flex-shrink:0;position:sticky;bottom:0;background:var(--white)}
-.fbtn{flex:1;padding:.5rem;background:var(--gray1);border:1px solid var(--border);border-radius:3px;color:var(--black);font-size:.73rem;font-weight:600;cursor:pointer;transition:all .15s}
-.fbtn:hover{background:var(--gray2)}
-.fbtn.p{background:var(--black);border-color:var(--black);color:#fff}
-.fbtn.p:hover{opacity:.82}
-.sources{font-family:var(--mono);font-size:.58rem;color:var(--gray4);line-height:1.7;padding:.6rem 1.1rem;border-top:1px solid var(--gray2)}
-.empty{color:var(--gray4);font-size:.73rem}
-
-/* section label */
-.sec-label{font-family:var(--mono);font-size:.58rem;letter-spacing:2px;text-transform:uppercase;color:var(--gray4);margin-bottom:.3rem}
-
-#toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--black);border-radius:3px;padding:.45rem 1rem;font-size:.78rem;color:#fff;z-index:1000;opacity:0;transition:opacity .3s;pointer-events:none}
+.tbl tr:hover td{background:var(--g1)}
+.rb{font-family:var(--mono);font-size:.62rem;padding:1px 5px;border-radius:2px;flex-shrink:0}
+.rb-y{background:#fee2e2;color:#b91c1c}.rb-n{background:#dcfce7;color:#15803d}
+.rrow{display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid var(--g2);font-size:.73rem}
+.rrow:last-child{border-bottom:none}
+.pfoot{display:flex;gap:5px;padding:.75rem 1.1rem;border-top:1px solid var(--bd);flex-shrink:0;position:sticky;bottom:0;background:var(--w)}
+.fbtn{flex:1;padding:.5rem;background:var(--g1);border:1px solid var(--bd);border-radius:3px;color:var(--k);font-size:.73rem;font-weight:600;cursor:pointer}
+.fbtn.p{background:var(--k);border-color:var(--k);color:#fff}
+.sources{font-family:var(--mono);font-size:.57rem;color:var(--g4);line-height:1.7;padding:.6rem 1.1rem;border-top:1px solid var(--g2)}
+.empty{color:var(--g4);font-size:.73rem}
+#toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--k);border-radius:3px;padding:.45rem 1rem;font-size:.78rem;color:#fff;z-index:1000;opacity:0;transition:opacity .3s;pointer-events:none}
 #toast.on{opacity:1}
 .hidden{display:none!important}
+/* poi list in panel */
+.poi-item{display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid var(--g2);font-size:.72rem}
+.poi-item:last-child{border-bottom:none}
+.poi-name{color:var(--k);font-weight:500;flex:1}
+.poi-meta{display:flex;align-items:center;gap:.3rem;flex-shrink:0}
+.poi-dist{font-family:var(--mono);font-size:.62rem;color:var(--g4)}
+.poi-nav{padding:1px 6px;background:#4285F4;color:#fff;border-radius:2px;font-size:.6rem;text-decoration:none;font-weight:600}
 </style>
 </head>
 <body>
 
 <div id="lock">
   <div class="lbox">
-    <div class="lm">
-      <div class="lico">M</div>
-      <div class="lname">Intent Analytics</div>
-    </div>
-    <div class="ltitle">Explorer les données<br>par adresse</div>
+    <div class="lm"><div class="lico">M</div><div class="lname">Intent Analytics</div></div>
+    <div class="ltitle">Explorer par adresse</div>
     <div class="lsub">Accès restreint · Usage interne</div>
     <input type="password" id="lpin" class="lpin" placeholder="••••••••" autocomplete="off">
     <button class="lgo" onclick="unlock()">Accéder →</button>
@@ -226,447 +226,727 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:var(--sans);backgro
     <div class="bname">Intent Analytics</div>
     <div class="bdiv"></div>
     <div id="sw">
-      <input type="text" id="si" placeholder="Rechercher une adresse en France…" autocomplete="off">
+      <input type="text" id="si" placeholder="Rechercher une adresse…" autocomplete="off" spellcheck="false">
       <div id="sdd"></div>
     </div>
-    <button id="locbtn" onclick="locate()" title="Me localiser">⊙</button>
-    <div class="lbtns">
-      <button class="lb on" id="lb-t" onclick="tgl('t')">Transports</button>
-      <button class="lb on" id="lb-s" onclick="tgl('s')">Écoles</button>
-      <button class="lb on" id="lb-h" onclick="tgl('h')">Santé</button>
-      <button class="lb" id="lb-p" onclick="tgl('p')">Parcelle</button>
+    <button id="locbtn" onclick="locate()">⊙</button>
+    <div class="bdiv"></div>
+    <button id="filterbtn" onclick="toggleFilter()">⚙ Filtres</button>
+  </div>
+
+  <div id="filterbar">
+    <div class="fg">
+      <div class="fglbl">DVF — période</div>
+      <div class="fsl"><span id="dvfMinL">2019</span><input type="range" id="dvfMin" min="0" max="72" value="0" oninput="updateFilters()"><input type="range" id="dvfMax" min="0" max="72" value="72" oninput="updateFilters()"><span id="dvfMaxL">Auj.</span></div>
+    </div>
+    <div class="fg">
+      <div class="fglbl">DPE — période</div>
+      <div class="fsl"><span id="dpeMinL">2021</span><input type="range" id="dpeMin" min="0" max="60" value="0" oninput="updateFilters()"><input type="range" id="dpeMax" min="0" max="60" value="60" oninput="updateFilters()"><span id="dpeMaxL">Auj.</span></div>
+    </div>
+    <div class="fg">
+      <div class="fglbl">Type bien DVF</div>
+      <div class="fchks">
+        <div class="fc on" id="fc-appt" onclick="toggleFc('appt',this)">Appt.</div>
+        <div class="fc on" id="fc-mais" onclick="toggleFc('mais',this)">Maison</div>
+        <div class="fc on" id="fc-autre" onclick="toggleFc('autre',this)">Autre</div>
+      </div>
+    </div>
+    <div class="fg">
+      <div class="fglbl">Rayon affichage</div>
+      <div class="fsl"><span>500m</span><input type="range" id="radMin" min="200" max="2000" value="1000" step="100" oninput="updateRadius(this.value)"><span id="radLbl">1 km</span></div>
     </div>
   </div>
 
   <div id="content">
     <div id="mwrap">
       <div id="map"></div>
-      <div id="legend">
-        <div class="li"><div class="ldot" style="background:#2563eb"></div>Transports</div>
-        <div class="li"><div class="ldot" style="background:#16a34a"></div>Écoles</div>
-        <div class="li"><div class="ldot" style="background:#dc2626"></div>Santé</div>
+
+      <!-- LAYER CONTROL PANEL -->
+      <div id="layerpanel">
+        <div class="lphead">Layers <span style="cursor:pointer;color:var(--g4)" onclick="toggleLayerPanel()">⊟</span></div>
+        <div class="lpbody" id="lpbody">
+          <div class="lrow on" id="lr-transport" onclick="tgl('transport')"><div class="ldot" style="background:var(--c-transport)"></div>Transports<span class="lcnt" id="lc-transport"></span></div>
+          <div class="lrow on" id="lr-school" onclick="tgl('school')"><div class="ldot" style="background:var(--c-school);border-radius:2px"></div>Éducation<span class="lcnt" id="lc-school"></span></div>
+          <div class="lrow on" id="lr-health" onclick="tgl('health')"><div class="ldot" style="background:var(--c-health)"></div>Santé<span class="lcnt" id="lc-health"></span></div>
+          <div class="lrow" id="lr-shop" onclick="tgl('shop')"><div class="ldot" style="background:var(--c-shop)"></div>Commerces<span class="lcnt" id="lc-shop"></span></div>
+          <div class="lrow" id="lr-sirene" onclick="tgl('sirene')"><div class="ldot" style="background:var(--c-sirene)"></div>SIRENE<span class="lcnt" id="lc-sirene"></span></div>
+          <div class="lrow" id="lr-parc" onclick="tgl('parc')"><div class="ldot" style="background:var(--c-parc)"></div>Parcs & Nature<span class="lcnt" id="lc-parc"></span></div>
+          <div class="lrow" id="lr-infra" onclick="tgl('infra')"><div class="ldot" style="background:var(--c-infra);border-radius:2px"></div>Infrastructures<span class="lcnt" id="lc-infra"></span></div>
+          <div class="lrow" id="lr-bat" onclick="tgl('bat')"><div class="ldot" style="background:var(--c-bat);border-radius:1px"></div>Bâtiments BDNB<span class="lcnt" id="lc-bat"></span></div>
+          <div class="lrow" id="lr-parcelle" onclick="tgl('parcelle')"><div class="ldot" style="background:var(--c-parcelle);border-radius:0"></div>Parcelle cadastre<span class="lcnt" id="lc-parcelle"></span></div>
+        </div>
       </div>
     </div>
 
     <div id="panel">
       <div id="pempty">
         <div class="bigico">↗</div>
-        <h3>Explorez une adresse</h3>
-        <p>Cliquez sur la carte ou recherchez une adresse pour afficher son rapport complet</p>
+        <h3>Explorer une adresse</h3>
+        <p>Cliquez sur la carte ou recherchez une adresse</p>
       </div>
-      <div id="pload"><div class="spin"></div><p>Chargement des données…</p></div>
+      <div id="pload"><div class="spin"></div><p>Chargement…</p></div>
       <div id="pbody">
         <div class="phead">
           <div class="phead-top">
-            <div style="flex:1">
-              <div class="paddr" id="paddr"></div>
-              <div class="psub" id="psub"></div>
-            </div>
+            <div style="flex:1"><div class="paddr" id="paddr"></div><div class="psub" id="psub"></div></div>
             <button class="pclose" onclick="reset()">✕</button>
           </div>
-          <div class="score-band" id="sband" style="display:none">
-            <div>
-              <div class="snum" id="snum"></div>
-              <div style="font-family:var(--mono);font-size:.58rem;color:var(--gray4);margin-top:1px">/100</div>
-            </div>
+          <div class="sband" id="sband" style="display:none">
+            <div><div class="snum" id="snum"></div><div style="font-family:var(--mono);font-size:.58rem;color:var(--g4)">/100</div></div>
             <div class="sbars" id="sbars"></div>
           </div>
         </div>
-
         <div class="pbody">
           <div id="esec"></div>
 
-          <div class="sec">
-            <div class="sh"><span class="stag ty">DVF · Transactions</span><span class="stitle">Prix notariaux réels</span></div>
-            <div class="grid3" id="dvfK"></div>
-            <div class="card" style="overflow:auto;max-height:180px">
-              <table class="tbl"><thead><tr><th>Date</th><th>Type</th><th>Surf.</th><th>€/m²</th></tr></thead>
-              <tbody id="dvfT"></tbody></table>
-            </div>
+          <div class="sec"><div class="sh"><span class="stag" style="background:#fef3c7;color:#b45309">DVF</span><span style="font-size:.78rem;font-weight:700">Transactions notariales</span></div>
+            <div class="g3c" id="dvfK"></div>
+            <div class="card" style="overflow:auto;max-height:180px"><table class="tbl"><thead><tr><th>Date</th><th>Type</th><th>Surf.</th><th>€/m²</th></tr></thead><tbody id="dvfT"></tbody></table></div>
           </div>
 
-          <div class="sec">
-            <div class="sh"><span class="stag tg">DPE · Énergie</span><span class="stitle">Performance énergétique</span></div>
-            <div class="grid2" id="dpeK"></div>
-            <div class="card">
-              <div class="dpe-stack" id="dpeStack"></div>
-              <div id="dpeI" style="margin-top:.3rem;font-size:.7rem"></div>
-            </div>
+          <div class="sec"><div class="sh"><span class="stag" style="background:#dcfce7;color:#15803d">DPE</span><span style="font-size:.78rem;font-weight:700">Énergie</span></div>
+            <div class="g2c" id="dpeK"></div>
+            <div class="card"><div class="dpe-stack" id="dpeStack"></div><div id="dpeI" style="margin-top:.3rem;font-size:.7rem"></div></div>
           </div>
 
-          <div class="sec">
-            <div class="sh"><span class="stag to">Rénovation</span><span class="stitle">Estimation travaux & aides</span></div>
+          <div class="sec"><div class="sh"><span class="stag" style="background:#ffedd5;color:#c2410c">Rénovation</span><span style="font-size:.78rem;font-weight:700">Estimation travaux</span></div>
             <div id="renoD"></div>
           </div>
 
-          <div class="sec">
-            <div class="sh"><span class="stag ta">POI · Scores</span><span class="stitle">Équipements à proximité</span></div>
+          <div class="sec"><div class="sh"><span class="stag" style="background:var(--g2);color:var(--g5)">POI</span><span style="font-size:.78rem;font-weight:700">Scores équipements</span></div>
             <div class="card" id="poiD"></div>
           </div>
 
-          <div class="sec">
-            <div class="sh"><span class="stag tg">Carte scolaire · 1km</span><span class="stitle">Établissements scolaires</span></div>
+          <div class="sec"><div class="sh"><div class="ldot" style="background:var(--c-transport);display:inline-block;margin-right:4px"></div><span style="font-size:.78rem;font-weight:700">Transports · commune</span></div>
+            <div id="transD"><div class="card"><span class="empty">Chargement…</span></div></div>
+          </div>
+
+          <div class="sec"><div class="sh"><div class="ldot" style="background:var(--c-school);border-radius:2px;display:inline-block;margin-right:4px"></div><span style="font-size:.78rem;font-weight:700">Éducation · 1km</span></div>
             <div id="scolD"><div class="card"><span class="empty">Chargement…</span></div></div>
           </div>
 
-          <div class="sec">
-            <div class="sh"><span class="stag tr">Santé · Proximité</span><span class="stitle">Établissements de santé</span></div>
+          <div class="sec"><div class="sh"><div class="ldot" style="background:var(--c-health);display:inline-block;margin-right:4px"></div><span style="font-size:.78rem;font-weight:700">Santé · 1.5km</span></div>
             <div id="santeD"><div class="card"><span class="empty">Chargement…</span></div></div>
           </div>
 
-          <div class="sec">
-            <div class="sh"><span class="stag tr">Géorisques</span><span class="stitle">Risques naturels & technologiques</span></div>
-            <div class="card" id="riskD"></div>
+          <div class="sec"><div class="sh"><div class="ldot" style="background:var(--c-shop);display:inline-block;margin-right:4px"></div><span style="font-size:.78rem;font-weight:700">Commerces · 800m</span></div>
+            <div id="shopD"><div class="card"><span class="empty">Chargement…</span></div></div>
           </div>
 
-          <div class="sec">
-            <div class="sh"><span class="stag ta">Eau potable</span><span class="stitle">Qualité · Hub'Eau</span></div>
-            <div class="card" id="eauD"></div>
-          </div>
-
-          <div class="sec">
-            <div class="sh"><span class="stag ta">Cadastre · Bâtiment · PLU</span></div>
-            <div class="grid2" style="margin-bottom:.5rem">
-              <div id="cadastreD"><div class="card"><span class="empty">…</span></div></div>
-              <div id="bdnbD"><div class="card"><span class="empty">…</span></div></div>
-            </div>
-            <div id="pluD"><div class="card"><span class="empty">…</span></div></div>
-          </div>
-
-          <div class="sec">
-            <div class="sh"><span class="stag ta">INSEE · Démographie</span></div>
-            <div class="grid3" id="demoK"></div>
-            <div class="card" id="demoD"></div>
-          </div>
-
-          <div class="sec">
-            <div class="sh"><span class="stag ta">Air · Météo temps réel</span></div>
-            <div class="grid2">
-              <div id="airD"><div class="card"><span class="empty">…</span></div></div>
-              <div id="climatD"><div class="card"><span class="empty">…</span></div></div>
-            </div>
-          </div>
-
-          <div class="sec">
-            <div class="sh"><span class="stag ta">SIRENE · Tissu économique</span></div>
+          <div class="sec"><div class="sh"><div class="ldot" style="background:var(--c-sirene);display:inline-block;margin-right:4px"></div><span style="font-size:.78rem;font-weight:700">SIRENE · Entreprises</span></div>
             <div id="sireneD"><div class="card"><span class="empty">Chargement…</span></div></div>
           </div>
 
-          <div class="sec">
-            <div class="sh"><span class="stag tp">Intent Analytics · Profil enrichi</span></div>
-            <div class="grid2" id="apK"></div>
+          <div class="sec"><div class="sh"><span class="stag" style="background:#fee2e2;color:#b91c1c">Géorisques</span><span style="font-size:.78rem;font-weight:700">Risques naturels</span></div>
+            <div class="card" id="riskD"></div>
+          </div>
+
+          <div class="sec"><div class="sh"><span class="stag" style="background:var(--g2);color:var(--g5)">Eau</span><span style="font-size:.78rem;font-weight:700">Qualité potable</span></div>
+            <div class="card" id="eauD"></div>
+          </div>
+
+          <div class="sec"><div class="sh"><span class="stag" style="background:var(--g2);color:var(--g5)">Cadastre · BDNB · PLU</span></div>
+            <div class="g2c"><div id="cadastreD"><div class="card"><span class="empty">…</span></div></div><div id="bdnbD"><div class="card"><span class="empty">…</span></div></div></div>
+            <div id="pluD"><div class="card"><span class="empty">…</span></div></div>
+          </div>
+
+          <div class="sec"><div class="sh"><span class="stag" style="background:var(--g2);color:var(--g5)">INSEE</span><span style="font-size:.78rem;font-weight:700">Démographie</span></div>
+            <div class="g3c" id="demoK"></div>
+            <div class="card" id="demoD"></div>
+          </div>
+
+          <div class="sec"><div class="sh"><span class="stag" style="background:var(--g2);color:var(--g5)">Air · Météo</span></div>
+            <div class="g2c"><div id="airD"><div class="card"><span class="empty">…</span></div></div><div id="climatD"><div class="card"><span class="empty">…</span></div></div></div>
+          </div>
+
+          <div class="sec"><div class="sh"><span class="stag" style="background:#ede9fe;color:#6d28d9">Intent Analytics</span><span style="font-size:.78rem;font-weight:700">Profil enrichi</span></div>
+            <div class="g2c" id="apK"></div>
             <div class="card" id="apD"></div>
           </div>
         </div>
-
         <div class="pfoot">
-          <button class="fbtn" onclick="copyLink()">Partager le lien</button>
-          <button class="fbtn p" onclick="window.print()">Télécharger PDF</button>
+          <button class="fbtn" onclick="copyLink()">Partager</button>
+          <button class="fbtn p" onclick="window.print()">PDF</button>
         </div>
-        <div class="sources">DVF · DPE/ADEME · Géorisques · Hub'Eau · IGN · INSEE · BPE · BDNB · GPU · WAQI · Open-Meteo · RGE · ARCEP · MEN · SIRENE · OSM</div>
+        <div class="sources">DVF · DPE · Géorisques · Hub'Eau · IGN · INSEE · BDNB · GPU · WAQI · Open-Meteo · MEN · SIRENE · OSM Overpass</div>
       </div>
     </div>
   </div>
 </div>
-
 <div id="toast"></div>
 
 <script>
-function unlock(){
-  if(document.getElementById('lpin').value==='intent2026'){
-    document.getElementById('lock').classList.add('hidden');
-    document.getElementById('app').classList.remove('hidden');
-    setTimeout(initMap,50);
-  }else{document.getElementById('lerr').textContent='Mot de passe incorrect.';document.getElementById('lpin').value='';}
-}
+/* ── AUTH ── */
+function unlock(){if(document.getElementById('lpin').value==='intent2026'){document.getElementById('lock').classList.add('hidden');document.getElementById('app').classList.remove('hidden');setTimeout(initMap,80);}else{document.getElementById('lerr').textContent='Incorrect';document.getElementById('lpin').value='';}}
 document.addEventListener('DOMContentLoaded',function(){document.getElementById('lpin').addEventListener('keydown',function(e){if(e.key==='Enter')unlock();});});
 
+/* ── CONFIG ── */
 var SU='https://wwvdpixzfaviaapixarb.supabase.co';
 var SA='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3dmRwaXh6ZmF2aWFhcGl4YXJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3Mzk0NDgsImV4cCI6MjA5MDMxNTQ0OH0.NjOeWzUCo2BJPcxnkEJNm215GJBr1RAHba1eL_EF758';
 var AH={'apikey':SA,'Authorization':'Bearer '+SA};
-var map,pin=null,geo=null;
-var LG={t:null,s:null,h:null,p:null};
-var LS={t:true,s:true,h:true,p:false};
+var map,pin=null,geo=null,RAD=1000;
+var RAW={dvf:[],dpe:[]};
+var LG={};
+var LS={transport:true,school:true,health:true,shop:false,sirene:false,parc:false,infra:false,bat:false,parcelle:false};
 
+/* ── FETCH ── */
 function sf(t,p,l){var u=SU+'/rest/v1/'+t+'?';for(var k in p)u+=k+'=eq.'+encodeURIComponent(p[k])+'&';u+='limit='+(l||200);return fetch(u,{headers:AH}).then(function(r){return r.ok?r.json():[];}).catch(function(){return[];});}
 function sr(p){return fetch(SU+'/rest/v1/'+p,{headers:AH}).then(function(r){return r.ok?r.json():[];}).catch(function(){return[];});}
 function rpc(fn,b){return fetch(SU+'/rest/v1/rpc/'+fn,{method:'POST',headers:Object.assign({'Content-Type':'application/json'},AH),body:JSON.stringify(b)}).then(function(r){return r.ok?r.json():null;}).catch(function(){return null;});}
 function fmt(v){return new Intl.NumberFormat('fr-FR',{style:'currency',currency:'EUR',maximumFractionDigits:0}).format(v);}
 function fmtN(v){return new Intl.NumberFormat('fr-FR',{maximumFractionDigits:0}).format(v||0);}
+function dist(a,b,c,d){var R=6371000,dL=(c-a)*Math.PI/180,dl=(d-b)*Math.PI/180,x=Math.sin(dL/2)*Math.sin(dL/2)+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(dl/2)*Math.sin(dl/2);return Math.round(R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x)));}
+function fd(m){return m<1000?m+'m':(m/1000).toFixed(1)+'km';}
+function mdate(n,off,y){var d=new Date(y,off+n,1);return d.toLocaleDateString('fr-FR',{month:'short',year:'2-digit'});}
+var NOW=new Date();
 
+/* ── FILTERS ── */
+function toggleFilter(){var fb=document.getElementById('filterbar'),btn=document.getElementById('filterbtn');fb.classList.toggle('on');btn.classList.toggle('on');setTimeout(function(){if(map)map.invalidateSize();},200);}
+var fcState={appt:true,mais:true,autre:true};
+function toggleFc(id,el){fcState[id]=!fcState[id];el.classList.toggle('on',fcState[id]);if(RAW.dvf.length)rdvf({dvf:filtDvf()});}
+function updateRadius(v){RAD=+v;document.getElementById('radLbl')=(v>=1000?(v/1000).toFixed(1)+' km':v+'m');document.getElementById('radLbl').textContent=v>=1000?(v/1000).toFixed(1)+' km':v+'m';}
+function updateFilters(){
+  var dvfMin=+document.getElementById('dvfMin').value,dvfMax=+document.getElementById('dvfMax').value;
+  var dpeMin=+document.getElementById('dpeMin').value,dpeMax=+document.getElementById('dpeMax').value;
+  document.getElementById('dvfMinL').textContent=dvfMin===0?'2019':mdate(dvfMin,-72,NOW.getFullYear());
+  document.getElementById('dvfMaxL').textContent=dvfMax===72?'Auj.':mdate(dvfMax,-72,NOW.getFullYear());
+  document.getElementById('dpeMinL').textContent=dpeMin===0?'2021':mdate(dpeMin,-60,NOW.getFullYear());
+  document.getElementById('dpeMaxL').textContent=dpeMax===60?'Auj.':mdate(dpeMax,-60,NOW.getFullYear());
+  if(RAW.dvf.length)rdvf({dvf:filtDvf()});
+  if(RAW.dpe.length)rdpe({dpe:filtDpe()});
+}
+function filtDvf(){
+  var mn=+document.getElementById('dvfMin').value,mx=+document.getElementById('dvfMax').value;
+  var cMin=new Date(NOW);cMin.setMonth(NOW.getMonth()-72+mn);
+  var cMax=new Date(NOW);cMax.setMonth(NOW.getMonth()-72+mx);
+  var types=[];
+  if(fcState.appt)types.push('Appartement');
+  if(fcState.mais)types.push('Maison');
+  if(fcState.autre)types.push('Local industriel. commercial ou assimilé','Dépendance');
+  return RAW.dvf.filter(function(r){if(!r.date_mutation)return false;var d=new Date(r.date_mutation);if(d<cMin||d>cMax)return false;return!types.length||types.some(function(t){return r.type_local&&r.type_local.indexOf(t)>=0;});});
+}
+function filtDpe(){
+  var mn=+document.getElementById('dpeMin').value,mx=+document.getElementById('dpeMax').value;
+  var cMin=new Date(NOW);cMin.setMonth(NOW.getMonth()-60+mn);
+  var cMax=new Date(NOW);cMax.setMonth(NOW.getMonth()-60+mx);
+  return RAW.dpe.filter(function(r){if(!r.date_reception_dpe)return true;var d=new Date(r.date_reception_dpe);return d>=cMin&&d<=cMax;});
+}
+
+/* ── LAYER PANEL ── */
+function toggleLayerPanel(){var b=document.getElementById('lpbody');b.style.display=b.style.display==='none'?'block':'none';}
+function tgl(k){
+  LS[k]=!LS[k];
+  var row=document.getElementById('lr-'+k);row.classList.toggle('on',LS[k]);
+  if(LG[k]){if(LS[k])LG[k].addTo(map);else map.removeLayer(LG[k]);}
+}
+function setCount(k,n){var el=document.getElementById('lc-'+k);if(el)el.textContent=n?'('+n+')':'';}
+
+/* ── MAP INIT ── */
 function initMap(){
-  map=L.map('map',{zoomControl:true,preferCanvas:true}).setView([46.5,2.3],6);
+  map=L.map('map',{zoomControl:true,preferCanvas:false}).setView([46.5,2.3],6);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap',maxZoom:19}).addTo(map);
-  LG.t=L.layerGroup().addTo(map);LG.s=L.layerGroup().addTo(map);LG.h=L.layerGroup().addTo(map);LG.p=L.layerGroup();
+  Object.keys(LS).forEach(function(k){LG[k]=L.layerGroup();if(LS[k])LG[k].addTo(map);});
   map.on('click',function(e){rgc(e.latlng.lat,e.latlng.lng);});
   var p=new URLSearchParams(location.search);
   if(p.get('lat')&&p.get('lng'))rgc(+p.get('lat'),+p.get('lng'));
-  setTimeout(function(){map.invalidateSize();},100);
+  setTimeout(function(){map.invalidateSize();},120);
 }
 
-function tgl(k){
-  LS[k]=!LS[k];var btn=document.getElementById('lb-'+k);
-  if(LS[k]){LG[k].addTo(map);btn.classList.add('on');}else{map.removeLayer(LG[k]);btn.classList.remove('on');}
-  document.getElementById('legend').className=(LS.t||LS.s||LS.h)?'on':'';
+/* ── MARKER ICONS ── */
+function mkDot(color,shape,sz){
+  sz=sz||9;var r=shape==='sq'?'2px':shape==='hex'?'3px':'50%';
+  return L.divIcon({className:'',html:'<div style="width:'+sz+'px;height:'+sz+'px;background:'+color+';border-radius:'+r+';border:1.5px solid rgba(255,255,255,.9);box-shadow:0 1px 5px rgba(0,0,0,.22)"></div>',iconSize:[sz,sz],iconAnchor:[sz/2,sz/2]});
 }
 
-function mkIcon(color,sq){
-  var r=sq?'2':'50%';
-  return L.divIcon({className:'',html:'<div style="width:9px;height:9px;background:'+color+';border-radius:'+r+';border:1.5px solid rgba(255,255,255,.9);box-shadow:0 1px 4px rgba(0,0,0,.3)"></div>',iconSize:[9,9],iconAnchor:[4,4]});
+/* ── RICH POPUP ── */
+function pop(o){
+  var lat=o.lat,lng=o.lng,name=o.name,type=o.type,d=o.distance,tags=o.tags||{};
+  var gmaps='https://www.google.com/maps/dir/?api=1&destination='+lat+','+lng+(geo?'&origin='+geo.y+','+geo.x:'');
+  var gplace='https://www.google.com/maps/search/'+encodeURIComponent(name)+'/@'+lat+','+lng+',17z';
+  var h='<div class="pop">';
+  h+='<div class="ptag">'+type+'</div>';
+  h+='<div class="pname">'+name+'</div>';
+  h+='<div class="prows">';
+  if(d!=null)h+='<div class="prow"><span>Distance</span><strong>'+fd(d)+'</strong></div>';
+  if(tags.opening_hours)h+='<div class="prow"><span>Horaires</span><strong>'+tags.opening_hours.substring(0,28)+'</strong></div>';
+  if(tags.phone)h+='<div class="prow"><span>Tél.</span><strong>'+tags.phone+'</strong></div>';
+  if(tags['addr:street'])h+='<div class="prow"><span>Adresse</span><strong>'+tags['addr:housenumber']+' '+tags['addr:street']+'</strong></div>';
+  if(tags.wheelchair)h+='<div class="prow"><span>Accès PMR</span><strong>'+({yes:'✓ Oui',limited:'⚠ Partiel',no:'✗ Non'}[tags.wheelchair]||tags.wheelchair)+'</strong></div>';
+  if(tags.capacity)h+='<div class="prow"><span>Capacité</span><strong>'+tags.capacity+'</strong></div>';
+  if(tags['ref:FR:SIRET'])h+='<div class="prow"><span>SIRET</span><strong>'+tags['ref:FR:SIRET']+'</strong></div>';
+  if(o.extra)Object.keys(o.extra).forEach(function(k){h+='<div class="prow"><span>'+k+'</span><strong>'+o.extra[k]+'</strong></div>';});
+  h+='</div>';
+  h+='<div class="plinks">';
+  h+='<a class="plink pl-gmaps" href="'+gmaps+'" target="_blank">↗ Itinéraire</a>';
+  h+='<a class="plink pl-nav" href="'+gplace+'" target="_blank">📍 GMaps</a>';
+  if(tags.website)h+='<a class="plink pl-web" href="'+tags.website+'" target="_blank">Site web</a>';
+  h+='</div></div>';
+  return h;
 }
 
-function locate(){
-  if(!navigator.geolocation)return toast('Non supporté');
-  navigator.geolocation.getCurrentPosition(function(p){map.setView([p.coords.latitude,p.coords.longitude],17);rgc(p.coords.latitude,p.coords.longitude);},function(){toast('Refusé');});
+/* ── OSM QUERY ── */
+function osm(query,radius,lat,lng){
+  lat=lat||geo.y;lng=lng||geo.x;
+  var q='[out:json][timeout:10];('+query+'(around:'+radius+','+lat+','+lng+'););out body 40;';
+  return fetch('https://overpass-api.de/api/interpreter?data='+encodeURIComponent(q)).then(function(r){return r.json();}).catch(function(){return{elements:[]};});
 }
 
-function rgc(lat,lng){
-  fetch('https://api-adresse.data.gouv.fr/reverse/?lon='+lng+'&lat='+lat)
-    .then(function(r){return r.json();})
-    .then(function(res){if(res.features&&res.features.length){geo=res.features[0].properties;geo.x=+lng;geo.y=+lat;loadReport();}else toast('Adresse non trouvée');})
-    .catch(function(){toast('Erreur géocodage');});
+/* ── MAP LAYERS LOADING ── */
+function loadMapLayers(d){
+  var lat=d.lat,lng=d.lng;
+  // Clear all
+  Object.values(LG).forEach(function(l){l.clearLayers();});
+
+  // ── CERCLE RAYON ──
+  L.circle([lat,lng],{radius:RAD,color:'rgba(37,99,235,.15)',fillColor:'rgba(37,99,235,.03)',fillOpacity:1,weight:1,dashArray:'4 4'}).addTo(LG.transport);
+
+  // ── TRANSPORTS (Supabase) ──
+  var tCount=0;
+  d.trans.forEach(function(t){
+    if(!t.latitude||!t.longitude)return;
+    var dd=dist(lat,lng,t.latitude,t.longitude);
+    var m=L.marker([t.latitude,t.longitude],{icon:mkDot('var(--c-transport)','circle',9)});
+    m.bindPopup(pop({name:t.nom_arret||'Arrêt',type:'Transport · '+(t.type_transport||''),lat:t.latitude,lng:t.longitude,distance:dd,tags:{}}));
+    LG.transport.addLayer(m);tCount++;
+  });
+  // Transports OSM en plus
+  osm('node["public_transport"~"stop_position|station"]["name"]',RAD).then(function(res){
+    if(!res.elements)return;
+    res.elements.forEach(function(e){
+      if(!e.lat||!e.lon)return;
+      var dd=dist(lat,lng,e.lat,e.lon);
+      var m=L.marker([e.lat,e.lon],{icon:mkDot('var(--c-transport)','circle',8)});
+      m.bindPopup(pop({name:e.tags&&e.tags.name||'Arrêt',type:'Transport OSM',lat:e.lat,lng:e.lon,distance:dd,tags:e.tags||{}}));
+      LG.transport.addLayer(m);tCount++;
+    });
+    setCount('transport',tCount);
+  });
+
+  // ── ÉDUCATION (Supabase + MEN) ──
+  var sCount=0;
+  d.ecoles.forEach(function(e){
+    if(!e.latitude||!e.longitude)return;
+    var dd=dist(lat,lng,e.latitude,e.longitude);
+    var m=L.marker([e.latitude,e.longitude],{icon:mkDot('var(--c-school)','sq',9)});
+    m.bindPopup(pop({name:e.nom_etablissement||'École',type:(e.type_etablissement||'Scolaire')+' · '+(e.statut_public_prive||''),lat:e.latitude,lng:e.longitude,distance:dd,tags:{},extra:e.statut_public_prive?{}:{}}));
+    LG.school.addLayer(m);sCount++;
+  });
+  // MEN API à 1km
+  fetch('https://data.education.gouv.fr/api/explore/v2.1/catalog/datasets/fr-en-annuaire-education/records?where=within_distance(position%2Cgeom\'POINT('+lng+' '+lat+')\'%2C1km)&limit=20&select=nom_etablissement%2Ctype_etablissement%2Cstatut_public_prive%2Clatitude%2Clongitude%2Cmail')
+    .then(function(r){return r.ok?r.json():null;}).then(function(res){
+      if(!res||!res.results)return;
+      res.results.forEach(function(e){
+        if(!e.latitude||!e.longitude)return;
+        var dd=dist(lat,lng,e.latitude,e.longitude);
+        var m=L.marker([e.latitude,e.longitude],{icon:mkDot('var(--c-school)','sq',10)});
+        m.bindPopup(pop({name:e.nom_etablissement,type:e.type_etablissement+' · '+e.statut_public_prive,lat:e.latitude,lng:e.longitude,distance:dd,tags:{},extra:e.mail?{'Mail':e.mail}:{}}));
+        LG.school.addLayer(m);sCount++;
+      });
+      setCount('school',sCount);
+    }).catch(function(){setCount('school',sCount);});
+
+  // ── SANTÉ ──
+  osm('node["amenity"~"hospital|pharmacy|doctors|clinic|dentist"]',1500).then(function(res){
+    var n=0;
+    res.elements.forEach(function(e){
+      if(!e.lat||!e.lon)return;
+      var dd=dist(lat,lng,e.lat,e.lon);
+      var t={hospital:'Hôpital',pharmacy:'Pharmacie',doctors:'Médecin',clinic:'Clinique',dentist:'Dentiste'}[e.tags&&e.tags.amenity]||'Santé';
+      var m=L.marker([e.lat,e.lon],{icon:mkDot('var(--c-health)','circle',9)});
+      m.bindPopup(pop({name:e.tags&&e.tags.name||t,type:t,lat:e.lat,lng:e.lon,distance:dd,tags:e.tags||{}}));
+      LG.health.addLayer(m);n++;
+    });
+    setCount('health',n);
+  });
+
+  // ── COMMERCES (OSM) ──
+  osm('node["shop"~"supermarket|convenience|bakery|butcher|fishmonger|greengrocer|mall"];node["amenity"~"marketplace|fuel"]',800).then(function(res){
+    var n=0;
+    res.elements.forEach(function(e){
+      if(!e.lat||!e.lon)return;
+      var dd=dist(lat,lng,e.lat,e.lon);
+      var type={supermarket:'Supermarché',convenience:'Épicerie',bakery:'Boulangerie',butcher:'Boucherie',fishmonger:'Poissonnerie',greengrocer:'Primeur',mall:'Centre commercial',marketplace:'Marché',fuel:'Station service'}[e.tags&&(e.tags.shop||e.tags.amenity)]||'Commerce';
+      var m=L.marker([e.lat,e.lon],{icon:mkDot('var(--c-shop)','circle',9)});
+      m.bindPopup(pop({name:e.tags&&e.tags.name||type,type:type,lat:e.lat,lng:e.lon,distance:dd,tags:e.tags||{}}));
+      LG.shop.addLayer(m);n++;
+    });
+    setCount('shop',n);
+  });
+
+  // ── SIRENE (Annuaire Entreprises → geocodage approché par CP) ──
+  fetch('https://recherche-entreprises.api.gouv.fr/search?code_postal='+d.cp+'&per_page=20&categorie_entreprise=PME')
+    .then(function(r){return r.ok?r.json():null;}).then(function(res){
+      if(!res||!res.results)return;
+      var n=0;
+      res.results.forEach(function(e,i){
+        // Approximation : scatter autour de l'adresse (pas de coord dans l'API)
+        if(!e.siege||!e.siege.latitude||!e.siege.longitude)return;
+        var slat=+e.siege.latitude,slng=+e.siege.longitude;
+        if(isNaN(slat)||isNaN(slng))return;
+        var dd=dist(lat,lng,slat,slng);
+        var m=L.marker([slat,slng],{icon:mkDot('var(--c-sirene)','circle',8)});
+        var extra={};
+        if(e.nombre_etablissements)extra['Établissements']=e.nombre_etablissements;
+        if(e.tranche_effectif_salarie)extra['Effectif']=e.tranche_effectif_salarie;
+        m.bindPopup(pop({name:e.nom_complet||'—',type:(e.activite_principale||'')+(e.categorie_entreprise?' · '+e.categorie_entreprise:''),lat:slat,lng:slng,distance:dd,tags:e.siege&&e.siege.site_internet?{website:e.siege.site_internet}:{},extra:extra}));
+        LG.sirene.addLayer(m);n++;
+      });
+      setCount('sirene',n);
+    }).catch(function(){});
+
+  // ── PARCS & NATURE ──
+  osm('way["leisure"~"park|garden|nature_reserve"];node["leisure"~"park|garden"]',1500).then(function(res){
+    var n=0;
+    res.elements.forEach(function(e){
+      var elat=e.lat||(e.center&&e.center.lat);var elng=e.lon||(e.center&&e.center.lon);
+      if(!elat||!elng)return;
+      var dd=dist(lat,lng,elat,elng);
+      var t={park:'Parc',garden:'Jardin',nature_reserve:'Réserve naturelle'}[e.tags&&e.tags.leisure]||'Espace vert';
+      var m=L.marker([elat,elng],{icon:mkDot('var(--c-parc)','circle',9)});
+      m.bindPopup(pop({name:e.tags&&e.tags.name||t,type:t,lat:elat,lng:elng,distance:dd,tags:e.tags||{}}));
+      LG.parc.addLayer(m);n++;
+    });
+    setCount('parc',n);
+  });
+
+  // ── INFRASTRUCTURES (OSM : gare, aéroport, parking, VE, poste...) ──
+  osm('node["amenity"~"post_office|police|fire_station|charging_station|bicycle_rental"];node["railway"~"station|halt"]',2000).then(function(res){
+    var n=0;
+    res.elements.forEach(function(e){
+      if(!e.lat||!e.lon)return;
+      var dd=dist(lat,lng,e.lat,e.lon);
+      var t={post_office:'Poste',police:'Police',fire_station:'Pompiers',charging_station:'Borne VE',bicycle_rental:'Vélos en libre service',station:'Gare',halt:'Halte ferroviaire'}[e.tags&&(e.tags.amenity||e.tags.railway)]||'Infrastructure';
+      var m=L.marker([e.lat,e.lon],{icon:mkDot('var(--c-infra)','sq',9)});
+      m.bindPopup(pop({name:e.tags&&e.tags.name||t,type:t,lat:e.lat,lng:e.lon,distance:dd,tags:e.tags||{}}));
+      LG.infra.addLayer(m);n++;
+    });
+    setCount('infra',n);
+  });
+
+  // ── BÂTIMENTS BDNB ──
+  sr('data_bdnb_batiments?code_commune_insee=eq.'+d.cc+'&select=batiment_groupe_id,annee_construction,nb_log,hauteur_mean,mat_mur_txt,classe_bilan_dpe,latitude,longitude&limit=50').then(function(rows){
+    var n=0;
+    rows.forEach(function(b){
+      if(!b.latitude||!b.longitude)return;
+      var dd=dist(lat,lng,b.latitude,b.longitude);
+      var m=L.marker([b.latitude,b.longitude],{icon:mkDot('var(--c-bat)','sq',8)});
+      var extra={};
+      if(b.annee_construction)extra['Année']=b.annee_construction;
+      if(b.nb_log)extra['Logements']=b.nb_log;
+      if(b.hauteur_mean)extra['Hauteur']=Math.round(b.hauteur_mean)+'m';
+      if(b.mat_mur_txt)extra['Murs']=b.mat_mur_txt;
+      if(b.classe_bilan_dpe)extra['DPE bâtiment']=b.classe_bilan_dpe;
+      m.bindPopup(pop({name:'Bâtiment '+b.batiment_groupe_id,type:'BDNB · CSTB',lat:b.latitude,lng:b.longitude,distance:dd,tags:{},extra:extra}));
+      LG.bat.addLayer(m);n++;
+    });
+    setCount('bat',n);
+  });
+
+  // ── PARCELLE CADASTRE (polygon) ──
+  fetch('https://apicarto.ign.fr/api/cadastre/parcelle?lon='+lng+'&lat='+lat+'&_limit=3')
+    .then(function(r){return r.ok?r.json():null;})
+    .then(function(res){
+      if(!res||!res.features||!res.features.length)return;
+      res.features.forEach(function(f){
+        var p2=f.properties;
+        var poly=L.geoJSON(f,{style:{color:'var(--c-parcelle)',weight:2.5,fillColor:'rgba(180,87,9,.1)',fillOpacity:1}});
+        poly.on('click',function(){
+          var c=f.geometry&&f.geometry.coordinates&&f.geometry.coordinates[0]&&f.geometry.coordinates[0][0];
+          var popLat=c?c[1]:lat,popLng=c?c[0]:lng;
+          L.popup().setLatLng([popLat,popLng]).setContent(pop({name:'Parcelle '+p2.id,type:'Cadastre · IGN',lat:popLat,lng:popLng,distance:0,tags:{},extra:{Section:p2.section||'—',Numéro:p2.numero||'—',Surface:p2.contenance?fmtN(p2.contenance)+' m²':'—',Commune:p2.commune||'—'}})).openOn(map);
+        });
+        LG.parcelle.addLayer(poly);
+      });
+      setCount('parcelle',res.features.length);
+    }).catch(function(){});
 }
 
+/* ── SEARCH ── */
 var deb;
 document.getElementById('si').addEventListener('input',function(){
   clearTimeout(deb);var q=this.value.trim();var dd=document.getElementById('sdd');
   if(q.length<3){dd.style.display='none';return;}
   deb=setTimeout(function(){
-    fetch('https://api-adresse.data.gouv.fr/search/?q='+encodeURIComponent(q)+'&limit=6')
+    fetch('https://api-adresse.data.gouv.fr/search/?q='+encodeURIComponent(q)+'&limit=7&autocomplete=1')
       .then(function(r){return r.json();})
       .then(function(res){
+        dd.innerHTML='';
         if(!res.features||!res.features.length){dd.style.display='none';return;}
-        dd.innerHTML=res.features.map(function(f){return'<div class="sg" data-p=\''+JSON.stringify(f.properties).replace(/'/g,"&#x27;")+'\'>'+f.properties.label+'</div>';}).join('');
+        res.features.forEach(function(f){
+          var el=document.createElement('div');el.className='sg';el.textContent=f.properties.label;
+          el.addEventListener('mousedown',function(e){
+            e.preventDefault();
+            document.getElementById('si').value=f.properties.label;
+            geo=f.properties;dd.style.display='none';
+            map.setView([f.properties.y,f.properties.x],17);loadReport();
+          });
+          dd.appendChild(el);
+        });
         dd.style.display='block';
-        dd.querySelectorAll('.sg').forEach(function(el){el.addEventListener('click',function(){var p=JSON.parse(this.dataset.p.replace(/&#x27;/g,"'"));document.getElementById('si').value=p.label;geo=p;dd.style.display='none';map.setView([p.y,p.x],17);loadReport();});});
-      }).catch(function(){});
-  },280);
+      }).catch(function(){dd.style.display='none';});
+  },200);
 });
-document.addEventListener('click',function(e){if(!e.target.closest('#sw'))document.getElementById('sdd').style.display='none';});
+document.getElementById('si').addEventListener('blur',function(){setTimeout(function(){document.getElementById('sdd').style.display='none';},200);});
+document.getElementById('si').addEventListener('keydown',function(e){if(e.key==='Escape')document.getElementById('sdd').style.display='none';});
 
+function locate(){
+  if(!navigator.geolocation)return toast('Non supporté');
+  navigator.geolocation.getCurrentPosition(function(p){map.setView([p.coords.latitude,p.coords.longitude],17);rgc(p.coords.latitude,p.coords.longitude);},function(){toast('Refusé');});
+}
+function rgc(lat,lng){
+  fetch('https://api-adresse.data.gouv.fr/reverse/?lon='+lng+'&lat='+lat)
+    .then(function(r){return r.json();})
+    .then(function(res){if(res.features&&res.features.length){geo=res.features[0].properties;geo.x=+lng;geo.y=+lat;loadReport();}else toast('Adresse non trouvée');})
+    .catch(function(){toast('Erreur');});
+}
+
+/* ── LOAD REPORT ── */
 function loadReport(){
   if(!geo)return;
-  var cc=geo.citycode,cp=geo.postcode,lat=geo.y,lng=geo.x;
+  var cc=geo.citycode,cp=geo.postcode,lat=+geo.y,lng=+geo.x;
   if(!cc){toast('Code INSEE introuvable');return;}
   if(pin)map.removeLayer(pin);
-  pin=L.marker([lat,lng],{icon:L.divIcon({className:'',html:'<div style="width:14px;height:14px;background:#111;border-radius:50%;border:2px solid rgba(255,255,255,.9);box-shadow:0 2px 10px rgba(0,0,0,.35)"></div>',iconSize:[14,14],iconAnchor:[7,7]})}).addTo(map);
+  pin=L.marker([lat,lng],{icon:L.divIcon({className:'',html:'<div style="width:16px;height:16px;background:#111;border-radius:50%;border:2.5px solid rgba(255,255,255,.95);box-shadow:0 2px 12px rgba(0,0,0,.3)"></div>',iconSize:[16,16],iconAnchor:[8,8]})}).addTo(map);
   map.setView([lat,lng],16);map.invalidateSize();
-  LG.t.clearLayers();LG.s.clearLayers();LG.h.clearLayers();LG.p.clearLayers();
   document.getElementById('pempty').style.display='none';
   document.getElementById('pload').classList.add('on');
   document.getElementById('pbody').classList.remove('on');
   document.getElementById('paddr').textContent=geo.label||'—';
-  document.getElementById('psub').textContent=(cp||'')+' '+(geo.city||geo.nom_commune||'')+(cc?' · INSEE '+cc:'');
+  document.getElementById('psub').textContent=(cp||'')+' '+(geo.city||'')+(cc?' · INSEE '+cc:'');
   Promise.all([
     sf('address_profile',{code_commune:cc},3),sf('score_localisation_commune',{code_commune:cc},1),
-    sr('dvf_mutations?code_commune=eq.'+cc+'&select=valeur_fonciere,surface_reelle_bati,type_local,date_mutation&order=date_mutation.desc&limit=120'),
-    sf('dpe_diagnostics',{code_postal:cp},300),sf('data_georisques',{code_commune:cc},1),
-    sf('data_plu_communes',{code_commune:cc},1),sf('data_bdnb_batiments',{code_commune_insee:cc},2),
+    sr('dvf_mutations?code_commune=eq.'+cc+'&select=valeur_fonciere,surface_reelle_bati,type_local,date_mutation&order=date_mutation.desc&limit=200'),
+    sr('dpe_diagnostics?code_postal=eq.'+cp+'&select=classe_energie,date_reception_dpe&limit=500'),
+    sf('data_georisques',{code_commune:cc},1),sf('data_plu_communes',{code_commune:cc},1),
+    sf('data_bdnb_batiments',{code_commune_insee:cc},50),
     sf('data_demographie_commune',{code_commune:cc},1),sf('poi_scores_commune',{code_commune:cc},1),
     sf('data_qualite_eau',{code_commune:cc},1),
-    sr('ml_training_v8?code_commune=eq.'+cc+'&select=prix_m2_target,prix_zone_median,revenu_median_commune,evolution_zone_12m&limit=20'),
-    sf('data_transport',{code_commune:cc},200),sf('data_etablissements_scolaires',{code_commune:cc},100)
+    sr('ml_training_v8?code_commune=eq.'+cc+'&select=prix_m2_target,prix_zone_median,revenu_median_commune&limit=20'),
+    sf('data_transport',{code_commune:cc},300),sf('data_etablissements_scolaires',{code_commune:cc},150)
   ]).then(function(R){
     document.getElementById('pload').classList.remove('on');
     document.getElementById('pbody').classList.add('on');
-    var d={geo:geo,cc:cc,cp:cp,lat:lat,lng:lng,ap:R[0],sc:R[1][0]||null,dvf:R[2],dpe:R[3],risk:R[4][0]||null,plu:R[5][0]||null,bdnb:R[6],demo:R[7][0]||null,poi:R[8][0]||null,eau:R[9][0]||null,ml:R[10],trans:R[11],ecoles:R[12]};
-    render(d);mapLayers(d);asyncSections(d);
+    RAW.dvf=R[2];RAW.dpe=R[3];
+    var d={geo:geo,cc:cc,cp:cp,lat:lat,lng:lng,
+      ap:R[0],sc:R[1][0]||null,dvf:R[2],dpe:R[3],risk:R[4][0]||null,
+      plu:R[5][0]||null,bdnb:R[6],demo:R[7][0]||null,poi:R[8][0]||null,
+      eau:R[9][0]||null,ml:R[10],trans:R[11],ecoles:R[12]};
+    rsc(d);rdvf({dvf:filtDvf().length?filtDvf():d.dvf});rdpe({dpe:filtDpe().length?filtDpe():d.dpe});
+    rreno(d);rpoi(d);rrisk(d);reau(d);rdemo(d);rap(d);
+    doEstim(d);
+    rtrans(d);rscolaire(d);rsante(d);rshop(d);rsirene(d);
+    rair(d);rclimat(d);rcadastre(d);rbdnb(d);rplu2(d);
+    loadMapLayers(d);
     history.replaceState({},'','?lat='+lat+'&lng='+lng);
   });
 }
 
-function mapLayers(d){
-  d.trans.forEach(function(t){if(!t.latitude||!t.longitude)return;var m=L.marker([t.latitude,t.longitude],{icon:mkIcon('#2563eb',false)});m.bindTooltip(t.nom_arret||t.type_transport||'Transport');LG.t.addLayer(m);});
-  d.ecoles.forEach(function(e){if(!e.latitude||!e.longitude)return;var m=L.marker([e.latitude,e.longitude],{icon:mkIcon('#16a34a',true)});m.bindTooltip(e.nom_etablissement||'École');LG.s.addLayer(m);});
-  L.circle([d.lat,d.lng],{radius:500,color:'rgba(37,99,235,.3)',fillColor:'rgba(37,99,235,.04)',fillOpacity:1,weight:1,dashArray:'4 4'}).addTo(LG.t);
-  fetch('https://overpass-api.de/api/interpreter?data=[out:json][timeout:8];(node["amenity"~"hospital|pharmacy|doctors|clinic"](around:1500,'+d.lat+','+d.lng+'););out body 20;')
-    .then(function(r){return r.json();}).then(function(res){if(!res.elements)return;res.elements.forEach(function(e){if(!e.lat||!e.lon)return;var m=L.marker([e.lat,e.lon],{icon:mkIcon('#dc2626',false)});m.bindTooltip(e.tags&&(e.tags.name||e.tags.amenity)||'Santé');LG.h.addLayer(m);});}).catch(function(){});
-  fetch('https://apicarto.ign.fr/api/cadastre/parcelle?lon='+d.lng+'&lat='+d.lat+'&_limit=1')
-    .then(function(r){return r.ok?r.json():null;}).then(function(res){if(!res||!res.features||!res.features.length)return;L.geoJSON(res.features[0],{style:{color:'#d97706',weight:2,fillColor:'rgba(217,119,6,.08)',fillOpacity:1}}).addTo(LG.p);if(LS.p)LG.p.addTo(map);}).catch(function(){});
-  document.getElementById('legend').className='on';
-}
-
-function render(d){rsc(d);rdvf(d);rdpe(d);rreno(d);rpoi(d);rrisk(d);reau(d);rdemo(d);rap(d);}
-function asyncSections(d){doEstim(d);rscolaire(d);rsante(d);rair(d);rclimat(d);rsirene(d);rcadastre(d);rbdnb(d);rplu2(d);}
-
+/* ── RENDER FUNCTIONS ── */
 function rsc(d){
   var s=d.sc;if(!s)return;
   var sc=Math.round(s.score_localisation||0);
-  var col=sc>=60?'var(--green)':sc>=35?'var(--amber)':'var(--red)';
+  var col=sc>=60?'#16a34a':sc>=35?'#d97706':'#dc2626';
   document.getElementById('snum').textContent=sc;document.getElementById('snum').style.color=col;
   document.getElementById('sband').style.display='flex';
-  document.getElementById('sbars').innerHTML=[{l:'Accès',v:s.score_accessibilite||0},{l:'Sécurité',v:s.score_securite||0},{l:'Services',v:s.score_services||0},{l:'Risques',v:100-(s.score_risques_naturels||0)},{l:'Dynamisme',v:s.score_dynamisme||0}].map(function(x){var c=x.v>=60?'var(--green)':x.v>=35?'var(--amber)':'var(--red)';return'<div class="sbar"><div class="sl">'+x.l+'</div><div class="sr"><div class="sf" style="width:'+x.v+'%;background:'+c+'"></div></div></div>';}).join('');
+  document.getElementById('sbars').innerHTML=[{l:'Accès',v:s.score_accessibilite||0},{l:'Sécurité',v:s.score_securite||0},{l:'Services',v:s.score_services||0},{l:'Risques',v:100-(s.score_risques_naturels||0)},{l:'Dynamisme',v:s.score_dynamisme||0}].map(function(x){var c=x.v>=60?'#16a34a':x.v>=35?'#d97706':'#dc2626';return'<div class="sbar"><div class="sl">'+x.l+'</div><div class="sr"><div class="sf" style="width:'+x.v+'%;background:'+c+'"></div></div></div>';}).join('');
 }
-
 function doEstim(d){
   var el=document.getElementById('esec');
-  el.innerHTML='<div class="ecard"><div class="etag">Calcul en cours…</div></div>';
+  el.innerHTML='<div class="ec"><div class="etag">Calcul en cours…</div></div>';
   var ap=d.ap[0]||null;
   var dvfP=d.dvf.filter(function(r){return r.surface_reelle_bati>=9&&r.valeur_fonciere>=5000;}).map(function(r){return r.valeur_fonciere/r.surface_reelle_bati;}).filter(function(v){return v>500&&v<50000;}).sort(function(a,b){return a-b;});
   var pz=ap&&ap.dvf_prix_m2_median?ap.dvf_prix_m2_median:(dvfP.length?dvfP[Math.floor(dvfP.length/2)]:(d.ml[0]&&d.ml[0].prix_zone_median||3000));
   rpc('predict_hedonic_prix_m2',{p_type_local:'Appartement',p_surface:75,p_prix_zone:Math.round(pz),p_loyer_zone:null,p_revenu_commune:d.demo&&d.demo.revenu_median_uc?d.demo.revenu_median_uc:(d.ml[0]&&d.ml[0].revenu_median_commune||null),p_score_transport:d.sc&&d.sc.score_accessibilite||(d.poi&&d.poi.score_transport)||null,p_annee_vente:2024}).then(function(res){
     if(!res||!res.prix_m2_estime){el.innerHTML='';return;}
     var pm=res.prix_m2_estime,tot=res.prix_total_estime,bas=res.prix_m2_bas,haut=res.prix_m2_haut;
-    el.innerHTML='<div class="ecard"><div class="etag">Estimation Hedonic v1 · Intent Analytics</div><div class="erow"><div><div class="eprice">'+fmt(pm)+'<span class="eunit"> /m²</span></div><div class="esub">Appartement type 75m² · '+d.geo.city+'</div><div class="erange">Fourchette '+fmt(bas)+' — '+fmt(haut)+'</div></div><div class="etot"><div class="etval">'+fmt(tot)+'</div><div class="etlbl">75m² total</div></div></div><div class="emeta"><div class="em">Zone <strong>'+fmt(Math.round(pz))+'/m²</strong></div><div class="em">MAPE <strong>~25%</strong></div><div class="em">R² <strong>0.77</strong></div><div class="em">Indicatif</div></div></div>';
+    el.innerHTML='<div class="ec"><div class="etag">Estimation Hedonic v1 · Intent Analytics</div><div class="erow"><div><div class="eprice">'+fmt(pm)+'<span class="eunit"> /m²</span></div><div class="esub">Appt. 75m² · '+d.geo.city+'</div><div class="erange">'+fmt(bas)+' — '+fmt(haut)+'</div></div><div class="etot"><div class="etval">'+fmt(tot)+'</div><div class="etlbl">Total estimé</div></div></div><div class="emeta"><div class="em">Zone <strong>'+fmt(Math.round(pz))+'/m²</strong></div><div class="em">MAPE <strong>~25%</strong></div><div class="em">R² <strong>0.77</strong></div><div class="em">Indicatif</div></div></div>';
   });
 }
-
 function rdvf(d){
   var f=d.dvf.filter(function(r){return r.surface_reelle_bati>=9&&r.valeur_fonciere>=5000;});
   var p=f.map(function(r){return r.valeur_fonciere/r.surface_reelle_bati;}).filter(function(v){return v>500&&v<50000;}).sort(function(a,b){return a-b;});
   var med=p.length?p[Math.floor(p.length/2)]:0,moy=p.length?p.reduce(function(a,b){return a+b;})/p.length:0;
-  document.getElementById('dvfK').innerHTML=kpi('','Médiane €/m²',med?fmt(med):'—',p.length+' obs.')+kpi('','Moyenne',moy?fmt(moy):'—','')+kpi('','Mutations',fmtN(d.dvf.length),'total');
-  document.getElementById('dvfT').innerHTML=f.slice(0,10).map(function(r){var pm=r.valeur_fonciere/r.surface_reelle_bati;var cl=pm<med*.85?'color:var(--red)':pm>med*1.15?'color:var(--green)':'';return'<tr><td style="font-family:var(--mono);font-size:10px">'+(r.date_mutation&&r.date_mutation.substring(0,7)||'—')+'</td><td style="font-size:.7rem">'+(r.type_local||'—')+'</td><td style="font-family:var(--mono);font-size:10px">'+fmtN(r.surface_reelle_bati)+'m²</td><td style="font-family:var(--mono);font-size:10px;font-weight:600;'+cl+'">'+fmt(pm)+'</td></tr>';}).join('')||'<tr><td colspan="4" style="color:var(--gray4);text-align:center;padding:8px">Aucune transaction</td></tr>';
+  document.getElementById('dvfK').innerHTML=kpi('','Médiane',med?fmt(med):'—',p.length+' obs.')+kpi('','Moyenne',moy?fmt(moy):'—','')+kpi('','Mutations',fmtN(d.dvf.length),'');
+  document.getElementById('dvfT').innerHTML=f.slice(0,12).map(function(r){var pm=r.valeur_fonciere/r.surface_reelle_bati;var cl=pm<med*.85?'color:#dc2626':pm>med*1.15?'color:#16a34a':'';return'<tr><td style="font-family:var(--mono);font-size:10px">'+(r.date_mutation&&r.date_mutation.substring(0,7)||'—')+'</td><td style="font-size:.7rem">'+(r.type_local||'—')+'</td><td style="font-family:var(--mono);font-size:10px">'+fmtN(r.surface_reelle_bati)+'m²</td><td style="font-family:var(--mono);font-size:10px;font-weight:600;'+cl+'">'+fmt(pm)+'</td></tr>';}).join('')||'<tr><td colspan="4" style="color:var(--g4);text-align:center;padding:8px">Aucune</td></tr>';
 }
-
 function rdpe(d){
-  if(!d.dpe.length){document.getElementById('dpeK').innerHTML=kpi('r','DPE','Absent','');return;}
+  if(!d.dpe.length){document.getElementById('dpeK').innerHTML=kpi('','DPE','Absent','');return;}
   var cnt={A:0,B:0,C:0,D:0,E:0,F:0,G:0};
   d.dpe.forEach(function(r){if(r.classe_energie&&cnt.hasOwnProperty(r.classe_energie))cnt[r.classe_energie]++;});
   var tot=Object.values(cnt).reduce(function(a,b){return a+b;},0)||1;
   var mod=Object.entries(cnt).sort(function(a,b){return b[1]-a[1];})[0][0];
-  var pFG=((cnt.F+cnt.G)/tot*100).toFixed(1),pABC=((cnt.A+cnt.B+cnt.C)/tot*100).toFixed(1);
+  var pFG=((cnt.F+cnt.G)/tot*100).toFixed(1);
   document.getElementById('dpeK').innerHTML=kpi('','Classe modale',mod,tot+' bilans')+kpi(parseFloat(pFG)>15?'r':'g','Part F-G',pFG+'%','passoires');
   document.getElementById('dpeStack').innerHTML=['A','B','C','D','E','F','G'].map(function(c){return cnt[c]?'<div class="ds d'+c+'" style="flex:'+cnt[c]+'">'+(cnt[c]/tot>.1?c:'')+'</div>':'';}).join('');
-  document.getElementById('dpeI').innerHTML=parseFloat(pFG)>15?'<span style="color:var(--red)">'+pFG+'% passoires (F+G) · Impact estimé -5% à -20%</span>':'<span style="color:var(--green)">Parc performant · '+pABC+'% en A-B-C</span>';
+  document.getElementById('dpeI').innerHTML=parseFloat(pFG)>15?'<span style="color:#dc2626">'+pFG+'% passoires · -5% à -20%</span>':'<span style="color:#16a34a">Parc performant</span>';
 }
-
 function rreno(d){
   var ap=d.ap[0]||null;
   var dvfP=d.dvf.map(function(r){return r.valeur_fonciere/r.surface_reelle_bati;}).filter(function(v){return v>500&&v<50000;}).sort(function(a,b){return a-b;});
   var pz=ap&&ap.dvf_prix_m2_median?ap.dvf_prix_m2_median:(dvfP.length?dvfP[Math.floor(dvfP.length/2)]:null);
   var el=document.getElementById('renoD');
-  if(!pz){el.innerHTML='<div class="card"><span class="empty">Données prix insuffisantes</span></div>';return;}
+  if(!pz){el.innerHTML='<div class="card"><span class="empty">Données insuffisantes</span></div>';return;}
   var s=75,cout=s*575,aides=s*250,reste=cout-aides,pv=Math.round(pz*s*.17);
-  el.innerHTML='<div class="card"><div style="font-family:var(--mono);font-size:.6rem;color:var(--gray4);letter-spacing:1px;text-transform:uppercase;margin-bottom:.4rem">Simulation passoire → C · 75m²</div>'+dr('Coût travaux estimé',fmt(cout))+dr('Aides MaPrimeRénov + CEE','− '+fmt(aides))+dr('Reste à charge','<strong>'+fmt(reste)+'</strong>')+dr('Plus-value estimée','+'+fmt(pv))+'</div>';
+  el.innerHTML='<div class="card"><div style="font-family:var(--mono);font-size:.6rem;color:var(--g4);letter-spacing:1px;text-transform:uppercase;margin-bottom:.4rem">Passoire → C · 75m²</div>'+dr('Coût travaux',fmt(cout))+dr('Aides MPR + CEE','− '+fmt(aides))+dr('Reste à charge','<strong>'+fmt(reste)+'</strong>')+dr('Plus-value est.','+'+fmt(pv))+'</div>';
 }
-
 function rpoi(d){
-  var poi=d.poi;
-  if(!poi){document.getElementById('poiD').innerHTML='<span class="empty">Absent</span>';return;}
-  document.getElementById('poiD').innerHTML=bb('Transport',poi.score_transport||0)+bb('Éducation',poi.score_education||0)+bb('Santé',poi.score_sante||0)+bb('Commerce',poi.score_commerce||0)+bb('Loisirs',poi.score_loisirs||0)+'<div style="margin-top:.35rem;font-family:var(--mono);font-size:.6rem;color:var(--gray4)">'+fmtN(poi.nb_equipements||0)+' équipements</div>';
+  var poi=d.poi;if(!poi){document.getElementById('poiD').innerHTML='<span class="empty">Absent</span>';return;}
+  document.getElementById('poiD').innerHTML=bb('Transport',poi.score_transport||0)+bb('Éducation',poi.score_education||0)+bb('Santé',poi.score_sante||0)+bb('Commerce',poi.score_commerce||0)+bb('Loisirs',poi.score_loisirs||0)+'<div style="margin-top:.3rem;font-family:var(--mono);font-size:.6rem;color:var(--g4)">'+fmtN(poi.nb_equipements||0)+' équipements</div>';
 }
-
+function rtrans(d){
+  var el=document.getElementById('transD');
+  if(!d.trans||!d.trans.length){el.innerHTML='<div class="card"><span class="empty">Aucune donnée</span></div>';return;}
+  var by={};d.trans.forEach(function(t){var k=t.type_transport||'Autre';if(!by[k])by[k]=[];by[k].push(t);});
+  var html='<div class="card">';
+  Object.keys(by).slice(0,5).forEach(function(type){
+    html+='<div style="margin-bottom:.3rem"><div style="font-size:.7rem;font-weight:700;color:var(--c-transport);margin-bottom:.1rem">'+type+' ('+by[type].length+')</div>';
+    by[type].slice(0,3).forEach(function(t){
+      var dd=t.latitude&&t.longitude?dist(d.lat,d.lng,t.latitude,t.longitude):null;
+      var gmaps=dd!=null?'https://www.google.com/maps/dir/?api=1&destination='+t.latitude+','+t.longitude+'&origin='+d.lat+','+d.lng:null;
+      html+='<div class="poi-item"><span class="poi-name">'+(t.nom_arret||'—')+'</span><div class="poi-meta">';
+      if(dd!=null)html+='<span class="poi-dist">'+fd(dd)+'</span>';
+      if(gmaps)html+='<a class="poi-nav" href="'+gmaps+'" target="_blank">↗</a>';
+      html+='</div></div>';
+    });
+    html+='</div>';
+  });
+  el.innerHTML=html+'</div>';
+}
 function rscolaire(d){
   var el=document.getElementById('scolD');
-  fetch('https://data.education.gouv.fr/api/explore/v2.1/catalog/datasets/fr-en-annuaire-education/records?where=within_distance(position%2Cgeom\'POINT('+d.lng+' '+d.lat+')\'%2C1km)&limit=8&select=nom_etablissement%2Ctype_etablissement%2Cstatut_public_prive')
+  fetch('https://data.education.gouv.fr/api/explore/v2.1/catalog/datasets/fr-en-annuaire-education/records?where=within_distance(position%2Cgeom\'POINT('+d.lng+' '+d.lat+')\'%2C1km)&limit=10&select=nom_etablissement%2Ctype_etablissement%2Cstatut_public_prive%2Clatitude%2Clongitude%2Cmail%2Csite_web')
     .then(function(r){return r.ok?r.json():null;})
     .then(function(res){
-      if(!res||!res.results||!res.results.length){el.innerHTML='<div class="card"><span class="empty">Aucun établissement dans 1km</span></div>';return;}
-      var html='<div class="card"><div style="font-family:var(--mono);font-size:.58rem;color:var(--gray4);margin-bottom:.35rem">'+res.total_count+' établissements · rayon 1km</div>';
-      res.results.forEach(function(e){html+='<div style="padding:3px 0;border-bottom:1px solid var(--gray2)"><div style="font-size:.73rem;font-weight:600;color:var(--black)">'+e.nom_etablissement+'</div><div style="font-size:.63rem;color:var(--gray5)">'+(e.type_etablissement||'')+' · '+(e.statut_public_prive||'')+'</div></div>';});
+      if(!res||!res.results||!res.results.length){el.innerHTML='<div class="card"><span class="empty">Aucun dans 1km</span></div>';return;}
+      var html='<div class="card"><div style="font-family:var(--mono);font-size:.58rem;color:var(--g4);margin-bottom:.35rem">'+res.total_count+' · 1km</div>';
+      res.results.forEach(function(e){
+        var dd=e.latitude&&e.longitude?dist(d.lat,d.lng,e.latitude,e.longitude):null;
+        var gmaps=e.latitude&&e.longitude?'https://www.google.com/maps/dir/?api=1&destination='+e.latitude+','+e.longitude+'&origin='+d.lat+','+d.lng:null;
+        html+='<div class="poi-item"><div><div class="poi-name">'+e.nom_etablissement+'</div><div style="font-size:.62rem;color:var(--g5)">'+(e.type_etablissement||'')+' · '+(e.statut_public_prive||'')+'</div></div><div class="poi-meta">';
+        if(dd!=null)html+='<span class="poi-dist">'+fd(dd)+'</span>';
+        if(gmaps)html+='<a class="poi-nav" href="'+gmaps+'" target="_blank">↗</a>';
+        html+='</div></div>';
+      });
       el.innerHTML=html+'</div>';
     }).catch(function(){el.innerHTML='<div class="card"><span class="empty">Indisponible</span></div>';});
 }
-
 function rsante(d){
   var el=document.getElementById('santeD');
-  fetch('https://overpass-api.de/api/interpreter?data=[out:json][timeout:8];(node["amenity"~"hospital|pharmacy|doctors|clinic"](around:1500,'+d.lat+','+d.lng+'););out body 20;')
-    .then(function(r){return r.json();})
-    .then(function(res){
-      if(!res.elements||!res.elements.length){el.innerHTML='<div class="card"><span class="empty">Aucun dans 1.5km</span></div>';return;}
-      var by={};res.elements.forEach(function(e){var t=e.tags&&e.tags.amenity||'autre';if(!by[t])by[t]=[];by[t].push(e.tags&&e.tags.name||t);});
-      var lb={hospital:'Hôpital',pharmacy:'Pharmacie',doctors:'Médecin',clinic:'Clinique'};
-      var html='<div class="card">';
-      Object.keys(by).forEach(function(t){html+='<div style="margin-bottom:.3rem"><div style="font-size:.7rem;font-weight:700;color:var(--red);margin-bottom:.1rem">'+(lb[t]||t)+' ('+by[t].length+')</div>';by[t].slice(0,3).forEach(function(n){html+='<div style="font-size:.68rem;color:var(--gray5);padding:1px 0">'+n+'</div>';});html+='</div>';});
-      el.innerHTML=html+'<div style="font-family:var(--mono);font-size:.58rem;color:var(--gray4)">Source : OpenStreetMap</div></div>';
-    }).catch(function(){el.innerHTML='<div class="card"><span class="empty">Indisponible</span></div>';});
+  osm('node["amenity"~"hospital|pharmacy|doctors|clinic|dentist"]',1500).then(function(res){
+    if(!res.elements||!res.elements.length){el.innerHTML='<div class="card"><span class="empty">Aucun dans 1.5km</span></div>';return;}
+    var by={};res.elements.forEach(function(e){var t=e.tags&&e.tags.amenity||'autre';if(!by[t])by[t]=[];by[t].push(e);});
+    var lb={hospital:'Hôpital',pharmacy:'Pharmacie',doctors:'Médecin',clinic:'Clinique',dentist:'Dentiste'};
+    var html='<div class="card">';
+    Object.keys(by).forEach(function(t){
+      html+='<div style="margin-bottom:.35rem"><div style="font-size:.7rem;font-weight:700;color:#dc2626;margin-bottom:.1rem">'+(lb[t]||t)+' ('+by[t].length+')</div>';
+      by[t].slice(0,3).forEach(function(e){
+        var dd=dist(d.lat,d.lng,e.lat,e.lon);
+        var gmaps='https://www.google.com/maps/dir/?api=1&destination='+e.lat+','+e.lon+'&origin='+d.lat+','+d.lng;
+        html+='<div class="poi-item"><span class="poi-name">'+(e.tags&&e.tags.name||lb[t]||t)+'</span><div class="poi-meta"><span class="poi-dist">'+fd(dd)+'</span><a class="poi-nav" href="'+gmaps+'" target="_blank">↗</a></div></div>';
+      });
+      html+='</div>';
+    });
+    el.innerHTML=html+'</div>';
+  });
 }
-
+function rshop(d){
+  var el=document.getElementById('shopD');
+  osm('node["shop"~"supermarket|convenience|bakery|butcher|greengrocer|mall"];node["amenity"~"fuel|marketplace"]',800).then(function(res){
+    if(!res.elements||!res.elements.length){el.innerHTML='<div class="card"><span class="empty">Aucun dans 800m</span></div>';return;}
+    var types={supermarket:'Supermarché',convenience:'Épicerie',bakery:'Boulangerie',butcher:'Boucherie',greengrocer:'Primeur',mall:'Centre com.',fuel:'Station',marketplace:'Marché'};
+    var html='<div class="card">';
+    res.elements.slice(0,10).forEach(function(e){
+      var t=e.tags&&(e.tags.shop||e.tags.amenity)||'Commerce';
+      var dd=dist(d.lat,d.lng,e.lat,e.lon);
+      var gmaps='https://www.google.com/maps/dir/?api=1&destination='+e.lat+','+e.lon+'&origin='+d.lat+','+d.lng;
+      html+='<div class="poi-item"><div><div class="poi-name">'+(e.tags&&e.tags.name||types[t]||t)+'</div><div style="font-size:.62rem;color:var(--g5)">'+(types[t]||t)+(e.tags&&e.tags.opening_hours?' · '+e.tags.opening_hours.substring(0,20):'')+'</div></div><div class="poi-meta"><span class="poi-dist">'+fd(dd)+'</span><a class="poi-nav" href="'+gmaps+'" target="_blank">↗</a></div></div>';
+    });
+    el.innerHTML=html+'</div>';
+  });
+}
+function rsirene(d){
+  var el=document.getElementById('sireneD');
+  fetch('https://recherche-entreprises.api.gouv.fr/search?code_postal='+d.cp+'&per_page=8')
+    .then(function(r){return r.ok?r.json():null;}).then(function(res){
+      if(!res||!res.results){el.innerHTML='<div class="card"><span class="empty">N/D</span></div>';return;}
+      var html='<div class="card"><div style="font-family:var(--mono);font-size:.58rem;color:var(--g4);margin-bottom:.35rem">'+fmtN(res.total_results)+'+ entreprises · CP '+d.cp+'</div>';
+      res.results.slice(0,6).forEach(function(e){
+        html+='<div style="padding:3px 0;border-bottom:1px solid var(--g2)"><div style="font-size:.73rem;font-weight:600">'+(e.nom_complet||'—').substring(0,36)+'</div><div style="font-size:.62rem;color:var(--g5)">'+(e.activite_principale||'')+(e.tranche_effectif_salarie?' · '+e.tranche_effectif_salarie+' sal.':'')+'</div></div>';
+      });
+      el.innerHTML=html+'</div>';
+    }).catch(function(){el.innerHTML='<div class="card"><span class="empty">N/D</span></div>';});
+}
 function rrisk(d){
   var r=d.risk,el=document.getElementById('riskD');
   if(!r){el.innerHTML='<span class="empty">Absent</span>';return;}
-  function ri(l,v){return'<div class="rrow"><span class="rbadge '+(v?'rb-y':'rb-n')+'">'+(v?'Oui':'Non')+'</span><span style="font-size:.73rem;color:var(--black)">'+l+'</span></div>';}
-  el.innerHTML=ri('Inondation PPRI',r.risque_inondation)+ri('Retrait-gonflement argile',r.risque_argile)+ri('PPRN prescrit',r.pprn_prescrit)+ri('PPRT industriel',r.pprt_prescrit)+dr('Sismicité',['—','Zone 1','Zone 2','Zone 3','Zone 4','Zone 5'][r.risque_seisme||0]||'—')+dr('Arrêtés Cat-Nat',r.nb_catnat||0);
+  function ri(l,v){return'<div class="rrow"><span class="rb '+(v?'rb-y':'rb-n')+'">'+(v?'Oui':'Non')+'</span><span style="font-size:.73rem">'+l+'</span></div>';}
+  el.innerHTML=ri('Inondation PPRI',r.risque_inondation)+ri('Retrait argile',r.risque_argile)+ri('PPRN',r.pprn_prescrit)+ri('PPRT',r.pprt_prescrit)+dr('Sismicité',['—','Zone 1','Zone 2','Zone 3','Zone 4','Zone 5'][r.risque_seisme||0]||'—')+dr('Cat-Nat',r.nb_catnat||0);
 }
-
 function reau(d){
   var e=d.eau,el=document.getElementById('eauD');
   if(!e){el.innerHTML='<span class="empty">Absent</span>';return;}
-  el.innerHTML=dr('Conformité globale',e.taux_conformite_global!=null?Number(e.taux_conformite_global).toFixed(1)+'%':'—')+dr('Nitrates',e.nitrates_mg_l!=null?Number(e.nitrates_mg_l).toFixed(1)+' mg/L':'—')+dr('Bactériologie',e.conformite_bacterio?'✓ Conforme':'⚠ Non conforme')+dr('Pesticides',e.pesticides_detectes?'⚠ Détectés':'✓ Non détectés')+dr('Dureté',e.durete!=null?Math.round(e.durete)+' mg CaCO₃/L':'—');
+  el.innerHTML=dr('Conformité',e.taux_conformite_global!=null?Number(e.taux_conformite_global).toFixed(1)+'%':'—')+dr('Nitrates',e.nitrates_mg_l!=null?Number(e.nitrates_mg_l).toFixed(1)+' mg/L':'—')+dr('Bactériologie',e.conformite_bacterio?'✓ Conforme':'⚠ Non conforme')+dr('Pesticides',e.pesticides_detectes?'⚠ Détectés':'✓ Non détectés');
 }
-
 function rcadastre(d){
   var el=document.getElementById('cadastreD');
   fetch('https://apicarto.ign.fr/api/cadastre/parcelle?lon='+d.lng+'&lat='+d.lat+'&_limit=1')
-    .then(function(r){return r.ok?r.json():null;})
-    .then(function(res){
-      if(!res||!res.features||!res.features.length){el.innerHTML='<div class="card"><div class="klbl" style="margin-bottom:.25rem">Cadastre</div><span class="empty">Non trouvée</span></div>';return;}
+    .then(function(r){return r.ok?r.json():null;}).then(function(res){
+      if(!res||!res.features||!res.features.length){el.innerHTML='<div class="card"><div class="klbl" style="margin-bottom:.2rem">Cadastre</div><span class="empty">Non trouvée</span></div>';return;}
       var p=res.features[0].properties;
-      el.innerHTML='<div class="card"><div class="klbl" style="margin-bottom:.25rem">Cadastre · IGN</div>'+dr('Parcelle',p.id||'—')+dr('Section',p.section||'—')+dr('Surface',p.contenance?fmtN(p.contenance)+' m²':'—')+'</div>';
-    }).catch(function(){el.innerHTML='<div class="card"><span class="empty">Indisponible</span></div>';});
+      el.innerHTML='<div class="card"><div class="klbl" style="margin-bottom:.2rem">Cadastre · IGN</div>'+dr('Parcelle',p.id||'—')+dr('Surface',p.contenance?fmtN(p.contenance)+' m²':'—')+'</div>';
+    }).catch(function(){el.innerHTML='<div class="card"><span class="empty">N/D</span></div>';});
 }
-
 function rbdnb(d){
   var el=document.getElementById('bdnbD');
-  if(!d.bdnb.length){el.innerHTML='<div class="card"><div class="klbl" style="margin-bottom:.25rem">BDNB</div><span class="empty">Absent</span></div>';return;}
+  if(!d.bdnb.length){el.innerHTML='<div class="card"><div class="klbl" style="margin-bottom:.2rem">BDNB</div><span class="empty">Absent</span></div>';return;}
   var b=d.bdnb[0];
-  el.innerHTML='<div class="card"><div class="klbl" style="margin-bottom:.25rem">BDNB · Bâtiment</div>'+dr('Année',b.annee_construction||'—')+dr('Hauteur',b.hauteur_mean?Math.round(b.hauteur_mean)+'m':'—')+dr('Logements',b.nb_log||'—')+dr('Classe DPE',b.classe_bilan_dpe||'—')+'</div>';
+  el.innerHTML='<div class="card"><div class="klbl" style="margin-bottom:.2rem">BDNB · Bâtiment</div>'+dr('Année',b.annee_construction||'—')+dr('Hauteur',b.hauteur_mean?Math.round(b.hauteur_mean)+'m':'—')+dr('Logements',b.nb_log||'—')+dr('DPE bât.',b.classe_bilan_dpe||'—')+'</div>';
 }
-
 function rplu2(d){
   var p=d.plu,el=document.getElementById('pluD');
   if(!p){el.innerHTML='<div class="card"><span class="empty">PLU non numérisé</span></div>';return;}
-  el.innerHTML='<div class="card">'+dr('Zone dominante',p.zone_dominante||'—')+dr('Zone U (constructible)',p.pct_zone_u?p.pct_zone_u+'%':'—')+dr('Zone AU (futur)',p.pct_zone_au?p.pct_zone_au+'%':'—')+dr('Zone N (nature)',p.pct_zone_n?p.pct_zone_n+'%':'—')+dr('Date approbation',p.date_approbation||'—')+'</div>';
+  el.innerHTML='<div class="card">'+dr('Zone dominante',p.zone_dominante||'—')+dr('Zone U',p.pct_zone_u?p.pct_zone_u+'%':'—')+dr('Zone N',p.pct_zone_n?p.pct_zone_n+'%':'—')+dr('Date approbation',p.date_approbation||'—')+'</div>';
 }
-
 function rdemo(d){
-  var dm=d.demo;
-  if(!dm){document.getElementById('demoK').innerHTML=kpi('','Population','—','');document.getElementById('demoD').innerHTML='';return;}
-  document.getElementById('demoK').innerHTML=kpi('','Population',fmtN(dm.population_2024||dm.population_2020||0),'')+kpi('','Revenu médian',dm.revenu_median_uc?fmt(dm.revenu_median_uc):'—','/UC')+kpi(dm.taux_chomage>12?'r':'g','Chômage',dm.taux_chomage?dm.taux_chomage+'%':'—','');
-  document.getElementById('demoD').innerHTML=dr('Part propriétaires',dm.part_proprietaires?dm.part_proprietaires+'%':'—')+dr('Taux pauvreté',dm.taux_pauvrete?dm.taux_pauvrete+'%':'—')+dr('Part cadres',dm.part_cadres?dm.part_cadres+'%':'—');
+  var dm=d.demo;if(!dm){document.getElementById('demoK').innerHTML='';document.getElementById('demoD').innerHTML='';return;}
+  document.getElementById('demoK').innerHTML=kpi('','Population',fmtN(dm.population_2024||dm.population_2020||0),'')+kpi('','Revenu',dm.revenu_median_uc?fmt(dm.revenu_median_uc):'—','/UC')+kpi(dm.taux_chomage>12?'r':'g','Chômage',dm.taux_chomage?dm.taux_chomage+'%':'—','');
+  document.getElementById('demoD').innerHTML=dr('Part propriétaires',dm.part_proprietaires?dm.part_proprietaires+'%':'—')+dr('Taux pauvreté',dm.taux_pauvrete?dm.taux_pauvrete+'%':'—');
 }
-
 function rair(d){
   var el=document.getElementById('airD');
-  fetch('https://api.waqi.info/feed/geo:'+d.lat+';'+d.lng+'/?token=demo')
-    .then(function(r){return r.json();}).then(function(res){
-      if(res.status!=='ok'||!res.data){el.innerHTML='<div class="card"><div class="klbl">Air · WAQI</div><span class="empty">Non disponible</span></div>';return;}
-      var aqi=res.data.aqi,iaqi=res.data.iaqi||{};
-      var col=aqi<=50?'var(--green)':aqi<=100?'var(--amber)':'var(--red)';
-      var qual=aqi<=50?'Bon':aqi<=100?'Modéré':'Mauvais';
-      el.innerHTML='<div class="card"><div class="klbl" style="margin-bottom:.2rem">Qualité de l\'air</div><div style="font-size:1.6rem;font-weight:900;color:'+col+';letter-spacing:-.04em;line-height:1">'+aqi+'</div><div style="font-size:.7rem;color:'+col+';margin-bottom:.25rem">'+qual+'</div>'+(iaqi.pm25?dr('PM2.5',iaqi.pm25.v+' µg/m³'):'')+(iaqi.pm10?dr('PM10',iaqi.pm10.v+' µg/m³'):'')+'<div style="font-family:var(--mono);font-size:.58rem;color:var(--gray4);margin-top:.25rem">WAQI · Temps réel</div></div>';
-    }).catch(function(){el.innerHTML='<div class="card"><span class="empty">Indisponible</span></div>';});
+  fetch('https://api.waqi.info/feed/geo:'+d.lat+';'+d.lng+'/?token=demo').then(function(r){return r.json();}).then(function(res){
+    if(res.status!=='ok'||!res.data){el.innerHTML='<div class="card"><div class="klbl">Air</div><span class="empty">N/D</span></div>';return;}
+    var aqi=res.data.aqi,iaqi=res.data.iaqi||{};
+    var col=aqi<=50?'#16a34a':aqi<=100?'#d97706':'#dc2626';
+    el.innerHTML='<div class="card"><div class="klbl" style="margin-bottom:.2rem">Air · WAQI</div><div style="font-size:1.6rem;font-weight:900;color:'+col+';letter-spacing:-.04em;line-height:1">'+aqi+'</div>'+(iaqi.pm25?dr('PM2.5',iaqi.pm25.v+' µg/m³'):'')+'</div>';
+  }).catch(function(){el.innerHTML='<div class="card"><span class="empty">N/D</span></div>';});
 }
-
 function rclimat(d){
   var el=document.getElementById('climatD');
-  fetch('https://api.open-meteo.com/v1/forecast?latitude='+d.lat+'&longitude='+d.lng+'&daily=temperature_2m_max,temperature_2m_min,sunshine_duration&current=temperature_2m,weather_code,wind_speed_10m&timezone=Europe/Paris&forecast_days=1')
-    .then(function(r){return r.json();}).then(function(res){
-      var cur=res.current||{},daily=res.daily||{};
-      var wc=cur.weather_code||0;
-      var em=wc===0?'☀':wc<=3?'⛅':wc<=49?'🌫':wc<=69?'🌧':wc<=79?'🌨':'⛈';
-      var sun=daily.sunshine_duration?Math.round(daily.sunshine_duration[0]/3600)+'h':'—';
-      el.innerHTML='<div class="card"><div class="klbl" style="margin-bottom:.2rem">Météo · Open-Meteo</div><div style="font-size:1.6rem;font-weight:900;letter-spacing:-.04em;line-height:1">'+em+' '+(cur.temperature_2m!=null?Math.round(cur.temperature_2m)+'°':'—')+'</div><div style="font-size:.7rem;color:var(--gray5);margin-bottom:.25rem">Vent '+Math.round(cur.wind_speed_10m||0)+' km/h</div>'+(daily.temperature_2m_min&&daily.temperature_2m_max?dr('Min / Max',Math.round(daily.temperature_2m_min[0])+'° / '+Math.round(daily.temperature_2m_max[0])+'°'):'')+dr('Ensoleillement',sun)+'</div>';
-    }).catch(function(){el.innerHTML='<div class="card"><span class="empty">Indisponible</span></div>';});
+  fetch('https://api.open-meteo.com/v1/forecast?latitude='+d.lat+'&longitude='+d.lng+'&daily=temperature_2m_max,temperature_2m_min,sunshine_duration&current=temperature_2m,weather_code,wind_speed_10m&timezone=Europe/Paris&forecast_days=1').then(function(r){return r.json();}).then(function(res){
+    var cur=res.current||{},daily=res.daily||{};
+    var wc=cur.weather_code||0;var em=wc===0?'☀':wc<=3?'⛅':wc<=49?'🌫':wc<=69?'🌧':wc<=79?'🌨':'⛈';
+    el.innerHTML='<div class="card"><div class="klbl" style="margin-bottom:.2rem">Météo</div><div style="font-size:1.6rem;font-weight:900;letter-spacing:-.04em;line-height:1">'+em+' '+(cur.temperature_2m!=null?Math.round(cur.temperature_2m)+'°':'—')+'</div>'+(daily.temperature_2m_min&&daily.temperature_2m_max?dr('Min/Max',Math.round(daily.temperature_2m_min[0])+'°/'+Math.round(daily.temperature_2m_max[0])+'°'):'')+'</div>';
+  }).catch(function(){el.innerHTML='<div class="card"><span class="empty">N/D</span></div>';});
 }
-
-function rsirene(d){
-  var el=document.getElementById('sireneD');
-  fetch('https://recherche-entreprises.api.gouv.fr/search?code_postal='+d.cp+'&per_page=6')
-    .then(function(r){return r.ok?r.json():null;}).then(function(res){
-      if(!res||!res.results){el.innerHTML='<div class="card"><span class="empty">Indisponible</span></div>';return;}
-      var html='<div class="card"><div style="font-family:var(--mono);font-size:.58rem;color:var(--gray4);margin-bottom:.35rem">'+fmtN(res.total_results)+'+ entreprises actives · CP '+d.cp+'</div>';
-      res.results.slice(0,5).forEach(function(e){html+='<div style="padding:3px 0;border-bottom:1px solid var(--gray2)"><div style="font-size:.73rem;font-weight:600;color:var(--black)">'+(e.nom_complet||'—').substring(0,38)+'</div><div style="font-size:.62rem;color:var(--gray5)">'+(e.activite_principale||'')+'</div></div>';});
-      el.innerHTML=html+'<div style="font-family:var(--mono);font-size:.58rem;color:var(--gray4);margin-top:.3rem">Source : SIRENE · INSEE</div></div>';
-    }).catch(function(){el.innerHTML='<div class="card"><span class="empty">Indisponible</span></div>';});
-}
-
 function rap(d){
-  var ap=d.ap[0]||null;
-  if(!ap){document.getElementById('apK').innerHTML=kpi('','address_profile','Absent','');document.getElementById('apD').innerHTML='';return;}
-  document.getElementById('apK').innerHTML=kpi('','Prix/m² adresse',ap.dvf_prix_m2_median?fmt(ap.dvf_prix_m2_median):'—','DVF')+kpi('g','DPE modal',ap.dpe_etiquette_modale||'—','');
-  document.getElementById('apD').innerHTML=dr('P25',ap.dvf_prix_m2_p25?fmt(ap.dvf_prix_m2_p25):'—')+dr('P75',ap.dvf_prix_m2_p75?fmt(ap.dvf_prix_m2_p75):'—')+dr('Tendance 1an',ap.dvf_prix_m2_trend_1y!=null?(ap.dvf_prix_m2_trend_1y>0?'+':'')+Number(ap.dvf_prix_m2_trend_1y*100).toFixed(1)+'%':'—')+dr('DPE bilans',ap.dpe_nb_bilans||'—');
+  var ap=d.ap[0]||null;if(!ap){document.getElementById('apK').innerHTML='';document.getElementById('apD').innerHTML='';return;}
+  document.getElementById('apK').innerHTML=kpi('','Prix/m²',ap.dvf_prix_m2_median?fmt(ap.dvf_prix_m2_median):'—','DVF')+kpi('g','DPE modal',ap.dpe_etiquette_modale||'—','');
+  document.getElementById('apD').innerHTML=dr('P25',ap.dvf_prix_m2_p25?fmt(ap.dvf_prix_m2_p25):'—')+dr('P75',ap.dvf_prix_m2_p75?fmt(ap.dvf_prix_m2_p75):'—')+dr('Tendance 1an',ap.dvf_prix_m2_trend_1y!=null?(ap.dvf_prix_m2_trend_1y>0?'+':'')+Number(ap.dvf_prix_m2_trend_1y*100).toFixed(1)+'%':'—');
 }
 
-function reset(){document.getElementById('pbody').classList.remove('on');document.getElementById('pempty').style.display='flex';if(pin){map.removeLayer(pin);pin=null;}Object.values(LG).forEach(function(l){l.clearLayers();});document.getElementById('legend').className='';}
+function reset(){
+  document.getElementById('pbody').classList.remove('on');
+  document.getElementById('pempty').style.display='flex';
+  if(pin){map.removeLayer(pin);pin=null;}
+  Object.values(LG).forEach(function(l){if(l&&l.clearLayers)l.clearLayers();});
+}
 function copyLink(){if(!geo){toast('Chargez d\'abord une adresse');return;}navigator.clipboard.writeText(location.origin+location.pathname+'?lat='+geo.y+'&lng='+geo.x).then(function(){toast('Lien copié');}).catch(function(){toast('Erreur');});}
 function toast(msg){var el=document.getElementById('toast');el.textContent=msg;el.classList.add('on');setTimeout(function(){el.classList.remove('on');},2400);}
 function kpi(c,l,v,s){return'<div class="kpi"><div class="klbl">'+l+'</div><div class="kval '+(c||'')+'">'+v+'</div>'+(s?'<div class="ksub">'+s+'</div>':'')+'</div>';}
 function dr(l,v){return'<div class="dr"><span class="dl">'+l+'</span><span class="dv">'+(v!=null&&v!==''?v:'—')+'</span></div>';}
-function bb(l,v){var c=v>=70?'var(--green)':v>=40?'var(--amber)':'var(--red)';return'<div class="bb"><div class="bbl">'+l+'</div><div class="bbr"><div class="bbf" style="width:'+v+'%;background:'+c+'"></div></div><div class="bbv">'+Math.round(v)+'</div></div>';}
-
-var ps=document.createElement('style');ps.media='print';ps.textContent='#map,#bar,.pfoot{display:none!important}#panel{width:100%!important;height:auto!important;overflow:visible!important}#content{display:block!important}';document.head.appendChild(ps);
+function bb(l,v){var c=v>=70?'#16a34a':v>=40?'#d97706':'#dc2626';return'<div class="bb"><div class="bbl">'+l+'</div><div class="bbr"><div class="bbf" style="width:'+v+'%;background:'+c+'"></div></div><div class="bbv">'+Math.round(v)+'</div></div>';}
+var ps=document.createElement('style');ps.media='print';ps.textContent='#map,#bar,#filterbar,#layerpanel,.pfoot{display:none!important}#panel{width:100%!important;height:auto!important;overflow:visible!important}#content{display:block!important}';document.head.appendChild(ps);
 </script>
 </body>
 </html>
