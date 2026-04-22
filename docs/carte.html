@@ -503,10 +503,10 @@ function loadMapLayers(d){
   // ── TRANSPORTS (Supabase) ──
   var tCount=0;
   d.trans.forEach(function(t){
-    if(!t.latitude||!t.longitude)return;
-    var dd=dist(lat,lng,t.latitude,t.longitude);
-    var m=L.marker([t.latitude,t.longitude],{icon:mkDot('var(--c-transport)','circle',9)});
-    m.bindPopup(pop({name:t.nom_arret||'Arrêt',type:'Transport · '+(t.type_transport||''),lat:t.latitude,lng:t.longitude,distance:dd,tags:{}}));
+    if(!t.stop_lat||!t.stop_lon)return;
+    var dd=dist(lat,lng,t.stop_lat,t.stop_lon);
+    var m=L.marker([t.stop_lat,t.stop_lon],{icon:mkDot('var(--c-transport)','circle',9)});
+    m.bindPopup(pop({name:t.stop_name||'Arrêt',type:'Transport · '+(t.type_transport||''),lat:t.latitude,lng:t.longitude,distance:dd,tags:{}}));
     LG.transport.addLayer(m);tCount++;
   });
   // Transports OSM en plus
@@ -528,7 +528,7 @@ function loadMapLayers(d){
     if(!e.latitude||!e.longitude)return;
     var dd=dist(lat,lng,e.latitude,e.longitude);
     var m=L.marker([e.latitude,e.longitude],{icon:mkDot('var(--c-school)','sq',9)});
-    m.bindPopup(pop({name:e.nom_etablissement||'École',type:(e.type_etablissement||'Scolaire')+' · '+(e.statut_public_prive||''),lat:e.latitude,lng:e.longitude,distance:dd,tags:{},extra:e.statut_public_prive?{}:{}}));
+    m.bindPopup(pop({name:e.nom||'École',type:(e.type||'Scolaire')+' · '+(e.secteur||''),lat:e.latitude,lng:e.longitude,distance:dd,tags:{},extra:e.secteur?{}:{}}));
     LG.school.addLayer(m);sCount++;
   });
   // MEN API à 1km
@@ -539,7 +539,7 @@ function loadMapLayers(d){
         if(!e.latitude||!e.longitude)return;
         var dd=dist(lat,lng,e.latitude,e.longitude);
         var m=L.marker([e.latitude,e.longitude],{icon:mkDot('var(--c-school)','sq',10)});
-        m.bindPopup(pop({name:e.nom_etablissement,type:e.type_etablissement+' · '+e.statut_public_prive,lat:e.latitude,lng:e.longitude,distance:dd,tags:{},extra:e.mail?{'Mail':e.mail}:{}}));
+        m.bindPopup(pop({name:e.nom,type:e.type_etablissement+' · '+e.secteur,lat:e.latitude,lng:e.longitude,distance:dd,tags:{},extra:e.mail?{'Mail':e.mail}:{}}));
         LG.school.addLayer(m);sCount++;
       });
       setCount('school',sCount);
@@ -722,7 +722,7 @@ function loadReport(){
     sf('data_demographie_commune',{code_commune:cc},1),sf('poi_scores_commune',{code_commune:cc},1),
     sf('data_qualite_eau',{code_commune:cc},1),
     sr('ml_training_v8?code_commune=eq.'+cc+'&select=prix_m2_target,prix_zone_median,revenu_median_commune&limit=20'),
-    sf('data_transport',{code_commune:cc},300),sf('data_etablissements_scolaires',{code_commune:cc},150)
+    sr('transport_stops?code_commune=eq.'+cc+'&select=stop_id,stop_name,stop_lat,stop_lon,network_name,agency_name&limit=200'),sr('data_etablissements_scolaires?code_commune=eq.'+cc+'&select=uai,nom,type,latitude,longitude,secteur,taux_reussite_bac,nb_eleves&limit=150')
   ]).then(function(R){
     document.getElementById('pload').classList.remove('on');
     document.getElementById('pbody').classList.add('on');
@@ -796,14 +796,14 @@ function rpoi(d){
 function rtrans(d){
   var el=document.getElementById('transD');
   if(!d.trans||!d.trans.length){el.innerHTML='<div class="card"><span class="empty">Aucune donnée</span></div>';return;}
-  var by={};d.trans.forEach(function(t){var k=t.type_transport||'Autre';if(!by[k])by[k]=[];by[k].push(t);});
+  var by={};d.trans.forEach(function(t){var k=t.network_name||'Autre';if(!by[k])by[k]=[];by[k].push(t);});
   var html='<div class="card">';
   Object.keys(by).slice(0,5).forEach(function(type){
     html+='<div style="margin-bottom:.3rem"><div style="font-size:.7rem;font-weight:700;color:var(--c-transport);margin-bottom:.1rem">'+type+' ('+by[type].length+')</div>';
     by[type].slice(0,3).forEach(function(t){
       var dd=t.latitude&&t.longitude?dist(d.lat,d.lng,t.latitude,t.longitude):null;
       var gmaps=dd!=null?'https://www.google.com/maps/dir/?api=1&destination='+t.latitude+','+t.longitude+'&origin='+d.lat+','+d.lng:null;
-      html+='<div class="poi-item"><span class="poi-name">'+(t.nom_arret||'—')+'</span><div class="poi-meta">';
+      html+='<div class="poi-item"><span class="poi-name">'+(t.stop_name||'—')+'</span><div class="poi-meta">';
       if(dd!=null)html+='<span class="poi-dist">'+fd(dd)+'</span>';
       if(gmaps)html+='<a class="poi-nav" href="'+gmaps+'" target="_blank">↗</a>';
       html+='</div></div>';
@@ -822,7 +822,7 @@ function rscolaire(d){
       res.results.forEach(function(e){
         var dd=e.latitude&&e.longitude?dist(d.lat,d.lng,e.latitude,e.longitude):null;
         var gmaps=e.latitude&&e.longitude?'https://www.google.com/maps/dir/?api=1&destination='+e.latitude+','+e.longitude+'&origin='+d.lat+','+d.lng:null;
-        html+='<div class="poi-item"><div><div class="poi-name">'+e.nom_etablissement+'</div><div style="font-size:.62rem;color:var(--g5)">'+(e.type_etablissement||'')+' · '+(e.statut_public_prive||'')+'</div></div><div class="poi-meta">';
+        html+='<div class="poi-item"><div><div class="poi-name">'+e.nom+'</div><div style="font-size:.62rem;color:var(--g5)">'+(e.type_etablissement||'')+' · '+(e.secteur||'')+'</div></div><div class="poi-meta">';
         if(dd!=null)html+='<span class="poi-dist">'+fd(dd)+'</span>';
         if(gmaps)html+='<a class="poi-nav" href="'+gmaps+'" target="_blank">↗</a>';
         html+='</div></div>';
