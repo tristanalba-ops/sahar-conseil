@@ -1,1351 +1,238 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta http-equiv="X-Content-Type-Options" content="nosniff" />
-  <meta name="robots" content="noindex, nofollow" />
-  <title>Estimation immobilière — Intent Analytics</title>
-  <meta name="description" content="Estimation immobilière basée sur les données DVF, DPE et équipements. Croisement de données publiques françaises." />
-  <link rel="canonical" href="https://intentanalytics.fr/estimation" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet" />
-  <style>
-    *{margin:0;padding:0;box-sizing:border-box}
-    :root{
-      --dark-bg:#0D0D0D;--dark-bg-light:#1A1A2E;--accent-green:#00DC82;
-      --text-white:#FFFFFF;--text-gray:#A0A0A0;--border-color:#2A2A3E;
-      --card-bg:rgba(26,26,46,0.5);--card-hover:rgba(26,26,46,0.8);
-    }
-    body{font-family:'Inter',sans-serif;background:var(--dark-bg);color:var(--text-white);line-height:1.6}
-    a{color:var(--accent-green);text-decoration:none}
-    a:hover{text-decoration:underline}
-
-    /* NAV */
-    nav{display:flex;align-items:center;justify-content:space-between;padding:1.2rem 5%;background:rgba(13,13,13,0.95);backdrop-filter:blur(10px);border-bottom:1px solid var(--border-color);position:sticky;top:0;z-index:100}
-    .nav-logo{font-family:'Space Grotesk',sans-serif;font-size:1.35rem;font-weight:700;color:var(--accent-green);text-decoration:none}
-    .nav-links{display:flex;gap:2rem;list-style:none;align-items:center}
-    .nav-links a{color:var(--text-white);text-decoration:none;font-size:0.9rem;transition:color 0.2s}
-    .nav-links a:hover{color:var(--accent-green)}
-
-    /* HERO */
-    .hero{padding:4rem 5% 3rem;text-align:center;max-width:800px;margin:0 auto}
-    .hero-tag{display:inline-block;background:var(--accent-green);color:#000;font-size:0.7rem;font-weight:700;padding:0.3rem 0.8rem;border-radius:100px;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:1rem}
-    .hero h1{font-family:'Space Grotesk',sans-serif;font-size:clamp(2rem,4vw,3rem);font-weight:700;line-height:1.15;margin-bottom:1rem}
-    .hero h1 span{color:var(--accent-green)}
-    .hero p{color:var(--text-gray);font-size:1rem;max-width:600px;margin:0 auto}
-
-    /* TABS */
-    .tabs{display:flex;justify-content:center;gap:0.5rem;padding:0 5%;margin-bottom:2rem;flex-wrap:wrap}
-    .tab-btn{background:var(--card-bg);border:1px solid var(--border-color);color:var(--text-gray);padding:0.6rem 1.5rem;border-radius:100px;cursor:pointer;font-size:0.85rem;font-weight:500;transition:all 0.2s}
-    .tab-btn:hover{border-color:rgba(0,220,130,0.3);color:var(--text-white)}
-    .tab-btn.active{background:var(--accent-green);color:#000;border-color:var(--accent-green);font-weight:600}
-    .tab-panel{display:none;max-width:1100px;margin:0 auto;padding:0 5%}
-    .tab-panel.active{display:block}
-
-    /* FORM */
-    .form-card{background:var(--card-bg);border:1px solid var(--border-color);border-radius:16px;padding:2rem;margin-bottom:2rem}
-    .form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem}
-    .form-group{display:flex;flex-direction:column;gap:0.4rem}
-    .form-group label{font-size:0.78rem;font-weight:600;color:var(--text-gray);text-transform:uppercase;letter-spacing:0.05em}
-    .form-group input,.form-group select{background:rgba(13,13,13,0.8);border:1px solid var(--border-color);color:var(--text-white);padding:0.7rem 1rem;border-radius:8px;font-size:0.9rem;font-family:inherit;transition:border-color 0.2s}
-    .form-group input:focus,.form-group select:focus{outline:none;border-color:var(--accent-green)}
-    .adresse-wrap{position:relative}
-    .suggestions{position:absolute;top:100%;left:0;right:0;background:#1a1a2e;border:1px solid var(--border-color);border-radius:0 0 8px 8px;z-index:50;display:none;max-height:200px;overflow-y:auto}
-    .suggestions.open{display:block}
-    .sug-item{padding:0.6rem 1rem;cursor:pointer;font-size:0.85rem;transition:background 0.15s}
-    .sug-item:hover{background:rgba(0,220,130,0.08)}
-
-    .checkboxes{display:flex;flex-wrap:wrap;gap:1rem;margin-top:0.5rem}
-    .checkboxes label{display:flex;align-items:center;gap:0.4rem;font-size:0.85rem;color:var(--text-gray);cursor:pointer}
-    .checkboxes input[type="checkbox"]{accent-color:var(--accent-green);width:16px;height:16px}
-
-    .btn-primary{background:var(--accent-green);color:#000;border:none;padding:0.8rem 2rem;border-radius:8px;font-size:0.95rem;font-weight:700;cursor:pointer;transition:opacity 0.2s;margin-top:1rem;width:100%}
-    .btn-primary:hover{opacity:0.9}
-    .btn-primary:disabled{opacity:0.5;cursor:not-allowed}
-
-    /* RESULT */
-    .result-card{background:var(--card-bg);border:1px solid var(--border-color);border-radius:16px;padding:2rem;display:none;margin-bottom:2rem}
-    .result-card.visible{display:block}
-    .result-header{display:grid;grid-template-columns:1fr 1fr auto;gap:2rem;align-items:center;margin-bottom:2rem;padding-bottom:1.5rem;border-bottom:1px solid var(--border-color)}
-    .result-prix{font-family:'Space Grotesk',sans-serif;font-size:2.5rem;font-weight:700;color:var(--accent-green)}
-    .result-prix-m2{font-size:0.9rem;color:var(--text-gray);margin-top:0.3rem}
-    .conf-bar{width:100%;height:8px;background:rgba(255,255,255,0.1);border-radius:4px;overflow:hidden;margin-top:0.5rem}
-    .conf-bar-fill{height:100%;background:var(--accent-green);border-radius:4px;transition:width 0.5s}
-    .fourchette{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
-    .fourchette-item{background:rgba(0,220,130,0.05);border:1px solid rgba(0,220,130,0.15);border-radius:8px;padding:0.8rem 1rem;text-align:center}
-    .fourchette-label{font-size:0.7rem;text-transform:uppercase;color:var(--text-gray);font-weight:600;letter-spacing:0.05em}
-    .fourchette-val{font-size:1.2rem;font-weight:700;margin-top:0.3rem}
-
-    .metrics-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin-bottom:2rem}
-    .metric-box{background:rgba(13,13,13,0.6);border:1px solid var(--border-color);border-radius:10px;padding:1rem}
-    .metric-label{font-size:0.7rem;font-weight:600;color:var(--text-gray);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.3rem}
-    .metric-val{font-size:1.1rem;font-weight:700}
-    .metric-sub{font-size:0.75rem;color:var(--text-gray);margin-top:0.2rem}
-
-    /* CHARTS */
-    .charts-row{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:2rem}
-    .chart-box{background:var(--card-bg);border:1px solid var(--border-color);border-radius:16px;padding:1.5rem;min-height:280px}
-    .chart-box canvas{width:100%!important;height:250px!important}
-
-    /* ── ML Block ── */
-    .ml-block {
-      margin-bottom: 2rem;
-    }
-    .ml-block-title {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 1.4rem; font-weight: 700; letter-spacing: -0.5px;
-      margin-bottom: 1.25rem;
-    }
-    .ml-cards-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem;
-    }
-    @media (max-width: 768px) { .ml-cards-grid { grid-template-columns: 1fr; } }
-    .ml-card {
-      background: rgba(26,26,46,0.5);
-      border: 1px solid var(--border-color);
-      border-radius: 16px;
-      padding: 1.5rem;
-      backdrop-filter: blur(10px);
-    }
-    .ml-card.full { grid-column: 1 / -1; }
-    .ml-card-label {
-      font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
-      letter-spacing: 0.05em; color: var(--text-gray); margin-bottom: 1rem;
-    }
-    /* Range bar */
-    .ml-range-row {
-      display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;
-    }
-    .ml-range-bound {
-      font-size: 0.85rem; font-weight: 600; color: var(--text-gray); white-space: nowrap;
-    }
-    .ml-range-track {
-      flex: 1; height: 8px; background: rgba(255,255,255,0.1);
-      border-radius: 4px; position: relative;
-    }
-    .ml-range-cursor {
-      position: absolute; top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      width: 16px; height: 16px; border-radius: 50%;
-      background: var(--accent-green);
-      box-shadow: 0 0 0 3px rgba(0,220,130,0.25);
-    }
-    .ml-range-center-label {
-      text-align: center; font-size: 0.82rem; color: var(--text-gray);
-    }
-    .ml-range-center-label strong { color: var(--text-white); }
-    /* Fiability */
-    .ml-fiability-badge {
-      font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem;
-    }
-    .ml-fiability-detail {
-      font-size: 0.85rem; color: var(--text-gray); line-height: 1.5;
-    }
-    /* Factors */
-    .ml-factor-list { display: flex; flex-direction: column; gap: 0.75rem; }
-    .ml-factor {
-      display: flex; align-items: flex-start; gap: 0.75rem;
-      padding: 0.75rem; border-radius: 8px;
-      background: rgba(255,255,255,0.03);
-      border: 1px solid rgba(255,255,255,0.06);
-    }
-    .ml-factor-icon { font-size: 1.2rem; line-height: 1; flex-shrink: 0; margin-top: 1px; }
-    .ml-factor-text {}
-    .ml-factor-name {
-      font-size: 0.78rem; font-weight: 700; text-transform: uppercase;
-      letter-spacing: 0.04em; color: var(--text-gray); margin-bottom: 0.15rem;
-    }
-    .ml-factor-value { font-size: 0.92rem; font-weight: 600; color: var(--text-white); }
-    .ml-factor-value.positive { color: var(--accent-green); }
-    .ml-factor-value.negative { color: #ff9999; }
-    .ml-factor-value.neutral { color: var(--text-gray); }
-
-    /* ── Steps ── */
-    .how-section {
-      background: rgba(26,26,46,0.5); border: 1px solid var(--border-color);
-      border-radius: 16px; padding: 2rem; backdrop-filter: blur(10px);
-      margin-top: 3rem; margin-bottom: 2rem;
-    }
-    .how-title { font-family: 'Space Grotesk', sans-serif; font-size: 1.3rem; font-weight: 700; margin-bottom: 1.5rem; letter-spacing: -0.5px; }
-    .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1.5rem; }
-    .step { display: flex; flex-direction: column; align-items: center; text-align: center; }
-    .step-num {
-      background: var(--accent-green); color: var(--dark-bg);
-      width: 40px; height: 40px; font-weight: 700; font-size: 0.85rem;
-      border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 0.75rem;
-    }
-    .step h4 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.5rem; }
-    .step p { font-size: 0.8rem; color: var(--text-gray); line-height: 1.5; }
-
-    /* DPE + POI */
-    .analysis-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:2rem}
-    .analysis-card{background:var(--card-bg);border:1px solid var(--border-color);border-radius:16px;padding:1.5rem}
-    .analysis-card h3{font-family:'Space Grotesk',sans-serif;font-size:1rem;font-weight:700;margin-bottom:1rem;color:var(--accent-green)}
-    .dpe-bars{display:flex;align-items:flex-end;gap:0.5rem;height:120px;padding-top:10px}
-    .dpe-bar{display:flex;flex-direction:column;align-items:center;flex:1}
-    .dpe-bar-fill{width:100%;border-radius:4px 4px 0 0;display:flex;align-items:flex-end;justify-content:center;font-size:0.65rem;font-weight:700;padding:2px;color:#000;min-height:4px;transition:height 0.3s}
-    .dpe-bar-label{font-size:0.75rem;font-weight:700;margin-top:4px;color:var(--text-gray)}
-    .score-bar-item{display:flex;align-items:center;gap:0.8rem;margin-bottom:0.6rem}
-    .score-bar-label{font-size:0.8rem;color:var(--text-gray);min-width:75px}
-    .score-bar-bg{flex:1;height:8px;background:rgba(255,255,255,0.08);border-radius:4px;overflow:hidden}
-    .score-bar-fill{height:100%;background:var(--accent-green);border-radius:4px;width:var(--width);transition:width 0.4s}
-    .score-bar-val{font-size:0.78rem;font-weight:600;min-width:45px;text-align:right}
-
-    /* CONFIDENCE */
-    .confidence-box{background:var(--card-bg);border:1px solid var(--border-color);border-radius:16px;padding:1.5rem;margin-bottom:2rem}
-    .confidence-box h3{font-family:'Space Grotesk',sans-serif;font-size:1rem;font-weight:700;margin-bottom:1rem;color:var(--accent-green)}
-    .conf-sources{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:0.8rem}
-    .conf-src{background:rgba(13,13,13,0.6);border:1px solid var(--border-color);border-radius:8px;padding:0.6rem 0.8rem;text-align:center}
-    .conf-src-name{font-size:0.75rem;font-weight:600;color:var(--text-gray)}
-    .conf-src-status{font-size:0.8rem;margin-top:0.2rem;color:var(--text-gray)}
-    .conf-src-status.ok{color:var(--accent-green)}
-    .conf-warning{display:none;margin-top:1rem;padding:0.8rem;background:rgba(255,180,0,0.1);border:1px solid rgba(255,180,0,0.3);border-radius:8px;font-size:0.85rem;color:#ffb400}
-    .conf-warning.visible{display:block}
-
-    /* ERROR */
-    .error-box{display:none;background:rgba(255,60,60,0.1);border:1px solid rgba(255,60,60,0.3);border-radius:8px;padding:0.8rem 1rem;color:#ff6b6b;font-size:0.9rem;margin-bottom:1rem}
-    .error-box.visible{display:block}
-
-    /* ANALYSE SECTION (hidden until estimation done) */
-    .analyse-section{display:none}
-    .analyse-section.visible{display:block}
-
-    /* ── COMMUNE EXPLORER ── */
-    .explorer-card{background:var(--card-bg);border:1px solid var(--border-color);border-radius:16px;padding:2rem;margin-bottom:2rem}
-    .explorer-card h3{font-family:'Space Grotesk',sans-serif;font-weight:700;margin-bottom:0.5rem}
-    .explorer-search{display:flex;gap:0.8rem;margin-bottom:1.5rem}
-    .explorer-search input{flex:1;background:rgba(13,13,13,0.8);border:1px solid var(--border-color);color:var(--text-white);padding:0.7rem 1rem;border-radius:8px;font-size:0.9rem;font-family:inherit}
-    .explorer-search input:focus{outline:none;border-color:var(--accent-green)}
-    .explorer-search button{background:var(--accent-green);color:#000;border:none;padding:0.7rem 1.5rem;border-radius:8px;font-weight:700;cursor:pointer;font-size:0.85rem;white-space:nowrap}
-    .explorer-results{display:none}
-    .explorer-results.visible{display:block}
-    .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:1.5rem}
-    .kpi-card{background:rgba(13,13,13,0.6);border:1px solid var(--border-color);border-radius:12px;padding:1.2rem}
-    .kpi-card .kpi-label{font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-gray);margin-bottom:0.3rem}
-    .kpi-card .kpi-value{font-family:'Space Grotesk',sans-serif;font-size:1.4rem;font-weight:700}
-    .kpi-card .kpi-sub{font-size:0.75rem;color:var(--text-gray);margin-top:0.2rem}
-    .kpi-card.accent{border-color:rgba(0,220,130,0.3);background:rgba(0,220,130,0.03)}
-
-    .profile-sections{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
-    .profile-section{background:rgba(13,13,13,0.4);border:1px solid var(--border-color);border-radius:12px;padding:1.2rem}
-    .profile-section h4{font-family:'Space Grotesk',sans-serif;font-size:0.9rem;font-weight:700;color:var(--accent-green);margin-bottom:0.8rem}
-    .profile-row{display:flex;justify-content:space-between;padding:0.4rem 0;border-bottom:1px solid rgba(255,255,255,0.03);font-size:0.85rem}
-    .profile-row .label{color:var(--text-gray)}
-    .profile-row .value{font-weight:600}
-
-
-    /* ── SOURCES ── */
-    .sources{max-width:1100px;margin:0 auto 2rem;padding:0 5%}
-    .sources h3{font-family:'Space Grotesk',sans-serif;font-size:1rem;font-weight:700;color:var(--accent-green);margin-bottom:1rem}
-    .source-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0.8rem}
-    .source-item{background:var(--card-bg);border:1px solid var(--border-color);border-radius:8px;padding:0.8rem}
-    .source-item strong{font-size:0.85rem;display:block;margin-bottom:0.2rem}
-    .source-item span{font-size:0.78rem;color:var(--text-gray)}
-
-    /* FOOTER */
-    footer{padding:3rem 5%;border-top:1px solid var(--border-color);text-align:center;font-size:0.85rem;color:var(--text-gray)}
-    footer a{color:var(--text-gray);text-decoration:none;transition:color 0.2s}
-    footer a:hover{color:var(--accent-green)}
-    .footer-email{color:var(--accent-green);margin:0.75rem 0;display:block}
-    .footer-legal{margin:0.75rem 0}
-    .footer-copy{margin-top:1rem;font-size:0.78rem;color:rgba(160,160,160,0.6)}
-    .footer-disclaimer{max-width:600px;margin:1rem auto 0;font-size:0.75rem;color:rgba(160,160,160,0.5);line-height:1.5}
-
-    /* ── RÉNOVATION ÉNERGÉTIQUE ── */
-    .renov-section{margin-bottom:2rem}
-    .renov-panel{background:var(--card-bg);border:1px solid var(--border-color);border-radius:16px;padding:1.5rem;margin-top:1rem}
-    .renov-panel h3{font-family:'Space Grotesk',sans-serif;font-size:1rem;font-weight:700;margin-bottom:1.2rem;color:var(--accent-green)}
-    .renov-dpe-row{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:1.5rem}
-    .renov-dpe-item{background:rgba(13,13,13,0.6);border:1px solid var(--border-color);border-radius:10px;padding:1rem 1.2rem;text-align:center;flex:1;min-width:110px}
-    .renov-dpe-arrow{font-size:1.8rem;color:var(--accent-green);flex-shrink:0}
-    .renov-tranche-btns{display:flex;flex-wrap:wrap;gap:0.6rem;margin-top:0.6rem}
-    .renov-tranche-btn{background:var(--card-bg);border:1px solid var(--border-color);color:var(--text-gray);padding:0.5rem 1.1rem;border-radius:100px;cursor:pointer;font-size:0.82rem;font-weight:500;transition:all 0.2s}
-    .renov-tranche-btn:hover{border-color:rgba(0,220,130,0.4);color:var(--text-white)}
-    .renov-tranche-btn.active{background:var(--accent-green);color:#000;border-color:var(--accent-green);font-weight:600}
-    .aide-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:0.8rem;margin-top:0.8rem}
-    .aide-card{background:rgba(13,13,13,0.6);border:1px solid var(--border-color);border-radius:10px;padding:0.9rem 1rem}
-    .aide-geste{font-size:0.88rem;font-weight:600;margin-bottom:0.5rem}
-    .aide-montants{display:flex;flex-wrap:wrap;gap:0.4rem;margin-bottom:0.4rem}
-    .aide-badge{font-size:0.72rem;padding:0.2rem 0.55rem;border-radius:100px;font-weight:600}
-    .aide-badge.mpr{background:rgba(0,220,130,0.12);color:var(--accent-green);border:1px solid rgba(0,220,130,0.3)}
-    .aide-badge.cee{background:rgba(100,180,255,0.12);color:#64b4ff;border:1px solid rgba(100,180,255,0.3)}
-    .aide-badge.acc{background:rgba(255,180,0,0.12);color:#ffb400;border:1px solid rgba(255,180,0,0.3)}
-    .aide-total{font-size:0.82rem;color:var(--text-gray);margin-top:0.2rem}
-    .btn-renov{display:inline-flex;align-items:center;gap:0.5rem;background:rgba(0,220,130,0.06);border:1px solid rgba(0,220,130,0.25);color:var(--accent-green);padding:0.7rem 1.4rem;border-radius:8px;font-size:0.88rem;font-weight:600;cursor:pointer;transition:all 0.2s;width:100%;justify-content:center;margin-top:0.5rem}
-    .btn-renov:hover{background:rgba(0,220,130,0.12);border-color:rgba(0,220,130,0.5)}
-    .renov-note{font-size:0.72rem;color:rgba(160,160,160,0.5);margin-top:1rem;line-height:1.5}
-
-    /* MOBILE */
-    @media(max-width:768px){
-      .nav-links{display:none}
-      .hero{padding:3rem 5% 2rem}
-      .form-grid{grid-template-columns:1fr}
-      .result-header{grid-template-columns:1fr;gap:1rem}
-      .fourchette{grid-template-columns:1fr}
-      .charts-row,.analysis-grid,.profile-sections{grid-template-columns:1fr}
-      .tabs{gap:0.3rem}
-      .tab-btn{padding:0.5rem 1rem;font-size:0.8rem}
-      .explorer-search{flex-direction:column}
-    }
-
-    /* ── FICHE INVESTISSEUR ── */
-    #fiche-investisseur{display:none;margin-bottom:2rem}
-    .fi-card{background:#fff;color:#1a1a1a;border:1px solid #d0d0d0;border-radius:12px;padding:2rem;font-family:'Inter',system-ui,sans-serif;font-size:0.9rem}
-    .fi-header{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1a1a1a;padding-bottom:1rem;margin-bottom:1.5rem}
-    .fi-header-title{font-size:1.1rem;font-weight:700;color:#1a1a1a}
-    .fi-header-sub{font-size:0.78rem;color:#666;margin-top:0.25rem}
-    .fi-logo{font-weight:700;font-size:0.95rem;color:#1a1a1a;text-align:right;white-space:nowrap}
-    .fi-logo span{display:block;font-size:0.72rem;font-weight:400;color:#888;margin-top:0.2rem}
-    .fi-section{margin-bottom:1.5rem}
-    .fi-section-title{font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#666;border-bottom:1px solid #e0e0e0;padding-bottom:0.4rem;margin-bottom:0.9rem}
-    .fi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:0.9rem}
-    .fi-item-label{font-size:0.72rem;color:#888;margin-bottom:0.15rem}
-    .fi-item-val{font-size:1rem;font-weight:600;color:#1a1a1a}
-    .fi-item-sub{font-size:0.72rem;color:#999;margin-top:0.1rem}
-    .fi-score{display:inline-block;padding:0.15rem 0.55rem;border-radius:4px;font-weight:700;font-size:0.85rem}
-    .fi-score.good{background:#d4edda;color:#155724}
-    .fi-score.medium{background:#fff3cd;color:#856404}
-    .fi-score.low{background:#f8d7da;color:#721c24}
-    #btn-pdf-fiche{display:block;width:100%;margin-top:1.5rem;padding:0.7rem 1.5rem;background:#1a1a1a;color:#fff;border:none;border-radius:8px;font-size:0.88rem;font-weight:600;cursor:pointer;font-family:inherit;transition:background 0.2s}
-    #btn-pdf-fiche:hover{background:#333}
-
-    /* PRINT */
-    @media print{
-      nav,.hero,.tabs,.form-card,.error-box,#result-card,
-      #ml-block,#ai-section,.analyse-section,.sources,footer,
-      #btn-pdf-fiche{display:none!important}
-      #fiche-investisseur{display:block!important}
-      .fi-card{border:none;padding:0;border-radius:0}
-      body{background:#fff!important}
-      @page{margin:1.5cm}
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Explorer — Intent Analytics</title>
+<meta name="description" content="Interface d'exploration à l'adresse." />
+<meta name="robots" content="noindex, nofollow" />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect width='24' height='24' rx='5' fill='black'/><path d='M6 17V7l6 6 6-6v10' stroke='white' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Inter+Tight:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="./assets/style.css" />
+<style>@keyframes spin { to { transform: rotate(360deg); } }</style>
 </head>
 <body>
 
-<!-- NAV -->
-<nav>
-  <a href="/" class="nav-logo">Intent Analytics</a>
-  <ul class="nav-links">
-    <li><a href="/projet">Le projet</a></li>
-    <li><a href="/donnees">Données</a></li>
-    <li><a href="/methodologie">Méthodologie</a></li>
-    <li><a href="/explorations">Explorations</a></li>
-    <li><a href="/renovation-energetique">Rénovation énergétique</a></li>
-    <li><a href="/documentation">Documentation</a></li>
-    <li><a href="/a-propos">À propos</a></li>
-  </ul>
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="https://intentanalytics.fr" class="brand">
+      <span class="brand-mark"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 17V7l6 6 6-6v10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      Intent Analytics <span style="color: var(--mute); font-weight: 400; margin-left: 8px;">/ explorer</span>
+    </a>
+    <div class="nav-actions">
+      <a href="https://intentanalytics.fr" class="btn">← intentanalytics.fr</a>
+      <a href="./a-propos.html" class="btn btn-primary">Contact<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M7 7h10v10"/></svg></a>
+    </div>
+  </div>
 </nav>
 
-<!-- HERO -->
-<section class="hero">
-  <span class="hero-tag">Outil expérimental</span>
-  <h1>Estimation <span>&</span> Exploration</h1>
-  <p>Croisement de données publiques DVF, DPE et équipements pour estimer un bien ou explorer une commune.</p>
-</section>
+<main class="app-shell">
 
-<!-- TABS -->
-<div class="tabs">
-  <button class="tab-btn active" data-tab="estimation">Estimation</button>
-  <button class="tab-btn" data-tab="explorer">Profil commune</button>
-</div>
+  <section class="app-form">
+    <div class="reveal">
+      <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--mute);">— Explorer une adresse</span>
+      <h1 style="margin-top: 12px;">Renseignez un bien.</h1>
+      <p class="intro">Intent Analytics compose une lecture basée sur les données publiques croisées (DVF, DPE, BDNB, BAN, INSEE). Aucune donnée n'est stockée côté utilisateur.</p>
+    </div>
 
-<!-- ═══════════════════════════ TAB 1 : ESTIMATION ═══════════════════════════ -->
-<div class="tab-panel active" id="tab-estimation">
+    <form id="explore-form" style="margin-top: 8px;" class="reveal" data-delay="1">
+      <div class="app-field">
+        <label for="adresse">Adresse complète</label>
+        <input type="text" id="adresse" name="adresse" placeholder="44 Grande Rue, 60420 Coivrel" autocomplete="off" required />
+      </div>
 
-  <div class="form-card">
-    <form id="estimation-form">
-      <div class="form-grid">
-        <div class="form-group adresse-wrap" style="grid-column:1/-1">
-          <label for="adresse">Adresse du bien</label>
-          <input type="text" id="adresse" name="adresse" placeholder="Ex : 12 rue de Rivoli, Paris" autocomplete="off" required />
-          <div class="suggestions" id="adresse-suggestions"></div>
-        </div>
-        <div class="form-group">
-          <label for="type_bien">Type de bien</label>
-          <select id="type_bien" name="type_bien">
-            <option value="Appartement">Appartement</option>
-            <option value="Maison">Maison</option>
+      <div class="app-field-row">
+        <div class="app-field">
+          <label for="type">Type de bien</label>
+          <select id="type" name="type">
+            <option>Maison</option>
+            <option>Appartement</option>
           </select>
         </div>
-        <div class="form-group">
+        <div class="app-field">
           <label for="surface">Surface (m²)</label>
-          <input type="number" id="surface" name="surface" min="5" max="1000" value="65" required />
-        </div>
-        <div class="form-group">
-          <label for="nb_pieces">Pièces</label>
-          <input type="number" id="nb_pieces" name="nb_pieces" min="1" max="20" value="3" />
-        </div>
-        <div class="form-group">
-          <label for="dpe">Classe DPE</label>
-          <select id="dpe" name="dpe">
-            <option value="D" selected>D</option>
-            <option value="A">A</option>
-            <option value="B">B</option>
-            <option value="C">C</option>
-            <option value="E">E</option>
-            <option value="F">F</option>
-            <option value="G">G</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label for="etat">État du bien</label>
-          <select id="etat" name="etat">
-            <option value="bon" selected>Bon</option>
-            <option value="excellent">Excellent / Neuf</option>
-            <option value="tres_bon">Très bon</option>
-            <option value="moyen">Moyen</option>
-            <option value="mauvais">À rénover</option>
-          </select>
+          <input type="number" id="surface" name="surface" placeholder="102" min="9" max="2000" required />
         </div>
       </div>
-      <div class="checkboxes">
-        <label><input type="checkbox" id="has_parking"> Parking</label>
-        <label><input type="checkbox" id="has_balcony"> Balcon / Terrasse</label>
-        <label><input type="checkbox" id="has_garden"> Jardin</label>
-        <label><input type="checkbox" id="has_view"> Vue dégagée</label>
+
+      <div class="app-field-row">
+        <div class="app-field">
+          <label for="pieces">Pièces</label>
+          <input type="number" id="pieces" name="pieces" placeholder="6" min="1" max="20" />
+        </div>
+        <div class="app-field">
+          <label for="terrain">Terrain (m²)</label>
+          <input type="number" id="terrain" name="terrain" placeholder="897" min="0" />
+        </div>
       </div>
-      <button type="submit" class="btn-primary" id="btn-submit">Estimer</button>
+
+      <div class="app-field">
+        <label for="annee">Année de construction (optionnel)</label>
+        <input type="number" id="annee" name="annee" placeholder="1950" min="1800" max="2026" />
+      </div>
+
+      <div class="app-field" style="margin-top: 40px;">
+        <button type="submit" id="submit-btn" class="btn btn-primary btn-lg" style="width: 100%; justify-content: center;">
+          Explorer les données du bien
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+
+      <p class="t-mono" style="margin-top: 24px; font-size: 11.5px; color: var(--mute);">
+        En poursuivant, vous acceptez les <a href="./legal/cgu.html" style="color: var(--ink); border-bottom: 1px solid var(--mute-2);">CGU</a> et la <a href="./legal/politique-confidentialite.html" style="color: var(--ink); border-bottom: 1px solid var(--mute-2);">politique de confidentialité</a>.
+      </p>
     </form>
-  </div>
+  </section>
 
-  <div class="error-box" id="error-box"></div>
-
-  <!-- RESULT -->
-  <div class="result-card" id="result-card">
-    <div class="result-header">
-      <div>
-        <div class="result-prix" id="r-prix">—</div>
-        <div class="result-prix-m2" id="r-prix-m2">—</div>
-      </div>
-      <div>
-        <div style="font-size:0.78rem;color:var(--text-gray);font-weight:600;margin-bottom:0.3rem">Confiance <span id="r-conf-val">—</span></div>
-        <div class="conf-bar"><div class="conf-bar-fill" id="r-conf-bar" style="width:0%"></div></div>
-      </div>
-      <div class="fourchette">
-        <div class="fourchette-item"><div class="fourchette-label">Estimation basse</div><div class="fourchette-val" id="r-low">—</div></div>
-        <div class="fourchette-item"><div class="fourchette-label">Estimation haute</div><div class="fourchette-val" id="r-high">—</div></div>
-      </div>
-    </div>
-    <div class="metrics-grid" id="r-metrics"></div>
-  </div>
-
-  <!-- ANALYSE (visible après estimation) -->
-
-  <!-- Bloc ML : Analyse du bien et du secteur -->
-  <div class="ml-block" id="ml-block" style="display:none;">
-    <div class="ml-block-title">Analyse du bien et du secteur</div>
-    <div class="ml-cards-grid">
-
-      <!-- 1. Fourchette -->
-      <div class="ml-card">
-        <div class="ml-card-label">Fourchette de prix</div>
-        <div class="ml-range-row">
-          <span class="ml-range-bound" id="ml-low">—</span>
-          <div class="ml-range-track"><div class="ml-range-cursor"></div></div>
-          <span class="ml-range-bound" id="ml-high">—</span>
-        </div>
-        <div class="ml-range-center-label">Entre <strong id="ml-low-label">—</strong> et <strong id="ml-high-label">—</strong></div>
-      </div>
-
-      <!-- 2. Fiabilité -->
-      <div class="ml-card">
-        <div class="ml-card-label">Fiabilité de l'estimation</div>
-        <div class="ml-fiability-badge" id="ml-fiability-badge">—</div>
-        <div class="ml-fiability-detail" id="ml-fiability-detail">—</div>
-      </div>
-
-      <!-- 3. Facteurs clés -->
-      <div class="ml-card full">
-        <div class="ml-card-label">Pourquoi ce prix ?</div>
-        <div class="ml-factor-list" id="ml-factors"></div>
-      </div>
-
-    </div>
-  </div>
-
-  <div id="ai-section" class="hidden" style="margin: 1.5rem 0;">
-    <button id="btnAnalyze" onclick="handleAnalyze()" style="background:#00D47E;color:#000;border:none;padding:0.75rem 1.5rem;border-radius:8px;font-weight:600;cursor:pointer;font-size:1rem;width:100%;">
-      ✨ Analyser avec Claude
-    </button>
-    <div id="ai-result" style="display:none;margin-top:1rem;padding:1.5rem;background:#1a1a2e;border-radius:12px;border:1px solid #00D47E33;line-height:1.7;"></div>
-  </div>
-
-  <!-- Analyse marché -->
-  <div class="analyse-section" id="analyse-section">
-    <div class="charts-row">
-      <div class="chart-box"><canvas id="priceChart"></canvas></div>
-      <div class="chart-box"><canvas id="volumeChart"></canvas></div>
-    </div>
-    <div class="analysis-grid">
-      <div class="analysis-card">
-        <h3>Distribution DPE de la commune</h3>
-        <div class="dpe-bars" id="dpe-dist"></div>
-        <div id="dpe-info"></div>
-      </div>
-      <div class="analysis-card">
-        <h3>Cadre de vie — Scores POI</h3>
-        <div id="score-bars"></div>
-      </div>
-    </div>
-    <div class="confidence-box">
-      <h3>Indice de confiance : <span id="conf-score">—</span>/100</h3>
-      <div class="conf-sources" id="conf-grid"></div>
-      <div class="conf-warning" id="conf-warning"></div>
-    </div>
-    <div class="renov-section" id="renov-est-section" style="display:none">
-      <button class="btn-renov" id="btn-renov-est">⚡ Potentiel rénovation énergétique &amp; aides disponibles</button>
-      <div id="renov-est-panel"></div>
-    </div>
-  </div>
-
-  <!-- FICHE INVESTISSEUR (injectée par renderFicheInvestisseur) -->
-  <div id="fiche-investisseur" style="max-width:1100px;margin:0 auto;padding:0 5%"></div>
-
-</div>
-
-<!-- ═══════════════════════════ TAB 2 : PROFIL COMMUNE ═══════════════════════════ -->
-<div class="tab-panel" id="tab-explorer">
-
-  <div class="explorer-card">
-    <h3>Explorer une commune</h3>
-    <p style="color:var(--text-gray);font-size:0.9rem;margin-bottom:1.2rem">Saisissez un code postal ou un nom de commune pour obtenir un profil complet : prix, DPE, équipements, démographie.</p>
-    <div class="explorer-search">
-      <input type="text" id="explorer-input" placeholder="Ex : 75009 (Paris 9e), 33000 (Bordeaux), Nantes..." />
-      <button id="explorer-btn">Explorer</button>
-    </div>
-    <div class="error-box" id="explorer-error"></div>
-    <div class="explorer-results" id="explorer-results">
-      <div id="explorer-title" style="margin-bottom:1rem"></div>
-      <div class="kpi-grid" id="explorer-kpis"></div>
-      <div class="profile-sections" id="explorer-profile"></div>
-      <div class="renov-section" style="margin-top:0.5rem">
-        <button class="btn-renov" id="btn-renov-explorer">⚡ Potentiel rénovation énergétique &amp; aides disponibles</button>
-        <div id="renov-explorer-panel"></div>
-      </div>
-    </div>
-  </div>
-
-</div>
-
-
-
-<!-- SOURCES -->
-<div class="sources">
-  <h3>Sources de données</h3>
-  <div class="source-grid">
-    <div class="source-item"><strong>BAN</strong><span>Base Adresse Nationale — géocodage et réconciliation INSEE</span></div>
-    <div class="source-item"><strong>DVF</strong><span>DGFiP — Demandes de Valeurs Foncières (transactions immobilières)</span></div>
-    <div class="source-item"><strong>DPE</strong><span>ADEME — Diagnostics de Performance Énergétique</span></div>
-    <div class="source-item"><strong>BPE / OSM</strong><span>INSEE BPE + OpenStreetMap — équipements et points d'intérêt</span></div>
-  </div>
-</div>
-
-<!-- FOOTER -->
-<footer>
-  <p><strong>Intent Analytics</strong> — Exploration de données territoriales</p>
-  <a href="mailto:contact@intentanalytics.fr" class="footer-email">contact@intentanalytics.fr</a>
-  <p class="footer-legal">
-    <a href="/legal/mentions-legales">Mentions légales</a> ·
-    <a href="/legal/cgu">CGU</a> ·
-    <a href="/legal/politique-confidentialite">Confidentialité</a>
-  </p>
-  <p class="footer-disclaimer">
-    Exploration à titre indicatif. Ne constitue pas une expertise immobilière certifiée.
-  </p>
-  <p class="footer-copy">© 2026 Intent Analytics</p>
-</footer>
-
-<!-- Chart.js (deferred) -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
-
-<script>
-// ═══════════════════════════════════════════════════════════════
-// CONFIG
-// ═══════════════════════════════════════════════════════════════
-const SUPA_URL = "https://wwvdpixzfaviaapixarb.supabase.co";
-const SUPA_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3dmRwaXh6ZmF2aWFhcGl4YXJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3Mzk0NDgsImV4cCI6MjA5MDMxNTQ0OH0.NjOeWzUCo2BJPcxnkEJNm215GJBr1RAHba1eL_EF758";
-const BAN_URL = "https://api-adresse.data.gouv.fr/search/";
-
-async function supaFetch(table, params) {
-  const qs = new URLSearchParams(params).toString();
-  const r = await fetch(`${SUPA_URL}/rest/v1/${table}?${qs}`, {
-    headers: { apikey: SUPA_ANON, Authorization: `Bearer ${SUPA_ANON}` }
-  });
-  if (!r.ok) return [];
-  return r.json();
-}
-
-const fmt = (n) => new Intl.NumberFormat('fr-FR', { style:'currency', currency:'EUR', maximumFractionDigits:0 }).format(n);
-const fmtN = (n) => new Intl.NumberFormat('fr-FR').format(n);
-
-// ═══════════════════════════════════════════════════════════════
-// TABS
-// ═══════════════════════════════════════════════════════════════
-document.querySelectorAll('.tab-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-    btn.classList.add('active');
-    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
-  });
-});
-
-// ═══════════════════════════════════════════════════════════════
-// BAN AUTOCOMPLETE
-// ═══════════════════════════════════════════════════════════════
-let _selectedGeo = null;
-let _acTimeout;
-let chartInstances = { price: null, volume: null };
-const adresseInput = document.getElementById('adresse');
-const adresseSug = document.getElementById('adresse-suggestions');
-
-adresseInput.addEventListener('input', (e) => {
-  clearTimeout(_acTimeout);
-  const q = e.target.value.trim();
-  if (q.length < 3) { adresseSug.classList.remove('open'); adresseSug.innerHTML = ''; return; }
-  _acTimeout = setTimeout(async () => {
-    try {
-      const r = await fetch(`${BAN_URL}?q=${encodeURIComponent(q)}&limit=5`);
-      const d = await r.json();
-      const feats = d.features || [];
-      if (!feats.length) {
-        adresseSug.innerHTML = '<div class="sug-item" style="color:var(--text-gray)">Aucune adresse trouvée</div>';
-        adresseSug.classList.add('open');
-        return;
-      }
-      adresseSug.innerHTML = feats.map(f => {
-        const p = f.properties;
-        return `<div class="sug-item" data-label="${p.label}" data-lat="${f.geometry.coordinates[1]}" data-lon="${f.geometry.coordinates[0]}" data-citycode="${p.citycode}" data-city="${p.city}" data-postcode="${p.postcode}">${p.label}</div>`;
-      }).join('');
-      adresseSug.classList.add('open');
-      adresseSug.querySelectorAll('.sug-item').forEach(item => {
-        item.addEventListener('click', () => {
-          adresseInput.value = item.dataset.label;
-          adresseSug.classList.remove('open');
-          _selectedGeo = {
-            label: item.dataset.label,
-            lat: parseFloat(item.dataset.lat),
-            lon: parseFloat(item.dataset.lon),
-            citycode: item.dataset.citycode,
-            commune: item.dataset.city,
-            cp: item.dataset.postcode
-          };
-        });
-      });
-    } catch (err) { console.error('BAN error:', err); }
-  }, 300);
-});
-document.addEventListener('click', (e) => { if (!e.target.closest('.adresse-wrap')) adresseSug.classList.remove('open'); });
-
-// ═══════════════════════════════════════════════════════════════
-// ESTIMATION
-// ═══════════════════════════════════════════════════════════════
-async function fetchDVF(citycode, typeBien) {
-  try {
-    const rows = await supaFetch('dvf_mutations', {
-      code_commune: `eq.${citycode}`,
-      nature_mutation: 'eq.Vente',
-      valeur_fonciere: 'gte.10000',
-      surface_reelle_bati: 'gte.5',
-      select: '*',
-      order: 'date_mutation.desc',
-      limit: '2000'
-    });
-    if (typeBien && rows.length > 20) {
-      const tf = typeBien === "Appartement" ? "Appartement" : "Maison";
-      const filtered = rows.filter(r => (r.type_local || "").includes(tf));
-      if (filtered.length >= 8) return filtered;
-    }
-    return rows;
-  } catch (err) { console.error('DVF error:', err); return []; }
-}
-
-async function fetchSupp(citycode, cp) {
-  const zoneFields = 'revenu_median_zone,taux_chomage_zone,part_proprietaires_zone,population_commune,evolution_12m_zone,volume_transactions_zone,indice_dynamisme_eco,nb_entreprises_zone,nb_creations_12m,score_transport,score_education,score_sante,score_commerce,score_cadre_vie,score_vente,score_renovation,score_investissement,rotation_quartier';
-  const [dpeArr, poiArr, propArr] = await Promise.all([
-    supaFetch('dpe_commune_agg', { code_postal: `eq.${cp}`, limit: '1' }),
-    supaFetch('poi_scores_commune', { code_commune: `eq.${citycode}`, limit: '1' }),
-    supaFetch('property_index', { code_commune: `eq.${citycode}`, select: zoneFields, limit: '1' })
-  ]);
-  return { dpe: dpeArr[0] || null, poi: poiArr[0] || null, zone: propArr[0] || null };
-}
-
-document.getElementById('estimation-form').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const btn = document.getElementById('btn-submit');
-  btn.disabled = true; btn.textContent = 'Calcul en cours...';
-  const errorBox = document.getElementById('error-box');
-  errorBox.classList.remove('visible');
-
-  try {
-    const fd = new FormData(e.target);
-    const typeBien = fd.get('type_bien');
-    const surface = parseFloat(fd.get('surface'));
-    const nb_pieces = parseInt(fd.get('nb_pieces')) || 3;
-    const dpe = fd.get('dpe');
-    const etat = fd.get('etat');
-    const geo = _selectedGeo;
-    if (!geo) throw new Error('Veuillez sélectionner une adresse dans les suggestions.');
-
-    const dvfRows = await fetchDVF(geo.citycode, typeBien);
-    if (dvfRows.length < 3) throw new Error(`Données insuffisantes pour ${geo.commune} (${dvfRows.length} transactions).`);
-
-    const supp = await fetchSupp(geo.citycode, geo.cp);
-
-    const rawDVF = dvfRows
-      .filter(r => r.surface_reelle_bati >= 9 && r.valeur_fonciere >= 5000)
-      .map(r => ({ prixM2: r.valeur_fonciere / r.surface_reelle_bati, prix: r.valeur_fonciere, surface: r.surface_reelle_bati, date: r.date_mutation, type: r.type_local }))
-      .sort((a, b) => a.prixM2 - b.prixM2);
-    if (rawDVF.length < 3) throw new Error('Pas assez de transactions valides.');
-    const rawQ1 = rawDVF[Math.floor(rawDVF.length * 0.25)].prixM2;
-    const rawQ3 = rawDVF[Math.floor(rawDVF.length * 0.75)].prixM2;
-    const iqr = rawQ3 - rawQ1;
-    const lowerFence = rawQ1 - 1.5 * iqr;
-    const upperFence = rawQ3 + 1.5 * iqr;
-    const validDVF = rawDVF.filter(r => r.prixM2 >= lowerFence && r.prixM2 <= upperFence);
-    if (validDVF.length < 3) throw new Error('Pas assez de transactions valides.');
-
-    const medianPrixM2 = validDVF[Math.floor(validDVF.length / 2)].prixM2;
-    const q1 = validDVF[Math.floor(validDVF.length * 0.25)].prixM2;
-    const q3 = validDVF[Math.floor(validDVF.length * 0.75)].prixM2;
-    const meanPrixM2 = validDVF.reduce((s, r) => s + r.prixM2, 0) / validDVF.length;
-
-    const dpeAdj = { A:0.06, B:0.04, C:0.02, D:0, E:-0.04, F:-0.08, G:-0.08 }[dpe] || 0;
-    const stateAdj = { mauvais:-0.10, moyen:-0.05, bon:0, tres_bon:0.05, excellent:0.10 }[etat] || 0;
-    let featBonus = 0;
-    if (document.getElementById('has_parking').checked) featBonus += 0.03;
-    if (document.getElementById('has_balcony').checked) featBonus += 0.02;
-    if (document.getElementById('has_garden').checked) featBonus += 0.04;
-    if (document.getElementById('has_view').checked) featBonus += 0.02;
-
-    const totalAdj = dpeAdj + stateAdj + featBonus;
-    const estPrixM2 = medianPrixM2 * (1 + totalAdj);
-    const estPrice = estPrixM2 * surface;
-
-    const ecartType = Math.sqrt(validDVF.reduce((s, r) => s + Math.pow(r.prixM2 - meanPrixM2, 2), 0) / validDVF.length);
-    const marginPct = parseFloat(((ecartType / meanPrixM2) * 100).toFixed(1));
-
-    let conf = 30;
-    if (validDVF.length >= 100) conf += 25;
-    else if (validDVF.length >= 50) conf += 20;
-    else if (validDVF.length >= 20) conf += 15;
-    else if (validDVF.length >= 10) conf += 10;
-    const latestDate = validDVF.reduce((mx, r) => r.date > mx ? r.date : mx, '2000-01-01');
-    const daysSince = Math.floor((Date.now() - new Date(latestDate).getTime()) / 86400000);
-    if (daysSince <= 90) conf += 15; else if (daysSince <= 180) conf += 10; else if (daysSince <= 365) conf += 5;
-    if (marginPct < 20) conf += 15; else if (marginPct < 35) conf += 10; else if (marginPct < 50) conf += 5;
-    if (supp.dpe) conf += 8;
-    if (supp.poi) conf += 5;
-    if (supp.zone) conf += 2;
-    conf = Math.min(100, conf);
-
-    document.getElementById('r-prix').textContent = fmt(estPrice);
-    document.getElementById('r-prix-m2').textContent = `${fmtN(estPrixM2.toFixed(0))} \u20ac/m\u00b2`;
-    document.getElementById('r-conf-bar').style.width = conf + '%';
-    document.getElementById('r-conf-val').textContent = Math.round(conf) + '%';
-    document.getElementById('r-low').textContent = fmt(q1 * surface);
-    document.getElementById('r-high').textContent = fmt(q3 * surface);
-
-    const z = supp.zone;
-    document.getElementById('r-metrics').innerHTML = `
-      <div class="metric-box"><div class="metric-label">Commune</div><div class="metric-val">${geo.commune}</div><div class="metric-sub">${geo.cp}</div></div>
-      <div class="metric-box"><div class="metric-label">Prix m\u00e9dian local</div><div class="metric-val">${fmtN(medianPrixM2.toFixed(0))} \u20ac/m\u00b2</div><div class="metric-sub">${validDVF.length} transactions DVF</div></div>
-      <div class="metric-box"><div class="metric-label">Prix moyen local</div><div class="metric-val">${fmtN(meanPrixM2.toFixed(0))} \u20ac/m\u00b2</div><div class="metric-sub">\u00c9cart-type: ${fmtN(ecartType.toFixed(0))} \u20ac</div></div>
-      <div class="metric-box"><div class="metric-label">Votre bien</div><div class="metric-val">${fmtN(surface)} m\u00b2</div><div class="metric-sub">${typeBien}, ${nb_pieces} pi\u00e8ces</div></div>
-      <div class="metric-box"><div class="metric-label">DPE</div><div class="metric-val">${dpe}</div><div class="metric-sub">${(dpeAdj*100).toFixed(0)}% impact prix</div></div>
-      <div class="metric-box"><div class="metric-label">Marge d'erreur</div><div class="metric-val">\u00b1 ${marginPct}%</div><div class="metric-sub">${fmt(estPrice*(1-marginPct/100))} \u2014 ${fmt(estPrice*(1+marginPct/100))}</div></div>
-      <div class="metric-box"><div class="metric-label">Ajustement total</div><div class="metric-val">${(totalAdj*100)>=0?'+':''}${(totalAdj*100).toFixed(1)}%</div><div class="metric-sub">DPE + \u00e9tat + extras</div></div>
-      <div class="metric-box"><div class="metric-label">Derni\u00e8re transaction</div><div class="metric-val">${latestDate}</div><div class="metric-sub">${daysSince} jours</div></div>
-      ${z ? `
-      <div class="metric-box"><div class="metric-label">\u00c9volution 12 mois</div><div class="metric-val" style="color:${z.evolution_12m_zone>=0?'var(--accent-green)':'#ff6b6b'}">${z.evolution_12m_zone>=0?'+':''}${parseFloat(z.evolution_12m_zone).toFixed(1)}%</div><div class="metric-sub">Prix/m\u00b2 sur 1 an</div></div>
-      <div class="metric-box"><div class="metric-label">Population</div><div class="metric-val">${fmtN(z.population_commune)}</div><div class="metric-sub">Habitants</div></div>
-      <div class="metric-box"><div class="metric-label">Revenu m\u00e9dian</div><div class="metric-val">${fmtN(Math.round(z.revenu_median_zone))} \u20ac</div><div class="metric-sub">Foyer / an</div></div>
-      <div class="metric-box"><div class="metric-label">Ch\u00f4mage</div><div class="metric-val">${parseFloat(z.taux_chomage_zone).toFixed(1)}%</div><div class="metric-sub">Taux local</div></div>
-      ${z.part_proprietaires_zone ? `<div class="metric-box"><div class="metric-label">Propri\u00e9taires</div><div class="metric-val">${parseFloat(z.part_proprietaires_zone).toFixed(0)}%</div><div class="metric-sub">Part du parc</div></div>` : ''}
-      ${z.nb_entreprises_zone ? `<div class="metric-box"><div class="metric-label">Entreprises</div><div class="metric-val">${fmtN(z.nb_entreprises_zone)}</div><div class="metric-sub">Zone</div></div>` : ''}
-      ${z.nb_creations_12m ? `<div class="metric-box"><div class="metric-label">Cr\u00e9ations 12 mois</div><div class="metric-val">${fmtN(z.nb_creations_12m)}</div><div class="metric-sub">Nouvelles entreprises</div></div>` : ''}
-      ${z.score_vente ? `<div class="metric-box"><div class="metric-label">Score vente</div><div class="metric-val">${z.score_vente}/100</div><div class="metric-sub">Attractivit\u00e9 vendeur</div></div>` : ''}
-      ${z.score_renovation ? `<div class="metric-box"><div class="metric-label">Score r\u00e9novation</div><div class="metric-val">${z.score_renovation}/100</div><div class="metric-sub">Potentiel travaux</div></div>` : ''}
-      ${z.score_investissement ? `<div class="metric-box"><div class="metric-label">Score investissement</div><div class="metric-val">${z.score_investissement}/100</div><div class="metric-sub">Rendement locatif</div></div>` : ''}
-      ${z.rotation_quartier ? `<div class="metric-box"><div class="metric-label">Rotation march\u00e9</div><div class="metric-val">${parseFloat(z.rotation_quartier).toFixed(2)}%</div><div class="metric-sub">Turn-over annuel</div></div>` : ''}
-      ` : ''}`;
-
-    document.getElementById('result-card').classList.add('visible');
-    renderMLBlock(estPrice, typeBien, validDVF, supp);
-    renderAnalysis(validDVF, supp.dpe, supp.poi, conf, geo, supp.zone);
-    document.getElementById('analyse-section').classList.add('visible');
-    renderFicheInvestisseur({ estPrice, estPrixM2, medianPrixM2, q1, q3, surface, typeBien, dpe, nb_pieces, geo, zone: supp.zone });
-    // Bouton rénovation
-    const renovSect = document.getElementById('renov-est-section');
-    renovSect.style.display = 'block';
-    document.getElementById('btn-renov-est').onclick = null;
-    document.getElementById('btn-renov-est').addEventListener('click', function() {
-      const panel = document.getElementById('renov-est-panel');
-      if (panel.innerHTML) { panel.innerHTML = ''; return; }
-      renderRenovPanel(panel, dpe, surface, geo.commune, geo.citycode);
-    }, { once: true });
-    document.getElementById('result-card').scrollIntoView({ behavior:'smooth', block:'start' });
-
-  } catch (err) {
-    errorBox.textContent = err.message || 'Erreur lors du calcul.';
-    errorBox.classList.add('visible');
-  } finally {
-    btn.disabled = false; btn.textContent = 'Estimer';
-  }
-});
-
-// ── ML Block rendering ──
-function renderMLBlock(estPrice, typeBien, validDVF, supp) {
-  const isAppart = typeBien === 'Appartement';
-  const lowMult  = isAppart ? 0.82 : 0.78;
-  const highMult = isAppart ? 1.18 : 1.22;
-  const priceLow  = estPrice * lowMult;
-  const priceHigh = estPrice * highMult;
-
-  // 1. Fourchette
-  document.getElementById('ml-low').textContent       = fmt(priceLow);
-  document.getElementById('ml-high').textContent      = fmt(priceHigh);
-  document.getElementById('ml-low-label').textContent  = fmt(priceLow);
-  document.getElementById('ml-high-label').textContent = fmt(priceHigh);
-
-  // 2. Fiabilité (volume = nb transactions)
-  const vol = validDVF.length;
-  const badge  = document.getElementById('ml-fiability-badge');
-  const detail = document.getElementById('ml-fiability-detail');
-
-  // Count last-12-months transactions for display
-  const now = new Date();
-  const MS12 = 365 * 24 * 3600 * 1000;
-  const recent12 = validDVF.filter(r => (now - new Date(r.date || '2020-01-01')) <= MS12);
-
-  if (vol > 50) {
-    badge.textContent = '🟢 Estimation fiable';
-  } else if (vol >= 10) {
-    badge.textContent = '🟡 Estimation indicative';
-  } else {
-    badge.textContent = '🔴 Marché peu actif — à confirmer';
-  }
-  detail.textContent = `Basée sur ${recent12.length} vente${recent12.length > 1 ? 's' : ''} dans ce secteur (12 mois)`;
-
-  // 3. Facteurs clés
-  const factors = [];
-
-  // Transport
-  const scoreTransport = supp.poi?.score_transport;
-  if (scoreTransport != null) {
-    const positive = scoreTransport >= 37;
-    factors.push({
-      icon: '🚇',
-      name: 'Transports',
-      value: positive ? 'Bien desservi' : 'Transports limités',
-      cls: positive ? 'positive' : 'negative'
-    });
-  }
-
-  // Évolution marché (calculée depuis DVF)
-  const older12 = validDVF.filter(r => {
-    const d = now - new Date(r.date || '2020-01-01');
-    return d > MS12 && d <= 2 * MS12;
-  });
-  if (recent12.length >= 3 && older12.length >= 3) {
-    const med = arr => { const s = arr.map(r => r.prixM2).sort((a, b) => a - b); return s[Math.floor(s.length / 2)]; };
-    const evo = ((med(recent12) - med(older12)) / med(older12)) * 100;
-    factors.push({
-      icon: '📈',
-      name: 'Marché local',
-      value: `${evo >= 0 ? '+' : ''}${evo.toFixed(1)}% sur 12 mois`,
-      cls: evo >= 0 ? 'positive' : 'negative'
-    });
-  }
-
-  // DPE zone — passoires thermiques
-  if (supp.dpe) {
-    const pctPassoires = (supp.dpe.pct_f || 0) + (supp.dpe.pct_g || 0);
-    if (pctPassoires >= 20) {
-      factors.push({
-        icon: '⚡',
-        name: 'DPE du secteur',
-        value: `Potentiel de rénovation élevé (${pctPassoires.toFixed(0)}% de passoires F/G)`,
-        cls: 'negative'
-      });
-    } else {
-      factors.push({
-        icon: '⚡',
-        name: 'DPE du secteur',
-        value: `Bon profil énergétique (${pctPassoires.toFixed(0)}% de passoires F/G)`,
-        cls: 'positive'
-      });
-    }
-  }
-
-  // Éducation / services
-  const scoreGlobal = supp.poi?.score_global;
-  if (scoreGlobal != null) {
-    factors.push({
-      icon: '🏘️',
-      name: 'Services & équipements',
-      value: scoreGlobal >= 60 ? 'Secteur bien équipé' : scoreGlobal >= 35 ? 'Équipements corrects' : 'Services limités',
-      cls: scoreGlobal >= 60 ? 'positive' : scoreGlobal >= 35 ? 'neutral' : 'negative'
-    });
-  }
-
-  document.getElementById('ml-factors').innerHTML = factors.length
-    ? factors.map(f => `
-        <div class="ml-factor">
-          <div class="ml-factor-icon">${f.icon}</div>
-          <div class="ml-factor-text">
-            <div class="ml-factor-name">${f.name}</div>
-            <div class="ml-factor-value ${f.cls}">${f.value}</div>
+  <section class="app-result">
+    <div class="app-result-card reveal" data-delay="2" id="result-card">
+      <div id="result-placeholder" style="padding: 24px 0;">
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--mute); margin-bottom: 24px;">En attente d'une adresse</div>
+        <div style="font-family: 'Inter Tight', sans-serif; font-size: 32px; font-weight: 600; letter-spacing: -0.03em; line-height: 1.1; margin-bottom: 24px; color: var(--mute-2);">Entrez une adresse et lancez l'exploration pour obtenir une lecture.</div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 32px;">
+          <div style="padding: 16px; border: 1px solid var(--line); border-radius: 8px;">
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--mute); margin-bottom: 6px;">Sources croisées</div>
+            <div style="font-size: 13px;">DVF · DPE · BDNB · BAN · BPE</div>
           </div>
-        </div>`).join('')
-    : '<div style="color:var(--text-gray);font-size:0.9rem;">Données sectorielles non disponibles pour cette commune.</div>';
-
-  document.getElementById('ml-block').style.display = 'block';
-}
-
-// ═══════════════════════════════════════════════════════════════
-// MARKET ANALYSIS RENDERING
-// ═══════════════════════════════════════════════════════════════
-function renderAnalysis(dvf, dpe, poi, confidence, geo, zone) {
-  const byYear = {};
-  dvf.forEach(r => { const y = new Date(r.date||'2020-01-01').getFullYear(); if(!byYear[y]) byYear[y]=[]; byYear[y].push(r); });
-  const years = Object.keys(byYear).sort();
-  const pricesByYear = years.map(y => { const p = byYear[y].map(r=>r.prixM2).sort((a,b)=>a-b); return p.length ? p[Math.floor(p.length/2)] : null; });
-  const volumeByYear = years.map(y => byYear[y].length);
-
-  if (chartInstances.price) chartInstances.price.destroy();
-  chartInstances.price = new Chart(document.getElementById('priceChart'), {
-    type:'line',
-    data:{ labels:years, datasets:[{ label:'Prix m\u00e9dian/m\u00b2', data:pricesByYear, borderColor:'#00DC82', backgroundColor:'rgba(0,220,130,0.1)', tension:0.4, fill:true, pointRadius:5, pointBackgroundColor:'#00DC82' }] },
-    options:{ responsive:true, maintainAspectRatio:false,
-      plugins:{ legend:{display:false}, title:{ display:true, text:`\u00c9volution prix m\u00e9dian/m\u00b2 \u2014 ${geo.commune}`, color:'#fff', font:{size:14} } },
-      scales:{ y:{ beginAtZero:false, grid:{color:'#2A2A3E'}, ticks:{color:'#A0A0A0', callback:v=>v.toLocaleString('fr-FR')+' \u20ac'} }, x:{ grid:{display:false}, ticks:{color:'#A0A0A0'} } }
-    }
-  });
-
-  if (chartInstances.volume) chartInstances.volume.destroy();
-  chartInstances.volume = new Chart(document.getElementById('volumeChart'), {
-    type:'bar',
-    data:{ labels:years, datasets:[{ label:'Transactions', data:volumeByYear, backgroundColor:'rgba(0,220,130,0.6)', borderColor:'#00DC82', borderWidth:1 }] },
-    options:{ responsive:true, maintainAspectRatio:false,
-      plugins:{ legend:{display:false}, title:{ display:true, text:'Volume de transactions par ann\u00e9e', color:'#fff', font:{size:14} } },
-      scales:{ y:{ beginAtZero:true, grid:{color:'#2A2A3E'}, ticks:{color:'#A0A0A0'} }, x:{ grid:{display:false}, ticks:{color:'#A0A0A0'} } }
-    }
-  });
-
-  // DPE
-  const dpeColors = { A:'#319834', B:'#33cc31', C:'#cbfc34', D:'#fcfc32', E:'#fccc32', F:'#fc9834', G:'#fc0000' };
-  if (dpe) {
-    document.getElementById('dpe-dist').innerHTML = ['A','B','C','D','E','F','G'].map(l => {
-      const pct = dpe[`pct_${l.toLowerCase()}`] || 0;
-      return `<div class="dpe-bar"><div class="dpe-bar-fill" style="background:${dpeColors[l]};height:${Math.max(4,pct*2)}px;">${pct>5?pct.toFixed(0)+'%':''}</div><div class="dpe-bar-label">${l}</div></div>`;
-    }).join('');
-    // Calculer la classe dominante à partir des pourcentages
-    const letters = ['a','b','c','d','e','f','g'];
-    const dom = letters.reduce((mx, l) => (dpe[`pct_${l}`]||0) > (dpe[`pct_${mx}`]||0) ? l : mx, 'a').toUpperCase();
-    document.getElementById('dpe-info').innerHTML = `<p style="font-size:0.82rem;color:var(--text-gray);margin-top:0.8rem">Classe dominante : <strong style="color:#fff">${dom}</strong> · ${fmtN(dpe.nb_dpe||0)} DPE enregistrés</p>`;
-  } else {
-    document.getElementById('dpe-dist').innerHTML = '<p style="color:var(--text-gray);font-size:0.85rem;padding:1rem 0">Données DPE non disponibles pour cette commune.</p>';
-  }
-
-  // POI scores
-  const poiSrc = poi || null;
-  const scoreSrc = poiSrc || zone || null;
-  if (scoreSrc) {
-    const isPoi = !!poiSrc;
-    const scores = isPoi
-      ? [
-          { label:'Transports', key:'score_transport' },
-          { label:'Commerces', key:'score_commerce' },
-          { label:'Éducation', key:'score_education' },
-          { label:'Santé', key:'score_sante' },
-          { label:'Score global', key:'score_global' }
-        ]
-      : [
-          { label:'Transports', key:'score_transport' },
-          { label:'Commerces', key:'score_commerce' },
-          { label:'Éducation', key:'score_education' },
-          { label:'Santé', key:'score_sante' },
-          { label:'Cadre de vie', key:'score_cadre_vie' }
-        ];
-    document.getElementById('score-bars').innerHTML = scores.map(s => {
-      const v = scoreSrc[s.key] || 0;
-      const pct = Math.min(100, Math.round(v));
-      return `<div class="score-bar-item"><span class="score-bar-label">${s.label}</span><div class="score-bar-bg"><div class="score-bar-fill" style="--width:${pct}%"></div></div><span class="score-bar-val">${pct}/100</span></div>`;
-    }).join('') + (isPoi && poiSrc.nb_equipements ? `<p style="font-size:0.78rem;color:var(--text-gray);margin-top:0.8rem">${fmtN(poiSrc.nb_equipements)} équipements recensés · Scores normalisés 0-100</p>` : '');
-  }
-
-  // Confidence grid
-  const sources = [
-    { label:'Transactions DVF', ok: dvf.length >= 10, detail: `${dvf.length} ventes` },
-    { label:'Données DPE', ok: !!dpe, detail: dpe ? 'Disponible' : 'Absent' },
-    { label:'Équipements POI', ok: !!poi, detail: poi ? 'Disponible' : 'Absent' },
-    { label:'Fraîcheur données', ok: confidence >= 50, detail: confidence >= 50 ? 'Récentes' : 'Anciennes' }
-  ];
-  document.getElementById('conf-grid').innerHTML = sources.map(s =>
-    `<div style="background:rgba(13,13,13,0.6);border:1px solid ${s.ok?'rgba(0,220,130,0.3)':'var(--border-color)'};border-radius:8px;padding:0.8rem"><div style="font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-gray);margin-bottom:0.2rem">${s.label}</div><div style="font-size:0.9rem;font-weight:700;color:${s.ok?'#00DC82':'#ff6b6b'}">${s.detail}</div></div>`
-  ).join('');
-  document.getElementById('conf-score').textContent = Math.round(confidence);
-  if (confidence < 50) {
-    const w = document.getElementById('conf-warning');
-    w.textContent = 'Indice de confiance faible — estimation indicative uniquement. Données insuffisantes pour cette commune.';
-    w.classList.add('visible');
-  }
-}
-
-// ═══════════════════════════════════════════════════════════════
-// EXPLORER — PROFIL COMMUNE
-// ═══════════════════════════════════════════════════════════════
-document.getElementById('explorer-btn').addEventListener('click', async () => {
-  const input = document.getElementById('explorer-input').value.trim();
-  const errBox = document.getElementById('explorer-error');
-  const results = document.getElementById('explorer-results');
-  errBox.classList.remove('visible'); errBox.textContent = '';
-  results.classList.remove('visible');
-  if (!input) { errBox.textContent = 'Saisissez un code postal ou un nom de commune.'; errBox.classList.add('visible'); return; }
-
-  const btn = document.getElementById('explorer-btn');
-  btn.disabled = true; btn.textContent = 'Chargement...';
-
-  try {
-    const isCode = /^\d{5}$/.test(input);
-    const selFields = 'code_commune,code_postal,commune,prix_median_m2_zone,evolution_12m_zone,volume_transactions_zone,population_commune,revenu_median_zone,taux_chomage_zone,part_proprietaires_zone,score_transport,score_commerce,score_education,score_sante,score_cadre_vie,score_vente,score_renovation,score_investissement,dpe_classe,nb_entreprises_zone,nb_creations_12m,indice_dynamisme_eco,rotation_quartier';
-    let rows;
-    if (isCode) {
-      // Essai par code postal (usage naturel), fallback code INSEE
-      rows = await supaFetch('property_index', { code_postal: `eq.${input}`, select: selFields, limit: '1' });
-      if (!rows.length) rows = await supaFetch('property_index', { code_commune: `eq.${input}`, select: selFields, limit: '1' });
-    } else {
-      rows = await supaFetch('property_index', { commune: `ilike.${input}%`, select: selFields, limit: '1' });
-    }
-
-    if (!rows.length) throw new Error(`Commune "${input}" introuvable.`);
-    const c = rows[0];
-
-    // Données complémentaires POI + DPE
-    const [poiArr, dpeArr] = await Promise.all([
-      supaFetch('poi_scores_commune', { code_commune: `eq.${c.code_commune}`, limit: '1' }),
-      supaFetch('dpe_commune_agg', { code_postal: `eq.${c.code_postal}`, limit: '1' })
-    ]);
-    const poi = poiArr[0] || null;
-    const dpe = dpeArr[0] || null;
-
-    // Titre
-    document.getElementById('explorer-title').innerHTML = `<h4 style="font-family:'Space Grotesk',sans-serif;font-size:1.1rem;font-weight:700;color:var(--text-white)">${c.commune||input} <span style="font-size:0.85rem;font-weight:400;color:var(--text-gray)">· CP ${c.code_postal||'—'} · INSEE ${c.code_commune||'—'}</span></h4>`;
-
-    // KPIs principaux
-    const evo = c.evolution_12m_zone != null ? parseFloat(c.evolution_12m_zone) : null;
-    document.getElementById('explorer-kpis').innerHTML = [
-      { label:'Prix médian/m²', value: c.prix_median_m2_zone ? fmtN(Math.round(c.prix_median_m2_zone))+' €/m²' : '—', sub: c.volume_transactions_zone ? `${fmtN(c.volume_transactions_zone)} transactions` : '', accent: true },
-      { label:'Évolution 12 mois', value: evo != null ? `${evo>=0?'+':''}${evo.toFixed(1)}%` : '—', sub: 'Prix/m²', color: evo != null ? (evo>=0?'var(--accent-green)':'#ff6b6b') : '' },
-      { label:'Population', value: c.population_commune ? fmtN(c.population_commune) : '—', sub: 'Habitants' },
-      { label:'Revenu médian', value: c.revenu_median_zone ? fmtN(Math.round(c.revenu_median_zone))+' €' : '—', sub: 'Foyer / an' },
-      { label:'Taux de chômage', value: c.taux_chomage_zone != null ? parseFloat(c.taux_chomage_zone).toFixed(1)+'%' : '—', sub: 'Local' },
-      { label:'Propriétaires', value: c.part_proprietaires_zone != null ? parseFloat(c.part_proprietaires_zone).toFixed(0)+'%' : '—', sub: 'Part du parc' }
-    ].map(k => `<div class="kpi-card${k.accent?' accent':''}"><div class="kpi-label">${k.label}</div><div class="kpi-value"${k.color?` style="color:${k.color}"`:''}>${k.value}</div>${k.sub?`<div class="kpi-sub">${k.sub}</div>`:''}</div>`).join('');
-
-    // Sections profil (2x2)
-    const dpeColors2 = { a:'#319834', b:'#33cc31', c:'#cbfc34', d:'#fcfc32', e:'#fccc32', f:'#fc9834', g:'#fc0000' };
-    const dpeHtml = dpe
-      ? `<div class="dpe-bars" style="height:90px">${['a','b','c','d','e','f','g'].map(l=>{const p=dpe[`pct_${l}`]||0;return `<div class="dpe-bar"><div class="dpe-bar-fill" style="background:${dpeColors2[l]};height:${Math.max(4,p*2)}px;">${p>5?p.toFixed(0)+'%':''}</div><div class="dpe-bar-label">${l.toUpperCase()}</div></div>`;}).join('')}</div><p style="font-size:0.78rem;color:var(--text-gray);margin-top:0.5rem">${fmtN(dpe.nb_dpe||0)} DPE enregistrés</p>`
-      : '<p style="color:var(--text-gray);font-size:0.85rem">Données DPE non disponibles pour ce code postal.</p>';
-
-    const poiData = poi || c;
-    const poiHtml = (poi || c.score_transport)
-      ? ['score_transport','score_commerce','score_education','score_sante', poi ? 'score_global' : 'score_cadre_vie'].map(k=>{
-          const labels={score_transport:'Transports',score_commerce:'Commerces',score_education:'Éducation',score_sante:'Santé',score_global:'Score global',score_cadre_vie:'Cadre de vie'};
-          const v=Math.round(poiData[k]||0);
-          return `<div class="score-bar-item"><span class="score-bar-label">${labels[k]}</span><div class="score-bar-bg"><div class="score-bar-fill" style="--width:${v}%"></div></div><span class="score-bar-val">${v}/100</span></div>`;
-        }).join('') + (poi && poi.nb_equipements ? `<p style="font-size:0.78rem;color:var(--text-gray);margin-top:0.5rem">${fmtN(poi.nb_equipements)} équipements recensés</p>` : '')
-      : '<p style="color:var(--text-gray);font-size:0.85rem">Données POI non disponibles.</p>';
-
-    document.getElementById('explorer-profile').innerHTML = `
-      <div class="profile-section">
-        <h4>Distribution DPE — ${c.code_postal||'—'}</h4>
-        ${dpeHtml}
-      </div>
-      <div class="profile-section">
-        <h4>Équipements &amp; Services</h4>
-        ${poiHtml}
-      </div>
-      <div class="profile-section">
-        <h4>Marché immobilier</h4>
-        <div class="profile-row"><span class="label">Prix médian/m²</span><span class="value">${c.prix_median_m2_zone?fmtN(Math.round(c.prix_median_m2_zone))+' €':'—'}</span></div>
-        <div class="profile-row"><span class="label">Évolution 12 mois</span><span class="value" style="color:${evo!=null?(evo>=0?'var(--accent-green)':'#ff6b6b'):'inherit'}">${evo!=null?(evo>=0?'+':'')+evo.toFixed(1)+'%':'—'}</span></div>
-        <div class="profile-row"><span class="label">Volume transactions</span><span class="value">${c.volume_transactions_zone?fmtN(c.volume_transactions_zone):'—'}</span></div>
-        <div class="profile-row"><span class="label">Rotation du marché</span><span class="value">${c.rotation_quartier?parseFloat(c.rotation_quartier).toFixed(2)+'%':'—'}</span></div>
-        <div class="profile-row"><span class="label">DPE dominant (bien)</span><span class="value">${c.dpe_classe||'—'}</span></div>
-      </div>
-      <div class="profile-section">
-        <h4>Démographie &amp; Économie</h4>
-        <div class="profile-row"><span class="label">Population</span><span class="value">${c.population_commune?fmtN(c.population_commune):'—'}</span></div>
-        <div class="profile-row"><span class="label">Revenu médian</span><span class="value">${c.revenu_median_zone?fmtN(Math.round(c.revenu_median_zone))+' €':'—'}</span></div>
-        <div class="profile-row"><span class="label">Taux de chômage</span><span class="value">${c.taux_chomage_zone!=null?parseFloat(c.taux_chomage_zone).toFixed(1)+'%':'—'}</span></div>
-        <div class="profile-row"><span class="label">Part propriétaires</span><span class="value">${c.part_proprietaires_zone!=null?parseFloat(c.part_proprietaires_zone).toFixed(0)+'%':'—'}</span></div>
-        <div class="profile-row"><span class="label">Nb entreprises</span><span class="value">${c.nb_entreprises_zone?fmtN(c.nb_entreprises_zone):'—'}</span></div>
-        <div class="profile-row"><span class="label">Créations 12 mois</span><span class="value">${c.nb_creations_12m?fmtN(c.nb_creations_12m):'—'}</span></div>
-        <div class="profile-row"><span class="label">Dynamisme éco</span><span class="value">${c.indice_dynamisme_eco!=null?parseFloat(c.indice_dynamisme_eco).toFixed(1):'—'}</span></div>
-      </div>
-      ${(c.score_vente||c.score_renovation||c.score_investissement) ? `
-      <div class="profile-section" style="grid-column:1/-1">
-        <h4>Scores d'intérêt — ${c.commune||'—'}</h4>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0.8rem;margin-top:0.5rem">
-          ${c.score_vente?`<div><div style="font-size:0.72rem;font-weight:600;color:var(--text-gray);text-transform:uppercase;margin-bottom:0.3rem">Score vente</div><div class="score-bar-bg" style="height:10px"><div class="score-bar-fill" style="--width:${c.score_vente}%"></div></div><div style="font-size:0.85rem;font-weight:700;margin-top:0.3rem">${c.score_vente}/100 <span style="font-size:0.72rem;color:var(--text-gray);font-weight:400">Attractivité vendeur</span></div></div>`:''}
-          ${c.score_renovation?`<div><div style="font-size:0.72rem;font-weight:600;color:var(--text-gray);text-transform:uppercase;margin-bottom:0.3rem">Score rénovation</div><div class="score-bar-bg" style="height:10px"><div class="score-bar-fill" style="--width:${c.score_renovation}%"></div></div><div style="font-size:0.85rem;font-weight:700;margin-top:0.3rem">${c.score_renovation}/100 <span style="font-size:0.72rem;color:var(--text-gray);font-weight:400">Potentiel travaux</span></div></div>`:''}
-          ${c.score_investissement?`<div><div style="font-size:0.72rem;font-weight:600;color:var(--text-gray);text-transform:uppercase;margin-bottom:0.3rem">Score investissement</div><div class="score-bar-bg" style="height:10px"><div class="score-bar-fill" style="--width:${c.score_investissement}%"></div></div><div style="font-size:0.85rem;font-weight:700;margin-top:0.3rem">${c.score_investissement}/100 <span style="font-size:0.72rem;color:var(--text-gray);font-weight:400">Rendement locatif</span></div></div>`:''}
-        </div>
-      </div>` : ''}`;
-
-    results.classList.add('visible');
-    // Bouton rénovation Explorer
-    const renovExp = document.getElementById('btn-renov-explorer');
-    renovExp.onclick = null;
-    renovExp.addEventListener('click', function() {
-      const panel = document.getElementById('renov-explorer-panel');
-      if (panel.innerHTML) { panel.innerHTML = ''; return; }
-      const dpeCommune = c.dpe_classe || 'D';
-      renderRenovPanel(panel, dpeCommune, null, c.commune||input, c.code_commune);
-    }, { once: true });
-
-  } catch(err) {
-    errBox.textContent = err.message || 'Erreur lors du chargement.';
-    errBox.classList.add('visible');
-  } finally {
-    btn.disabled = false; btn.textContent = 'Explorer';
-  }
-});
-
-document.getElementById('explorer-input').addEventListener('keydown', e => {
-  if (e.key === 'Enter') document.getElementById('explorer-btn').click();
-});
-
-// ═══════════════════════════════════════════════════════════════
-// RÉNOVATION ÉNERGÉTIQUE
-// ═══════════════════════════════════════════════════════════════
-const DPE_CONSO = { A:50, B:90, C:150, D:230, E:330, F:450, G:600 };
-const DPE_CLR   = { A:'#319834', B:'#33cc31', C:'#cbfc34', D:'#fcfc32', E:'#fccc32', F:'#fc9834', G:'#fc0000' };
-const DPE_TGT   = { G:'E', F:'D', E:'C', D:'C', C:'B', B:'A', A:'A' };
-const PRIX_KWH  = 0.206;
-
-async function fetchRenovAids(codeInsee, revenClasse) {
-  const rows = await supaFetch('ref_renovation_aids', {
-    revenu_classe: `eq.${revenClasse}`,
-    select: 'geste_label,mpr_montant,cee_montant,mpr_accompagnee,total_aides',
-    order: 'total_aides.desc',
-    limit: '30'
-  });
-  return rows;
-}
-
-function renderRenovPanel(container, dpeClass, surface, communeNom, codeInsee) {
-  const dpe = (dpeClass||'D').toUpperCase();
-  const target = DPE_TGT[dpe] || 'C';
-  const curConso = DPE_CONSO[dpe] || 230;
-  const tgtConso = DPE_CONSO[target] || 150;
-  const surf = surface || 80;
-  const gainKwh = Math.max(0, (curConso - tgtConso) * surf);
-  const econAn = Math.round(gainKwh * PRIX_KWH);
-
-  container.innerHTML = `
-    <div class="renov-panel">
-      <h3>Rénovation énergétique — ${communeNom||'—'}</h3>
-      <div class="renov-dpe-row">
-        <div class="renov-dpe-item" style="border-color:${DPE_CLR[dpe]}50">
-          <div style="font-size:0.68rem;color:var(--text-gray);font-weight:600;text-transform:uppercase;margin-bottom:0.3rem">DPE actuel</div>
-          <div style="font-size:2.2rem;font-weight:700;color:${DPE_CLR[dpe]}">${dpe}</div>
-          <div style="font-size:0.76rem;color:var(--text-gray)">${curConso} kWh EP/m²/an</div>
-        </div>
-        <div class="renov-dpe-arrow">→</div>
-        <div class="renov-dpe-item" style="border-color:${DPE_CLR[target]}50">
-          <div style="font-size:0.68rem;color:var(--text-gray);font-weight:600;text-transform:uppercase;margin-bottom:0.3rem">Cible recommandée</div>
-          <div style="font-size:2.2rem;font-weight:700;color:${DPE_CLR[target]}">${target}</div>
-          <div style="font-size:0.76rem;color:var(--text-gray)">${tgtConso} kWh EP/m²/an</div>
-        </div>
-        <div class="renov-dpe-item" style="border-color:rgba(0,220,130,0.3)">
-          <div style="font-size:0.68rem;color:var(--text-gray);font-weight:600;text-transform:uppercase;margin-bottom:0.3rem">Économie estimée</div>
-          <div style="font-size:1.6rem;font-weight:700;color:var(--accent-green)">~${fmtN(econAn)} €</div>
-          <div style="font-size:0.76rem;color:var(--text-gray)">par an · ${fmtN(Math.round(gainKwh))} kWh</div>
+          <div style="padding: 16px; border: 1px solid var(--line); border-radius: 8px;">
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--mute); margin-bottom: 6px;">Modèle</div>
+            <div style="font-size: 13px;">XGBoost · 571 arbres · 43 features</div>
+          </div>
         </div>
       </div>
-      <div>
-        <p style="font-size:0.85rem;color:var(--text-gray);margin-bottom:0.7rem">Sélectionnez votre tranche de revenus pour voir les aides auxquelles vous êtes éligible :</p>
-        <div class="renov-tranche-btns" id="${container.id}-btns">
-          ${[['tres_modeste','Très modeste'],['modeste','Modeste'],['intermediaire','Intermédiaire'],['superieur','Supérieur']].map(([v,l])=>`<button class="renov-tranche-btn" data-val="${v}">${l}</button>`).join('')}
+
+      <div id="result-loading" style="display: none; padding: 60px 0; text-align: center;">
+        <div style="width: 24px; height: 24px; margin: 0 auto 20px; border: 2px solid var(--line); border-top-color: var(--ink); border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--mute);">Croisement des sources · géocodage BAN · prédiction XGBoost…</div>
+      </div>
+
+      <div id="result-data" style="display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+          <div>
+            <div id="result-address" style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--mute);">—</div>
+            <div id="result-bien" style="font-family: 'Inter Tight', sans-serif; font-size: 15px; font-weight: 500; margin-top: 6px;">—</div>
+          </div>
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #2563EB; padding: 3px 8px; border: 1px solid #2563EB; border-radius: 4px;">LIVE</span>
+        </div>
+
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--mute); margin-top: 8px;">Valeur de référence estimée</div>
+        <div class="amount" id="result-amount">—</div>
+        <div class="range" id="result-range">—</div>
+
+        <div class="app-confidence" id="cf-model"><strong>—</strong><span>—</span></div>
+        <div class="app-confidence" id="cf-time"><strong>—</strong><span>—</span></div>
+        <div class="app-confidence" id="cf-features"><strong>—</strong><span>—</span></div>
+        <div class="app-confidence" id="cf-risques"><strong>—</strong><span>—</span></div>
+
+        <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line); font-size: 12px; color: var(--mute); line-height: 1.5;">
+          Cette lecture est générée à partir de données publiques croisées. Elle <strong style="color: var(--ink);">ne constitue pas une expertise</strong> et ne saurait se substituer à un avis qualifié.
         </div>
       </div>
-      <div id="${container.id}-aides"></div>
-      <p class="renov-note">Montants indicatifs MaPrimeRénov 2026. Éligibilité soumise à conditions (résidence principale, logement &gt; 15 ans, plafonds de ressources ANAH). Les aides CEE sont versées par les fournisseurs d'énergie.</p>
-    </div>`;
 
-  container.querySelectorAll('.renov-tranche-btn').forEach(b => {
-    b.addEventListener('click', async () => {
-      container.querySelectorAll('.renov-tranche-btn').forEach(x => x.classList.remove('active'));
-      b.classList.add('active');
-      const aidesDiv = document.getElementById(`${container.id}-aides`);
-      aidesDiv.innerHTML = '<p style="color:var(--text-gray);font-size:0.85rem;padding:0.8rem 0">Chargement des aides...</p>';
-      const aids = await fetchRenovAids(codeInsee, b.dataset.val);
-      if (!aids.length) {
-        aidesDiv.innerHTML = '<p style="color:var(--text-gray);font-size:0.85rem;padding:0.8rem 0">Aucune donnée disponible pour cette tranche — barème national MaPrimeRénov 2026.</p>';
-        return;
+      <div id="result-error" style="display: none; padding: 40px 0;">
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #9B3A2F; margin-bottom: 8px;">Erreur</div>
+        <div id="result-error-msg" style="font-size: 14px; color: var(--ink);">—</div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script src="./assets/script.js"></script>
+<script>
+(() => {
+  const API_URL = 'https://wwvdpixzfaviaapixarb.supabase.co/functions/v1/ml-predict';
+  const ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3dmRwaXh6ZmF2aWFhcGl4YXJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3Mzk0NDgsImV4cCI6MjA5MDMxNTQ0OH0.NjOeWzUCo2BJPcxnkEJNm215GJBr1RAHba1eL_EF758';
+
+  const fmtEUR = (n) => new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(n);
+  const fmtNum = (n) => new Intl.NumberFormat('fr-FR').format(n);
+  const $ = (id) => document.getElementById(id);
+
+  const switchState = (state) => {
+    ['placeholder', 'loading', 'data', 'error'].forEach(s => {
+      const el = $('result-' + s);
+      if (el) el.style.display = (s === state) ? 'block' : 'none';
+    });
+  };
+
+  const setError = (msg) => { $('result-error-msg').textContent = msg; switchState('error'); };
+
+  const renderResult = (result, input) => {
+    $('result-address').textContent = 'Lecture · ' + (input.adresse || input.code_postal || '');
+    const biens = [input.type_bien];
+    if (input.surface) biens.push(input.surface + ' m²');
+    if (input.nb_pieces) biens.push(input.nb_pieces + ' pièces');
+    $('result-bien').textContent = biens.join(' · ');
+
+    $('result-amount').textContent = fmtEUR(result.prediction.prix_total);
+    $('result-range').textContent = fmtEUR(result.prediction.fourchette_basse) + ' — ' + fmtEUR(result.prediction.fourchette_haute) + ' · ' + fmtNum(result.prediction.prix_m2) + ' €/m²';
+
+    const m = result.model || {};
+    $('cf-model').innerHTML = '<strong>' + (m.type || '—') + ' · ' + (m.n_trees || '—') + ' arbres</strong><span>' + (m.id || '') + '</span>';
+
+    const meta = result.metadata || {};
+    $('cf-time').innerHTML = '<strong>Calcul ' + (meta.processing_time_ms ? meta.processing_time_ms + ' ms' : '—') + '</strong><span>' + (meta.version || '') + '</span>';
+    $('cf-features').innerHTML = '<strong>' + (meta.features_non_null || '—') + ' / ' + (meta.features_used || '—') + ' features actives</strong><span>KNN ' + (meta.knn_available ? 'disponible' : 'indisponible') + '</span>';
+
+    const r = result.risques || {};
+    const risquesList = [];
+    if (r.inondation) risquesList.push('inondation');
+    if (r.argile) risquesList.push('argile');
+    if (r.seisme) risquesList.push('séisme');
+    if (r.radon) risquesList.push('radon');
+    $('cf-risques').innerHTML = '<strong>' + (risquesList.length ? risquesList.length + ' risque' + (risquesList.length > 1 ? 's' : '') : 'Aucun risque flagué') + '</strong><span>' + (risquesList.join(' · ') || 'Source : Géorisques') + '</span>';
+
+    switchState('data');
+  };
+
+  const getFormData = () => {
+    const f = $('explore-form');
+    const g = (name) => {
+      const el = f.elements[name];
+      return el && el.value ? el.value.trim() : '';
+    };
+    return {
+      adresse: g('adresse'),
+      type_bien: g('type') === 'Maison' ? 'Maison' : 'Appartement',
+      surface: Number(g('surface')) || undefined,
+      nb_pieces: g('pieces') ? Number(g('pieces')) : undefined,
+    };
+  };
+
+  const form = $('explore-form');
+  if (form) {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const input = getFormData();
+
+      if (!input.adresse) { setError('Entrez une adresse complète (ex. 44 Grande Rue, 60420 Coivrel).'); return; }
+      if (!input.surface || input.surface < 9) { setError('La surface doit être supérieure à 9 m².'); return; }
+
+      switchState('loading');
+      $('submit-btn').disabled = true;
+
+      try {
+        const resp = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + ANON_KEY },
+          body: JSON.stringify(input),
+        });
+        if (!resp.ok) {
+          const text = await resp.text();
+          throw new Error('Erreur API (' + resp.status + ') : ' + text.slice(0, 200));
+        }
+        const result = await resp.json();
+        if (result.error) throw new Error(result.error + (result.detail ? ' — ' + result.detail : ''));
+        renderResult(result, input);
+      } catch (err) {
+        setError(err.message || 'Erreur réseau.');
+      } finally {
+        $('submit-btn').disabled = false;
       }
-      aidesDiv.innerHTML = `
-        <h4 style="font-family:'Space Grotesk',sans-serif;font-size:0.95rem;font-weight:700;margin:1.2rem 0 0.8rem;color:var(--accent-green)">Aides disponibles — ${b.textContent}</h4>
-        <div class="aide-grid">
-          ${aids.map(a=>`
-            <div class="aide-card">
-              <div class="aide-geste">${a.geste_label}</div>
-              <div class="aide-montants">
-                ${parseFloat(a.mpr_montant)>0?`<span class="aide-badge mpr">MaPrimeRénov ${fmtN(a.mpr_montant)} €</span>`:''}
-                ${parseFloat(a.cee_montant)>0?`<span class="aide-badge cee">CEE ${fmtN(a.cee_montant)} €</span>`:''}
-                ${parseFloat(a.mpr_accompagnee)>0?`<span class="aide-badge acc">Accompagnée ${fmtN(a.mpr_accompagnee)} €</span>`:''}
-              </div>
-              <div class="aide-total">Total estimé : <strong style="color:var(--text-white)">${fmtN(a.total_aides)} €</strong></div>
-            </div>`).join('')}
-        </div>`;
     });
-  });
-}
-
-// ═══════════════════════════════════════════════════════════════
-// FICHE INVESTISSEUR / PROSPECT
-// ═══════════════════════════════════════════════════════════════
-async function renderFicheInvestisseur({ estPrice, estPrixM2, medianPrixM2, q1, q3, surface, typeBien, dpe, nb_pieces, geo, zone }) {
-  const ficheDiv = document.getElementById('fiche-investisseur');
-  ficheDiv.style.display = 'none';
-  ficheDiv.innerHTML = '';
-
-  // Fetch loyers observés
-  let loyerMensuel = null;
-  try {
-    const loyerRows = await supaFetch('data_loyers_observes', {
-      code_commune: `eq.${geo.citycode}`,
-      limit: '1'
-    });
-    if (loyerRows.length && loyerRows[0].loyer_median_m2) {
-      loyerMensuel = parseFloat(loyerRows[0].loyer_median_m2) * surface;
-    }
-  } catch(e) { console.error('Loyers fetch error:', e); }
-
-  const loyerAnnuel = loyerMensuel ? loyerMensuel * 12 : null;
-  const rendementBrut = (loyerAnnuel && estPrice > 0) ? (loyerAnnuel / estPrice * 100) : null;
-
-  const today = new Date().toLocaleDateString('fr-FR', { year:'numeric', month:'long', day:'numeric' });
-  const dpeUp = (dpe || 'D').toUpperCase();
-  const showRenov = ['F','G'].includes(dpeUp);
-
-  const DPE_CONSO_F = { A:50, B:90, C:150, D:230, E:330, F:450, G:600 };
-  const DPE_TGT_F   = { G:'E', F:'D', E:'C', D:'C', C:'B', B:'A', A:'A' };
-  const targetDpe   = DPE_TGT_F[dpeUp] || 'C';
-  const curConso    = DPE_CONSO_F[dpeUp] || 230;
-  const tgtConso    = DPE_CONSO_F[targetDpe] || 150;
-  const gainKwh     = Math.max(0, (curConso - tgtConso) * surface);
-  const econAn      = Math.round(gainKwh * PRIX_KWH);
-
-  const evo12m      = zone?.evolution_12m_zone != null ? parseFloat(zone.evolution_12m_zone) : null;
-  const volumeTx    = zone?.volume_transactions_zone || null;
-  const scoreInvest = zone?.score_investissement != null ? zone.score_investissement : null;
-  const scoreRenov  = zone?.score_renovation != null ? zone.score_renovation : null;
-
-  function scoreClass(s) {
-    if (s == null) return '';
-    if (s >= 65) return 'good';
-    if (s >= 40) return 'medium';
-    return 'low';
   }
-
-  const prixMedianZone = medianPrixM2 * surface;
-
-  ficheDiv.innerHTML = `
-  <div class="fi-card">
-    <div class="fi-header">
-      <div>
-        <div class="fi-header-title">Analyse immobilière — ${geo.label}</div>
-        <div class="fi-header-sub">${typeBien} · ${fmtN(surface)} m² · DPE ${dpeUp} · ${nb_pieces} pièce${nb_pieces > 1 ? 's' : ''}</div>
-      </div>
-      <div class="fi-logo">Intent Analytics<span>Généré le ${today}</span></div>
-    </div>
-
-    <div class="fi-section">
-      <div class="fi-section-title">1 — Synthèse bien &amp; marché</div>
-      <div class="fi-grid">
-        <div>
-          <div class="fi-item-label">Prix estimé</div>
-          <div class="fi-item-val">${fmt(estPrice)}</div>
-          <div class="fi-item-sub">Fourchette ${fmt(q1 * surface)} — ${fmt(q3 * surface)}</div>
-        </div>
-        <div>
-          <div class="fi-item-label">Prix médian du secteur</div>
-          <div class="fi-item-val">${fmt(prixMedianZone)}</div>
-          <div class="fi-item-sub">${fmtN(medianPrixM2.toFixed(0))} €/m² × ${fmtN(surface)} m²</div>
-        </div>
-        <div>
-          <div class="fi-item-label">Évolution 12 mois</div>
-          <div class="fi-item-val" style="color:${evo12m != null ? (evo12m >= 0 ? '#1a7a3c' : '#c0392b') : '#1a1a1a'}">${evo12m != null ? (evo12m >= 0 ? '+' : '') + evo12m.toFixed(1) + ' %' : '—'}</div>
-          <div class="fi-item-sub">Prix/m² local</div>
-        </div>
-        <div>
-          <div class="fi-item-label">Volume transactions</div>
-          <div class="fi-item-val">${volumeTx ? fmtN(volumeTx) : '—'}</div>
-          <div class="fi-item-sub">Dynamisme du marché</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="fi-section">
-      <div class="fi-section-title">2 — Potentiel investissement</div>
-      <div class="fi-grid">
-        <div>
-          <div class="fi-item-label">Loyer estimé / mois</div>
-          <div class="fi-item-val">${loyerMensuel ? fmt(Math.round(loyerMensuel)) : 'N/D'}</div>
-          <div class="fi-item-sub">${loyerMensuel ? 'Loyer médian observé × surface' : 'Données non disponibles pour cette commune'}</div>
-        </div>
-        <div>
-          <div class="fi-item-label">Rendement brut estimé</div>
-          <div class="fi-item-val">${rendementBrut ? rendementBrut.toFixed(2) + ' %' : '—'}</div>
-          <div class="fi-item-sub">${rendementBrut ? '(loyer annuel / prix estimé) × 100' : loyerMensuel ? '' : 'Loyer requis'}</div>
-        </div>
-        ${scoreInvest != null ? `
-        <div>
-          <div class="fi-item-label">Score investissement</div>
-          <div class="fi-item-val"><span class="fi-score ${scoreClass(scoreInvest)}">${scoreInvest}/100</span></div>
-          <div class="fi-item-sub">Attractivité locative du secteur</div>
-        </div>` : ''}
-      </div>
-    </div>
-
-    ${showRenov ? `
-    <div class="fi-section">
-      <div class="fi-section-title">3 — Potentiel rénovation énergétique</div>
-      <div class="fi-grid">
-        <div>
-          <div class="fi-item-label">Classe DPE</div>
-          <div class="fi-item-val">${dpeUp} → ${targetDpe}</div>
-          <div class="fi-item-sub">Actuelle → cible recommandée</div>
-        </div>
-        <div>
-          <div class="fi-item-label">Économie annuelle estimée</div>
-          <div class="fi-item-val">~${fmtN(econAn)} €/an</div>
-          <div class="fi-item-sub">${fmtN(Math.round(gainKwh))} kWh · ${curConso}→${tgtConso} kWh EP/m²/an</div>
-        </div>
-        ${scoreRenov != null ? `
-        <div>
-          <div class="fi-item-label">Score rénovation</div>
-          <div class="fi-item-val"><span class="fi-score ${scoreClass(scoreRenov)}">${scoreRenov}/100</span></div>
-          <div class="fi-item-sub">Potentiel travaux du secteur</div>
-        </div>` : ''}
-      </div>
-    </div>` : ''}
-
-    <button id="btn-pdf-fiche" onclick="window.print()">Exporter en PDF</button>
-  </div>`;
-
-  ficheDiv.style.display = 'block';
-}
+})();
 </script>
 </body>
 </html>

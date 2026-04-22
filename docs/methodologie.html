@@ -1,350 +1,153 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="robots" content="noindex, nofollow" />
-    <title>Méthodologie — Intent Analytics</title>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg: #0D0D0D;
-            --bg-alt: #1A1A2E;
-            --accent: #00DC82;
-            --accent-light: rgba(0, 220, 130, 0.08);
-            --text-primary: #FFFFFF;
-            --text-secondary: #A0A0A0;
-            --border: #2A2A3E;
-            --card-bg: rgba(26, 26, 46, 0.5);
-            --nav-bg: rgba(13, 13, 13, 0.95);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            background-color: var(--bg);
-            color: var(--text-primary);
-            font-family: 'Inter', sans-serif;
-            font-weight: 400;
-            line-height: 1.6;
-            overflow-x: hidden;
-        }
-
-        a {
-            color: var(--accent);
-            text-decoration: none;
-            border-bottom: 2px solid transparent;
-            transition: border-color 0.2s;
-        }
-
-        a:hover {
-            border-color: var(--accent);
-        }
-
-        nav {
-            background: var(--nav-bg);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--border);
-            padding: 1.5rem 5%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .nav-logo {
-            font-family: 'Space Grotesk', sans-serif;
-            font-weight: 700;
-            font-size: 1.3rem;
-            color: var(--accent);
-            text-decoration: none;
-        }
-
-        .nav-links {
-            display: flex;
-            list-style: none;
-            gap: 2rem;
-            align-items: center;
-        }
-
-        .nav-links a {
-            color: var(--text-primary);
-            font-weight: 500;
-            transition: color 0.2s;
-            min-height: 44px;
-            display: flex;
-            align-items: center;
-            border-bottom: 2px solid transparent;
-        }
-
-        .nav-links a:hover {
-            color: var(--accent);
-            border-color: var(--accent);
-        }
-
-        .hamburger {
-            display: none;
-            flex-direction: column;
-            gap: 6px;
-            cursor: pointer;
-            padding: 8px;
-            background: none;
-            border: none;
-        }
-
-        .hamburger span {
-            display: block;
-            width: 24px;
-            height: 2px;
-            background: var(--text-primary);
-            transition: 0.3s;
-        }
-
-        .hamburger.active span:nth-child(1) {
-            transform: rotate(45deg) translate(8px, 8px);
-        }
-
-        .hamburger.active span:nth-child(2) {
-            opacity: 0;
-        }
-
-        .hamburger.active span:nth-child(3) {
-            transform: rotate(-45deg) translate(7px, -6px);
-        }
-
-        main {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 4rem 5%;
-        }
-
-        h1 {
-            font-family: 'Space Grotesk', sans-serif;
-            font-weight: 700;
-            font-size: clamp(2rem, 5vw, 3rem);
-            margin-bottom: 1rem;
-            color: var(--text-primary);
-        }
-
-        .intro {
-            font-size: 1.1rem;
-            color: var(--text-secondary);
-            margin-bottom: 3rem;
-            line-height: 1.8;
-        }
-
-        h2 {
-            font-family: 'Space Grotesk', sans-serif;
-            font-weight: 700;
-            font-size: clamp(1.4rem, 4vw, 1.8rem);
-            margin-top: 3rem;
-            margin-bottom: 1.5rem;
-            color: var(--accent);
-        }
-
-        section p {
-            margin-bottom: 1.2rem;
-            color: var(--text-secondary);
-            line-height: 1.8;
-        }
-
-        ol {
-            margin-left: 1.5rem;
-            margin-bottom: 2rem;
-        }
-
-        li {
-            margin-bottom: 0.8rem;
-            color: var(--text-secondary);
-            line-height: 1.8;
-        }
-
-        .table-container {
-            overflow-x: auto;
-            margin: 2rem 0;
-            border-radius: 12px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background-color: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-        }
-
-        th {
-            background-color: var(--accent-light);
-            padding: 1rem;
-            text-align: left;
-            font-family: 'Space Grotesk', sans-serif;
-            font-weight: 700;
-            color: var(--accent);
-            border-bottom: 2px solid var(--border);
-        }
-
-        td {
-            padding: 1rem;
-            border-bottom: 1px solid var(--border);
-            color: var(--text-secondary);
-        }
-
-        tr:hover {
-            background-color: var(--accent-light);
-        }
-
-        tr:last-child td {
-            border-bottom: none;
-        }
-
-        .section-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-            margin: 2rem 0;
-        }
-
-        .grid-item {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 1.5rem;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-        }
-
-        .grid-item h3 {
-            font-family: 'Space Grotesk', sans-serif;
-            font-weight: 700;
-            color: var(--accent);
-            margin-bottom: 0.8rem;
-            font-size: 1.1rem;
-        }
-
-        .grid-item p {
-            margin-bottom: 0;
-            font-size: 0.95rem;
-        }
-
-        footer {
-            background-color: var(--bg-alt);
-            border-top: 1px solid var(--border);
-            padding: 3rem 5%;
-            margin-top: 6rem;
-            text-align: center;
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            line-height: 1.8;
-        }
-
-        footer a {
-            color: var(--accent);
-            border-bottom: 2px solid transparent;
-            transition: border-color 0.2s;
-        }
-
-        footer a:hover {
-            border-color: var(--accent);
-        }
-
-        @media (max-width: 768px) {
-            nav {
-                padding: 1rem 5%;
-                flex-direction: row;
-            }
-
-            .nav-links {
-                display: none;
-                position: absolute;
-                top: 100%;
-                left: 0;
-                right: 0;
-                flex-direction: column;
-                background: var(--nav-bg);
-                border-bottom: 1px solid var(--border);
-                padding: 1rem 5%;
-                gap: 0;
-                z-index: 99;
-            }
-
-            .nav-links.active {
-                display: flex;
-            }
-
-            .nav-links li {
-                min-height: 44px;
-                display: flex;
-                align-items: center;
-            }
-
-            .hamburger {
-                display: flex;
-            }
-
-            h1 {
-                font-size: 2rem;
-            }
-
-            h2 {
-                font-size: 1.4rem;
-            }
-
-            main {
-                padding: 2rem 5%;
-            }
-
-            table {
-                font-size: 0.9rem;
-            }
-
-            th, td {
-                padding: 0.75rem;
-            }
-
-            .intro {
-                font-size: 1rem;
-            }
-        }
-    </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Méthodologie — Intent Analytics</title>
+<meta name="description" content="Pipeline de collecte, nettoyage et croisement. Indice de confiance et journal d'audit." />
+<meta name="robots" content="noindex, nofollow" />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect width='24' height='24' rx='5' fill='black'/><path d='M6 17V7l6 6 6-6v10' stroke='white' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Inter+Tight:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="./assets/style.css" />
 </head>
 <body>
-    <nav>
-        <a href="/" class="nav-logo">Intent Analytics</a>
-        <button class="hamburger" onclick="this.classList.toggle('active'); document.querySelector('.nav-links').classList.toggle('active');">
-            <span></span>
-            <span></span>
-            <span></span>
-        </button>
-        <ul class="nav-links">
-            <li><a href="/projet">Le projet</a></li>
-            <li><a href="/donnees">Données</a></li>
-            <li><a href="/methodologie">Méthodologie</a></li>
-            <li><a href="/explorations">Explorations</a></li>
-            <li><a href="/renovation-energetique">Rénovation énergétique</a></li>
-            <li><a href="/a-propos">À propos</a></li>
-        </ul>
-    </nav>
 
-    <main>
-        <h1>Méthodologie</h1>
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="./index.html" class="brand">
+      <span class="brand-mark"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 17V7l6 6 6-6v10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      Intent Analytics
+    </a>
+    <ul class="nav-links">
+      <li><a href="./index.html">Accueil</a></li>
+      <li><a href="./projet.html">Projet</a></li>
+      <li><a href="./donnees.html">Données</a></li>
+      <li><a href="./methodologie.html" class="active">Méthodologie</a></li>
+      <li><a href="./explorations.html">Explorations</a></li>
+      <li><a href="./renovation-energetique.html">Rénovation</a></li>
+    </ul>
+    <div class="nav-actions">
+      <a href="./a-propos.html" class="btn">À propos</a>
+      <a href="./explorations.html" class="btn btn-primary">Explorer<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M7 7h10v10"/></svg></a>
+    </div>
+    <button class="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+  </div>
+</nav>
 
-        <section>
-            <p>Les analyses reposent sur des données publiques officielles. Les données sont collectées, nettoyées et croisées par territoire.</p>
-            <p>Un indice de confiance accompagne chaque résultat.</p>
-        </section>
+<div class="mobile-overlay"></div>
+<aside class="mobile-drawer">
+  <button class="mobile-close">✕</button>
+  <a href="./index.html">Accueil</a><a href="./projet.html">Projet</a><a href="./donnees.html">Données</a><a href="./methodologie.html">Méthodologie</a><a href="./explorations.html">Explorations</a><a href="./renovation-energetique.html">Rénovation</a><a href="./a-propos.html">À propos</a>
+</aside>
 
-    </main>
+<header class="wrap">
+  <div class="page-head reveal">
+    <span class="eyebrow">03 · Approche</span>
+    <h1>Comment la donnée devient lisible.</h1>
+    <p class="lead">Chaque source suit le même pipeline documenté. <strong>Traçabilité, reproductibilité, indice de confiance</strong> par enregistrement.</p>
+  </div>
+</header>
 
-    <footer>
-        Intent Analytics — Exploration de données territoriales<br>
-        <a href="mailto:contact@intentanalytics.fr">contact@intentanalytics.fr</a><br>
-        <a href="/legal/mentions-legales">Mentions légales</a> • <a href="/legal/cgu">CGU</a> • <a href="/legal/politique-confidentialite">Confidentialité</a><br>
-        © 2026 Intent Analytics
-    </footer>
+<section class="wrap">
+  <div class="method-grid">
+    <div class="step reveal"><div class="step-num">01</div><h3>Collecte</h3><p>Récupération programmée depuis les API et miroirs publics. Versioning par millésime source.</p></div>
+    <div class="step reveal" data-delay="1"><div class="step-num">02</div><h3>Nettoyage</h3><p>Typage strict, normalisation adresses via BAN, déduplication, rejet des enregistrements aberrants.</p></div>
+    <div class="step reveal" data-delay="2"><div class="step-num">03</div><h3>Croisement</h3><p>Liaison inter-sources par ban_id, code_insee, id_parcelle. Scoring de la qualité du match.</p></div>
+    <div class="step reveal" data-delay="3"><div class="step-num">04</div><h3>Exposition</h3><p>Indicateurs dérivés, vues statistiques, journal d'audit public, mise à jour incrémentale.</p></div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="prose reveal">
+
+      <h2>1 · Collecte</h2>
+      <p>Les données sources sont récupérées en continu via des edge functions dédiées. Chaque source a son propre orchestrateur et sa propre queue de téléchargement. Les millésimes sont conservés afin de pouvoir rejouer l'historique si nécessaire.</p>
+      <ul>
+        <li>DVF : téléchargement semestriel depuis <a href="https://files.data.gouv.fr" target="_blank" rel="noopener">files.data.gouv.fr</a>, par département.</li>
+        <li>DPE : ingestion mensuelle de l'API ADEME, avec filtrage des diagnostics pertinents.</li>
+        <li>BDNB : ingestion des archives CSV 2025-07 depuis <a href="https://open-data.s3.fr-par.scw.cloud" target="_blank" rel="noopener">open-data.s3.fr-par.scw.cloud</a>, département par département.</li>
+        <li>BAN : réconciliation hebdomadaire du référentiel national.</li>
+        <li>BPE, IRIS, Cadastre : synchronisation annuelle ou trimestrielle selon fréquence source.</li>
+      </ul>
+
+      <h2>2 · Nettoyage</h2>
+      <p>Les enregistrements bruts passent par une série de filtres :</p>
+      <table>
+        <thead><tr><th>Filtre</th><th>Action</th><th>Sources concernées</th></tr></thead>
+        <tbody>
+          <tr><td>Types stricts</td><td>Cast numérique, date ISO, booléens uniformes</td><td>Toutes</td></tr>
+          <tr><td>Valeurs manquantes</td><td>Rejet si champs critiques absents</td><td>DVF, DPE</td></tr>
+          <tr><td>Ventes groupées</td><td>Flag is_vente_groupee exclu du prix/m²</td><td>DVF</td></tr>
+          <tr><td>Surface aberrante</td><td>Rejet si &lt; 9 m² ou &gt; 500 m² en résidentiel</td><td>DVF, DPE</td></tr>
+          <tr><td>Prix aberrant</td><td>Rejet si hors 3σ de la distribution commune</td><td>DVF</td></tr>
+          <tr><td>Déduplication</td><td>Conservation du plus récent par clé unique</td><td>Toutes</td></tr>
+        </tbody>
+      </table>
+
+      <h2>3 · Croisement</h2>
+      <p>Le cœur du projet : rattacher chaque enregistrement à un ban_id, identifiant d'adresse pérenne qui sert de pivot universel.</p>
+
+      <div class="callout">
+        <strong>Fonction canonique score_ban_candidate()</strong>
+        <p>Pour chaque paire (enregistrement source, adresse BAN candidate), un score est calculé à partir de quatre signaux : similarité trigram du nom de voie, égalité du numéro, égalité du code commune, distance géodésique.</p>
+      </div>
+
+      <table>
+        <thead><tr><th>Niveau</th><th>Score</th><th>Critères</th></tr></thead>
+        <tbody>
+          <tr><td>exact</td><td>100</td><td>numéro ✓, voie sim ≥ 0,95, commune ✓, dist ≤ 20 m</td></tr>
+          <tr><td>high</td><td>85</td><td>numéro ✓, voie sim ≥ 0,80, commune ✓, dist ≤ 50 m</td></tr>
+          <tr><td>good</td><td>70</td><td>voie sim ≥ 0,70, commune ✓, dist ≤ 100 m</td></tr>
+          <tr><td>medium</td><td>55</td><td>voie sim ≥ 0,55, commune ✓, dist ≤ 150 m</td></tr>
+          <tr><td>low</td><td>40</td><td>voie sim ≥ 0,40 ou dist ≤ 250 m</td></tr>
+          <tr><td>weak</td><td>20</td><td>tous autres cas — candidat à purge</td></tr>
+        </tbody>
+      </table>
+
+      <p>Le score est stocké dans la colonne ban_match_score de chaque table, aux côtés de ban_match_method et ban_match_scored_at. Les enregistrements sous seuil (&lt; 40) voient leur lien ban_id remis à NULL automatiquement, puis un nouveau matching est tenté avec une recherche élargie.</p>
+
+      <h2>4 · Exposition</h2>
+      <p>Les indicateurs dérivés sont calculés à partir des données croisées :</p>
+      <ul>
+        <li><strong>Prix médian / m²</strong> par commune et typologie, sur fenêtre glissante de 24 mois.</li>
+        <li><strong>Distribution des classes DPE</strong> par IRIS et commune.</li>
+        <li><strong>Score équipements</strong> basé sur la densité et la diversité BPE à 800 m autour de chaque adresse.</li>
+        <li><strong>Index de liquidité</strong> marché : volume trimestriel et délai médian de commercialisation.</li>
+      </ul>
+
+      <h2>Gouvernance qualité</h2>
+      <p>Un journal d'audit consigne chaque correction automatique : ré-attribution d'un ban_id suite à un score insuffisant, purge d'enregistrement aberrant, transition d'état d'un cron de reconcile.</p>
+
+      <div class="callout">
+        <strong>Transparence par défaut.</strong>
+        <p>L'ensemble de la méthodologie est documenté en SQL dans le dépôt technique. Les seuils, les règles de filtrage, les fonctions de scoring sont ouverts à la revue.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="./index.html" class="brand">
+          <span class="brand-mark"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 17V7l6 6 6-6v10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          Intent Analytics
+        </a>
+        <p>Exploration de données publiques territoriales françaises.</p>
+      </div>
+      <div><h4>DÉCOUVRIR</h4><ul><li><a href="./projet.html">Le projet</a></li><li><a href="./donnees.html">Données</a></li><li><a href="./methodologie.html">Méthodologie</a></li><li><a href="./explorations.html">Explorations</a></li><li><a href="./renovation-energetique.html">Rénovation</a></li></ul></div>
+      <div><h4>SOURCES</h4><ul><li><a href="https://data.gouv.fr" target="_blank" rel="noopener">data.gouv.fr ↗</a></li><li><a href="https://data.ademe.fr" target="_blank" rel="noopener">data.ademe.fr ↗</a></li><li><a href="https://adresse.data.gouv.fr" target="_blank" rel="noopener">adresse.data.gouv ↗</a></li><li><a href="https://www.insee.fr" target="_blank" rel="noopener">insee.fr ↗</a></li></ul></div>
+      <div><h4>CONTACT</h4><ul><li><a href="mailto:contact@intentanalytics.fr">contact@intentanalytics.fr</a></li><li><a href="./a-propos.html">À propos</a></li></ul></div>
+    </div>
+    <div class="footer-bottom"><span>© 2026 Intent Analytics</span><ul><li><a href="./legal/mentions-legales.html">Mentions légales</a></li><li><a href="./legal/cgu.html">CGU</a></li><li><a href="./legal/politique-confidentialite.html">Confidentialité</a></li></ul></div>
+  </div>
+</footer>
+
+<script src="./assets/script.js"></script>
 </body>
 </html>
