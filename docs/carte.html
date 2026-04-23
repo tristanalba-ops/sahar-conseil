@@ -787,6 +787,7 @@ function renderAll(d){
   safeCall(doEstim,d);safeCall(loadSirene,d);safeCall(renderAides,d);
   safeCall(loadMapLayers,d);safeCall(rcadastre,d);safeCall(rair,d);safeCall(rclimat,d);
   safeCall(loadServicesOSM,d);
+  safeCall(loadMobilityOSM,d);
   // Pfoot + address
   var pfoot=document.getElementById('pfoot');if(pfoot)pfoot.style.display='flex';
   var paddr=document.getElementById('paddr');if(paddr)paddr.textContent=d.geo.label||'—';
@@ -1183,6 +1184,119 @@ function renderServices(d){
     h+=bb(lbl,v);
   });
   document.getElementById('poiD').innerHTML=h;
+}
+
+function loadMobilityOSM(d){
+  var _addrM=d.lat+','+d.lng;
+  var q='[out:json][timeout:12];('+
+    'node["amenity"="parking"](around:500,'+d.lat+','+d.lng+');'+
+    'way["amenity"="parking"](around:500,'+d.lat+','+d.lng+');'+
+    'node["amenity"="bicycle_rental"](around:800,'+d.lat+','+d.lng+');'+
+    'node["amenity"="taxi"](around:800,'+d.lat+','+d.lng+');'+
+  ');out center 80;';
+  fetch('https://overpass-api.de/api/interpreter?data='+encodeURIComponent(q))
+    .then(function(r){return r.ok?r.json():null;})
+    .then(function(res){
+      if(!res||!res.elements)return;
+      var parks=[],velos=[],taxis=[];
+      res.elements.forEach(function(e){
+        var lat=e.lat||(e.center&&e.center.lat);
+        var lon=e.lon||(e.center&&e.center.lon);
+        if(!lat||!lon||!e.tags)return;
+        e._d=dist(d.lat,d.lng,lat,lon);
+        e._lat=lat;e._lon=lon;
+        if(e.tags.amenity==='parking')parks.push(e);
+        else if(e.tags.amenity==='bicycle_rental')velos.push(e);
+        else if(e.tags.amenity==='taxi')taxis.push(e);
+      });
+      parks.sort(function(a,b){return a._d-b._d;});
+      velos.sort(function(a,b){return a._d-b._d;});
+      taxis.sort(function(a,b){return a._d-b._d;});
+
+      // Ingest moat (top 8 chacun, clé par présence)
+      function topPayload(arr,n){
+        return arr.slice(0,n).map(function(e){
+          return{n:(e.tags.name||'').substring(0,60),
+            cap:e.tags.capacity||null,
+            fee:e.tags.fee||null,
+            access:e.tags.access||null,
+            network:e.tags.network||null,
+            operator:(e.tags.operator||'').substring(0,40)||null,
+            d:Math.round(e._d),lat:e._lat,lon:e._lon};
+        });
+      }
+      if(parks.length)ingestObs('overpass_parking',{count:parks.length,top:topPayload(parks,10)});
+      if(velos.length)ingestObs('overpass_bicycle_rental',{count:velos.length,top:topPayload(velos,10)});
+      if(taxis.length)ingestObs('overpass_taxi',{count:taxis.length,top:topPayload(taxis,5)});
+
+      // Rendu dans l'onglet Transports (append)
+      var tc=document.getElementById('transContent');
+      if(!tc)return;
+      var html='';
+      function poiLine(e,ico,subFn){
+        var sub=subFn(e)||'';
+        return'<div class="poi-item"><div style="flex:1;min-width:0"><div class="poi-name">'+ico+' '+(e.tags.name||'—')+'</div>'+
+          (sub?'<div class="poi-sub">'+sub+'</div>':'')+'</div>'+
+          '<div class="poi-meta"><span class="poi-dist">'+fd(e._d)+' · '+Math.round(e._d/80)+'min</span>'+
+          '<a class="poi-nav" href="https://www.google.com/maps/dir/?api=1&destination='+e._lat+','+e._lon+'&origin='+d.lat+','+d.lng+'" target="_blank">↗</a></div></div>';
+      }
+      if(parks.length){
+        html+='<div class="card"><div class="card-title">🅿️ Parkings · 500m · '+parks.length+'</div>';
+        parks.slice(0,6).forEach(function(e){
+          html+=poiLine(e,'🅿️',function(e){
+            var parts=[];
+            if(e.tags.capacity)parts.push(e.tags.capacity+' places');
+            if(e.tags.fee==='yes')parts.push('payant');
+            else if(e.tags.fee==='no')parts.push('gratuit');
+            if(e.tags.parking)parts.push(e.tags.parking);
+            if(e.tags.access&&e.tags.access!=='yes')parts.push(e.tags.access);
+            return parts.join(' · ');
+          });
+        });
+        html+='</div>';
+      }
+      if(velos.length){
+        html+='<div class="card"><div class="card-title">🚲 Vélos libre-service · '+velos.length+' stations</div>';
+        velos.slice(0,6).forEach(function(e){
+          html+=poiLine(e,'🚲',function(e){
+            var parts=[];
+            if(e.tags.network)parts.push(e.tags.network);
+            if(e.tags.capacity)parts.push(e.tags.capacity+' emplac.');
+            if(e.tags.operator)parts.push(e.tags.operator);
+            return parts.join(' · ');
+          });
+        });
+        html+='</div>';
+      }
+      if(taxis.length){
+        html+='<div class="card"><div class="card-title">🚕 Stations de taxis · '+taxis.length+'</div>';
+        taxis.slice(0,4).forEach(function(e){
+          html+=poiLine(e,'🚕',function(e){
+            var parts=[];
+            if(e.tags.capacity)parts.push(e.tags.capacity+' places');
+            if(e.tags.operator)parts.push(e.tags.operator);
+            if(e.tags.phone)parts.push(e.tags.phone);
+            return parts.join(' · ');
+          });
+        });
+        html+='</div>';
+      }
+      if(html){
+        tc.insertAdjacentHTML('beforeend',html);
+        // Markers sur la carte (parkings gris, vélos vert, taxis jaune)
+        if(map&&curD&&curD.lat+','+curD.lng===_addrM){
+          parks.slice(0,6).forEach(function(e){
+            mkMarker(e._lat,e._lon,'#6b7280',mkPop('🅿️','Parking',e.tags.name||'Parking',(e.tags.capacity?e.tags.capacity+' places':'')+(e.tags.fee==='yes'?' · payant':''),e._d,'#6b7280',e._lat,e._lon));
+          });
+          velos.slice(0,4).forEach(function(e){
+            mkMarker(e._lat,e._lon,'#059669',mkPop('🚲','Vélos LS',e.tags.name||'Station',e.tags.network||'',e._d,'#059669',e._lat,e._lon));
+          });
+          taxis.slice(0,3).forEach(function(e){
+            mkMarker(e._lat,e._lon,'#eab308',mkPop('🚕','Taxi',e.tags.name||'Station taxi','',e._d,'#eab308',e._lat,e._lon));
+          });
+        }
+      }
+    }).catch(function(){});
 }
 
 function loadServicesOSM(d){
