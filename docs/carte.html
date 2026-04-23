@@ -1232,7 +1232,7 @@ function loadMobilityOSM(d){
       // Rendu dans l'onglet Transports (append)
       var tc=document.getElementById('transContent');
       if(!tc)return;
-      var html='';
+      var html='<div class="card" style="background:#f0fdf4;border-left:3px solid #059669"><div class="card-title">🚦 Mobilité complémentaire</div><div style="font-size:.72rem;color:var(--g5)">'+parks.length+' parking(s) · '+velos.length+' vélo(s) · '+taxis.length+' taxi(s) trouvés via Overpass</div></div>';
       function poiLine(e,ico,subFn){
         var sub=subFn(e)||'';
         return'<div class="poi-item"><div style="flex:1;min-width:0"><div class="poi-name">'+ico+' '+(e.tags.name||'—')+'</div>'+
@@ -1281,9 +1281,16 @@ function loadMobilityOSM(d){
         });
         html+='</div>';
       }
-      if(html){
+      // Card marqueur visible (debug phase 2 - même si 0 résultats)
+      html='<div class="card" style="background:#f0fdf4;border-left:3px solid #059669"><div class="card-title">🚦 Mobilité complémentaire</div><div style="font-size:.72rem;color:var(--g5);margin:.2rem 0 .5rem">'+parks.length+' parking(s) · '+velos.length+' vélos LS · '+taxis.length+' taxi(s) dans 500-800m</div></div>'+html;
+      try{
         tc.insertAdjacentHTML('beforeend',html);
-        // Markers sur la carte (parkings gris, vélos vert, taxis jaune)
+      }catch(err){
+        tc.insertAdjacentHTML('beforeend','<div class="interp bad">Erreur rendu mobilité : '+(err&&err.message||'inconnu')+'</div>');
+        return;
+      }
+      // Markers sur la carte (parkings gris, vélos vert, taxis jaune)
+      if(true){
         if(map&&curD&&curD.lat+','+curD.lng===_addrM){
           parks.slice(0,6).forEach(function(e){
             mkMarker(e._lat,e._lon,'#6b7280',mkPop('🅿️','Parking',e.tags.name||'Parking',(e.tags.capacity?e.tags.capacity+' places':'')+(e.tags.fee==='yes'?' · payant':''),e._d,'#6b7280',e._lat,e._lon));
