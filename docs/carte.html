@@ -277,7 +277,10 @@ html,body{width:100%;height:100%;font-family:var(--sans);background:var(--bg);co
   </div>
 
   <div id="content">
-    <div id="mwrap"><div id="map"></div></div>
+    <div id="mwrap">
+      <div id="map"></div>
+      <button id="toggle-panel" onclick="togglePanel()" style="position:absolute;bottom:16px;left:50%;transform:translateX(-50%);z-index:20;background:var(--k);color:#fff;border:none;border-radius:20px;padding:.5rem 1.2rem;font-size:.78rem;font-weight:700;font-family:var(--sans);cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.3);display:none">📋 Rapport</button>
+    </div>
 
     <div id="panel" class="peek">
       <div id="ph">
@@ -446,8 +449,26 @@ function initFromURL(){
   var lat=parseFloat(p.get('lat')),lng=parseFloat(p.get('lng'));
   if(lat&&lng)rgc(lat,lng);
 }
-function openPanel(){var p=document.getElementById('panel');p.classList.remove('peek');p.classList.add('open');}
-function peekPanel(){var p=document.getElementById('panel');p.classList.remove('open');p.classList.add('peek');}
+function openPanel(){
+  var p=document.getElementById('panel');p.classList.remove('peek');p.classList.add('open');
+  var btn=document.getElementById('toggle-panel');
+  if(btn)btn.style.display='none';
+}
+function togglePanel(){
+  var p=document.getElementById('panel');
+  if(p.classList.contains('open')){
+    p.classList.remove('open');p.classList.add('peek');
+    var btn=document.getElementById('toggle-panel');
+    if(btn){btn.style.display='block';btn.textContent='📋 Rapport';}
+  } else {
+    openPanel();
+  }
+}
+function peekPanel(){
+  var p=document.getElementById('panel');p.classList.remove('open');p.classList.add('peek');
+  var btn=document.getElementById('toggle-panel');
+  if(btn&&curD)btn.style.display='block';
+}
 
 // SEARCH
 var deb;
@@ -512,7 +533,33 @@ function setProfile(p,el){
   currentProfile=p;
   document.querySelectorAll('.ppill').forEach(function(x){x.classList.remove('on');});
   el.classList.add('on');
+  applyProfileTabs(p);
   if(curD)renderHeader(curD);
+}
+
+function applyProfileTabs(p){
+  var tabOrders={
+    standard:['prix','risques','dpe','transports','commerces','eau','air','demo','batiment'],
+    famille:['transports','eau','risques','commerces','dpe','prix','air','demo','batiment'],
+    invest:['prix','demo','dpe','risques','commerces','transports','eau','air','batiment']
+  };
+  var order=tabOrders[p]||tabOrders.standard;
+  var tabsEl=document.getElementById('tabs');
+  var tabs=Array.from(tabsEl.querySelectorAll('.tab'));
+  order.forEach(function(id,i){
+    var t=tabs.find(function(t){return t.getAttribute('data-tab')===id;});
+    if(t)tabsEl.appendChild(t);
+  });
+  // Activer le premier onglet du profil
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('on');});
+  document.querySelectorAll('.tab-pane').forEach(function(p){p.classList.remove('on');});
+  var firstTab=tabsEl.querySelector('.tab');
+  if(firstTab){
+    firstTab.classList.add('on');
+    var firstId=firstTab.getAttribute('data-tab');
+    var pane=document.getElementById('tab-'+firstId);
+    if(pane)pane.classList.add('on');
+  }
 }
 
 // LOAD REPORT
@@ -561,6 +608,7 @@ function renderAll(d){
   document.getElementById('tabs').style.display='flex';
   document.getElementById('pbody').classList.add('on');
   document.getElementById('pfoot').style.display='flex';
+  if(window.innerWidth<=900){var btn=document.getElementById('toggle-panel');if(btn)btn.style.display='none';}
   document.getElementById('paddr').textContent=d.geo.label||'—';
   document.getElementById('psub').textContent=(d.cp||'')+' '+(d.geo.city||'')+(d.cc?' · INSEE '+d.cc:'');
 }
@@ -589,10 +637,11 @@ function renderHeader(d){
   var risk=d.risk,rn=(risk?([risk.risque_inondation,risk.risque_argile,risk.pprn_prescrit,risk.pprt_prescrit].filter(Boolean).length):0);
   var eau=d.eau,conf=eau&&eau.taux_conformite_global!=null?Math.round(eau.taux_conformite_global):null;
   var trans=(d.trans||[]).length;
+  var dem=d.demo||{};
   var summaries={
-    standard:'Score '+score+'/100 ('+grade(score)+') pour '+d.geo.city+'. '+(score>=65?'Excellent emplacement.':score>=40?'Adresse correcte, quelques points à surveiller.':'Plusieurs indicateurs méritent attention.'),
-    famille:'Pour une famille : '+(sc&&sc.score_accessibilite>60?'transports excellents':sc&&sc.score_accessibilite>40?'transports corrects':'transports limités')+', '+(d.poi&&d.poi.score_education>60?'bonne offre scolaire.':'offre scolaire à évaluer.'),
-    invest:'Marché : '+(pz?fmt(pz)+'/m²':'prix N/D')+(trend!=null?' · tendance '+(trend>0?'+':'')+Number(trend).toFixed(1)+'%/an':'')+'. Dynamisme : '+(sc?Math.round(sc.score_dynamisme||0):0)+'/100.'
+    standard:'Score '+score+'/100 ('+grade(score)+') pour '+d.geo.city+'. '+(score>=65?'Excellent emplacement.':score>=40?'Adresse correcte, quelques points à surveiller.':'Plusieurs indicateurs méritent attention.')+(pz?' Marché à '+fmt(pz)+'/m².':''),
+    famille:'👨‍👩‍👧 Vue famille — '+(sc&&sc.score_accessibilite>60?'✅ Transports excellents':sc&&sc.score_accessibilite>40?'⚠️ Transports corrects':'❌ Transports limités')+'. '+(d.poi&&d.poi.score_education>60?'✅ Bonne offre scolaire.':'⚠️ Offre scolaire à évaluer.')+' Eau : '+(d.eau&&d.eau.taux_conformite_global?Math.round(d.eau.taux_conformite_global)+'% conforme.':'N/D.'),
+    invest:'📈 Vue investisseur — Marché '+(pz?fmt(pz)+'/m²':'N/D')+(trend!=null?' · '+(trend>0?'▲ +':'▼ ')+Number(trend).toFixed(1)+'%/an':'')+'. Population : '+(dem.population_2024||dem.population_2020?fmtN(dem.population_2024||dem.population_2020)+' hab.':'N/D')+'. Chômage : '+(dem.taux_chomage?dem.taux_chomage+'%':'N/D')+'.'
   };
   document.getElementById('summary-box').textContent=summaries[currentProfile]||summaries.standard;
   document.getElementById('score-cards').innerHTML=
