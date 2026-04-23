@@ -914,9 +914,9 @@ function scard(ico,title,main,sub,pct,color){
 
 function renderPrix(d){
   var ap=d.ap,trend=ap&&ap.dvf_prix_m2_trend_1y;
-  // Révéler la barre de filtres dès qu'il y a des DVF
+  // Toujours afficher la barre de filtres dès qu'une adresse est chargée
   var filtersEl=document.getElementById('dvfFilters');
-  if(filtersEl&&d.dvf&&d.dvf.length)filtersEl.style.display='flex';
+  if(filtersEl)filtersEl.style.display='flex';
 
   // Lire tous les filtres
   var surfInput=document.getElementById('surf-input');
@@ -968,7 +968,24 @@ function renderPrix(d){
   if(sMaison&&sMaison.n>=5){
     scales+='<div class="card"><div class="card-title">Maisons · '+sMaison.n+' ventes</div>'+scaleBar({label:'Prix m² vs local',val:sMaison.med,min:sMaison.min,p25:sMaison.p25,med:sMaison.med,p75:sMaison.p75,max:sMaison.max,unit:'€',obs:sMaison.n+' obs.',color:'#7c3aed'})+'</div>';
   }
-  document.getElementById('dvfScales').innerHTML=scales;
+  // Banner aide si 0 comparables après filtrage
+  var banner='';
+  if(!d.dvf.length){
+    banner='<div class="interp warn" style="margin-bottom:.5rem"><b>Aucune transaction DVF remontée</b> pour cette commune. Diagnostic en cours…</div>';
+    // Relancer direct pour diagnostic (bypass cache, pas de filtre)
+    fetch(SUPA_URL+'/rest/v1/dvf_mutations?code_commune=eq.'+d.cc+'&select=valeur_fonciere,surface_reelle_bati,type_local,date_mutation,nombre_pieces_principales&order=date_mutation.desc&limit=300',{
+      headers:{apikey:SUPA_KEY,Authorization:'Bearer '+SUPA_KEY,'Cache-Control':'no-cache'},cache:'no-store'
+    }).then(function(r){
+      if(!r.ok){return r.text().then(function(t){document.getElementById('dvfScales').innerHTML='<div class="interp bad">HTTP '+r.status+' — '+t.substring(0,150)+'</div>';});}
+      return r.json().then(function(rows){
+        if(rows&&rows.length){d.dvf=rows;if(curD)curD.dvf=rows;renderPrix(d);}
+        else{document.getElementById('dvfScales').innerHTML='<div class="interp warn">Requête OK mais 0 lignes pour code_commune='+d.cc+'</div>';}
+      });
+    }).catch(function(e){document.getElementById('dvfScales').innerHTML='<div class="interp bad">Fetch échoué : '+(e&&e.message||'')+'</div>';});
+  } else if(!all.length){
+    banner='<div class="interp warn" style="margin-bottom:.5rem"><b>Aucun comparable avec les filtres actuels</b> ('+d.dvf.length+' transactions disponibles au total dans la commune). Essaye d\'élargir la tolérance ou de retirer le filtre type/âge.</div>';
+  }
+  document.getElementById('dvfScales').innerHTML=banner+scales;
   document.getElementById('dvfT').innerHTML=all.slice(0,15).map(function(r){
     var pm=r.valeur_fonciere/r.surface_reelle_bati;
     var ref=r.type_local==='Appartement'&&sAppt?sAppt.med:r.type_local==='Maison'&&sMaison?sMaison.med:sAll?sAll.med:0;
