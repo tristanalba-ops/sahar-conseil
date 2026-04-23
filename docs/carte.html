@@ -235,7 +235,7 @@ html,body{width:100%;height:100%;font-family:var(--sans);background:var(--bg);co
     <div class="bname">Intent Analytics</div>
     <div class="bdiv"></div>
     <div id="sw">
-      <input id="si" type="text" placeholder="Rechercher une adresse…" autocomplete="off">
+      <input id="si" type="text" placeholder="Rechercher une adresse…" autocomplete="off" oninput="handleSearch(this.value)" onblur="hideSugg()">
       <div id="sdd"></div>
     </div>
     <button id="locbtn" onclick="locate()">📍</button>
@@ -449,49 +449,42 @@ function closePanel(){
 
 // ── SEARCH ──
 var deb;
-var si=document.getElementById('si');
-var dd=document.getElementById('sdd');
-
-si.oninput=function(){
+function handleSearch(q){
   clearTimeout(deb);
-  var q=si.value.trim();
-  if(q.length<3){dd.style.display='none';return;}
+  var dd=document.getElementById('sdd');
+  if(!q||q.trim().length<3){dd.style.display='none';return;}
   deb=setTimeout(function(){
-    fetch('https://api-adresse.data.gouv.fr/search/?q='+encodeURIComponent(q)+'&limit=6')
+    fetch('https://api-adresse.data.gouv.fr/search/?q='+encodeURIComponent(q.trim())+'&limit=6')
       .then(function(r){return r.json();})
       .then(function(res){
+        var dd=document.getElementById('sdd');
         dd.innerHTML='';
         if(!res||!res.features||!res.features.length){dd.style.display='none';return;}
-        res.features.forEach(function(f){
+        res.features.forEach(function(f,i){
+          // Stocker les données dans une variable globale indexée
+          window._sugg=window._sugg||{};
+          window._sugg[i]=f;
           var div=document.createElement('div');
           div.className='sg';
           div.textContent=f.properties.label;
-          div.ontouchend=function(e){
-            e.preventDefault();
-            choisir(f);
-          };
-          div.onmousedown=function(e){
-            e.preventDefault();
-            choisir(f);
-          };
+          // onclick inline = garanti iOS Safari
+          div.setAttribute('onclick','pickSugg('+i+')');
           dd.appendChild(div);
         });
         dd.style.display='block';
-      }).catch(function(){dd.style.display='none';});
-  },300);
-};
-
-si.onblur=function(){
-  setTimeout(function(){dd.style.display='none';},600);
-};
-
-function choisir(f){
-  si.value=f.properties.label||'';
+      }).catch(function(){document.getElementById('sdd').style.display='none';});
+  },350);
+}
+function pickSugg(i){
+  var f=window._sugg&&window._sugg[i];
+  if(!f)return;
+  document.getElementById('si').value=f.properties.label||'';
+  document.getElementById('sdd').style.display='none';
   geo=f.properties;
-  dd.style.display='none';
   if(map)map.setView([+f.properties.y,+f.properties.x],16);
   loadReport();
 }
+function hideSugg(){setTimeout(function(){document.getElementById('sdd').style.display='none';},200);}
 
 function locate(){
   if(!navigator.geolocation)return toast('Non supporté');
