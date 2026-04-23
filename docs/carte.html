@@ -132,6 +132,9 @@ body{
   display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;
 }
 #tabs::-webkit-scrollbar{display:none}
+.filters-bar{display:flex;gap:.4rem;flex-wrap:wrap;padding:.5rem .6rem;background:var(--g1);border-radius:10px;margin:.3rem 0}
+.f-select{flex:1 1 auto;min-width:calc(50% - .4rem);padding:.45rem .55rem;border:1px solid var(--bd);border-radius:8px;background:var(--w);font-size:.72rem;font-family:inherit;color:var(--k);appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236b7280' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right .5rem center;padding-right:1.3rem}
+.f-select:focus{outline:2px solid var(--k);outline-offset:-1px}
 body:not(.loaded) #tabs{display:none}
 .tab{padding:.7rem .85rem;font-size:.76rem;font-weight:600;color:var(--g4);cursor:pointer;border-bottom:2.5px solid transparent;white-space:nowrap;flex-shrink:0}
 .tab.on{color:var(--k);border-bottom-color:var(--k)}
@@ -310,6 +313,33 @@ body:not(.loaded) #tabs{display:none}
     <div id="pbody">
 <div class="tab-pane on" id="tab-prix">
           <div class="kpi-row" id="dvfK"></div>
+          <div class="filters-bar" id="dvfFilters" style="display:none">
+            <select id="f-type" class="f-select" onchange="applyDvfFilters('type')">
+              <option value="">Tous types</option>
+              <option value="Appartement">Appartements</option>
+              <option value="Maison">Maisons</option>
+            </select>
+            <select id="f-age" class="f-select" onchange="applyDvfFilters('age')">
+              <option value="">Toute période</option>
+              <option value="1">&lt; 1 an</option>
+              <option value="3">&lt; 3 ans</option>
+              <option value="5">&lt; 5 ans</option>
+            </select>
+            <select id="f-tol" class="f-select" onchange="applyDvfFilters('tol')">
+              <option value="50">±50%</option>
+              <option value="30" selected>±30%</option>
+              <option value="20">±20%</option>
+              <option value="10">±10%</option>
+            </select>
+            <select id="f-pieces" class="f-select" onchange="applyDvfFilters('pieces')">
+              <option value="">Pièces : tout</option>
+              <option value="1">T1</option>
+              <option value="2">T2</option>
+              <option value="3">T3</option>
+              <option value="4">T4</option>
+              <option value="5">T5+</option>
+            </select>
+          </div>
           <div style="display:flex;align-items:center;gap:.5rem;padding:.4rem .5rem;background:var(--g1);border-radius:8px;margin-bottom:.5rem;font-size:.72rem;color:var(--g5)">
             <span>🏠 Surface bien :</span>
             <input id="surf-input" type="number" min="9" max="999" placeholder="m² (optionnel)"
@@ -531,6 +561,7 @@ function pickSugg(i){
     geo.y=+f.geometry.coordinates[1];
   }
   geo.banId=f.properties.id||null;
+  logEvent('address_searched',{label:(geo.label||'').substring(0,200),ban_id:geo.banId,citycode:geo.citycode||null,postcode:geo.postcode||null,source:'autocomplete'});
   try{window.scrollTo({top:0,behavior:'smooth'});}catch(e){window.scrollTo(0,0);}
   loadReport();
 }
@@ -556,6 +587,7 @@ function rgc(lat,lng){
         geo.y=+f.geometry.coordinates[1];
       }
       geo.banId=f.properties.id||null;
+      logEvent('address_searched',{label:(geo.label||'').substring(0,200),ban_id:geo.banId,citycode:geo.citycode||null,postcode:geo.postcode||null,source:'geolocate'});
       document.getElementById('si').value=f.properties.label||'';
       try{window.scrollTo({top:0,behavior:'smooth'});}catch(e){window.scrollTo(0,0);}
       loadReport();
@@ -602,6 +634,39 @@ var _clientFP = (function(){
     return 'fp_'+Math.abs(h).toString(36)+'_'+Math.random().toString(36).substring(2,8);
   }catch(e){return null;}
 })();
+// ═══════════════════════════════════════════════════════════════════
+// LOG EVENT : signaux d'intention utilisateur vers events_analytics.
+// Idempotent par event_id UNIQUE en base. Whitelist côté SQL.
+// ═══════════════════════════════════════════════════════════════════
+var _session_id = (function(){
+  try{
+    var k='_ia_sid', v=sessionStorage.getItem(k);
+    if(v)return v;
+    v='s_'+Date.now().toString(36)+'_'+Math.random().toString(36).substring(2,8);
+    sessionStorage.setItem(k,v); return v;
+  }catch(e){return 's_'+Date.now().toString(36);}
+})();
+function logEvent(event_type, properties){
+  if(!event_type)return;
+  try{
+    var event_id = event_type+'_'+_session_id+'_'+Date.now()+'_'+Math.random().toString(36).substring(2,6);
+    fetch(SUPA_URL+'/rest/v1/events_analytics',{
+      method:'POST',
+      headers:{apikey:SUPA_KEY,Authorization:'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},
+      body:JSON.stringify({
+        event_id: event_id,
+        event_type: event_type,
+        session_id: _session_id,
+        page_url: (location.pathname+location.search).substring(0,500),
+        referrer: (document.referrer||'').substring(0,500)||null,
+        properties: properties||{},
+        user_agent: (navigator.userAgent||'').substring(0,200)
+      }),
+      keepalive: true
+    }).catch(function(){});
+  }catch(e){}
+}
+
 function ingestObs(source, payload){
   if(!geo||!payload||!source)return;
   try{
@@ -651,7 +716,7 @@ function loadReport(){
   Promise.all([
     (geo.banId?sr('address_profile?ban_id=eq.'+encodeURIComponent(geo.banId)+'&select=*&limit=1'):sr('address_profile?code_commune=eq.'+cc+'&select=*&dvf_prix_m2_median=not.is.null&order=dvf_prix_m2_median.desc&limit=1')),
     sr('score_localisation_commune?code_commune=eq.'+cc+'&select=score_localisation,score_accessibilite,score_securite,score_services,score_risques_naturels,score_dynamisme,detail_accessibilite,detail_dynamisme&limit=1'),
-    sr('dvf_mutations?code_commune=eq.'+cc+'&select=valeur_fonciere,surface_reelle_bati,type_local,date_mutation&order=date_mutation.desc&limit=200'),
+    sr('dvf_mutations?code_commune=eq.'+cc+'&select=valeur_fonciere,surface_reelle_bati,type_local,date_mutation,nombre_pieces_principales&order=date_mutation.desc&limit=300'),
     (geo.banId?sr('dpe_diagnostics?ban_id=eq.'+encodeURIComponent(geo.banId)+'&select=classe_energie,classe_ges,conso_energie_primaire,surface_habitable,date_diagnostic&limit=50').then(function(a){return a&&a.length?a:sr('dpe_diagnostics?code_postal=eq.'+cp+'&select=classe_energie,date_diagnostic&limit=500');}):sr('dpe_diagnostics?code_postal=eq.'+cp+'&select=classe_energie,date_diagnostic&limit=500')),
     sf('data_georisques',{code_commune:cc},1),
     sf('data_plu_communes',{code_commune:cc},1),
@@ -675,7 +740,7 @@ function loadReport(){
   }).then(function(R){
     // Fallback DVF par code_postal si vide
     if((!R[2]||!R[2].length)&&cp){
-      return sr('dvf_mutations?code_postal=eq.'+cp+'&select=valeur_fonciere,surface_reelle_bati,type_local,date_mutation&order=date_mutation.desc&limit=200').then(function(f){
+      return sr('dvf_mutations?code_postal=eq.'+cp+'&select=valeur_fonciere,surface_reelle_bati,type_local,date_mutation,nombre_pieces_principales&order=date_mutation.desc&limit=300').then(function(f){
         if(f&&f.length)R[2]=f;
         return R;
       });
@@ -685,6 +750,7 @@ function loadReport(){
     document.getElementById('pload').classList.remove('on');
     var _pe=document.getElementById('pempty');if(_pe){_pe.style.display='none';_pe.style.visibility='hidden';}
     document.body.classList.add('loaded');
+    try{logEvent('report_loaded',{commune:cc,postcode:cp,ban_id:geo.banId||null,has_dvf:!!(R[2]&&R[2].length),n_dvf:(R[2]&&R[2].length)||0,has_ap:!!(R[0]&&R[0][0])});}catch(e){}
     document.getElementById('content').classList.add('on');
     curD={
       geo:geo,cc:cc,cp:cp,lat:lat,lng:lng,
@@ -795,6 +861,7 @@ function switchTab(id,el){
   document.querySelectorAll('.tab-pane').forEach(function(p){p.classList.remove('on');});
   el.classList.add('on');
   document.getElementById('tab-'+id).classList.add('on');
+  try{logEvent('tab_switched',{tab:id,commune:curD&&curD.cc||null});}catch(e){}
 }
 
 function setProfile(p,el){
@@ -847,15 +914,35 @@ function scard(ico,title,main,sub,pct,color){
 
 function renderPrix(d){
   var ap=d.ap,trend=ap&&ap.dvf_prix_m2_trend_1y;
-  // Filtre surface ±30% si renseigné
+  // Révéler la barre de filtres dès qu'il y a des DVF
+  var filtersEl=document.getElementById('dvfFilters');
+  if(filtersEl&&d.dvf&&d.dvf.length)filtersEl.style.display='flex';
+
+  // Lire tous les filtres
   var surfInput=document.getElementById('surf-input');
   var surfVal=surfInput?parseFloat(surfInput.value):NaN;
   var hasSurf=!isNaN(surfVal)&&surfVal>=9;
+  var fType=(document.getElementById('f-type')||{}).value||'';
+  var fAgeY=parseFloat((document.getElementById('f-age')||{}).value)||0;
+  var fTol=parseFloat((document.getElementById('f-tol')||{}).value)||30;
+  var fPieces=parseFloat((document.getElementById('f-pieces')||{}).value)||0;
+  var cutoffMs=fAgeY>0?Date.now()-fAgeY*365.25*86400000:0;
+
   var surfLbl=document.getElementById('surf-filter-label');
-  if(surfLbl)surfLbl.textContent=hasSurf?'→ filtre ±30% actif':'';
+  if(surfLbl)surfLbl.textContent=hasSurf?('→ filtre surface ±'+fTol+'% actif'):'';
+
   var all=d.dvf.filter(function(r){
     if(r.surface_reelle_bati<9||r.valeur_fonciere<5000)return false;
-    if(hasSurf&&Math.abs(r.surface_reelle_bati-surfVal)/surfVal>0.30)return false;
+    if(fType&&r.type_local!==fType)return false;
+    if(hasSurf&&Math.abs(r.surface_reelle_bati-surfVal)/surfVal>(fTol/100))return false;
+    if(cutoffMs&&r.date_mutation){
+      var tMut=Date.parse(r.date_mutation);
+      if(!isNaN(tMut)&&tMut<cutoffMs)return false;
+    }
+    if(fPieces&&r.nombre_pieces_principales){
+      if(fPieces>=5){if(r.nombre_pieces_principales<5)return false;}
+      else if(r.nombre_pieces_principales!==fPieces)return false;
+    }
     return true;
   });
   function stats(arr){
@@ -1447,7 +1534,26 @@ function loadMapLayers(d){
   });
 }
 
-function copyLink(){if(!geo)return toast('Aucune adresse');navigator.clipboard.writeText(location.origin+location.pathname+'?lat='+geo.y+'&lng='+geo.x).then(function(){toast('Lien copié !');});}
+function applyDvfFilters(trigger){
+  if(!curD)return;
+  try{renderPrix(curD);}catch(e){}
+  // Log intent
+  try{
+    var surfInput=document.getElementById('surf-input');
+    logEvent('comparables_filtered',{
+      trigger:trigger||'unknown',
+      type:(document.getElementById('f-type')||{}).value||null,
+      age_years:parseFloat((document.getElementById('f-age')||{}).value)||null,
+      tolerance_pct:parseFloat((document.getElementById('f-tol')||{}).value)||null,
+      pieces:parseFloat((document.getElementById('f-pieces')||{}).value)||null,
+      surface:surfInput?parseFloat(surfInput.value)||null:null,
+      commune:curD.cc||null,
+      ban_id:curD.geo&&curD.geo.banId||null
+    });
+  }catch(e){}
+}
+
+function copyLink(){if(!geo)return toast('Aucune adresse');navigator.clipboard.writeText(location.origin+location.pathname+'?lat='+geo.y+'&lng='+geo.x).then(function(){toast('Lien copié !');try{logEvent('link_copied',{ban_id:geo.banId||null,commune:geo.citycode||null});}catch(e){}});}
 </script>
 </body>
 </html>
