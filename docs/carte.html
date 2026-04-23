@@ -244,6 +244,27 @@ html,body{width:100%;height:100%;font-family:var(--sans);background:var(--bg);co
 #toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--k);color:#fff;padding:.55rem 1.1rem;border-radius:20px;font-size:.78rem;font-weight:600;z-index:9998;opacity:0;transition:all .25s;pointer-events:none;white-space:nowrap}
 #toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
 .empty{color:var(--g4);font-size:.78rem;font-style:italic}
+/* COMPARISON SLIDER */
+.cmp-block{margin:.5rem 0}
+.cmp-label{display:flex;justify-content:space-between;font-size:.7rem;margin-bottom:.3rem}
+.cmp-label span:first-child{color:var(--g5);font-weight:600}
+.cmp-label span:last-child{font-family:var(--mono);font-weight:700;color:var(--k)}
+.cmp-track{position:relative;height:8px;background:var(--g2);border-radius:4px;margin-bottom:.15rem}
+.cmp-fill{position:absolute;left:0;top:0;height:100%;border-radius:4px;transition:width .5s ease}
+.cmp-marker{position:absolute;top:-3px;width:14px;height:14px;border-radius:50%;border:2.5px solid var(--w);box-shadow:0 1px 4px rgba(0,0,0,.3);transform:translateX(-50%)}
+.cmp-legend{display:flex;justify-content:space-between;font-size:.58rem;color:var(--g4);font-family:var(--mono)}
+
+/* INTERPRETATION BOX */
+.interp{background:linear-gradient(135deg,#f0f9ff,#e0f2fe);border:1px solid #bae6fd;border-radius:8px;padding:.5rem .7rem;font-size:.75rem;line-height:1.5;color:#0c4a6e;margin-bottom:.6rem}
+.interp.warn{background:linear-gradient(135deg,#fffbeb,#fef3c7);border-color:#fde68a;color:#78350f}
+.interp.bad{background:linear-gradient(135deg,#fff1f2,#ffe4e6);border-color:#fecdd3;color:#881337}
+.interp.good{background:linear-gradient(135deg,#f0fdf4,#dcfce7);border-color:#bbf7d0;color:#14532d}
+
+/* DVF MAP MARKERS */
+.dvf-dot{width:12px;height:12px;border-radius:50%;border:2px solid rgba(255,255,255,.9);cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.3)}
+.poi-dot{width:10px;height:10px;border-radius:50%;border:2px solid rgba(255,255,255,.9);cursor:pointer}
+.poi-dot-sq{width:10px;height:10px;border-radius:3px;border:2px solid rgba(255,255,255,.9);cursor:pointer}
+
 </style>
 </head>
 <body>
@@ -603,7 +624,7 @@ function loadReport(){
 function renderAll(d){
   renderHeader(d);renderPrix(d);renderRisques(d);renderDPE(d);
   renderTransports(d);renderCommerces(d);renderEau(d);renderDemo(d);renderBatiment(d);
-  doEstim(d);rsante(d);rscolaire(d);rshop(d);rcadastre(d);rair(d);rclimat(d);
+  doEstim(d);rsante(d);rscolaire(d);rshop(d);rcadastre(d);rair(d);rclimat(d);loadMapLayers(d);loadOSMOnMap(d);
   document.getElementById('ph-loaded').style.display='block';
   document.getElementById('tabs').style.display='flex';
   document.getElementById('pbody').classList.add('on');
@@ -656,19 +677,55 @@ function scard(ico,title,main,sub,pct,color){
     '<div class="scard-main">'+main+'</div><div class="scard-sub">'+sub+'</div></div>';
 }
 
-// PRIX
+// PRIX — analyse comparative
 function renderPrix(d){
-  var f=d.dvf.filter(function(r){return r.surface_reelle_bati>=9&&r.valeur_fonciere>=5000;});
-  var p=f.map(function(r){return r.valeur_fonciere/r.surface_reelle_bati;}).filter(function(v){return v>500&&v<50000;}).sort(function(a,b){return a-b;});
-  var med=p.length?p[Math.floor(p.length/2)]:0,moy=p.length?p.reduce(function(a,b){return a+b;})/p.length:0;
-  var ap=d.ap&&d.ap[0]||null,trend=ap&&ap.dvf_prix_m2_trend_1y;
+  var ap=d.ap&&d.ap[0]||null;
+  var trend=ap&&ap.dvf_prix_m2_trend_1y;
+  // Toutes transactions valides
+  var allF=d.dvf.filter(function(r){return r.surface_reelle_bati>=9&&r.valeur_fonciere>=5000;});
+  var allP=allF.map(function(r){return r.valeur_fonciere/r.surface_reelle_bati;}).filter(function(v){return v>500&&v<50000;}).sort(function(a,b){return a-b;});
+  // Par type
+  var apptF=allF.filter(function(r){return r.type_local==='Appartement';});
+  var maisonF=allF.filter(function(r){return r.type_local==='Maison';});
+  var apptP=apptF.map(function(r){return r.valeur_fonciere/r.surface_reelle_bati;}).filter(function(v){return v>500&&v<50000;}).sort(function(a,b){return a-b;});
+  var maisonP=maisonF.map(function(r){return r.valeur_fonciere/r.surface_reelle_bati;}).filter(function(v){return v>500&&v<50000;}).sort(function(a,b){return a-b;});
+  function calcStats(arr){
+    if(!arr.length)return null;
+    return{min:arr[0],p25:arr[Math.floor(arr.length*.25)],med:arr[Math.floor(arr.length/2)],p75:arr[Math.floor(arr.length*.75)],max:arr[arr.length-1],n:arr.length};
+  }
+  var statsAll=calcStats(allP);
+  var statsAppt=calcStats(apptP);
+  var statsMaison=calcStats(maisonP);
+  var pz=(ap&&ap.dvf_prix_m2_median)||statsAll&&statsAll.med||0;
+  // KPI
   document.getElementById('dvfK').innerHTML=
-    kpi('','Médiane/m²',med?fmt(med):'—',p.length+' obs.')+
+    kpi('','Médiane/m²',pz?fmt(pz):'—',allP.length+' obs.')+
     kpi(trend>0?'g':trend<0?'r':'','Tendance 1an',trend!=null?(trend>0?'+':'')+Number(trend).toFixed(1)+'%':'—','')+
-    kpi('','Nb mutations',fmtN(d.dvf.length),'');
-  document.getElementById('dvfT').innerHTML=f.slice(0,15).map(function(r){
+    kpi('','Transactions',fmtN(allF.length),'');
+  var html='';
+  // Appartements : scale si >5 obs
+  if(statsAppt&&statsAppt.n>=5){
+    var diff=Math.round(statsAppt.med-statsAppt.med);
+    var note=trend!=null&&trend>3?'Marché en hausse (+'+Number(trend).toFixed(1)+'%/an). Les appartements se revendent rapidement au-dessus de la mise en vente.':
+      trend!=null&&trend<-3?'Marché en repli ('+Number(trend).toFixed(1)+'%/an). Marge de négociation estimée à 3-7%.':
+      'Marché stable. Prix en ligne avec la tendance départementale.';
+    var noteType=trend!=null&&trend>3?'warn':trend!=null&&trend<-3?'good':'';
+    html+='<div class="card"><div class="card-title">Appartements · '+statsAppt.n+' ventes</div>'+
+      scaleBar({label:'Prix m² appartements',val:statsAppt.med,min:statsAppt.min,p25:statsAppt.p25,med:statsAppt.med,p75:statsAppt.p75,max:statsAppt.max,unit:'€',obs:statsAppt.n+' obs.',note:note,noteType:noteType,color:'var(--blue)'})+
+      '</div>';
+  }
+  // Maisons : scale si >5 obs
+  if(statsMaison&&statsMaison.n>=5){
+    html+='<div class="card"><div class="card-title">Maisons · '+statsMaison.n+' ventes</div>'+
+      scaleBar({label:'Prix m² maisons',val:statsMaison.med,min:statsMaison.min,p25:statsMaison.p25,med:statsMaison.med,p75:statsMaison.p75,max:statsMaison.max,unit:'€',obs:statsMaison.n+' obs.',color:'var(--purple,#7c3aed)'})+
+      '</div>';
+  }
+  if(html)document.getElementById('dvfK').insertAdjacentHTML('afterend',html);
+  // Tableau
+  document.getElementById('dvfT').innerHTML=allF.slice(0,15).map(function(r){
     var pm=r.valeur_fonciere/r.surface_reelle_bati;
-    var cl=pm<med*.85?'color:var(--red)':pm>med*1.15?'color:var(--green)':'';
+    var med2=r.type_local==='Appartement'&&statsAppt?statsAppt.med:r.type_local==='Maison'&&statsMaison?statsMaison.med:statsAll?statsAll.med:0;
+    var cl=pm<med2*.85?'color:var(--green)':pm>med2*1.15?'color:var(--red)':'';
     var type=r.type_local==='Appartement'?'Appt':r.type_local==='Maison'?'Maison':r.type_local||'—';
     return'<tr><td style="font-family:var(--mono);font-size:.66rem">'+(r.date_mutation&&r.date_mutation.substring(0,7)||'—')+'</td>'+
       '<td><span class="type-badge">'+type+'</span></td>'+
@@ -676,6 +733,8 @@ function renderPrix(d){
       '<td class="price-tag" style="'+cl+'">'+fmt(pm)+'</td></tr>';
   }).join('')||'<tr><td colspan="4" style="text-align:center;padding:.75rem;color:var(--g4)">Aucune transaction</td></tr>';
 }
+
+
 
 // ESTIMATION
 function doEstim(d){
@@ -700,47 +759,104 @@ function doEstim(d){
   });
 }
 
-// RISQUES
+// RISQUES — contexte national
 function renderRisques(d){
-  var r=d.risk,rn=r?([r.risque_inondation,r.risque_argile,r.pprn_prescrit,r.pprt_prescrit].filter(Boolean).length):0;
+  var r=d.risk;
+  if(!r){
+    document.getElementById('riskK').innerHTML=kpi('','Risques','N/D','');
+    document.getElementById('riskD').innerHTML='<span class="empty">Données non disponibles</span>';
+    return;
+  }
+  var rn=[r.risque_inondation,r.risque_argile,r.pprn_prescrit,r.pprt_prescrit].filter(Boolean).length;
+  var seisme=r.risque_seisme||0;
   document.getElementById('riskK').innerHTML=
-    kpi(rn>2?'r':rn>0?'a':'g','Risques',rn,'modéré'+(rn>1?'s':''))+
-    kpi('','Séisme',r?(['—','Zone 1','Zone 2','Zone 3','Zone 4','Zone 5'][r.risque_seisme||0]||'—'):'—','')+
-    kpi('','Cat-Nat',r&&r.nb_catnat?r.nb_catnat:'—','');
-  var el=document.getElementById('riskD');
-  if(!r){el.innerHTML='<span class="empty">Données non disponibles</span>';return;}
+    kpi(rn>2?'r':rn>0?'a':'g','Risques identifiés',rn,'sur 4 types')+
+    kpi('','Sismicité',['Nul','Zone 1','Zone 2','Zone 3','Zone 4','Zone 5'][seisme]||'—','')+
+    kpi(r.nb_catnat>3?'r':r.nb_catnat>0?'a':'g','Arrêtés Cat-Nat',r.nb_catnat||0,'historique');
+  // Scale risques vs national (60% communes ont au moins 1 risque naturel)
+  var noteRisk=rn===0?'Aucun risque identifié dans les bases officielles. Commune à faible exposition.':
+    rn===1?'1 risque modéré. La majorité des communes françaises (60%) présentent au moins un risque naturel.':
+    rn===2?'2 risques identifiés. Vérifier les obligations d'information acheteur (loi Alur).':
+    rn>=3?'Exposition multi-risques. Obligation d'annexer l'état des risques à toute promesse de vente (Art. L125-5).':'';
+  var noteType=rn===0?'good':rn<=1?'':rn===2?'warn':'bad';
+  var html=interp(noteRisk,noteType);
+  html+=scaleBar({label:'Risques vs communes françaises',val:rn,min:0,p25:0,med:1,p75:2,max:4,unit:'',note:null,obs:'national: méd. 1',color:rn===0?'var(--green)':rn<=2?'var(--amber)':'var(--red)'});
+  if(r.nb_catnat>0)html+=interp(r.nb_catnat+' arrêté(s) Cat-Nat historique. Moyenne nationale : 2,3 par commune. '+(r.nb_catnat>5?'Territoire fortement impacté — impact sur les primes d'assurance.':''),r.nb_catnat>5?'warn':'');
   function ri(ico,l,v){return'<div class="rrow"><span class="rb '+(v?'rb-y':'rb-n')+'">'+(v?'Oui':'Non')+'</span><span>'+ico+' '+l+'</span></div>';}
-  el.innerHTML=ri('🌊','Inondation PPRI',r.risque_inondation)+ri('🏔','Retrait-gonflement argiles',r.risque_argile)+ri('📋','PPRN prescrit',r.pprn_prescrit)+ri('⚙️','PPRT prescrit',r.pprt_prescrit)+dr('Sismicité',['—','Zone 1','Zone 2','Zone 3','Zone 4','Zone 5'][r.risque_seisme||0]||'—')+(r.nb_catnat?dr('Arrêtés Cat-Nat',r.nb_catnat):'');
+  html+=ri('🌊','Inondation PPRI',r.risque_inondation)+ri('🏔','Retrait-gonflement argiles',r.risque_argile)+ri('📋','PPRN prescrit',r.pprn_prescrit)+ri('⚙️','PPRT prescrit',r.pprt_prescrit);
+  if(seisme>0)html+=interp('Zone sismique '+['','1 (très faible)','2 (faible)','3 (modérée)','4 (moyenne)','5 (forte)'][seisme]+'. '+(seisme>=3?'Normes parasismiques obligatoires pour les constructions neuves.':'Impact limité, normes PS MI applicables.'),seisme>=3?'warn':'');
+  document.getElementById('riskD').innerHTML=html;
   var p=d.plu;
-  document.getElementById('pluD').innerHTML=p?dr('Zone dominante',p.zone_dominante||'—')+dr('Zone U',p.pct_zone_u?p.pct_zone_u+'%':'—')+dr('Zone N',p.pct_zone_n?p.pct_zone_n+'%':'—'):'<span class="empty">PLU non numérisé</span>';
+  document.getElementById('pluD').innerHTML=p?dr('Zone dominante',p.zone_dominante||'—')+dr('Zone U',p.pct_zone_u?p.pct_zone_u+'%':'—')+dr('Zone N',p.pct_zone_n?p.pct_zone_n+'%':'—'):'<span class="empty">PLU non numérisé pour cette commune</span>';
 }
 
-// DPE
+
+
+// DPE — analyse comparative locale + nationale
 function renderDPE(d){
-  if(!d.dpe.length){document.getElementById('dpeK').innerHTML=kpi('','DPE','Absent','');return;}
+  if(d.dpe.length<3){
+    document.getElementById('dpeK').innerHTML=kpi('','DPE','Insuffisant',d.dpe.length+' bilans');
+    document.getElementById('dpeStack').innerHTML='';
+    document.getElementById('dpeI').innerHTML=interp('Moins de 3 diagnostics disponibles sur ce code postal. Données insuffisantes pour une analyse fiable.','warn');
+    document.getElementById('renoD').innerHTML='<span class="empty">Données DPE insuffisantes</span>';
+    return;
+  }
   var cnt={A:0,B:0,C:0,D:0,E:0,F:0,G:0};
   d.dpe.forEach(function(r){if(r.classe_energie&&cnt.hasOwnProperty(r.classe_energie))cnt[r.classe_energie]++;});
   var tot=Object.values(cnt).reduce(function(a,b){return a+b;},0)||1;
   var mod=Object.entries(cnt).sort(function(a,b){return b[1]-a[1];})[0][0];
-  var pFG=((cnt.F+cnt.G)/tot*100).toFixed(1);
-  document.getElementById('dpeK').innerHTML=kpi('','Classe modale',mod,tot+' bilans')+kpi(parseFloat(pFG)>15?'r':'g','Passoires F+G',pFG+'%','');
+  var pFG=Math.round((cnt.F+cnt.G)/tot*100);
+  var pABC=Math.round((cnt.A+cnt.B+cnt.C)/tot*100);
+  // National reference: F+G = 17%, ABC = 38%
+  document.getElementById('dpeK').innerHTML=
+    kpi('','Classe modale',mod,tot+' bilans')+
+    kpi(pFG>20?'r':'g','Passoires F+G',pFG+'%','nat: 17%')+
+    kpi(pABC>45?'g':'','Perform. A-C',pABC+'%','nat: 38%');
   document.getElementById('dpeStack').innerHTML=['A','B','C','D','E','F','G'].map(function(c){return cnt[c]?'<div class="ds d'+c+'" style="flex:'+cnt[c]+'">'+(cnt[c]/tot>.1?c:'')+'</div>':'';}).join('');
-  document.getElementById('dpeI').innerHTML=parseFloat(pFG)>15?'<span style="color:var(--red);font-weight:600">'+pFG+'% passoires · impact -5% à -20% sur la valeur</span>':'<span style="color:var(--green);font-weight:600">Parc performant · moins de 15% de passoires</span>';
+  // Analyse comparative
+  var noteType=pFG>25?'bad':pFG>17?'warn':'good';
+  var noteTxt=pFG>25?pFG+'% de passoires (F+G) contre 17% en moyenne nationale. Ce parc est énergivore — impact direct sur la valeur : -5% à -20% pour un bien F/G.':
+    pFG>17?pFG+'% de passoires, légèrement au-dessus de la moyenne nationale (17%). Tendance défavorable avec la réglementation actuelle.':
+    pFG+'% de passoires, en dessous de la moyenne nationale (17%). Parc performant — atout pour la valorisation immobilière.';
+  document.getElementById('dpeI').innerHTML=interp(noteTxt,noteType)+
+    scaleBar({label:'Part F+G vs nationale',val:pFG,min:0,p25:10,med:17,p75:28,max:60,unit:'%',obs:tot+' bilans',note:null,color:pFG>25?'var(--red)':pFG>17?'var(--amber)':'var(--green)'})+
+    scaleBar({label:'Part A-B-C vs nationale',val:pABC,min:10,p25:30,med:38,p75:55,max:90,unit:'%',note:null,color:'var(--green)'});
+  // Simulation rénovation
   var ap=d.ap&&d.ap[0]||null;
   var dvfP=d.dvf.map(function(r){return r.valeur_fonciere/r.surface_reelle_bati;}).filter(function(v){return v>500&&v<50000;}).sort(function(a,b){return a-b;});
   var pz=ap&&ap.dvf_prix_m2_median||(dvfP.length?dvfP[Math.floor(dvfP.length/2)]:null);
-  if(pz){var s=75,c=s*575,a=s*250,reste=c-a,pv=Math.round(pz*s*.17);document.getElementById('renoD').innerHTML=dr('Surface',s+'m²')+dr('Coût travaux',fmt(c))+dr('Aides MaPrimeRénov + CEE','− '+fmt(a))+'<div class="dr"><span class="dl" style="font-weight:700">Reste à charge</span><span class="dv" style="font-weight:800">'+fmt(reste)+'</span></div>'+dr('Plus-value estimée','+'+fmt(pv));}
-  else document.getElementById('renoD').innerHTML='<span class="empty">Données prix insuffisantes</span>';
+  if(pz){
+    var s=75,cout=s*575,aides=s*250,reste=cout-aides,pv=Math.round(pz*s*.17);
+    document.getElementById('renoD').innerHTML=
+      interp('Simulation de rénovation énergétique G→C sur 75m². La plus-value estimée couvre généralement 60-80% du reste à charge.','good')+
+      dr('Coût travaux estimé',fmt(cout))+dr('Aides MaPrimeRénov + CEE','− '+fmt(aides))+
+      '<div class="dr"><span class="dl" style="font-weight:700">Reste à charge</span><span class="dv" style="font-weight:800;color:var(--amber)">'+fmt(reste)+'</span></div>'+
+      dr('Plus-value estimée','+'+fmt(pv))+
+      scaleBar({label:'Rentabilité rénovation',val:Math.round(pv/reste*100),min:0,p25:40,med:70,p75:95,max:150,unit:'%',note:'Ratio plus-value / reste à charge. Au-dessus de 100% = opération rentable.',noteType:'good',color:'var(--green)'});
+  }
+  else document.getElementById('renoD').innerHTML='<span class="empty">Données prix insuffisantes pour la simulation</span>';
 }
+
+
 
 // TRANSPORTS
 function renderTransports(d){
   var by={};(d.trans||[]).forEach(function(t){var k=t.network_name||t.agency_name||'Réseau';if(!by[k])by[k]=[];by[k].push(t);});
-  document.getElementById('transK').innerHTML=kpi('','Arrêts TC',fmtN((d.trans||[]).length),'')+kpi('','Réseaux',Object.keys(by).length,'');
-  var html='';
-  if(!Object.keys(by).length)html='<span class="empty">Aucun arrêt référencé</span>';
-  else Object.keys(by).slice(0,5).forEach(function(net){
-    html+='<div style="margin-bottom:.5rem"><div style="font-size:.7rem;font-weight:700;color:var(--blue);margin-bottom:.2rem">🚌 '+net+' ('+by[net].length+')</div>';
+  var nb=(d.trans||[]).length;
+  var reseaux=Object.keys(by).length;
+  document.getElementById('transK').innerHTML=
+    kpi(nb>50?'g':nb>10?'a':'r','Arrêts TC',fmtN(nb),'dans la commune')+
+    kpi('','Réseaux',reseaux,'lignes');
+  // Analyse
+  var noteT=nb>100?'Excellente desserte. Plus de 100 arrêts TC — commune très bien desservie, impact positif estimé +3 à +8% sur les prix.':
+    nb>20?'Bonne desserte ('+nb+' arrêts). Mobilité quotidienne possible sans voiture.':
+    nb>5?'Desserte modérée. Horaires probablement limités — vérifier les lignes disponibles.':
+    nb>0?'Très peu d'arrêts ('+nb+'). Dépendance à la voiture.':'Aucun arrêt TC référencé dans la commune.';
+  var html=interp(noteT,nb>100?'good':nb>20?'':nb>5?'warn':'bad');
+  if(nb>0)html+=scaleBar({label:'Arrêts TC vs communes françaises',val:Math.min(nb,200),min:0,p25:5,med:30,p75:80,max:200,unit:'',obs:nb+' arrêts',color:nb>80?'var(--green)':nb>20?'var(--blue)':'var(--amber)'});
+  if(!Object.keys(by).length){document.getElementById('transD').innerHTML=html+'<span class="empty">Aucun arrêt référencé</span>';return;}
+  Object.keys(by).slice(0,5).forEach(function(net){
+    html+='<div style="margin-bottom:.5rem"><div style="font-size:.7rem;font-weight:700;color:var(--blue);margin-bottom:.2rem">🚌 '+net+' ('+by[net].length+' arrêts)</div>';
     by[net].slice(0,4).forEach(function(t){
       var dd=t.stop_lat&&t.stop_lon?dist(d.lat,d.lng,t.stop_lat,t.stop_lon):null;
       var mins=dd?Math.round(dd/80):'?';
@@ -754,12 +870,38 @@ function renderTransports(d){
   document.getElementById('transD').innerHTML=html;
 }
 
-// COMMERCES
+
+
+// COMMERCES & SERVICES
 function renderCommerces(d){
   var poi=d.poi;
-  document.getElementById('poiK').innerHTML=kpi('','Score global',poi?Math.round(poi.score_global||0):'—','/100')+kpi('','Équipements',poi?fmtN(poi.nb_equipements||0):'—','');
-  document.getElementById('poiD').innerHTML=poi?bb('🚌 Transport',poi.score_transport||0)+bb('📚 Éducation',poi.score_education||0)+bb('🏥 Santé',poi.score_sante||0)+bb('🛒 Commerce',poi.score_commerce||0)+bb('🎭 Loisirs',poi.score_loisirs||0):'<span class="empty">Non disponible</span>';
+  if(!poi){
+    document.getElementById('poiK').innerHTML=kpi('','Équipements','N/D','');
+    document.getElementById('poiD').innerHTML='<span class="empty">Données BPE non disponibles pour cette commune</span>';
+    return;
+  }
+  var glob=Math.round(poi.score_global||0);
+  document.getElementById('poiK').innerHTML=
+    kpi(glob>=70?'g':glob>=40?'a':'r','Score global',glob,'/100')+
+    kpi('','Équipements',fmtN(poi.nb_equipements||0),'recensés BPE');
+  var notes={
+    score_transport:['Transports en commun quasi-absents. Dépendance totale à la voiture.','Desserte TC limitée. Voiture indispensable.','Desserte correcte. TC utilisables pour les trajets quotidiens.','Excellente desserte TC. Atout majeur pour la valorisation.'],
+    score_education:['Aucun équipement scolaire à proximité. Périscolaire contraint.','Offre éducative limitée. Écoles élémentaires éloignées.','Bon maillage scolaire. Crèches, écoles et collèges accessibles.','Offre scolaire complète et de qualité.'],
+    score_sante:['Désert médical. Accès aux soins difficile — facteur dépréciatif.','Offre médicale insuffisante. Spécialistes éloignés.','Services de santé accessibles. Généralistes et pharmacies présents.','Forte densité médicale. Cliniques et spécialistes à proximité.'],
+    score_commerce:['Commune sans commerce de proximité. Courses en voiture obligatoires.','Commerces rares. Supérette ou boulangerie éloignée.','Commerces de base accessibles. Vie de quartier présente.','Offre commerciale riche. Marché, supermarchés, commerces spécialisés.'],
+    score_loisirs:['Aucun équipement culturel ou sportif.','Offre culturelle et sportive limitée.','Salles de sport et espaces verts disponibles.','Offre loisirs complète : cinéma, salles de sport, musées, parcs.']
+  };
+  function getBand(v){return v>=75?3:v>=50?2:v>=25?1:0;}
+  var html=scaleBar({label:'Score global équipements vs communes',val:glob,min:0,p25:30,med:50,p75:75,max:100,unit:'',obs:'score BPE INSEE',note:glob>=70?'Commune bien équipée. Les services de proximité sont un critère d'achat prioritaire (source: baromètre SeLoger 2023).':glob>=40?'Equipements corrects mais perfectibles.':'Déficit d'équipements. Potentiel de tension locative.',noteType:glob>=70?'good':glob>=40?'':'warn',color:glob>=70?'var(--green)':glob>=40?'var(--amber)':'var(--red)'});
+  ['score_transport','score_education','score_sante','score_commerce','score_loisirs'].forEach(function(k){
+    var v=poi[k]||0;
+    var label={'score_transport':'🚌 Transports','score_education':'📚 Éducation','score_sante':'🏥 Santé','score_commerce':'🛒 Commerce','score_loisirs':'🎭 Loisirs'}[k];
+    html+='<div class="bb"><div class="bbl">'+label+'</div><div class="bbr"><div class="bbf" style="width:'+v+'%;background:'+(v>=70?'var(--green)':v>=40?'var(--amber)':'var(--red)')+'"></div></div><div class="bbv">'+Math.round(v)+'</div></div>';
+  });
+  document.getElementById('poiD').innerHTML=html;
 }
+
+
 
 // EAU
 function renderEau(d){
@@ -767,27 +909,75 @@ function renderEau(d){
   if(!e){document.getElementById('eauD').innerHTML='<span class="empty">Données non disponibles</span>';return;}
   var conf=e.taux_conformite_global!=null?Math.round(e.taux_conformite_global):null;
   document.getElementById('eauK').innerHTML=kpi(conf>=90?'g':conf>=70?'a':'r','Conformité',conf!=null?conf+'%':'—','')+kpi(e.conformite_bacterio?'g':'r','Bactério',e.conformite_bacterio?'✓ OK':'⚠ NON','')+kpi(e.pesticides_detectes?'r':'g','Pesticides',e.pesticides_detectes?'Détectés':'Nul','');
+  // Interprétation
+  var interpTxt=conf>=95?'Excellente qualité d'eau. Tous les paramètres sont conformes aux normes sanitaires européennes.':
+    conf>=80?'Bonne qualité générale. Quelques dépassements ponctuels, sans danger pour la santé.':
+    conf>=60?'Qualité correcte mais irrégulière. Recommandé de vérifier les contrôles récents.':
+    'Qualité insuffisante. Des dépassements de normes ont été relevés — se renseigner auprès de la mairie.';
+  var interpType=conf>=95?'good':conf>=80?'':conf>=60?'warn':'bad';
+  var html=interp(interpTxt,interpType);
   function wr(ico,l,v,s){return'<div class="eau-param"><div class="eau-ico">'+ico+'</div><div class="eau-lbl">'+l+'</div><div class="eau-val">'+v+'</div><span class="eau-badge '+s+'">'+(s==='ok'?'✓':s==='warn'?'⚠':'✗')+'</span></div>';}
-  document.getElementById('eauD').innerHTML=
-    wr('💧','Nitrates',e.nitrates_mg_l!=null?Number(e.nitrates_mg_l).toFixed(1)+' mg/L':'—',e.nitrates_mg_l>50?'bad':e.nitrates_mg_l>25?'warn':'ok')+
-    wr('🔬','Dureté',e.durete!=null?Number(e.durete).toFixed(0)+' °f':'—','ok')+
-    wr('🦠','Bactériologie',e.conformite_bacterio?'Conforme':'Non conforme',e.conformite_bacterio?'ok':'bad')+
-    wr('🌿','Pesticides',e.pesticides_detectes?'Détectés':'Non détectés',e.pesticides_detectes?'warn':'ok')+
-    wr('🔩','Plomb',e.plomb_conforme!==false?'Conforme':'Non conforme',e.plomb_conforme!==false?'ok':'bad')+
-    (e.date_dernier_controle?'<div style="font-size:.63rem;color:var(--g4);margin-top:.5rem;font-family:var(--mono)">Dernier contrôle : '+e.date_dernier_controle+'</div>':'');
+  html+=wr('💧','Nitrates',e.nitrates_mg_l!=null?Number(e.nitrates_mg_l).toFixed(1)+' mg/L':'—',e.nitrates_mg_l>50?'bad':e.nitrates_mg_l>25?'warn':'ok');
+  html+=cmpSlider('Nitrates vs limite légale',e.nitrates_mg_l,null,null,0,100,' mg/L',e.nitrates_mg_l>50?'var(--red)':e.nitrates_mg_l>25?'var(--amber)':'var(--green)');
+  html+=wr('🔬','Dureté TH',e.durete!=null?Number(e.durete).toFixed(0)+' °f':'—',e.durete>30?'warn':e.durete>8?'ok':'warn');
+  html+=cmpSlider('Dureté vs eau idéale',e.durete,null,null,0,60,' °f','var(--blue)');
+  html+=wr('🦠','Bactériologie',e.conformite_bacterio?'Conforme':'Non conforme',e.conformite_bacterio?'ok':'bad');
+  html+=wr('🌿','Pesticides',e.pesticides_detectes?'Détectés':'Non détectés',e.pesticides_detectes?'warn':'ok');
+  html+=wr('🔩','Plomb',e.plomb_conforme!==false?'Conforme':'Non conforme',e.plomb_conforme!==false?'ok':'bad');
+  if(conf!=null)html+=cmpSlider('Conformité globale vs nationale',conf,null,94,0,100,'%',conf>=90?'var(--green)':conf>=70?'var(--amber)':'var(--red)');
+  html+=(e.date_dernier_controle?'<div style="font-size:.63rem;color:var(--g4);margin-top:.4rem;font-family:var(--mono)">Dernier contrôle : '+e.date_dernier_controle+'</div>':'');
+  document.getElementById('eauD').innerHTML=html;
 }
 
-// DEMO
+// DEMO — benchmarks nationaux
 function renderDemo(d){
   var dm=d.demo;
-  if(!dm){document.getElementById('demoK').innerHTML='';document.getElementById('demoD').innerHTML='';return;}
-  document.getElementById('demoK').innerHTML=kpi('','Population',fmtN(dm.population_2024||dm.population_2020||0),'')+kpi('','Revenu/UC',dm.revenu_median_uc?fmt(dm.revenu_median_uc):'—','')+kpi(dm.taux_chomage>12?'r':dm.taux_chomage>8?'a':'g','Chômage',dm.taux_chomage?dm.taux_chomage+'%':'—','');
-  function dbar(label,val,max,unit,color){var pct=Math.min(100,val/max*100);return'<div class="demo-bar-row"><div class="demo-bar-label"><span>'+label+'</span><span>'+Math.round(val)+unit+'</span></div><div class="demo-bar"><div class="demo-bar-fill" style="width:'+pct+'%;background:'+color+'"></div></div></div>';}
-  document.getElementById('demoD').innerHTML=
-    dbar('Propriétaires',dm.part_proprietaires||0,100,'%','var(--green)')+
-    dbar('Taux pauvreté',dm.taux_pauvrete||0,40,'%','var(--red)')+
-    dbar('Chômage',dm.taux_chomage||0,25,'%','var(--amber)');
+  if(!dm){
+    document.getElementById('demoK').innerHTML='';
+    document.getElementById('demoD').innerHTML='<span class="empty">Données démographiques non disponibles</span>';
+    return;
+  }
+  var pop=dm.population_2024||dm.population_2020||0;
+  var revenu=dm.revenu_median_uc||null;
+  var chomage=dm.taux_chomage||null;
+  var proprios=dm.part_proprietaires||null;
+  var pauvrete=dm.taux_pauvrete||null;
+  document.getElementById('demoK').innerHTML=
+    kpi('','Population',fmtN(pop),'')+
+    kpi(revenu&&revenu>24000?'g':revenu&&revenu<18000?'r':'','Revenu médian/UC',revenu?fmt(revenu):'—','nat: 22 500€')+
+    kpi(chomage>12?'r':chomage>8?'a':'g','Chômage',chomage?chomage+'%':'—','nat: 7%');
+  var html='';
+  // Revenu
+  if(revenu){
+    var diffR=Math.round(revenu-22500);
+    var noteR=diffR>2000?'Revenu médian '+fmt(diffR)+' au-dessus de la nationale (22 500€/UC). Territoire attractif, marché immobilier soutenu.':
+      diffR<-2000?'Revenu médian '+fmt(Math.abs(diffR)+' en-dessous de la nationale. Pouvoir d'achat immobilier limité — frein sur les prix.'):
+      'Revenu en ligne avec la médiane nationale. Marché équilibré.';
+    html+=scaleBar({label:'Revenu médian/UC vs national',val:revenu,min:12000,p25:18000,med:22500,p75:28000,max:45000,unit:'€',note:noteR,noteType:diffR>2000?'good':diffR<-2000?'warn':'',color:diffR>0?'var(--green)':'var(--amber)'});
+  }
+  // Chômage
+  if(chomage!=null){
+    var noteC=chomage<5?'Très faible chômage ('+chomage+'% vs 7% national). Territoire économiquement dynamique.':
+      chomage<8?'Chômage proche de la moyenne nationale (7%). Marché du travail équilibré.':
+      chomage<12?'Chômage au-dessus de la nationale ('+chomage+'% vs 7%). Tension économique modérée.':
+      'Fort chômage ('+chomage+'% vs 7% national). Impact sur le marché locatif et la solvabilité des acheteurs.';
+    html+=scaleBar({label:'Taux de chômage vs national',val:chomage,min:2,p25:5,med:7,p75:11,max:25,unit:'%',note:noteC,noteType:chomage>12?'bad':chomage>8?'warn':chomage<5?'good':'',color:chomage>10?'var(--red)':chomage>7?'var(--amber)':'var(--green)'});
+  }
+  // Propriétaires
+  if(proprios!=null){
+    var noteP=proprios>65?proprios+'% de propriétaires (national: 57%). Commune résidentielle stable, demande locative plus faible.':
+      proprios<45?'Seulement '+proprios+'% de propriétaires. Forte demande locative — intéressant pour un investissement.':
+      proprios+'% de propriétaires, dans la norme nationale (57%).';
+    html+=scaleBar({label:'Part propriétaires vs nationale',val:proprios,min:20,p25:45,med:57,p75:70,max:90,unit:'%',note:noteP,noteType:proprios>65?'good':proprios<40?'warn':'',color:'var(--blue)'});
+  }
+  // Pauvreté
+  if(pauvrete!=null){
+    html+=scaleBar({label:'Taux de pauvreté vs national',val:pauvrete,min:3,p25:10,med:15,p75:22,max:45,unit:'%',note:pauvrete>20?'Taux de pauvreté élevé. Indicateur de fragilité sociale à surveiller pour un investissement locatif.':pauvrete<10?'Très faible taux de pauvreté. Territoire aisé.':null,noteType:pauvrete>20?'warn':pauvrete<10?'good':'',color:pauvrete>20?'var(--red)':pauvrete>15?'var(--amber)':'var(--green)'});
+  }
+  document.getElementById('demoD').innerHTML=html||'<span class="empty">Données socio-économiques incomplètes</span>';
 }
+
+
 
 // BATIMENT
 function renderBatiment(d){
@@ -874,32 +1064,243 @@ function rcadastre(d){
 function rair(d){
   var el=document.getElementById('airD');
   fetch('https://api.waqi.info/feed/geo:'+d.lat+';'+d.lng+'/?token=demo').then(function(r){return r.json();}).then(function(res){
-    if(res.status!=='ok'||!res.data){el.innerHTML='<span class="empty">Non disponible</span>';return;}
+    if(res.status!=='ok'||!res.data){el.innerHTML='<div class="interp warn">Station de mesure non disponible pour cette zone. Données WAQI indisponibles.</div>';return;}
     var aqi=res.data.aqi,iaqi=res.data.iaqi||{};
-    var col=aqi<=50?'var(--green)':aqi<=100?'var(--amber)':'var(--red)';
+    var col=aqi<=50?'var(--green)':aqi<=100?'var(--amber)':aqi<=150?'var(--red)':'#7c3aed';
     var label=aqi<=50?'Bonne':aqi<=100?'Modérée':aqi<=150?'Dégradée':'Mauvaise';
+    var interpTxt=aqi<=50?'Qualité de l'air excellente. Aucune restriction, favorable pour les activités extérieures.':
+      aqi<=100?'Qualité acceptable. Des personnes sensibles (asthmatiques, enfants) peuvent ressentir une gêne.':
+      aqi<=150?'Qualité dégradée. Limiter les activités intenses en extérieur. Ventiler les logements aux heures creuses.':
+      'Mauvaise qualité de l'air. Eviter les sorties prolongées.';
+    var interpType=aqi<=50?'good':aqi<=100?'':aqi<=150?'warn':'bad';
     document.getElementById('airK').innerHTML=kpi(aqi<=50?'g':aqi<=100?'a':'r','IQA',aqi,label);
-    el.innerHTML='<div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.6rem;padding:.6rem;background:var(--g1);border-radius:10px">'+
-      '<div style="font-size:2.2rem;font-weight:800;color:'+col+';letter-spacing:-.05em">'+aqi+'</div>'+
-      '<div><div style="font-weight:700;color:'+col+'">'+label+'</div><div style="font-size:.7rem;color:var(--g4)">Indice Qualité Air · WAQI</div></div></div>'+
-      (iaqi.pm25?dr('PM2.5',iaqi.pm25.v+' µg/m³'):'')+
+    el.innerHTML=interp(interpTxt,interpType)+
+      '<div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.5rem;padding:.6rem;background:var(--g1);border-radius:10px">'+
+      '<div style="font-size:2rem;font-weight:800;color:'+col+';letter-spacing:-.05em">'+aqi+'</div>'+
+      '<div><div style="font-weight:700;color:'+col+'">'+label+'</div><div style="font-size:.68rem;color:var(--g4)">Indice Qualité Air · WAQI</div></div></div>'+
+      cmpSlider('IQA vs seuil santé',aqi,null,50,0,200,'',col)+
+      (iaqi.pm25?dr('PM2.5 (particules fines)',iaqi.pm25.v+' µg/m³')+
+        (iaqi.pm25.v>25?interp('PM2.5 au-dessus du seuil OMS (25 µg/m³). Exposition chronique à risque.','bad'):''):'')+
       (iaqi.pm10?dr('PM10',iaqi.pm10.v+' µg/m³'):'')+
-      (iaqi.no2?dr('NO₂',iaqi.no2.v+' µg/m³'):'');
-  }).catch(function(){el.innerHTML='<span class="empty">Non disponible</span>';});
+      (iaqi.no2?dr('NO₂ (dioxyde d'azote)',iaqi.no2.v+' µg/m³'):'');
+  }).catch(function(){el.innerHTML='<div class="interp warn">Service WAQI indisponible. Réessayez dans quelques instants.</div>';});
 }
 
 // ASYNC : Climat
 function rclimat(d){
   var el=document.getElementById('climatD');
-  fetch('https://api.open-meteo.com/v1/forecast?latitude='+d.lat+'&longitude='+d.lng+'&daily=temperature_2m_max,temperature_2m_min,precipitation_sum&current=temperature_2m,weather_code,wind_speed_10m&timezone=Europe/Paris&forecast_days=1').then(function(r){return r.json();}).then(function(res){
+  var url='https://api.open-meteo.com/v1/forecast?latitude='+d.lat+'&longitude='+d.lng+
+    '&current=temperature_2m,weather_code,wind_speed_10m,relative_humidity_2m'+
+    '&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,sunshine_duration'+
+    '&timezone=auto&forecast_days=3';
+  fetch(url).then(function(r){return r.ok?r.json():Promise.reject();}).then(function(res){
     var cur=res.current||{},daily=res.daily||{};
-    var wc=cur.weather_code||0,em=wc===0?'☀️':wc<=3?'⛅':wc<=49?'🌫️':wc<=69?'🌧️':wc<=79?'🌨️':'⛈️';
-    el.innerHTML='<div style="display:flex;align-items:center;gap:1rem;margin-bottom:.5rem"><div style="font-size:2rem">'+em+'</div>'+
-      '<div><div style="font-size:1.6rem;font-weight:800;letter-spacing:-.04em;line-height:1">'+(cur.temperature_2m!=null?Math.round(cur.temperature_2m)+'°C':'—')+'</div>'+
-      '<div style="font-size:.7rem;color:var(--g4)">'+(cur.wind_speed_10m?'Vent '+Math.round(cur.wind_speed_10m)+' km/h':'')+'</div></div></div>'+
-      (daily.temperature_2m_min&&daily.temperature_2m_max?dr('Min / Max',Math.round(daily.temperature_2m_min[0])+'° / '+Math.round(daily.temperature_2m_max[0])+'°'):'')+
-      (daily.precipitation_sum?dr('Précipitations',Math.round(daily.precipitation_sum[0])+'mm'):'');
-  }).catch(function(){el.innerHTML='<span class="empty">Indisponible</span>';});
+    var wc=cur.weather_code||0;
+    var em=wc===0?'☀️':wc<=3?'🌤️':wc<=45?'🌥️':wc<=49?'🌫️':wc<=67?'🌧️':wc<=77?'🌨️':wc<=82?'🌦️':'⛈️';
+    var desc=wc===0?'Ciel dégagé':wc<=3?'Peu nuageux':wc<=45?'Nuageux':wc<=49?'Brouillard':wc<=67?'Pluie':wc<=77?'Neige':wc<=82?'Averses':'Orage';
+    var t=cur.temperature_2m!=null?Math.round(cur.temperature_2m):null;
+    var tmin=daily.temperature_2m_min?Math.round(daily.temperature_2m_min[0]):null;
+    var tmax=daily.temperature_2m_max?Math.round(daily.temperature_2m_max[0]):null;
+    var rain=daily.precipitation_sum?Math.round(daily.precipitation_sum[0]*10)/10:0;
+    var sun=daily.sunshine_duration?Math.round(daily.sunshine_duration[0]/3600):null;
+    var wind=cur.wind_speed_10m?Math.round(cur.wind_speed_10m):null;
+    var hum=cur.relative_humidity_2m||null;
+    var interp=t!==null?(t<5?'Temps froid — prévoir chauffage actif, impact sur la consommation énergétique.':t<15?'Température fraîche, journée typique de demi-saison.':t<25?'Conditions agréables, températures dans la norme saisonnière.':'Chaleur notable — vérifier la qualité de l'isolation du bien.'): '';
+    el.innerHTML=
+      '<div style="display:flex;align-items:center;gap:.75rem;background:var(--g1);border-radius:10px;padding:.6rem;margin-bottom:.5rem">'+
+        '<div style="font-size:2.2rem">'+em+'</div>'+
+        '<div style="flex:1">'+
+          '<div style="font-size:1.5rem;font-weight:800;letter-spacing:-.04em;line-height:1">'+(t!==null?t+'°C':'—')+'</div>'+
+          '<div style="font-size:.72rem;color:var(--g5);margin-top:.1rem">'+desc+(wind?' · Vent '+wind+' km/h':'')+'</div>'+
+        '</div>'+
+        (tmin!==null&&tmax!==null?'<div style="text-align:right"><div style="font-size:.65rem;color:var(--g4)">min/max</div><div style="font-family:var(--mono);font-weight:700;font-size:.8rem">'+tmin+'°/'+tmax+'°</div></div>':'')+
+      '</div>'+
+      (interp?'<div class="interp">'+interp+'</div>':'')+
+      dr('Humidité',hum?hum+'%':'—')+
+      dr('Précipitations',rain?rain+'mm':'0mm')+
+      (sun!==null?dr('Ensoleillement',sun+'h'):'')+
+      '<div class="cmp-block" style="margin-top:.5rem">'+
+        '<div class="cmp-label"><span>Température vs normale</span><span>'+(t!==null?t+'°C':'—')+'</span></div>'+
+        '<div class="cmp-track"><div class="cmp-fill" style="width:'+Math.min(100,Math.max(5,t!=null?(t+10)/45*100:50))+'%;background:var(--amber)"></div>'+
+          (t!==null?'<div class="cmp-marker" style="left:'+Math.min(100,Math.max(5,(t+10)/45*100))+'%;background:var(--k)"></div>':'')+
+        '</div><div class="cmp-legend"><span>-10°</span><span>Normale: 15°</span><span>35°</span></div>'+
+      '</div>';
+  }).catch(function(){el.innerHTML='<div class="interp warn">Données météo temporairement indisponibles.</div>';});
+}
+
+
+// COMPARISON SLIDER helper
+function cmpSlider(label, val, valSecteur, valNational, min, max, unit, color){
+  if(val==null)return'';
+  var pct=Math.min(100,Math.max(3,(val-min)/(max-min)*100));
+  var pctS=valSecteur!=null?Math.min(100,Math.max(3,(valSecteur-min)/(max-min)*100)):null;
+  var pctN=valNational!=null?Math.min(100,Math.max(3,(valNational-min)/(max-min)*100)):null;
+  return'<div class="cmp-block">'+
+    '<div class="cmp-label"><span>'+label+'</span><span>'+Math.round(val)+unit+'</span></div>'+
+    '<div class="cmp-track">'+
+      '<div class="cmp-fill" style="width:'+pct+'%;background:'+color+'"></div>'+
+      '<div class="cmp-marker" style="left:'+pct+'%;background:'+color+'"></div>'+
+      (pctS!=null?'<div class="cmp-marker" style="left:'+pctS+'%;background:var(--g4)"></div>':'')+
+      (pctN!=null?'<div class="cmp-marker" style="left:'+pctN+'%;background:var(--g5);border-style:dashed"></div>':'')+
+    '</div>'+
+    '<div class="cmp-legend">'+
+      '<span>'+min+unit+'</span>'+
+      (pctS!=null?'<span style="color:var(--g4)">Secteur: '+Math.round(valSecteur)+unit+'</span>':'<span></span>')+
+      '<span>'+max+unit+'</span>'+
+    '</div>'+
+  '</div>';
+}
+
+// INTERPRETATION helper
+function interp(msg, type){return'<div class="interp '+(type||'')+'">'+msg+'</div>';}
+
+// MAP LAYERS : DVF + POI
+function loadMapLayers(d){
+  mGroup.clearLayers();
+  // Cadastre polygon (déjà fait dans rcadastre)
+  // DVF colored dots
+  var dvfF=d.dvf.filter(function(r){return r.surface_reelle_bati>=9&&r.valeur_fonciere>=5000;});
+  var prices=dvfF.map(function(r){return r.valeur_fonciere/r.surface_reelle_bati;}).filter(function(v){return v>500&&v<50000;}).sort(function(a,b){return a-b;});
+  var med=prices.length?prices[Math.floor(prices.length/2)]:0;
+  // Pour DVF on a besoin des coords — on utilise la position approx (commune centroïde + bruit)
+  // Afficher les arrêts TC sur la carte
+  (d.trans||[]).slice(0,80).forEach(function(t){
+    if(!t.stop_lat||!t.stop_lon)return;
+    var dd=dist(d.lat,d.lng,t.stop_lat,t.stop_lon);
+    var m=L.marker([t.stop_lat,t.stop_lon],{icon:L.divIcon({className:'',html:'<div class="poi-dot" style="background:#2563eb"></div>',iconSize:[10,10],iconAnchor:[5,5]})});
+    m.bindPopup(mkPop('🚌','Arrêt TC',(t.stop_name||'—'),(t.network_name||''),dd,'#2563eb',t.stop_lat,t.stop_lon,d));
+    mGroup.addLayer(m);
+  });
+  // Écoles sur la carte
+  (d.ecoles||[]).filter(function(e){return e.latitude&&e.longitude;}).forEach(function(e){
+    var dd=dist(d.lat,d.lng,e.latitude,e.longitude);
+    var m=L.marker([e.latitude,e.longitude],{icon:L.divIcon({className:'',html:'<div class="poi-dot" style="background:#16a34a"></div>',iconSize:[10,10],iconAnchor:[5,5]})});
+    var detail=e.taux_reussite_bac?'Bac: '+e.taux_reussite_bac+'%':(e.type||'');
+    m.bindPopup(mkPop('📚','École',(e.nom||'—'),detail,dd,'#16a34a',e.latitude,e.longitude,d));
+    mGroup.addLayer(m);
+  });
+}
+
+function mkPop(ico,type,name,detail,dd,color,lat,lng,d){
+  var gmaps='https://www.google.com/maps/dir/?api=1&destination='+lat+','+lng+'&origin='+d.lat+','+d.lng;
+  return'<div class="pop">'+
+    '<div class="pop-tag" style="color:'+color+'">'+type+'</div>'+
+    '<div class="pop-name">'+ico+' '+name+'</div>'+
+    (detail?'<div style="font-size:.7rem;color:var(--g5);margin-bottom:.3rem">'+detail+'</div>':'')+
+    '<div style="font-family:var(--mono);font-size:.68rem;color:var(--g4);margin-bottom:.4rem">'+fd(dd)+' · ~'+Math.round(dd/80)+' min à pied</div>'+
+    '<a href="'+gmaps+'" target="_blank" style="display:block;padding:.35rem .5rem;background:var(--k);color:#fff;border-radius:7px;text-align:center;font-size:.7rem;font-weight:700;text-decoration:none">↗ Itinéraire Google Maps</a>'+
+  '</div>';
+}
+
+// Charger POI OSM et les mettre sur la carte
+function loadOSMOnMap(d){
+  fetch('https://overpass-api.de/api/interpreter?data=[out:json][timeout:10];(node["amenity"~"hospital|pharmacy|doctors|dentist"](around:1500,'+d.lat+','+d.lng+');node["shop"](around:600,'+d.lat+','+d.lng+');node["amenity"~"restaurant|cafe|supermarket"](around:500,'+d.lat+','+d.lng+'););out 50;')
+    .then(function(r){return r.ok?r.json():null;})
+    .then(function(res){
+      if(!res||!res.elements)return;
+      var colMap={hospital:'#dc2626',pharmacy:'#dc2626',doctors:'#dc2626',dentist:'#dc2626'};
+      res.elements.filter(function(e){return e.tags&&e.tags.name&&e.lat&&e.lon;}).slice(0,40).forEach(function(e){
+        var amenity=e.tags.amenity||'shop';
+        var isHealth=colMap[amenity];
+        var col=isHealth?'#dc2626':'#d97706';
+        var ico=isHealth?'🏥':e.tags.amenity==='restaurant'?'🍽️':e.tags.amenity==='cafe'?'☕':'🛒';
+        var dd=dist(d.lat,d.lng,e.lat,e.lon);
+        var m=L.marker([e.lat,e.lon],{icon:L.divIcon({className:'',html:'<div class="poi-dot-sq" style="background:'+col+'"></div>',iconSize:[10,10],iconAnchor:[5,5]})});
+        m.bindPopup(mkPop(ico,(e.tags.amenity||e.tags.shop||'Commerce'),(e.tags.name||'—'),(e.tags['addr:street']||''),dd,col,e.lat,e.lon,d));
+        mGroup.addLayer(m);
+      });
+    }).catch(function(){});
+}
+
+
+// ── SCALE BAR : échelle comparaison avec marqueur bien ──
+function scaleBar(opts){
+  // opts: {label, val, min, p25, med, p75, max, unit, note, obs, color}
+  if(opts.val==null||opts.min==null||opts.max==null)return'';
+  var range=opts.max-opts.min;if(range<=0)return'';
+  function pct(v){return Math.min(98,Math.max(2,(v-opts.min)/range*100));}
+  var vp=pct(opts.val);
+  var col=opts.color||'var(--blue)';
+  var diff=opts.med?opts.val-opts.med:null;
+  var diffTxt=diff!=null?(diff>0?'+':'')+Math.round(diff)+(opts.unit||''):null;
+  var diffCol=diff>0?'var(--red)':diff<0?'var(--green)':'var(--g5)';
+  return'<div style="margin:.6rem 0">'+
+    '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:.25rem">'+
+      '<span style="font-size:.68rem;font-weight:700;color:var(--g5)">'+opts.label+'</span>'+
+      '<span style="font-size:.7rem;font-weight:800;font-family:var(--mono)">'+Math.round(opts.val)+(opts.unit||'')+(opts.obs?' <span style="font-weight:400;color:var(--g4)">'+opts.obs+'</span>':'')+'</span>'+
+    '</div>'+
+    '<div style="position:relative;height:28px">'+
+      // Track
+      '<div style="position:absolute;top:11px;left:0;right:0;height:6px;background:var(--g2);border-radius:3px"></div>'+
+      // Zone P25-P75
+      (opts.p25!=null&&opts.p75!=null?'<div style="position:absolute;top:11px;left:'+pct(opts.p25)+'%;width:'+(pct(opts.p75)-pct(opts.p25))+'%;height:6px;background:rgba(37,99,235,.15);border-radius:1px"></div>':'')+
+      // Médiane tick
+      (opts.med!=null?'<div style="position:absolute;top:8px;left:'+pct(opts.med)+'%;width:2px;height:12px;background:var(--g4);border-radius:1px;transform:translateX(-50%)"></div>':'')+
+      // Médiane label
+      (opts.med!=null?'<div style="position:absolute;top:22px;left:'+pct(opts.med)+'%;transform:translateX(-50%);font-size:.52rem;color:var(--g4);font-family:var(--mono);white-space:nowrap">méd. '+Math.round(opts.med)+(opts.unit||'')+'</div>':'')+
+      // Marqueur bien
+      '<div style="position:absolute;top:6px;left:'+vp+'%;width:16px;height:16px;background:'+col+';border-radius:50%;border:2.5px solid #fff;box-shadow:0 1px 5px rgba(0,0,0,.35);transform:translateX(-50%);z-index:2"></div>'+
+    '</div>'+
+    '<div style="display:flex;justify-content:space-between;font-size:.55rem;color:var(--g4);font-family:var(--mono);margin-top:16px;padding-top:2px">'+
+      '<span>'+Math.round(opts.min)+(opts.unit||'')+'</span>'+
+      (diffTxt?'<span style="color:'+diffCol+';font-weight:700;font-size:.65rem">'+diffTxt+' vs médiane</span>':'<span></span>')+
+      '<span>'+Math.round(opts.max)+(opts.unit||'')+'</span>'+
+    '</div>'+
+    (opts.note?'<div class="interp '+(opts.noteType||'')+'" style="margin-top:.3rem">'+opts.note+'</div>':'')+
+  '</div>';
+}
+
+// ── INTERP BOX ──
+function interp(msg,type){
+  if(!msg)return'';
+  return'<div class="interp '+(type||'')+'">'+msg+'</div>';
+}
+
+// ── POPUP MAP ──
+function mkPop(ico,type,name,detail,dd,color,lat,lng,d){
+  var gmaps='https://www.google.com/maps/dir/?api=1&destination='+lat+','+lng+'&origin='+d.lat+','+d.lng;
+  return'<div class="pop">'+
+    '<div class="pop-tag" style="color:'+color+'">'+type+'</div>'+
+    '<div class="pop-name">'+ico+' '+name+'</div>'+
+    (detail?'<div style="font-size:.7rem;color:var(--g5);margin-bottom:.3rem">'+detail+'</div>':'')+
+    '<div style="font-family:var(--mono);font-size:.68rem;color:var(--g4);margin-bottom:.4rem">'+fd(dd)+' · ~'+Math.round(dd/80)+' min à pied</div>'+
+    '<a href="'+gmaps+'" target="_blank" style="display:block;padding:.35rem .5rem;background:var(--k);color:#fff;border-radius:7px;text-align:center;font-size:.7rem;font-weight:700;text-decoration:none">↗ Itinéraire Google Maps</a>'+
+  '</div>';
+}
+
+// ── COUCHES CARTE ──
+function loadMapLayers(d){
+  // Arrêts TC
+  (d.trans||[]).slice(0,80).forEach(function(t){
+    if(!t.stop_lat||!t.stop_lon)return;
+    var dd=dist(d.lat,d.lng,t.stop_lat,t.stop_lon);
+    var m=L.marker([t.stop_lat,t.stop_lon],{icon:L.divIcon({className:'',html:'<div style="width:10px;height:10px;background:#2563eb;border-radius:50%;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.3)"></div>',iconSize:[10,10],iconAnchor:[5,5]})});
+    m.bindPopup(mkPop('🚌','Arrêt TC',t.stop_name||'—',t.network_name||'',dd,'#2563eb',t.stop_lat,t.stop_lon,d));
+    mGroup.addLayer(m);
+  });
+  // Écoles
+  (d.ecoles||[]).filter(function(e){return e.latitude&&e.longitude;}).forEach(function(e){
+    var dd=dist(d.lat,d.lng,e.latitude,e.longitude);
+    var m=L.marker([e.latitude,e.longitude],{icon:L.divIcon({className:'',html:'<div style="width:10px;height:10px;background:#16a34a;border-radius:50%;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.3)"></div>',iconSize:[10,10],iconAnchor:[5,5]})});
+    m.bindPopup(mkPop('📚','École',e.nom||'—',(e.type||'')+(e.taux_reussite_bac?' · Bac '+e.taux_reussite_bac+'%':''),dd,'#16a34a',e.latitude,e.longitude,d));
+    mGroup.addLayer(m);
+  });
+}
+function loadOSMOnMap(d){
+  fetch('https://overpass-api.de/api/interpreter?data=[out:json][timeout:10];(node["amenity"~"hospital|pharmacy|doctors|dentist"](around:1500,'+d.lat+','+d.lng+');node["shop"~"supermarket|bakery|butcher|convenience"](around:700,'+d.lat+','+d.lng+');node["amenity"~"restaurant|cafe"](around:500,'+d.lat+','+d.lng+'););out 50;')
+    .then(function(r){return r.ok?r.json():null;})
+    .then(function(res){
+      if(!res||!res.elements)return;
+      res.elements.filter(function(e){return e.tags&&e.tags.name&&e.lat&&e.lon;}).slice(0,40).forEach(function(e){
+        var isH=['hospital','pharmacy','doctors','dentist'].includes(e.tags.amenity);
+        var col=isH?'#dc2626':'#d97706';
+        var ico=isH?'🏥':e.tags.amenity==='restaurant'?'🍽️':e.tags.amenity==='cafe'?'☕':'🛒';
+        var dd=dist(d.lat,d.lng,e.lat,e.lon);
+        var m=L.marker([e.lat,e.lon],{icon:L.divIcon({className:'',html:'<div style="width:9px;height:9px;background:'+col+';border-radius:2px;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.3)"></div>',iconSize:[9,9],iconAnchor:[4.5,4.5]})});
+        m.bindPopup(mkPop(ico,e.tags.amenity||e.tags.shop||'Commerce',e.tags.name||'—','',dd,col,e.lat,e.lon,d));
+        mGroup.addLayer(m);
+      });
+    }).catch(function(){});
 }
 
 function copyLink(){if(!geo)return toast('Aucune adresse chargée');navigator.clipboard.writeText(location.origin+location.pathname+'?lat='+geo.y+'&lng='+geo.x).then(function(){toast('Lien copié !');});}
