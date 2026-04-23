@@ -522,7 +522,13 @@ function pickSugg(i){
   document.getElementById('sdd').style.display='none';
   si.blur();
   geo=f.properties;
-  if(map)map.flyTo({center:[+f.properties.x,+f.properties.y],zoom:16});
+  try{
+    if(map){
+      var cx=+f.properties.x,cy=+f.properties.y;
+      if(map.isStyleLoaded()){map.flyTo({center:[cx,cy],zoom:16});}
+      else{map.once('load',function(){map.flyTo({center:[cx,cy],zoom:16});});}
+    }
+  }catch(e){}
   loadReport();
 }
 function hideSugg(){document.getElementById('sdd').style.display='none';}
@@ -530,7 +536,11 @@ function hideSugg(){document.getElementById('sdd').style.display='none';}
 function locate(){
   if(!navigator.geolocation)return toast('Non supporté');
   navigator.geolocation.getCurrentPosition(function(p){
-    map.flyTo({center:[p.coords.longitude,p.coords.latitude],zoom:17});
+    try{
+      var lc=[p.coords.longitude,p.coords.latitude];
+      if(map.isStyleLoaded()){map.flyTo({center:lc,zoom:17});}
+      else{map.once('load',function(){map.flyTo({center:lc,zoom:17});});}
+    }catch(e){}
     rgc(p.coords.latitude,p.coords.longitude);
   },function(){toast('Refusé');});
 }
