@@ -59,7 +59,7 @@ html,body{width:100%;height:100%;font-family:var(--sans);background:var(--bg);co
 
 /* MAP */
 #mwrap{position:relative;flex:1;min-width:0;overflow:hidden;min-height:200px}
-#map{position:absolute;inset:0}
+#map{position:absolute;top:0;left:0;right:0;bottom:0;width:100%;height:100%;min-height:300px}
 .leaflet-tile{}
 .leaflet-control-zoom{border:none!important;background:var(--w)!important;border-radius:10px!important;box-shadow:var(--sh)!important;overflow:hidden}
 .leaflet-control-zoom a{background:transparent!important;color:var(--k)!important;border-bottom:1px solid var(--bd)!important;font-weight:600!important}
@@ -71,8 +71,8 @@ html,body{width:100%;height:100%;font-family:var(--sans);background:var(--bg);co
 
 /* MOBILE */
 @media(max-width:900px){
-  #content{position:relative}
-  #mwrap{position:absolute;inset:0;z-index:1;min-height:100%}
+  #content{position:relative;height:100%;overflow:hidden}
+  #mwrap{position:absolute;top:0;left:0;right:0;bottom:0;z-index:1}
   #panel{position:absolute;bottom:0;left:0;right:0;z-index:10;width:100%;border-left:none;border-top:1px solid var(--bd);height:78vh;border-radius:18px 18px 0 0;transform:translateY(100%);transition:transform .35s cubic-bezier(.4,0,.2,1);box-shadow:0 -8px 40px rgba(0,0,0,.15);display:flex;flex-direction:column}
   #panel.open{transform:translateY(0);max-height:100vh}
   #panel.peek{transform:translateY(calc(100% - 72px))}
@@ -441,7 +441,8 @@ function checkPin(){
   if(PINS.includes(v)){
     document.getElementById('lock').style.display='none';
     document.getElementById('app').style.display='flex';
-    initMap();initFromURL();
+    // Attendre que le browser ait calculé le layout avant d\'initialiser Leaflet
+    setTimeout(function(){initMap();initFromURL();},50);
   } else {
     document.getElementById('lerr').textContent='Code incorrect';
     document.getElementById('lpin').value='';
@@ -457,10 +458,16 @@ function rpc(fn,p){return fetch(SB+'/rest/v1/rpc/'+fn,{method:'POST',headers:{'a
 // MAP
 function initMap(){
   map=L.map('map',{zoomControl:true}).setView([46.6,2.3],6);
-  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'©OpenStreetMap contributors',maxZoom:19,crossOrigin:true}).addTo(map);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+    attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    subdomains:['a','b','c'],
+    maxZoom:19,
+    tileSize:256
+  }).addTo(map);
   mGroup=L.layerGroup().addTo(map);
   map.on('click',function(e){rgc(e.latlng.lat,e.latlng.lng);});
-  setTimeout(function(){map.invalidateSize();},100);
+  // Forcer le recalcul de taille plusieurs fois
+  [100,300,600,1000].forEach(function(t){setTimeout(function(){map.invalidateSize();},t);});
   // Mobile drag
   var h=document.getElementById('drag-handle');
   var startY;
