@@ -129,7 +129,7 @@ html,body{width:100%;height:100%;font-family:var(--sans);background:var(--bg);co
 
 /* BODY */
 #pbody{flex:1;min-height:0;overflow-y:scroll;-webkit-overflow-scrolling:touch;display:none}
-#pbody.on{display:block}
+#pbody.on{display:block;-webkit-overflow-scrolling:touch}
 .tab-pane{display:none;padding:.65rem}
 .tab-pane.on{display:block}
 
@@ -525,8 +525,8 @@ function pickSugg(i){
   try{
     if(map){
       var cx=+f.properties.x,cy=+f.properties.y;
-      if(map.isStyleLoaded()){map.flyTo({center:[cx,cy],zoom:16});}
-      else{map.once('load',function(){map.flyTo({center:[cx,cy],zoom:16});});}
+      if(map.isStyleLoaded()){map.jumpTo({center:[cx,cy],zoom:16});}
+      else{map.once('load',function(){map.jumpTo({center:[cx,cy],zoom:16});});}
     }
   }catch(e){}
   loadReport();
@@ -538,8 +538,8 @@ function locate(){
   navigator.geolocation.getCurrentPosition(function(p){
     try{
       var lc=[p.coords.longitude,p.coords.latitude];
-      if(map.isStyleLoaded()){map.flyTo({center:lc,zoom:17});}
-      else{map.once('load',function(){map.flyTo({center:lc,zoom:17});});}
+      if(map.isStyleLoaded()){map.jumpTo({center:lc,zoom:17});}
+      else{map.once('load',function(){map.jumpTo({center:lc,zoom:17});});}
     }catch(e){}
     rgc(p.coords.latitude,p.coords.longitude);
   },function(){toast('Refusé');});
@@ -641,10 +641,14 @@ function loadReport(){
     var pinEl=document.createElement('div');pinEl.className='map-pin';
     if(pin)try{pin.remove();}catch(e){}
     pin=new maplibregl.Marker({element:pinEl}).setLngLat([lng,lat]).addTo(map);
-    // flyTo : appel immédiat + fallback 600ms (si style pas encore chargé)
-    function doFly(){try{map.flyTo({center:[lng,lat],zoom:15});}catch(e){}}
-    doFly();
-    setTimeout(doFly,600);
+    // jumpTo : synchrone, pas d'animation, marche immédiatement
+    function doJump(){
+      try{map.jumpTo({center:[lng,lat],zoom:15});}catch(e){
+        setTimeout(function(){try{map.jumpTo({center:[lng,lat],zoom:15});}catch(e2){}},500);
+      }
+    }
+    if(map.isStyleLoaded()){doJump();}
+    else{map.once('load',doJump);setTimeout(doJump,800);}
     setTimeout(function(){try{if(map)map.resize();}catch(e){}},300);
   }catch(e){}
   // SEO dynamique
@@ -709,16 +713,7 @@ function renderAll(d){
   var pbody=document.getElementById('pbody');
   pbody.classList.add('on');
   // Hauteur explicite en pixels — seul moyen fiable sur iOS Safari
-  // setTimeout pour laisser le browser finir le layout après le render
-  setTimeout(function(){
-    var panel=document.getElementById('panel');
-    var handle=document.querySelector('.ph-handle');
-    var ph=document.getElementById('ph');
-    var tabs=document.getElementById('tabs');
-    var usedH=(handle?handle.offsetHeight:0)+(ph?ph.offsetHeight:0)+(tabs?tabs.offsetHeight:0);
-    var availH=panel.offsetHeight-usedH;
-    if(availH>50){pbody.style.height=availH+'px';pbody.style.overflow='scroll';}
-  },200);
+  // flex:1 + min-height:0 gèrent la hauteur — pas besoin de JS ici
   document.getElementById('pfoot').style.display='flex';
   document.getElementById('paddr').textContent=d.geo.label||'—';
   document.getElementById('psub').textContent=(d.cp||'')+' '+(d.geo.city||'')+(d.cc?' · INSEE '+d.cc:'');
