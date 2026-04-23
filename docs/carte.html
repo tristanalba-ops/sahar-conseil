@@ -52,7 +52,7 @@ html,body{width:100%;height:100%;font-family:var(--sans);background:var(--bg);co
 #si{width:100%;padding:.5rem .8rem;background:var(--g1);border:1.5px solid var(--bd);border-radius:9px;color:var(--k);font-size:.83rem;outline:none;font-family:var(--sans)}
 #si:focus{border-color:var(--k);background:var(--w)}
 #si::placeholder{color:var(--g3)}
-#sdd{position:absolute;top:calc(100% + 5px);left:0;right:0;background:var(--w);border:1.5px solid var(--bd);border-radius:11px;z-index:300;display:none;max-height:250px;overflow-y:auto;box-shadow:var(--sh-lg)}
+#sdd{position:fixed;top:58px;left:.85rem;right:.85rem;background:var(--w);border:1.5px solid var(--bd);border-radius:11px;z-index:9000;display:none;max-height:250px;overflow-y:auto;box-shadow:var(--sh-lg)}
 .sg{padding:.6rem .9rem;cursor:pointer;font-size:.8rem;border-bottom:1px solid var(--g2);display:flex;align-items:center;gap:7px}
 .sg:last-child{border-bottom:none}
 .sg:active{background:var(--g1)}
@@ -240,11 +240,13 @@ html,body{width:100%;height:100%;font-family:var(--sans);background:var(--bg);co
     <div class="bname">Intent Analytics</div>
     <div class="bdiv"></div>
     <div id="sw">
-      <input id="si" type="search" placeholder="Rechercher une adresse…" autocomplete="off" spellcheck="false" inputmode="search">
-      <div id="sdd"></div>
+      <input id="si" type="text" placeholder="Rechercher une adresse…" autocomplete="off" spellcheck="false">
     </div>
     <button id="locbtn" onclick="locate()">📍</button>
   </div>
+
+  <!-- Dropdown autocomplete : hors #bar pour éviter overflow:hidden et touch issues iOS -->
+  <div id="sdd"></div>
 
   <div id="content">
     <div id="mwrap"><div id="map"></div></div>
@@ -494,6 +496,11 @@ function initSearch(){
             });
             dd.appendChild(div);
           });
+          // Position dynamique sous l'input
+          var r=si.getBoundingClientRect();
+          dd.style.top=(r.bottom+5)+'px';
+          dd.style.left=r.left+'px';
+          dd.style.right=(window.innerWidth-r.right)+'px';
           dd.style.display='block';
         }).catch(function(){dd.style.display='none';});
     },300);
