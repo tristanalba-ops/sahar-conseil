@@ -62,37 +62,36 @@ html,body{width:100%;height:100%;font-family:var(--sans);background:var(--bg);co
 /* MAIN CONTENT */
 #content{flex:1;position:relative;overflow:hidden}
 
-/* MAP — toujours présent, derrière le panel */
-#mwrap{position:absolute;top:0;left:0;right:0;bottom:0}
-#map{width:100%;height:calc(100vh - 52px)}
+/* ── SPLIT LAYOUT MOBILE : 50% carte / 50% panel ── */
+#mwrap{position:absolute;top:0;left:0;right:0;height:50%}
+#map{width:100%;height:100%}
 
-/* PANEL MOBILE — drawer depuis le bas */
 #panel{
-  position:absolute;bottom:0;left:0;right:0;
-  height:80vh;
+  position:absolute;
+  top:50%;bottom:0;left:0;right:0;
   background:var(--bg);
   border-radius:16px 16px 0 0;
   border-top:1px solid var(--bd);
-  box-shadow:0 -6px 30px rgba(0,0,0,.12);
+  box-shadow:0 -4px 20px rgba(0,0,0,.10);
   display:flex;flex-direction:column;
   z-index:50;
-  transform:translateY(calc(100% - 60px));
-  transition:transform .3s cubic-bezier(.4,0,.2,1);
-  will-change:transform;
+  overflow:hidden;
 }
-#panel.open{transform:translateY(0);height:calc(100vh - 52px)}
+/* open = identique, le panel est déjà en position */
+#panel.open{transform:none}
 /* PANEL DESKTOP — colonne droite */
 @media(min-width:901px){
   #content{display:flex}
-  #mwrap{position:relative;flex:1}
+  #mwrap{position:relative;flex:1;height:auto}
   #map{height:100%}
-  #panel{position:relative;width:400px;height:auto;transform:none;border-radius:0;border-top:none;border-left:1px solid var(--bd);box-shadow:none}
+  #panel{position:relative;width:400px;height:auto;top:auto;bottom:auto;transform:none;border-radius:0;border-top:none;border-left:1px solid var(--bd);box-shadow:none}
+  #btn-carte{display:flex}
 }
 
 /* HANDLE + BOUTON CARTE */
 .ph-handle{display:flex;align-items:center;justify-content:space-between;padding:.5rem 1rem .3rem;flex-shrink:0}
 .drag-bar{width:36px;height:4px;background:var(--g3);border-radius:2px}
-#btn-carte{font-size:.7rem;font-weight:700;color:var(--k);cursor:pointer;padding:.25rem .6rem;background:var(--g2);border-radius:20px;border:1px solid var(--bd);display:none}
+#btn-carte{font-size:.7rem;font-weight:700;color:var(--k);cursor:pointer;padding:.25rem .6rem;background:var(--g2);border-radius:20px;border:1px solid var(--bd);display:none;display:none}
 @media(max-width:900px){#btn-carte{display:block}}
 
 /* PANEL HEADER */
@@ -422,10 +421,7 @@ function rpc(fn,p){
 function initMap(){
   var container=document.getElementById('map');
   // Forcer la hauteur explicitement depuis JS — fiable sur tous les Safari
-  var barH=document.getElementById('bar').offsetHeight||52;
-  var targetH=window.innerHeight-barH;
-  container.style.height=targetH+'px';
-  document.getElementById('mwrap').style.height=targetH+'px';
+  // Hauteur gérée par CSS (50% de #content) — pas de JS height
   var w=container.offsetWidth,h=container.offsetHeight;
   if(!w||h<50){setTimeout(initMap,200);return;}
   map=L.map('map',{zoomControl:true}).setView([46.6,2.3],6);
@@ -437,15 +433,7 @@ function initMap(){
   // Touch : tap sur la carte ferme le panel
   map.on('click',function(){if(window.innerWidth<=900)closePanel();});
   // Drag handle
-  var bar=document.getElementById('drag-bar');
-  if(bar){
-    var sy,sp;
-    bar.addEventListener('touchstart',function(e){sy=e.touches[0].clientY;sp=document.getElementById('panel').getBoundingClientRect().top;},{passive:true});
-    bar.addEventListener('touchend',function(e){
-      var dy=e.changedTouches[0].clientY-sy;
-      if(dy<-40)openPanel();else if(dy>40)closePanel();
-    },{passive:true});
-  }
+  // Drag swipe supprimé — split layout fixe
 }
 function initFromURL(){
   var p=new URLSearchParams(location.search);
@@ -453,13 +441,13 @@ function initFromURL(){
   if(lat&&lng)rgc(lat,lng);
 }
 function openPanel(){
+  // Split layout : panel toujours visible en bas, rien à animer
   document.getElementById('panel').classList.add('open');
-  // Map se réduit derrière le panel plein écran — on la laisse en place
-  setTimeout(function(){if(map)map.invalidateSize();},350);
+  setTimeout(function(){if(map)map.invalidateSize();},100);
 }
 function closePanel(){
   document.getElementById('panel').classList.remove('open');
-  setTimeout(function(){if(map){map.invalidateSize();map.invalidateSize();}},350);
+  setTimeout(function(){if(map)map.invalidateSize();},100);
 }
 
 // ── SEARCH ──
