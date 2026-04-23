@@ -567,7 +567,18 @@ var SUPA_URL='https://wwvdpixzfaviaapixarb.supabase.co';
 var SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3dmRwaXh6ZmF2aWFhcGl4YXJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3Mzk0NDgsImV4cCI6MjA5MDMxNTQ0OH0.NjOeWzUCo2BJPcxnkEJNm215GJBr1RAHba1eL_EF758';
 function sr(path){
   return fetch(SUPA_URL+'/rest/v1/'+path,{headers:{apikey:SUPA_KEY,Authorization:'Bearer '+SUPA_KEY}})
-    .then(function(r){return r.ok?r.json():[];}).catch(function(){return [];});
+    .then(function(r){
+      if(!r.ok){
+        if(location.search.indexOf('debug=1')>=0){
+          r.text().then(function(t){toast('ERR '+r.status+' '+path.split('?')[0]+' | '+t.substring(0,80));});
+        }
+        return [];
+      }
+      return r.json();
+    }).catch(function(e){
+      if(location.search.indexOf('debug=1')>=0)toast('FETCH FAIL '+path.split('?')[0]);
+      return [];
+    });
 }
 function sf(table,filters,limit){
   var q=Object.keys(filters).map(function(k){return k+'=eq.'+filters[k];}).join('&');
@@ -600,7 +611,7 @@ function loadReport(){
     (geo.banId?sr('address_profile?ban_id=eq.'+encodeURIComponent(geo.banId)+'&select=*&limit=1'):sr('address_profile?code_commune=eq.'+cc+'&select=*&dvf_prix_m2_median=not.is.null&order=dvf_prix_m2_median.desc&limit=1')),
     sr('score_localisation_commune?code_commune=eq.'+cc+'&select=score_localisation,score_accessibilite,score_securite,score_services,score_risques_naturels,score_dynamisme,detail_accessibilite,detail_dynamisme&limit=1'),
     sr('dvf_mutations?code_commune=eq.'+cc+'&select=valeur_fonciere,surface_reelle_bati,type_local,date_mutation&order=date_mutation.desc&limit=200'),
-    sr('dpe_diagnostics?code_postal=eq.'+cp+'&select=classe_energie,date_reception_dpe&limit=500'),
+    (geo.banId?sr('dpe_diagnostics?ban_id=eq.'+encodeURIComponent(geo.banId)+'&select=classe_energie,classe_ges,conso_energie_primaire,surface_habitable,date_diagnostic&limit=50').then(function(a){return a&&a.length?a:sr('dpe_diagnostics?code_postal=eq.'+cp+'&select=classe_energie,date_diagnostic&limit=500');}):sr('dpe_diagnostics?code_postal=eq.'+cp+'&select=classe_energie,date_diagnostic&limit=500')),
     sf('data_georisques',{code_commune:cc},1),
     sf('data_plu_communes',{code_commune:cc},1),
     sf('data_bdnb_batiments',{code_commune_insee:cc},50),
