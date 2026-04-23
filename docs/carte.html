@@ -2,289 +2,232 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta id="meta-desc" name="description" content="Rapport d'analyse immobilière — Intent Analytics">
+<meta id="meta-og-title" property="og:title" content="Rapport adresse — Intent Analytics">
+<meta property="og:type" content="website">
 <meta name="theme-color" content="#0f0f0f">
-<title>Intent Analytics — Rapport Adresse</title>
+<title id="page-title">Intent Analytics — Rapport Adresse</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 :root{
   --bg:#f2f2f0;--w:#fff;--k:#0f0f0f;
   --g1:#f7f7f6;--g2:#eeeeec;--g3:#d8d8d5;--g4:#9a9a96;--g5:#5a5a56;
-  --bd:#e2e2df;
-  --blue:#2563eb;--green:#16a34a;--red:#dc2626;--amber:#d97706;
+  --bd:#e2e2df;--blue:#2563eb;--green:#16a34a;--red:#dc2626;--amber:#d97706;
   --sans:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
-  --sh:0 2px 12px rgba(0,0,0,.07),0 1px 3px rgba(0,0,0,.05);
-  --sh-lg:0 8px 32px rgba(0,0,0,.12),0 2px 8px rgba(0,0,0,.06);
+  --sh:0 2px 8px rgba(0,0,0,.07);--sh-lg:0 8px 32px rgba(0,0,0,.12);
 }
-html,body{width:100%;height:100%;font-family:var(--sans);background:var(--bg);color:var(--k);overflow:hidden}
+html,body{width:100%;height:100%;font-family:var(--sans);background:var(--bg);color:var(--k)}
 
 /* LOCK */
 #lock{position:fixed;inset:0;background:var(--k);display:flex;align-items:center;justify-content:center;z-index:9999;padding:1.5rem}
 .lbox{width:100%;max-width:340px;background:var(--w);border-radius:20px;padding:2rem 1.75rem}
-.llogo{display:flex;align-items:center;gap:.6rem;margin-bottom:1.75rem}
-.lico{width:34px;height:34px;background:var(--k);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:.78rem}
-.lname{font-size:.95rem;font-weight:700}
-.ltitle{font-size:1.5rem;font-weight:800;line-height:1.2;margin-bottom:.4rem;letter-spacing:-.03em}
-.lsub{font-size:.8rem;color:var(--g4);margin-bottom:1.5rem;line-height:1.5}
-.lpin{width:100%;padding:.8rem 1rem;background:var(--g1);border:1.5px solid var(--bd);border-radius:10px;color:var(--k);font-family:var(--mono);font-size:1rem;text-align:center;letter-spacing:6px;outline:none}
+.llogo{display:flex;align-items:center;gap:.6rem;margin-bottom:1.5rem}
+.lico{width:34px;height:34px;background:var(--k);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:.75rem}
+.lname{font-size:.9rem;font-weight:700}
+.ltitle{font-size:1.5rem;font-weight:800;margin-bottom:.3rem;letter-spacing:-.03em}
+.lsub{font-size:.78rem;color:var(--g4);margin-bottom:1.5rem;line-height:1.5}
+.lpin{width:100%;padding:.8rem;background:var(--g1);border:1.5px solid var(--bd);border-radius:10px;color:var(--k);font-family:var(--mono);font-size:1rem;text-align:center;letter-spacing:6px;outline:none}
 .lpin:focus{border-color:var(--k);background:var(--w)}
-.lgo{width:100%;margin-top:.75rem;padding:.85rem;background:var(--k);border:none;border-radius:10px;color:#fff;font-size:.9rem;font-weight:700;cursor:pointer}
-.lerr{font-size:.75rem;color:var(--red);margin-top:.5rem;min-height:16px}
+.lgo{width:100%;margin-top:.6rem;padding:.8rem;background:var(--k);border:none;border-radius:10px;color:#fff;font-size:.88rem;font-weight:700;cursor:pointer}
+.lerr{font-size:.72rem;color:var(--red);margin-top:.4rem;min-height:14px}
 
-/* APP */
-#app{position:fixed;inset:0;display:flex;flex-direction:column;overflow:hidden}
+/* APP SHELL */
+#app{position:fixed;inset:0;display:flex;flex-direction:column}
 
-/* TOP BAR */
-#bar{height:56px;flex-shrink:0;background:var(--w);border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:.6rem;padding:0 1rem;z-index:500}
-.bico{width:28px;height:28px;background:var(--k);border-radius:7px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:.7rem;flex-shrink:0}
-.bname{font-size:.85rem;font-weight:700;flex-shrink:0}
-.bdiv{width:1px;height:20px;background:var(--bd);flex-shrink:0}
-#sw{flex:1;position:relative;max-width:500px;z-index:600}
-#si{width:100%;padding:.55rem .9rem;background:var(--g1);border:1.5px solid var(--bd);border-radius:10px;color:var(--k);font-size:.85rem;font-family:var(--sans);outline:none}
+/* TOPBAR */
+#bar{height:52px;flex-shrink:0;background:var(--w);border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:.6rem;padding:0 .85rem;z-index:100}
+.bico{width:26px;height:26px;background:var(--k);border-radius:6px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:.68rem;flex-shrink:0}
+.bname{font-size:.82rem;font-weight:700;flex-shrink:0}
+.bdiv{width:1px;height:18px;background:var(--bd);flex-shrink:0}
+#sw{flex:1;position:relative;z-index:200;max-width:480px}
+#si{width:100%;padding:.5rem .8rem;background:var(--g1);border:1.5px solid var(--bd);border-radius:9px;color:var(--k);font-size:.83rem;outline:none;font-family:var(--sans)}
 #si:focus{border-color:var(--k);background:var(--w)}
 #si::placeholder{color:var(--g3)}
-#sdd{position:absolute;top:calc(100% + 6px);left:0;right:0;background:var(--w);border:1.5px solid var(--bd);border-radius:12px;z-index:700;display:none;max-height:260px;overflow-y:auto;box-shadow:var(--sh-lg)}
-.sg{padding:.65rem 1rem;cursor:pointer;font-size:.82rem;border-bottom:1px solid var(--g2);display:flex;align-items:center;gap:8px}
+#sdd{position:absolute;top:calc(100% + 5px);left:0;right:0;background:var(--w);border:1.5px solid var(--bd);border-radius:11px;z-index:300;display:none;max-height:250px;overflow-y:auto;box-shadow:var(--sh-lg)}
+.sg{padding:.6rem .9rem;cursor:pointer;font-size:.8rem;border-bottom:1px solid var(--g2);display:flex;align-items:center;gap:7px}
 .sg:last-child{border-bottom:none}
-.sg:hover,.sg:active{background:var(--g1)}
-#locbtn{width:38px;height:38px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:var(--g1);border:1.5px solid var(--bd);border-radius:10px;cursor:pointer;font-size:1.1rem}
-#locbtn:active{background:var(--k);color:#fff;border-color:var(--k)}
-@media(max-width:640px){.bdiv,.bname{display:none}}
+.sg:active{background:var(--g1)}
+#locbtn{width:36px;height:36px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:var(--g1);border:1.5px solid var(--bd);border-radius:9px;cursor:pointer;font-size:1rem}
+@media(max-width:600px){.bdiv,.bname{display:none}}
 
-/* CONTENT */
-#content{flex:1;display:flex;min-height:0;overflow:hidden}
+/* MAIN CONTENT */
+#content{flex:1;position:relative;overflow:hidden}
 
-/* MAP */
-#mwrap{position:relative;flex:1;min-width:0;overflow:hidden;min-height:200px}
-#map{position:absolute;top:0;left:0;right:0;bottom:0;width:100%;height:100%;min-height:300px}
-.leaflet-tile{}
-.leaflet-control-zoom{border:none!important;background:var(--w)!important;border-radius:10px!important;box-shadow:var(--sh)!important;overflow:hidden}
-.leaflet-control-zoom a{background:transparent!important;color:var(--k)!important;border-bottom:1px solid var(--bd)!important;font-weight:600!important}
-.leaflet-control-attribution{background:rgba(255,255,255,.8)!important;border-radius:8px!important;font-size:9px!important}
-.map-pin{width:20px;height:20px;background:var(--k);border-radius:50%;border:3px solid #fff;box-shadow:0 2px 12px rgba(0,0,0,.4)}
+/* MAP — toujours présent, derrière le panel */
+#mwrap{position:absolute;inset:0}
+#map{width:100%;height:100%}
 
-/* PANEL */
-#panel{width:400px;flex-shrink:0;background:var(--bg);display:flex;flex-direction:column;border-left:1px solid var(--bd);overflow:hidden}
-
-/* MOBILE */
-@media(max-width:900px){
-  #content{position:relative;height:100%;overflow:hidden}
-  #mwrap{position:absolute;top:0;left:0;right:0;bottom:0;z-index:1}
-  #panel{position:absolute;bottom:0;left:0;right:0;z-index:10;width:100%;border-left:none;border-top:1px solid var(--bd);height:78vh;border-radius:18px 18px 0 0;transform:translateY(100%);transition:transform .35s cubic-bezier(.4,0,.2,1);box-shadow:0 -8px 40px rgba(0,0,0,.15);display:flex;flex-direction:column}
-  #panel.open{transform:translateY(0);max-height:100vh}
-  #panel.peek{transform:translateY(calc(100% - 72px))}
+/* PANEL MOBILE — drawer depuis le bas */
+#panel{
+  position:absolute;bottom:0;left:0;right:0;
+  height:80vh;
+  background:var(--bg);
+  border-radius:16px 16px 0 0;
+  border-top:1px solid var(--bd);
+  box-shadow:0 -6px 30px rgba(0,0,0,.12);
+  display:flex;flex-direction:column;
+  z-index:50;
+  transform:translateY(calc(100% - 60px));
+  transition:transform .3s cubic-bezier(.4,0,.2,1);
+  will-change:transform;
 }
-.drag-handle{width:40px;height:4px;background:var(--g3);border-radius:2px;display:none}
-@media(max-width:900px){.drag-handle{display:block}}
+#panel.open{transform:translateY(0)}
+/* PANEL DESKTOP — colonne droite */
+@media(min-width:901px){
+  #content{display:flex}
+  #mwrap{position:relative;flex:1}
+  #panel{position:relative;width:400px;height:auto;transform:none;border-radius:0;border-top:none;border-left:1px solid var(--bd);box-shadow:none}
+}
+
+/* HANDLE + BOUTON CARTE */
+.ph-handle{display:flex;align-items:center;justify-content:space-between;padding:.5rem 1rem .3rem;flex-shrink:0}
+.drag-bar{width:36px;height:4px;background:var(--g3);border-radius:2px}
+#btn-carte{font-size:.7rem;font-weight:700;color:var(--k);cursor:pointer;padding:.25rem .6rem;background:var(--g2);border-radius:20px;border:1px solid var(--bd);display:none}
+@media(max-width:900px){#btn-carte{display:block}}
 
 /* PANEL HEADER */
-#ph{flex-shrink:0;background:var(--w);border-bottom:1px solid var(--bd);border-radius:inherit}
-#ph-inner{padding:.5rem .85rem .5rem}
+#ph{flex-shrink:0;background:var(--w);border-bottom:1px solid var(--bd)}
+#ph-inner{padding:.5rem .85rem .6rem}
 #ph-top{display:flex;align-items:flex-start;gap:.6rem;margin-bottom:.4rem}
 #ph-addr{flex:1;min-width:0}
-#paddr{font-size:.85rem;font-weight:700;letter-spacing:-.02em;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#psub{font-size:.72rem;color:var(--g4);font-family:var(--mono);margin-top:.1rem}
-
-/* SCORE CIRCLE */
-.score-circ{width:52px;height:52px;position:relative;flex-shrink:0}
+#paddr{font-size:.85rem;font-weight:700;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#psub{font-size:.68rem;color:var(--g4);font-family:var(--mono);margin-top:.1rem}
+.score-circ{width:50px;height:50px;position:relative;flex-shrink:0}
 .score-circ svg{transform:rotate(-90deg)}
 .sc-track{fill:none;stroke:var(--g2);stroke-width:5}
-.sc-fill{fill:none;stroke-width:5;stroke-linecap:round;transition:stroke-dashoffset .8s cubic-bezier(.4,0,.2,1)}
+.sc-fill{fill:none;stroke-width:5;stroke-linecap:round;transition:stroke-dashoffset .8s ease}
 .score-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
-.sc-num{font-size:1.05rem;font-weight:800;line-height:1;letter-spacing:-.03em}
-.sc-letter{font-size:.55rem;font-weight:700;color:var(--g4)}
-
-/* PROFILE PILLS */
-.profile-pills{display:flex;gap:.3rem;margin-bottom:.4rem;flex-wrap:nowrap}
-.ppill{padding:.22rem .55rem;border:1.5px solid var(--bd);border-radius:20px;font-size:.68rem;font-weight:600;cursor:pointer;color:var(--g5);background:var(--g1);white-space:nowrap}
+.sc-num{font-size:.95rem;font-weight:800;line-height:1}
+.sc-letter{font-size:.5rem;font-weight:700;color:var(--g4)}
+.profile-pills{display:flex;gap:.3rem;margin-bottom:.4rem;flex-wrap:nowrap;overflow-x:auto}
+.ppill{padding:.22rem .55rem;border:1.5px solid var(--bd);border-radius:20px;font-size:.68rem;font-weight:600;cursor:pointer;color:var(--g5);background:var(--g1);white-space:nowrap;flex-shrink:0}
 .ppill.on{background:var(--k);color:#fff;border-color:var(--k)}
-
-/* SUMMARY */
-.summary-box{background:var(--g1);border:1px solid var(--bd);border-radius:8px;padding:.45rem .75rem;font-size:.73rem;line-height:1.45;color:var(--g5);margin-bottom:.4rem}
-
-/* SCORE CARDS 2x2 */
+.summary-box{background:var(--g1);border:1px solid var(--bd);border-radius:8px;padding:.45rem .75rem;font-size:.73rem;line-height:1.5;color:var(--g5);margin-bottom:.4rem}
 .score-cards{display:grid;grid-template-columns:1fr 1fr;gap:.35rem}
 .scard{background:var(--w);border:1px solid var(--bd);border-radius:8px;padding:.45rem .6rem;box-shadow:var(--sh)}
-.scard-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:.4rem}
-.scard-title{font-size:.72rem;font-weight:700}
-.scard-score{font-size:.72rem;font-weight:700;color:var(--g4)}
-.scard-bar{height:4px;background:var(--g2);border-radius:2px;overflow:hidden;margin-bottom:.3rem}
-.scard-fill{height:100%;border-radius:2px;transition:width .6s ease}
-.scard-main{font-size:.78rem;font-weight:700;letter-spacing:-.01em;margin-bottom:.05rem}
-.scard-sub{font-size:.68rem;color:var(--g5);line-height:1.4}
+.scard-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:.35rem}
+.scard-title{font-size:.7rem;font-weight:700}
+.scard-score{font-size:.68rem;font-weight:700;color:var(--g4)}
+.scard-bar{height:4px;background:var(--g2);border-radius:2px;overflow:hidden;margin-bottom:.25rem}
+.scard-fill{height:100%;border-radius:2px;transition:width .5s ease}
+.scard-main{font-size:.78rem;font-weight:700}
+.scard-sub{font-size:.65rem;color:var(--g5);line-height:1.35;margin-top:.05rem}
 
 /* TABS */
-#tabs{flex-shrink:0;background:var(--w);border-bottom:1px solid var(--bd);display:flex;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;padding:0 .25rem;gap:0;-webkit-overflow-scrolling:touch}
+#tabs{flex-shrink:0;background:var(--w);border-bottom:1px solid var(--bd);display:flex;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 #tabs::-webkit-scrollbar{display:none}
-.tab{padding:.65rem .75rem;font-size:.76rem;font-weight:600;color:var(--g4);cursor:pointer;border-bottom:2.5px solid transparent;white-space:nowrap;flex-shrink:0}
+.tab{padding:.6rem .7rem;font-size:.74rem;font-weight:600;color:var(--g4);cursor:pointer;border-bottom:2.5px solid transparent;white-space:nowrap;flex-shrink:0}
 .tab.on{color:var(--k);border-bottom-color:var(--k)}
 
-/* PANEL BODY */
-#pbody{flex:1;overflow-y:auto;overflow-x:hidden;display:none;-webkit-overflow-scrolling:touch}
+/* BODY */
+#pbody{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;display:none}
 #pbody.on{display:block}
-#pbody::-webkit-scrollbar{width:4px}
-#pbody::-webkit-scrollbar-thumb{background:var(--g3);border-radius:2px}
-.tab-pane{display:none;padding:.6rem}
+.tab-pane{display:none;padding:.65rem}
 .tab-pane.on{display:block}
 
-/* LOADER */
-#pload{display:none;flex-direction:column;align-items:center;justify-content:center;padding:3rem 1.5rem;gap:1rem}
+/* STATES */
+#pload{display:none;flex-direction:column;align-items:center;justify-content:center;padding:3rem 1.5rem;gap:.75rem}
 #pload.on{display:flex}
-.loader{width:36px;height:36px;border:3px solid var(--g2);border-top-color:var(--k);border-radius:50%;animation:spin .7s linear infinite}
+.spinner{width:32px;height:32px;border:3px solid var(--g2);border-top-color:var(--k);border-radius:50%;animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-.load-txt{font-size:.82rem;color:var(--g4)}
+#pempty{padding:2.5rem 1.5rem;display:flex;flex-direction:column;align-items:center;gap:.65rem;text-align:center;color:var(--g4)}
+.emp-ico{font-size:2.2rem}
+.emp-title{font-size:.88rem;font-weight:600;color:var(--g5)}
+.emp-sub{font-size:.75rem;line-height:1.5}
 
-/* EMPTY */
-#pempty{padding:2.5rem 1.5rem;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.75rem;text-align:center;color:var(--g4)}
-.emp-ico{font-size:2.5rem}
-.emp-title{font-size:.9rem;font-weight:600;color:var(--g5)}
-.emp-sub{font-size:.78rem;line-height:1.5}
-
-/* CARDS & DATA */
-.kpi-row{display:flex;gap:.5rem;margin-bottom:.75rem;flex-wrap:wrap}
-.kpi{background:var(--w);border:1px solid var(--bd);border-radius:10px;padding:.6rem .75rem;flex:1;min-width:80px;box-shadow:var(--sh)}
-.klbl{font-size:.6rem;color:var(--g4);font-weight:600;margin-bottom:.15rem;text-transform:uppercase;letter-spacing:.05em}
-.kval{font-size:.95rem;font-weight:800;letter-spacing:-.03em;line-height:1.1}
+/* COMPONENTS */
+.kpi-row{display:flex;gap:.45rem;margin-bottom:.65rem;flex-wrap:wrap}
+.kpi{background:var(--w);border:1px solid var(--bd);border-radius:9px;padding:.55rem .7rem;flex:1;min-width:75px;box-shadow:var(--sh)}
+.klbl{font-size:.58rem;color:var(--g4);font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.12rem}
+.kval{font-size:.9rem;font-weight:800;letter-spacing:-.02em;line-height:1.1}
 .kval.r{color:var(--red)}.kval.g{color:var(--green)}.kval.a{color:var(--amber)}
-.ksub{font-size:.6rem;color:var(--g4);margin-top:.1rem}
-.card{background:var(--w);border:1px solid var(--bd);border-radius:10px;padding:.75rem;margin-bottom:.5rem;box-shadow:var(--sh)}
-.card-title{font-size:.62rem;font-weight:700;color:var(--g4);margin-bottom:.5rem;font-family:var(--mono);letter-spacing:.08em;text-transform:uppercase}
-.dr{display:flex;justify-content:space-between;align-items:baseline;padding:.3rem 0;border-bottom:1px solid var(--g2);gap:.5rem;font-size:.8rem}
+.ksub{font-size:.58rem;color:var(--g4);margin-top:.08rem}
+.card{background:var(--w);border:1px solid var(--bd);border-radius:9px;padding:.7rem;margin-bottom:.45rem;box-shadow:var(--sh)}
+.card-title{font-size:.6rem;font-weight:700;color:var(--g4);margin-bottom:.45rem;font-family:var(--mono);letter-spacing:.08em;text-transform:uppercase}
+.dr{display:flex;justify-content:space-between;align-items:baseline;padding:.28rem 0;border-bottom:1px solid var(--g2);gap:.5rem;font-size:.78rem}
 .dr:last-child{border-bottom:none}
-.dl{color:var(--g5);flex-shrink:0}
-.dv{font-weight:600;font-family:var(--mono);font-size:.75rem;text-align:right}
-
-/* DVF TABLE */
-.dvf-table{width:100%;border-collapse:collapse;font-size:.75rem}
-.dvf-table th{text-align:left;font-family:var(--mono);font-size:.56rem;letter-spacing:1px;text-transform:uppercase;color:var(--g4);padding:.3rem .4rem;border-bottom:2px solid var(--bd)}
-.dvf-table td{padding:.35rem .4rem;border-bottom:1px solid var(--g2)}
+.dl{color:var(--g5)}.dv{font-weight:600;font-family:var(--mono);font-size:.72rem;text-align:right}
+.dvf-table{width:100%;border-collapse:collapse;font-size:.73rem}
+.dvf-table th{text-align:left;font-family:var(--mono);font-size:.54rem;letter-spacing:1px;text-transform:uppercase;color:var(--g4);padding:.28rem .35rem;border-bottom:2px solid var(--bd)}
+.dvf-table td{padding:.32rem .35rem;border-bottom:1px solid var(--g2)}
 .dvf-table tr:last-child td{border-bottom:none}
-.dvf-table tr:hover td{background:var(--g1)}
 .price-tag{font-family:var(--mono);font-weight:600}
-.type-badge{display:inline-block;padding:.1rem .3rem;border-radius:4px;font-size:.6rem;font-weight:600;background:var(--g2);color:var(--g5)}
-
-/* DPE */
-.dpe-stack{display:flex;height:22px;border-radius:6px;overflow:hidden;margin:.4rem 0}
-.ds{display:flex;align-items:center;justify-content:center;font-size:.6rem;font-weight:700;color:#fff;min-width:4px}
+.type-badge{display:inline-block;padding:.08rem .28rem;border-radius:4px;font-size:.58rem;font-weight:600;background:var(--g2);color:var(--g5)}
+.dpe-stack{display:flex;height:20px;border-radius:5px;overflow:hidden;margin:.35rem 0}
+.ds{display:flex;align-items:center;justify-content:center;font-size:.58rem;font-weight:700;color:#fff;min-width:3px}
 .dA{background:#009966}.dB{background:#55C400}.dC{background:#AACC00}.dD{background:#FFCC00}.dE{background:#FF9900}.dF{background:#FF6600}.dG{background:#FF0000}
-
-/* RISK */
-.rrow{display:flex;align-items:center;gap:.6rem;padding:.35rem 0;border-bottom:1px solid var(--g2);font-size:.8rem}
+.rrow{display:flex;align-items:center;gap:.55rem;padding:.32rem 0;border-bottom:1px solid var(--g2);font-size:.78rem}
 .rrow:last-child{border-bottom:none}
-.rb{padding:.15rem .4rem;border-radius:4px;font-size:.62rem;font-weight:700;flex-shrink:0}
+.rb{padding:.12rem .38rem;border-radius:4px;font-size:.6rem;font-weight:700;flex-shrink:0}
 .rb-y{background:#fef3c7;color:#92400e}.rb-n{background:#f0fdf4;color:#166534}
-
-/* POI */
-.poi-item{display:flex;align-items:center;justify-content:space-between;padding:.35rem 0;border-bottom:1px solid var(--g2);gap:.5rem}
+.poi-item{display:flex;align-items:center;justify-content:space-between;padding:.32rem 0;border-bottom:1px solid var(--g2);gap:.45rem}
 .poi-item:last-child{border-bottom:none}
-.poi-name{font-size:.8rem;font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.poi-sub{font-size:.65rem;color:var(--g5);margin-top:.05rem}
-.poi-meta{display:flex;align-items:center;gap:.35rem;flex-shrink:0}
-.poi-dist{font-family:var(--mono);font-size:.62rem;color:var(--g4);background:var(--g2);padding:.1rem .3rem;border-radius:4px}
-.poi-nav{font-size:.7rem;color:var(--blue);text-decoration:none;padding:.15rem .3rem;background:#eff6ff;border-radius:4px}
-
-/* BARS */
-.bb{display:flex;align-items:center;gap:.5rem;padding:.3rem 0;border-bottom:1px solid var(--g2)}
+.poi-name{font-size:.78rem;font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.poi-sub{font-size:.62rem;color:var(--g5);margin-top:.04rem}
+.poi-meta{display:flex;align-items:center;gap:.3rem;flex-shrink:0}
+.poi-dist{font-family:var(--mono);font-size:.6rem;color:var(--g4);background:var(--g2);padding:.08rem .28rem;border-radius:4px}
+.poi-nav{font-size:.68rem;color:var(--blue);text-decoration:none;padding:.12rem .28rem;background:#eff6ff;border-radius:4px}
+.bb{display:flex;align-items:center;gap:.45rem;padding:.28rem 0;border-bottom:1px solid var(--g2)}
 .bb:last-child{border-bottom:none}
-.bbl{font-size:.73rem;width:75px;flex-shrink:0;color:var(--g5)}
+.bbl{font-size:.7rem;width:72px;flex-shrink:0;color:var(--g5)}
 .bbr{flex:1;height:5px;background:var(--g2);border-radius:3px;overflow:hidden}
 .bbf{height:100%;border-radius:3px}
-.bbv{font-family:var(--mono);font-size:.65rem;color:var(--g5);width:28px;text-align:right;flex-shrink:0}
-
-/* ESTIMATION */
-.estim-card{background:linear-gradient(135deg,#0f0f0f 0%,#1a1a2e 100%);border-radius:12px;padding:1rem;color:#fff;margin-bottom:.75rem}
-.estim-tag{font-family:var(--mono);font-size:.55rem;letter-spacing:1.5px;opacity:.5;margin-bottom:.5rem}
-.estim-price{font-size:1.9rem;font-weight:800;letter-spacing:-.05em;line-height:1}
-.estim-unit{font-size:.85rem;font-weight:400;opacity:.6}
-.estim-sub{font-size:.72rem;opacity:.5;margin-top:.15rem}
-.estim-range{font-size:.72rem;opacity:.65;margin-top:.25rem;font-family:var(--mono)}
-.estim-total{background:rgba(255,255,255,.1);border-radius:8px;padding:.45rem .7rem;margin-top:.55rem}
-.estim-tot-label{font-size:.6rem;opacity:.5;text-transform:uppercase;letter-spacing:.05em}
-.estim-tot-val{font-size:1.2rem;font-weight:800;letter-spacing:-.03em}
-.estim-meta{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.55rem}
-.estim-pill{background:rgba(255,255,255,.1);border-radius:20px;padding:.18rem .45rem;font-size:.62rem;opacity:.8}
+.bbv{font-family:var(--mono);font-size:.62rem;color:var(--g5);width:26px;text-align:right;flex-shrink:0}
+.estim-card{background:linear-gradient(135deg,#0f0f0f,#1a1a2e);border-radius:11px;padding:.9rem;color:#fff;margin-bottom:.65rem}
+.estim-tag{font-family:var(--mono);font-size:.52rem;letter-spacing:1.5px;opacity:.5;margin-bottom:.45rem}
+.estim-price{font-size:1.8rem;font-weight:800;letter-spacing:-.05em;line-height:1}
+.estim-unit{font-size:.8rem;font-weight:400;opacity:.55}
+.estim-sub{font-size:.68rem;opacity:.45;margin-top:.12rem}
+.estim-range{font-size:.68rem;opacity:.6;margin-top:.2rem;font-family:var(--mono)}
+.estim-total{background:rgba(255,255,255,.1);border-radius:7px;padding:.4rem .65rem;margin-top:.5rem}
+.estim-tot-label{font-size:.58rem;opacity:.45;text-transform:uppercase;letter-spacing:.05em}
+.estim-tot-val{font-size:1.15rem;font-weight:800;letter-spacing:-.03em}
+.estim-meta{display:flex;gap:.35rem;flex-wrap:wrap;margin-top:.5rem}
+.estim-pill{background:rgba(255,255,255,.1);border-radius:20px;padding:.15rem .4rem;font-size:.6rem;opacity:.75}
 .estim-pill.up{background:rgba(22,163,74,.25);color:#86efac}
 .estim-pill.down{background:rgba(220,38,38,.25);color:#fca5a5}
-
-/* EAU */
-.eau-param{display:flex;align-items:center;gap:.5rem;padding:.4rem 0;border-bottom:1px solid var(--g2)}
+.eau-param{display:flex;align-items:center;gap:.45rem;padding:.38rem 0;border-bottom:1px solid var(--g2)}
 .eau-param:last-child{border-bottom:none}
-.eau-ico{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0;background:var(--g1)}
-.eau-lbl{flex:1;font-size:.78rem;font-weight:600}
-.eau-val{font-family:var(--mono);font-size:.7rem;color:var(--g5);margin-right:.3rem}
-.eau-badge{padding:.12rem .35rem;border-radius:4px;font-size:.6rem;font-weight:700}
+.eau-ico{width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0;background:var(--g1)}
+.eau-lbl{flex:1;font-size:.75rem;font-weight:600}
+.eau-val{font-family:var(--mono);font-size:.68rem;color:var(--g5);margin-right:.25rem}
+.eau-badge{padding:.1rem .32rem;border-radius:4px;font-size:.58rem;font-weight:700}
 .ok{background:#f0fdf4;color:#166534}.warn{background:#fef3c7;color:#92400e}.bad{background:#fef2f2;color:#991b1b}
-
-/* DEMO */
-.demo-bar-row{margin-bottom:.5rem}
-.demo-bar-label{display:flex;justify-content:space-between;font-size:.72rem;margin-bottom:.2rem}
-.demo-bar-label span:first-child{color:var(--g5)}
-.demo-bar-label span:last-child{font-weight:700;font-family:var(--mono)}
-.demo-bar{height:6px;background:var(--g2);border-radius:3px;overflow:hidden}
-.demo-bar-fill{height:100%;border-radius:3px}
-
-/* FOOTER */
-.pfoot{padding:.6rem 1rem;border-top:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;background:var(--w);flex-shrink:0}
-.pfoot-brand{font-size:.62rem;color:var(--g4);font-family:var(--mono)}
-.pfoot-actions{display:flex;gap:.4rem}
-.faction{padding:.28rem .5rem;background:var(--g1);border:1px solid var(--bd);border-radius:7px;font-size:.68rem;cursor:pointer;color:var(--g5)}
-.faction:hover{background:var(--k);color:#fff;border-color:var(--k)}
-
-/* MAP POPUP */
-.leaflet-popup-content-wrapper{border-radius:12px!important;border:1.5px solid var(--bd)!important;box-shadow:var(--sh-lg)!important;padding:0!important;max-width:220px}
-.leaflet-popup-content{margin:0!important;width:210px!important}
-.pop{padding:.75rem}
-.pop-tag{font-family:var(--mono);font-size:.56rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--g4);margin-bottom:.2rem}
-.pop-name{font-size:.85rem;font-weight:700;color:var(--k);margin-bottom:.35rem;line-height:1.3}
-
-/* TOAST */
-#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--k);color:#fff;padding:.55rem 1.1rem;border-radius:20px;font-size:.78rem;font-weight:600;z-index:9998;opacity:0;transition:all .25s;pointer-events:none;white-space:nowrap}
-#toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
-.empty{color:var(--g4);font-size:.78rem;font-style:italic}
-/* COMPARISON SLIDER */
-.cmp-block{margin:.5rem 0}
-.cmp-label{display:flex;justify-content:space-between;font-size:.7rem;margin-bottom:.3rem}
-.cmp-label span:first-child{color:var(--g5);font-weight:600}
-.cmp-label span:last-child{font-family:var(--mono);font-weight:700;color:var(--k)}
-.cmp-track{position:relative;height:8px;background:var(--g2);border-radius:4px;margin-bottom:.15rem}
-.cmp-fill{position:absolute;left:0;top:0;height:100%;border-radius:4px;transition:width .5s ease}
-.cmp-marker{position:absolute;top:-3px;width:14px;height:14px;border-radius:50%;border:2.5px solid var(--w);box-shadow:0 1px 4px rgba(0,0,0,.3);transform:translateX(-50%)}
-.cmp-legend{display:flex;justify-content:space-between;font-size:.58rem;color:var(--g4);font-family:var(--mono)}
-
-/* INTERPRETATION BOX */
-.interp{background:linear-gradient(135deg,#f0f9ff,#e0f2fe);border:1px solid #bae6fd;border-radius:8px;padding:.5rem .7rem;font-size:.75rem;line-height:1.5;color:#0c4a6e;margin-bottom:.6rem}
+.interp{background:linear-gradient(135deg,#f0f9ff,#e0f2fe);border:1px solid #bae6fd;border-radius:7px;padding:.45rem .65rem;font-size:.73rem;line-height:1.5;color:#0c4a6e;margin:.4rem 0}
 .interp.warn{background:linear-gradient(135deg,#fffbeb,#fef3c7);border-color:#fde68a;color:#78350f}
 .interp.bad{background:linear-gradient(135deg,#fff1f2,#ffe4e6);border-color:#fecdd3;color:#881337}
 .interp.good{background:linear-gradient(135deg,#f0fdf4,#dcfce7);border-color:#bbf7d0;color:#14532d}
-
-/* DVF MAP MARKERS */
-.dvf-dot{width:12px;height:12px;border-radius:50%;border:2px solid rgba(255,255,255,.9);cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.3)}
-.poi-dot{width:10px;height:10px;border-radius:50%;border:2px solid rgba(255,255,255,.9);cursor:pointer}
-.poi-dot-sq{width:10px;height:10px;border-radius:3px;border:2px solid rgba(255,255,255,.9);cursor:pointer}
-
+.pfoot{padding:.55rem .85rem;border-top:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;background:var(--w);flex-shrink:0}
+.pfoot-brand{font-size:.6rem;color:var(--g4);font-family:var(--mono)}
+.pfoot-actions{display:flex;gap:.35rem}
+.faction{padding:.25rem .45rem;background:var(--g1);border:1px solid var(--bd);border-radius:6px;font-size:.66rem;cursor:pointer;color:var(--g5)}
+.leaflet-popup-content-wrapper{border-radius:11px!important;border:1.5px solid var(--bd)!important;box-shadow:var(--sh-lg)!important;padding:0!important;max-width:220px}
+.leaflet-popup-content{margin:0!important;width:210px!important}
+.pop{padding:.7rem}
+.pop-tag{font-family:var(--mono);font-size:.54rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--g4);margin-bottom:.18rem}
+.pop-name{font-size:.82rem;font-weight:700;color:var(--k);margin-bottom:.32rem;line-height:1.3}
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--k);color:#fff;padding:.5rem 1rem;border-radius:20px;font-size:.76rem;font-weight:600;z-index:9998;opacity:0;transition:all .25s;pointer-events:none;white-space:nowrap}
+#toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+.empty{color:var(--g4);font-size:.75rem;font-style:italic}
 </style>
 </head>
 <body>
 
-<!-- LOCK -->
 <div id="lock">
   <div class="lbox">
-    <div class="llogo">
-      <div class="lico">IA</div>
-      <div class="lname">Intent Analytics</div>
-    </div>
+    <div class="llogo"><div class="lico">IA</div><div class="lname">Intent Analytics</div></div>
     <div class="ltitle">Rapport Adresse</div>
-    <div class="lsub">Outil terrain professionnel.<br>Accès réservé.</div>
+    <div class="lsub">Outil terrain professionnel. Accès réservé.</div>
     <input id="lpin" class="lpin" type="password" placeholder="••••" maxlength="6" autocomplete="off">
     <button class="lgo" onclick="checkPin()">Accéder →</button>
     <div class="lerr" id="lerr"></div>
   </div>
 </div>
 
-<!-- APP -->
 <div id="app" style="display:none">
   <div id="bar">
     <div class="bico">IA</div>
@@ -294,21 +237,19 @@ html,body{width:100%;height:100%;font-family:var(--sans);background:var(--bg);co
       <input id="si" type="text" placeholder="Rechercher une adresse…" autocomplete="off">
       <div id="sdd"></div>
     </div>
-    <button id="locbtn" onclick="locate()" title="Ma position">📍</button>
+    <button id="locbtn" onclick="locate()">📍</button>
   </div>
 
   <div id="content">
-    <div id="mwrap">
-      <div id="map"></div>
-      <button id="toggle-panel" onclick="togglePanel()" style="position:absolute;bottom:16px;left:50%;transform:translateX(-50%);z-index:20;background:var(--k);color:#fff;border:none;border-radius:20px;padding:.5rem 1.2rem;font-size:.78rem;font-weight:700;font-family:var(--sans);cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.3);display:none">📋 Rapport</button>
-    </div>
+    <div id="mwrap"><div id="map"></div></div>
 
-    <div id="panel" class="peek">
+    <div id="panel">
+      <div class="ph-handle">
+        <div class="drag-bar" id="drag-bar"></div>
+        <div id="btn-carte" onclick="closePanel()">🗺️ Carte</div>
+      </div>
+
       <div id="ph">
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:.5rem 1rem 0">
-          <div class="drag-handle" id="drag-handle"></div>
-          <div id="map-btn" style="display:none;font-size:.72rem;font-weight:700;color:var(--k);cursor:pointer;padding:.25rem .65rem;background:var(--g2);border-radius:20px;border:1px solid var(--bd)" onclick="peekPanel()">🗺️ Voir la carte</div>
-        </div>
         <div id="ph-inner">
           <div id="pempty">
             <div class="emp-ico">🏠</div>
@@ -322,7 +263,7 @@ html,body{width:100%;height:100%;font-family:var(--sans);background:var(--bg);co
                 <div id="psub"></div>
               </div>
               <div class="score-circ">
-                <svg width="52" height="52" viewBox="0 0 64 64">
+                <svg width="50" height="50" viewBox="0 0 64 64">
                   <circle class="sc-track" cx="32" cy="32" r="27"/>
                   <circle class="sc-fill" id="sc-fill" cx="32" cy="32" r="27" stroke-dasharray="169.6" stroke-dashoffset="169.6" stroke="#16a34a"/>
                 </svg>
@@ -348,7 +289,7 @@ html,body{width:100%;height:100%;font-family:var(--sans);background:var(--bg);co
         <div class="tab" data-tab="risques" onclick="switchTab('risques',this)">⚠️ Risques</div>
         <div class="tab" data-tab="dpe" onclick="switchTab('dpe',this)">⚡ DPE</div>
         <div class="tab" data-tab="transports" onclick="switchTab('transports',this)">🚌 Transports</div>
-        <div class="tab" data-tab="commerces" onclick="switchTab('commerces',this)">🛒 Équipements</div>
+        <div class="tab" data-tab="services" onclick="switchTab('services',this)">🛒 Services</div>
         <div class="tab" data-tab="eau" onclick="switchTab('eau',this)">💧 Eau</div>
         <div class="tab" data-tab="air" onclick="switchTab('air',this)">🌬️ Air</div>
         <div class="tab" data-tab="demo" onclick="switchTab('demo',this)">👥 Démographie</div>
@@ -356,67 +297,59 @@ html,body{width:100%;height:100%;font-family:var(--sans);background:var(--bg);co
         <div class="tab" data-tab="commune" onclick="switchTab('commune',this)">🏘️ Commune</div>
       </div>
 
-      <div id="pload"><div class="loader"></div><div class="load-txt">Analyse en cours…</div></div>
+      <div id="pload"><div class="spinner"></div><span style="font-size:.8rem;color:var(--g4)">Analyse en cours…</span></div>
 
       <div id="pbody">
         <div class="tab-pane on" id="tab-prix">
           <div class="kpi-row" id="dvfK"></div>
+          <div id="dvfScales"></div>
           <div id="esec"></div>
-          <div class="card">
-            <div class="card-title">Transactions récentes</div>
-            <div style="overflow-x:auto"><table class="dvf-table"><thead><tr><th>Date</th><th>Type</th><th>m²</th><th>€/m²</th></tr></thead><tbody id="dvfT"></tbody></table></div>
-          </div>
+          <div class="card"><div class="card-title">Transactions récentes</div><div style="overflow-x:auto"><table class="dvf-table"><thead><tr><th>Date</th><th>Type</th><th>m²</th><th>€/m²</th></tr></thead><tbody id="dvfT"></tbody></table></div></div>
         </div>
-
         <div class="tab-pane" id="tab-risques">
           <div class="kpi-row" id="riskK"></div>
-          <div class="card"><div class="card-title">Risques naturels &amp; technologiques</div><div id="riskD"></div></div>
+          <div class="card"><div class="card-title">Risques naturels & technologiques</div><div id="riskD"></div></div>
           <div class="card"><div class="card-title">Urbanisme · PLU</div><div id="pluD"></div></div>
         </div>
-
         <div class="tab-pane" id="tab-dpe">
           <div class="kpi-row" id="dpeK"></div>
-          <div class="card"><div class="card-title">Répartition par classe</div><div class="dpe-stack" id="dpeStack"></div><div id="dpeI" style="font-size:.75rem;margin-top:.3rem"></div></div>
+          <div class="card"><div class="card-title">Répartition par classe</div><div class="dpe-stack" id="dpeStack"></div><div id="dpeI"></div></div>
           <div class="card"><div class="card-title">Simulation rénovation · 75m²</div><div id="renoD"></div></div>
         </div>
-
         <div class="tab-pane" id="tab-transports">
           <div class="kpi-row" id="transK"></div>
-          <div class="card"><div class="card-title">Arrêts à proximité</div><div id="transD"></div></div>
-          <div class="card"><div class="card-title">Établissements scolaires · 1km</div><div id="scolD"><span class="empty">Chargement…</span></div></div>
+          <div id="transContent"></div>
         </div>
-
-        <div class="tab-pane" id="tab-commerces">
+        <div class="tab-pane" id="tab-services">
           <div class="kpi-row" id="poiK"></div>
-          <div class="card"><div class="card-title">Scores par catégorie</div><div id="poiD"></div></div>
-          <div class="card"><div class="card-title">Santé · 1.5km</div><div id="santeD"><span class="empty">Chargement…</span></div></div>
-          <div class="card"><div class="card-title">Commerces · 500m</div><div id="shopD"><span class="empty">Chargement…</span></div></div>
+          <div id="poiD"></div>
+          <div class="card"><div class="card-title">Santé · 2km</div><div id="santeD"><span class="empty">Chargement…</span></div></div>
+          <div class="card"><div class="card-title">Commerces · 800m</div><div id="shopD"><span class="empty">Chargement…</span></div></div>
         </div>
-
         <div class="tab-pane" id="tab-eau">
           <div class="kpi-row" id="eauK"></div>
-          <div class="card"><div class="card-title">Paramètres qualité · HubEau</div><div id="eauD"></div></div>
+          <div class="card"><div class="card-title">Qualité eau · HubEau</div><div id="eauD"></div></div>
         </div>
-
         <div class="tab-pane" id="tab-air">
           <div class="kpi-row" id="airK"></div>
           <div class="card"><div class="card-title">Qualité de l'air · WAQI</div><div id="airD"></div></div>
-          <div class="card"><div class="card-title">Météo actuelle · Open-Meteo</div><div id="climatD"></div></div>
+          <div class="card"><div class="card-title">Météo · Open-Meteo</div><div id="climatD"></div></div>
         </div>
-
         <div class="tab-pane" id="tab-demo">
           <div class="kpi-row" id="demoK"></div>
-          <div class="card"><div class="card-title">Indicateurs socio-économiques</div><div id="demoD"></div></div>
+          <div id="demoD"></div>
         </div>
-
         <div class="tab-pane" id="tab-batiment">
-          <div class="card"><div class="card-title">BDNB · Base Données Bâtiments</div><div id="bdnbD"></div></div>
+          <div class="card"><div class="card-title">BDNB · Bâtiment</div><div id="bdnbD"></div></div>
           <div class="card"><div class="card-title">Cadastre · IGN</div><div id="cadastreD"></div></div>
+        </div>
+        <div class="tab-pane" id="tab-commune">
+          <div id="communeD"></div>
         </div>
       </div>
 
       <div class="pfoot" id="pfoot" style="display:none">
-        <div class="pfoot-brand">Intent Analytics · Rapport adresse</div>
+        <div class="pfoot-brand">Intent Analytics</div>
         <div class="pfoot-actions">
           <div class="faction" onclick="copyLink()">🔗 Lien</div>
           <div class="faction" onclick="window.print()">🖨️</div>
@@ -428,21 +361,27 @@ html,body{width:100%;height:100%;font-family:var(--sans);background:var(--bg);co
 <div id="toast"></div>
 
 <script>
+// ── CONFIG ──
 var SB='https://wwvdpixzfaviaapixarb.supabase.co';
 var AK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3dmRwaXh6ZmF2aWFhcGl4YXJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3Mzk0NDgsImV4cCI6MjA5MDMxNTQ0OH0.NjOeWzUCo2BJPcxnkEJNm215GJBr1RAHba1eL_EF758';
-var PINS=['2213','1337','0000'];
-var map,pin,geo,curD;
-var mGroup=null;
+var PINS=['2213'];
+var map,pin,geo,curD,mGroup;
 var currentProfile='standard';
 
-// AUTH
+// ── AUTH ──
 function checkPin(){
   var v=document.getElementById('lpin').value;
-  if(PINS.includes(v)){
+  if(PINS.indexOf(v)>=0){
     document.getElementById('lock').style.display='none';
-    document.getElementById('app').style.display='flex';
-    // Attendre que le browser ait calculé le layout avant d\'initialiser Leaflet
-    setTimeout(function(){initMap();initFromURL();},50);
+    var app=document.getElementById('app');
+    app.style.display='flex';
+    // Laisser le browser faire le reflow AVANT d'initialiser Leaflet
+    requestAnimationFrame(function(){
+      requestAnimationFrame(function(){
+        initMap();
+        initFromURL();
+      });
+    });
   } else {
     document.getElementById('lerr').textContent='Code incorrect';
     document.getElementById('lpin').value='';
@@ -450,32 +389,47 @@ function checkPin(){
 }
 document.getElementById('lpin').addEventListener('keydown',function(e){if(e.key==='Enter')checkPin();});
 
-// SUPABASE
-function sr(path){return fetch(SB+'/rest/v1/'+path,{headers:{'apikey':AK,'Authorization':'Bearer '+AK}}).then(function(r){return r.ok?r.json():[];}).catch(function(){return[];});}
-function sf(t,f,l){var q=Object.entries(f).map(function(e){return e[0]+'=eq.'+e[1];}).join('&');return sr(t+'?'+q+'&limit='+(l||10));}
-function rpc(fn,p){return fetch(SB+'/rest/v1/rpc/'+fn,{method:'POST',headers:{'apikey':AK,'Authorization':'Bearer '+AK,'Content-Type':'application/json'},body:JSON.stringify(p)}).then(function(r){return r.ok?r.json():null;}).catch(function(){return null;});}
+// ── SUPABASE ──
+function sr(path){
+  return fetch(SB+'/rest/v1/'+path,{headers:{'apikey':AK,'Authorization':'Bearer '+AK}})
+    .then(function(r){return r.ok?r.json():[];}).catch(function(){return[];});
+}
+function sf(t,f,l){
+  var q=Object.entries(f).map(function(e){return e[0]+'=eq.'+e[1];}).join('&');
+  return sr(t+'?'+q+'&limit='+(l||10));
+}
+function rpc(fn,p){
+  return fetch(SB+'/rest/v1/rpc/'+fn,{method:'POST',headers:{'apikey':AK,'Authorization':'Bearer '+AK,'Content-Type':'application/json'},body:JSON.stringify(p)})
+    .then(function(r){return r.ok?r.json():null;}).catch(function(){return null;});
+}
 
-// MAP
+// ── MAP ──
 function initMap(){
-  map=L.map('map',{zoomControl:true}).setView([46.6,2.3],6);
+  var container=document.getElementById('map');
+  var w=container.offsetWidth,h=container.offsetHeight;
+  if(!w||!h){
+    // Forcer une hauteur explicite si nécessaire
+    if(!h)container.style.height=(window.innerHeight-52)+'px';
+    setTimeout(initMap,150);return;
+  }
+  map=L.map('map',{zoomControl:true,preferCanvas:true}).setView([46.6,2.3],6);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
-    attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-    subdomains:['a','b','c'],
-    maxZoom:19,
-    tileSize:256
+    attribution:'© OpenStreetMap',subdomains:['a','b','c'],maxZoom:19
   }).addTo(map);
   mGroup=L.layerGroup().addTo(map);
   map.on('click',function(e){rgc(e.latlng.lat,e.latlng.lng);});
-  // Forcer le recalcul de taille plusieurs fois
-  [100,300,600,1000].forEach(function(t){setTimeout(function(){map.invalidateSize();},t);});
-  // Mobile drag
-  var h=document.getElementById('drag-handle');
-  var startY;
-  h.addEventListener('touchstart',function(e){startY=e.touches[0].clientY;},{passive:true});
-  h.addEventListener('touchend',function(e){
-    var dy=e.changedTouches[0].clientY-startY;
-    if(dy<-30)openPanel();else if(dy>50)peekPanel();
-  },{passive:true});
+  // Touch : tap sur la carte ferme le panel
+  map.on('click',function(){if(window.innerWidth<=900)closePanel();});
+  // Drag handle
+  var bar=document.getElementById('drag-bar');
+  if(bar){
+    var sy,sp;
+    bar.addEventListener('touchstart',function(e){sy=e.touches[0].clientY;sp=document.getElementById('panel').getBoundingClientRect().top;},{passive:true});
+    bar.addEventListener('touchend',function(e){
+      var dy=e.changedTouches[0].clientY-sy;
+      if(dy<-40)openPanel();else if(dy>40)closePanel();
+    },{passive:true});
+  }
 }
 function initFromURL(){
   var p=new URLSearchParams(location.search);
@@ -483,80 +437,113 @@ function initFromURL(){
   if(lat&&lng)rgc(lat,lng);
 }
 function openPanel(){
-  var p=document.getElementById('panel');p.classList.remove('peek');p.classList.add('open');
-  var btn=document.getElementById('toggle-panel');if(btn)btn.style.display='none';
-  var mb=document.getElementById('map-btn');if(mb&&window.innerWidth<=900)mb.style.display='block';
-  setTimeout(function(){if(map)map.invalidateSize();},350);
+  document.getElementById('panel').classList.add('open');
+  setTimeout(function(){if(map)map.invalidateSize();},320);
 }
-function togglePanel(){
-  var p=document.getElementById('panel');
-  if(p.classList.contains('open')){
-    p.classList.remove('open');p.classList.add('peek');
-    var btn=document.getElementById('toggle-panel');
-    if(btn){btn.style.display='block';btn.textContent='📋 Rapport';}
-  } else {
-    openPanel();
-  }
-}
-function peekPanel(){
-  var p=document.getElementById('panel');p.classList.remove('open');p.classList.add('peek');
-  var btn=document.getElementById('toggle-panel');if(btn&&curD)btn.style.display='block';
-  var mb=document.getElementById('map-btn');if(mb)mb.style.display='none';
-  setTimeout(function(){if(map)map.invalidateSize();},350);
+function closePanel(){
+  document.getElementById('panel').classList.remove('open');
+  setTimeout(function(){if(map)map.invalidateSize();},320);
 }
 
-// SEARCH
+// ── SEARCH ──
 var deb;
 document.getElementById('si').addEventListener('input',function(){
   clearTimeout(deb);var q=this.value.trim();var dd=document.getElementById('sdd');
   if(q.length<3){dd.style.display='none';return;}
   deb=setTimeout(function(){
-    fetch('https://api-adresse.data.gouv.fr/search/?q='+encodeURIComponent(q)+'&limit=7&autocomplete=1')
+    fetch('https://api-adresse.data.gouv.fr/search/?q='+encodeURIComponent(q)+'&limit=6&autocomplete=1')
       .then(function(r){return r.json();}).then(function(res){
         dd.innerHTML='';
         if(!res.features||!res.features.length){dd.style.display='none';return;}
         res.features.forEach(function(f){
           var el=document.createElement('div');el.className='sg';
-          el.innerHTML='<span style="font-size:.7rem;color:var(--g4)">📍</span>'+f.properties.label;
+          el.innerHTML='📍 '+f.properties.label;
           el.addEventListener('mousedown',function(e){
-            e.preventDefault();document.getElementById('si').value=f.properties.label;
-            geo=f.properties;dd.style.display='none';map.setView([f.properties.y,f.properties.x],17);loadReport();
+            e.preventDefault();
+            document.getElementById('si').value=f.properties.label;
+            geo=f.properties;dd.style.display='none';
+            map.setView([f.properties.y,f.properties.x],17);
+            loadReport();
           });
           dd.appendChild(el);
         });
         dd.style.display='block';
       }).catch(function(){dd.style.display='none';});
-  },200);
+  },250);
 });
 document.getElementById('si').addEventListener('blur',function(){setTimeout(function(){document.getElementById('sdd').style.display='none';},200);});
-document.getElementById('si').addEventListener('keydown',function(e){if(e.key==='Escape')document.getElementById('sdd').style.display='none';});
 
 function locate(){
   if(!navigator.geolocation)return toast('Non supporté');
-  navigator.geolocation.getCurrentPosition(function(p){map.setView([p.coords.latitude,p.coords.longitude],17);rgc(p.coords.latitude,p.coords.longitude);},function(){toast('Refusé');});
+  navigator.geolocation.getCurrentPosition(function(p){
+    map.setView([p.coords.latitude,p.coords.longitude],17);
+    rgc(p.coords.latitude,p.coords.longitude);
+  },function(){toast('Refusé');});
 }
 function rgc(lat,lng){
   fetch('https://api-adresse.data.gouv.fr/reverse/?lon='+lng+'&lat='+lat)
     .then(function(r){return r.json();})
     .then(function(res){
-      if(res.features&&res.features.length){geo=res.features[0].properties;geo.x=+lng;geo.y=+lat;document.getElementById('si').value=geo.label||'';loadReport();}
-      else toast('Adresse introuvable');
+      if(res.features&&res.features.length){
+        geo=res.features[0].properties;geo.x=+lng;geo.y=+lat;
+        document.getElementById('si').value=geo.label||'';
+        loadReport();
+      }else toast('Adresse introuvable');
     }).catch(function(){toast('Erreur');});
 }
 
-// UTILS
+// ── UTILS ──
 function fmt(n){if(!n&&n!==0)return'—';return Math.round(n).toLocaleString('fr-FR')+'€';}
 function fmtN(n){if(!n&&n!==0)return'—';return Math.round(n).toLocaleString('fr-FR');}
-function fd(m){return m<1000?Math.round(m)+'m':+(m/1000).toFixed(1)+'km';}
+function fd(m){return m<1000?Math.round(m)+'m':(m/1000).toFixed(1)+'km';}
 function dist(a,b,c,d){var R=6371e3,p1=a*Math.PI/180,p2=c*Math.PI/180,dp=(c-a)*Math.PI/180,dl=(d-b)*Math.PI/180;var x=Math.sin(dp/2)*Math.sin(dp/2)+Math.cos(p1)*Math.cos(p2)*Math.sin(dl/2)*Math.sin(dl/2);return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));}
 function toast(msg){var el=document.getElementById('toast');el.textContent=msg;el.classList.add('on');setTimeout(function(){el.classList.remove('on');},2400);}
 function grade(s){return s>=80?'A':s>=65?'B':s>=50?'C':s>=35?'D':s>=20?'E':'F';}
 function colorS(s){return s>=65?'var(--green)':s>=40?'var(--amber)':'var(--red)';}
 function kpi(c,l,v,s){return'<div class="kpi"><div class="klbl">'+l+'</div><div class="kval '+(c||'')+'">'+v+'</div>'+(s?'<div class="ksub">'+s+'</div>':'')+'</div>';}
-function dr(l,v){return'<div class="dr"><span class="dl">'+l+'</span><span class="dv">'+(v!=null&&v!==''?v:'—')+'</span></div>';}
+function dr(l,v){return'<div class="dr"><span class="dl">'+l+'</span><span class="dv">'+(v!=null?v:'—')+'</span></div>';}
 function bb(l,v){var c=v>=70?'var(--green)':v>=40?'var(--amber)':'var(--red)';return'<div class="bb"><div class="bbl">'+l+'</div><div class="bbr"><div class="bbf" style="width:'+v+'%;background:'+c+'"></div></div><div class="bbv">'+Math.round(v)+'</div></div>';}
+function interp(msg,type){if(!msg)return'';return'<div class="interp '+(type||'')+'">'+msg+'</div>';}
 
-// TABS
+// Scale bar avec min/p25/median/p75/max
+function scaleBar(o){
+  if(o.val==null||o.min==null||o.max==null)return'';
+  var r=o.max-o.min;if(r<=0)return'';
+  function p(v){return Math.min(97,Math.max(3,(v-o.min)/r*100));}
+  var vp=p(o.val),col=o.color||'var(--blue)';
+  var diff=o.med!=null?o.val-o.med:null;
+  return'<div style="margin:.55rem 0">'+
+    '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:.22rem">'+
+      '<span style="font-size:.67rem;font-weight:700;color:var(--g5)">'+o.label+'</span>'+
+      '<span style="font-size:.7rem;font-weight:800;font-family:var(--mono)">'+Math.round(o.val)+(o.unit||'')+(o.obs?' <span style="font-weight:400;color:var(--g4);font-size:.58rem">'+o.obs+'</span>':'')+'</span>'+
+    '</div>'+
+    '<div style="position:relative;height:26px">'+
+      '<div style="position:absolute;top:11px;left:0;right:0;height:5px;background:var(--g2);border-radius:3px"></div>'+
+      (o.p25!=null&&o.p75!=null?'<div style="position:absolute;top:11px;left:'+p(o.p25)+'%;width:'+(p(o.p75)-p(o.p25))+'%;height:5px;background:rgba(37,99,235,.12);border-radius:1px"></div>':'')+
+      (o.med!=null?'<div style="position:absolute;top:8px;left:'+p(o.med)+'%;width:2px;height:11px;background:var(--g4);border-radius:1px;transform:translateX(-50%)"></div>':'')+
+      '<div style="position:absolute;top:5px;left:'+vp+'%;width:16px;height:16px;background:'+col+';border-radius:50%;border:2.5px solid #fff;box-shadow:0 1px 5px rgba(0,0,0,.3);transform:translateX(-50%);z-index:2"></div>'+
+    '</div>'+
+    '<div style="display:flex;justify-content:space-between;font-size:.54rem;color:var(--g4);font-family:var(--mono);margin-top:14px">'+
+      '<span>'+Math.round(o.min)+(o.unit||'')+'</span>'+
+      (diff!=null?'<span style="color:'+(diff>0?'var(--red)':'var(--green)')+';font-weight:700;font-size:.63rem">'+(diff>0?'+':'')+Math.round(diff)+(o.unit||'')+' vs med.</span>':'<span></span>')+
+      '<span>'+Math.round(o.max)+(o.unit||'')+'</span>'+
+    '</div>'+
+    (o.note?interp(o.note,o.noteType):'')+'</div>';
+}
+
+// Popup carte
+function mkPop(ico,type,name,detail,dd,color,lat,lng){
+  var gmaps='https://www.google.com/maps/dir/?api=1&destination='+lat+','+lng+'&origin='+curD.lat+','+curD.lng;
+  return'<div class="pop">'+
+    '<div class="pop-tag" style="color:'+color+'">'+type+'</div>'+
+    '<div class="pop-name">'+ico+' '+name+'</div>'+
+    (detail?'<div style="font-size:.68rem;color:var(--g5);margin-bottom:.28rem">'+detail+'</div>':'')+
+    '<div style="font-family:var(--mono);font-size:.65rem;color:var(--g4);margin-bottom:.35rem">'+fd(dd)+' · ~'+Math.round(dd/80)+'min</div>'+
+    '<a href="'+gmaps+'" target="_blank" style="display:block;padding:.32rem .45rem;background:var(--k);color:#fff;border-radius:6px;text-align:center;font-size:.68rem;font-weight:700;text-decoration:none">↗ Itinéraire</a>'+
+  '</div>';
+}
+
+// ── TABS ──
 function switchTab(id,el){
   document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('on');});
   document.querySelectorAll('.tab-pane').forEach(function(p){p.classList.remove('on');});
@@ -568,43 +555,18 @@ function setProfile(p,el){
   currentProfile=p;
   document.querySelectorAll('.ppill').forEach(function(x){x.classList.remove('on');});
   el.classList.add('on');
-  applyProfileTabs(p);
   if(curD)renderHeader(curD);
 }
 
-function applyProfileTabs(p){
-  var tabOrders={
-    standard:['prix','risques','dpe','transports','commerces','eau','air','demo','batiment'],
-    famille:['transports','eau','risques','commerces','dpe','prix','air','demo','batiment'],
-    invest:['prix','demo','dpe','risques','commerces','transports','eau','air','batiment']
-  };
-  var order=tabOrders[p]||tabOrders.standard;
-  var tabsEl=document.getElementById('tabs');
-  var tabs=Array.from(tabsEl.querySelectorAll('.tab'));
-  order.forEach(function(id,i){
-    var t=tabs.find(function(t){return t.getAttribute('data-tab')===id;});
-    if(t)tabsEl.appendChild(t);
-  });
-  // Activer le premier onglet du profil
-  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('on');});
-  document.querySelectorAll('.tab-pane').forEach(function(p){p.classList.remove('on');});
-  var firstTab=tabsEl.querySelector('.tab');
-  if(firstTab){
-    firstTab.classList.add('on');
-    var firstId=firstTab.getAttribute('data-tab');
-    var pane=document.getElementById('tab-'+firstId);
-    if(pane)pane.classList.add('on');
-  }
-}
-
-// LOAD REPORT
+// ── LOAD REPORT ──
 function loadReport(){
   if(!geo)return;
   var cc=geo.citycode,cp=geo.postcode,lat=+geo.y,lng=+geo.x;
   if(!cc){toast('Code INSEE introuvable');return;}
   if(pin)map.removeLayer(pin);
   pin=L.marker([lat,lng],{icon:L.divIcon({className:'',html:'<div class="map-pin"></div>',iconSize:[20,20],iconAnchor:[10,10]})}).addTo(map);
-  map.setView([lat,lng],16);mGroup.clearLayers();setTimeout(function(){map.invalidateSize();},100);
+  map.setView([lat,lng],15);
+  if(mGroup)mGroup.clearLayers();
   document.getElementById('pempty').style.display='none';
   document.getElementById('ph-loaded').style.display='none';
   document.getElementById('tabs').style.display='none';
@@ -612,82 +574,96 @@ function loadReport(){
   document.getElementById('pload').classList.add('on');
   document.getElementById('pfoot').style.display='none';
   openPanel();
+  // SEO dynamique
+  document.getElementById('page-title').textContent='Analyse immobilière '+geo.label+' — Intent Analytics';
+  document.getElementById('meta-desc').setAttribute('content','Rapport complet : prix au m², risques, DPE, transports, qualité eau pour '+geo.label+'. Données officielles DVF, DPE, BAN.');
   Promise.all([
-    sr('address_profile?code_commune=eq.'+cc+'&select=dvf_prix_m2_median,dvf_prix_m2_p25,dvf_prix_m2_p75,dvf_prix_m2_trend_1y,dpe_etiquette_modale,dpe_nb_bilans,bpe_score_global,bpe_score_transport,bpe_score_education,score_potentiel_dpe&dvf_prix_m2_median=not.is.null&order=dvf_prix_m2_median.desc&limit=1'),  // R[0]
-    sr('score_localisation_commune?code_commune=eq.'+cc+'&select=score_localisation,score_accessibilite,score_securite,score_services,score_risques_naturels,score_dynamisme,detail_accessibilite,detail_dynamisme&limit=1'),  // R[1]
-    sr('dvf_mutations?code_commune=eq.'+cc+'&select=valeur_fonciere,surface_reelle_bati,type_local,date_mutation&order=date_mutation.desc&limit=200'),  // R[2]
-    sr('dpe_diagnostics?code_postal=eq.'+cp+'&select=classe_energie,date_reception_dpe&limit=500'),  // R[3]
-    sf('data_georisques',{code_commune:cc},1),  // R[4]
-    sf('data_plu_communes',{code_commune:cc},1),  // R[5]
-    sf('data_bdnb_batiments',{code_commune_insee:cc},50),  // R[6]
-    sf('data_demographie_commune',{code_commune:cc},1),  // R[7]
-    sf('poi_scores_commune',{code_commune:cc},1),  // R[8]
-    sf('data_qualite_eau',{code_commune:cc},1),  // R[9]
-    sr('ml_training_v8?code_commune=eq.'+cc+'&select=prix_m2_target,prix_zone_median,revenu_median_commune&limit=20'),  // R[10]
-    sr('transport_stops?code_commune=eq.'+cc+'&select=stop_id,stop_name,stop_lat,stop_lon,network_name,agency_name&limit=200'),  // R[11]
-    sr('data_etablissements_scolaires?code_commune=eq.'+cc+'&select=uai,nom,type,latitude,longitude,secteur,taux_reussite_bac,nb_eleves&limit=150'),  // R[12]
-    sf('commune_wiki',{code_commune:cc},1)  // R[13]
+    sr('address_profile?code_commune=eq.'+cc+'&select=dvf_prix_m2_median,dvf_prix_m2_p25,dvf_prix_m2_p75,dvf_prix_m2_trend_1y,dpe_etiquette_modale,dpe_nb_bilans,bpe_score_global,bpe_score_transport,bpe_score_education,score_potentiel_dpe&dvf_prix_m2_median=not.is.null&order=dvf_prix_m2_median.desc&limit=1'),
+    sr('score_localisation_commune?code_commune=eq.'+cc+'&select=score_localisation,score_accessibilite,score_securite,score_services,score_risques_naturels,score_dynamisme,detail_accessibilite,detail_dynamisme&limit=1'),
+    sr('dvf_mutations?code_commune=eq.'+cc+'&select=valeur_fonciere,surface_reelle_bati,type_local,date_mutation&order=date_mutation.desc&limit=200'),
+    sr('dpe_diagnostics?code_postal=eq.'+cp+'&select=classe_energie,date_reception_dpe&limit=500'),
+    sf('data_georisques',{code_commune:cc},1),
+    sf('data_plu_communes',{code_commune:cc},1),
+    sf('data_bdnb_batiments',{code_commune_insee:cc},50),
+    sf('data_demographie_commune',{code_commune:cc},1),
+    sf('poi_scores_commune',{code_commune:cc},1),
+    sf('data_qualite_eau',{code_commune:cc},1),
+    sr('ml_training_v8?code_commune=eq.'+cc+'&select=prix_zone_median&limit=5'),
+    sr('transport_stops?code_commune=eq.'+cc+'&select=stop_id,stop_name,stop_lat,stop_lon,network_name,agency_name&limit=200'),
+    sr('data_etablissements_scolaires?code_commune=eq.'+cc+'&select=uai,nom,type,latitude,longitude,secteur,taux_reussite_bac,nb_eleves&limit=100'),
+    sf('commune_wiki',{code_commune:cc},1)
   ]).then(function(R){
     document.getElementById('pload').classList.remove('on');
-    curD={geo:geo,cc:cc,cp:cp,lat:lat,lng:lng,
-      ap:R[0],sc:R[1][0]||null,dvf:R[2],dpe:R[3],
-      risk:R[4][0]||null,plu:R[5][0]||null,
-      bdnb:R[6],demo:R[7][0]||null,poi:R[8][0]||null,
-      eau:R[9][0]||null,ml:R[10],trans:R[11],ecoles:R[12],
-      wiki:R[13]&&R[13][0]||null};    renderAll(curD);
+    curD={
+      geo:geo,cc:cc,cp:cp,lat:lat,lng:lng,
+      ap:R[0]&&R[0][0]||null,
+      sc:R[1]&&R[1][0]||null,
+      dvf:R[2]||[],dpe:R[3]||[],
+      risk:R[4]&&R[4][0]||null,
+      plu:R[5]&&R[5][0]||null,
+      bdnb:R[6]||[],
+      demo:R[7]&&R[7][0]||null,
+      poi:R[8]&&R[8][0]||null,
+      eau:R[9]&&R[9][0]||null,
+      ml:R[10]||[],
+      trans:R[11]||[],
+      ecoles:R[12]||[],
+      wiki:R[13]&&R[13][0]||null
+    };
+    renderAll(curD);
     history.replaceState({},'','?lat='+lat+'&lng='+lng);
   });
 }
 
 function renderAll(d){
   renderHeader(d);renderPrix(d);renderRisques(d);renderDPE(d);
-  renderTransports(d);renderCommerces(d);renderEau(d);renderDemo(d);renderBatiment(d);
-  doEstim(d);rsante(d);rscolaire(d);rshop(d);rcadastre(d);rair(d);rclimat(d);loadMapLayers(d);loadOSMOnMap(d);
+  renderTransports(d);renderServices(d);renderEau(d);renderDemo(d);
+  renderBatiment(d);renderCommune(d);doEstim(d);
+  loadMapLayers(d);
+  rcadastre(d);rair(d);rclimat(d);
+  loadServicesOSM(d);
   document.getElementById('ph-loaded').style.display='block';
   document.getElementById('tabs').style.display='flex';
   document.getElementById('pbody').classList.add('on');
   document.getElementById('pfoot').style.display='flex';
-  if(window.innerWidth<=900){var btn=document.getElementById('toggle-panel');if(btn)btn.style.display='none';}
   document.getElementById('paddr').textContent=d.geo.label||'—';
   document.getElementById('psub').textContent=(d.cp||'')+' '+(d.geo.city||'')+(d.cc?' · INSEE '+d.cc:'');
 }
 
-// HEADER
+// ── RENDER HEADER ──
 function renderHeader(d){
   var sc=d.sc,score=sc?Math.round(sc.score_localisation||0):null;
-  var circ=2*Math.PI*27;
-  var fill=document.getElementById('sc-fill');
+  var fill=document.getElementById('sc-fill'),circ=2*Math.PI*27;
   if(score!==null){
-    var offset=circ-(circ*score/100);
-    fill.style.stroke=colorS(score);fill.style.strokeDashoffset=offset;
-    document.getElementById('sc-num').textContent=score;document.getElementById('sc-num').style.color=colorS(score);
+    fill.style.stroke=colorS(score);
+    fill.style.strokeDashoffset=circ-(circ*score/100);
+    document.getElementById('sc-num').textContent=score;
+    document.getElementById('sc-num').style.color=colorS(score);
     document.getElementById('sc-letter').textContent=grade(score);
-  } else {
+  }else{
     fill.style.strokeDashoffset=circ;fill.style.stroke='var(--g3)';
-    document.getElementById('sc-num').textContent='—';document.getElementById('sc-num').style.color='var(--g4)';
+    document.getElementById('sc-num').textContent='—';
     document.getElementById('sc-letter').textContent='';
   }
-  score=score||0;
-  var ap=d.ap&&d.ap[0]||null,trend=ap&&ap.dvf_prix_m2_trend_1y;
-  // Fallback prix : address_profile puis dvf_mutations
-  var dvfP2=d.dvf.filter(function(r){return r.surface_reelle_bati>=9&&r.valeur_fonciere>=5000;}).map(function(r){return r.valeur_fonciere/r.surface_reelle_bati;}).filter(function(v){return v>500&&v<50000;}).sort(function(a,b){return a-b;});
-  var pz=(ap&&ap.dvf_prix_m2_median)||( dvfP2.length?dvfP2[Math.floor(dvfP2.length/2)]:null);
-  var dpe=ap&&ap.dpe_etiquette_modale||'?';
-  var risk=d.risk,rn=(risk?([risk.risque_inondation,risk.risque_argile,risk.pprn_prescrit,risk.pprt_prescrit].filter(Boolean).length):0);
+  var ap=d.ap,trend=ap&&ap.dvf_prix_m2_trend_1y;
+  var dvfP=d.dvf.filter(function(r){return r.surface_reelle_bati>=9&&r.valeur_fonciere>=5000;}).map(function(r){return r.valeur_fonciere/r.surface_reelle_bati;}).filter(function(v){return v>500&&v<50000;}).sort(function(a,b){return a-b;});
+  var pz=(ap&&ap.dvf_prix_m2_median)||(dvfP.length?dvfP[Math.floor(dvfP.length/2)]:null);
+  var dpe=ap&&ap.dpe_etiquette_modale||null;
+  var risk=d.risk,rn=risk?[risk.risque_inondation,risk.risque_argile,risk.pprn_prescrit,risk.pprt_prescrit].filter(Boolean).length:0;
   var eau=d.eau,conf=eau&&eau.taux_conformite_global!=null?Math.round(eau.taux_conformite_global):null;
-  var trans=(d.trans||[]).length;
-  var dem=d.demo||{};
+  var trans=d.trans.length;
+  var s=score||0;
   var summaries={
-    standard:'Score '+score+'/100 ('+grade(score)+') pour '+d.geo.city+'. '+(score>=65?'Excellent emplacement.':score>=40?'Adresse correcte, quelques points à surveiller.':'Plusieurs indicateurs méritent attention.')+(pz?' Marché à '+fmt(pz)+'/m².':''),
-    famille:'👨‍👩‍👧 Vue famille — '+(sc&&sc.score_accessibilite>60?'✅ Transports excellents':sc&&sc.score_accessibilite>40?'⚠️ Transports corrects':'❌ Transports limités')+'. '+(d.poi&&d.poi.score_education>60?'✅ Bonne offre scolaire.':'⚠️ Offre scolaire à évaluer.')+' Eau : '+(d.eau&&d.eau.taux_conformite_global?Math.round(d.eau.taux_conformite_global)+'% conforme.':'N/D.'),
-    invest:'📈 Vue investisseur — Marché '+(pz?fmt(pz)+'/m²':'N/D')+(trend!=null?' · '+(trend>0?'▲ +':'▼ ')+Number(trend).toFixed(1)+'%/an':'')+'. Population : '+(dem.population_2024||dem.population_2020?fmtN(dem.population_2024||dem.population_2020)+' hab.':'N/D')+'. Chômage : '+(dem.taux_chomage?dem.taux_chomage+'%':'N/D')+'.'
+    standard:'Score '+(s||'N/D')+'/100 '+(s?'('+grade(s)+')':'')+' pour '+d.geo.city+'. '+(s>=65?'Excellent emplacement.':s>=40?'Adresse correcte.':'Quelques points à surveiller.')+(pz?' Marché à '+fmt(pz)+'/m².':''),
+    famille:'Famille : '+(sc&&sc.score_accessibilite>60?'✅ Transports bons':sc&&sc.score_accessibilite>40?'⚠️ Transports corrects':'❌ Transports limités')+'. '+(d.poi&&d.poi.score_education>60?'✅ Bonne offre scolaire.':'⚠️ Offre scolaire à vérifier.')+' Eau : '+(conf?conf+'% conforme.':'N/D.'),
+    invest:'Marché : '+(pz?fmt(pz)+'/m²':'N/D')+(trend?' '+(trend>0?'▲ +':'▼ ')+Number(trend).toFixed(1)+'%/an':'')+'. '+(d.demo?'Pop. '+fmtN(d.demo.population_2024||d.demo.population_2019||0)+'.':'')
   };
   document.getElementById('summary-box').textContent=summaries[currentProfile]||summaries.standard;
   document.getElementById('score-cards').innerHTML=
-    scard('📈','Prix',pz?fmt(pz):'N/D',trend!=null?(trend>0?'▲ +':'▼ ')+Number(trend).toFixed(1)+'%/an':'',pz?Math.min(100,Math.round(pz/70)):0,'var(--blue)')+
-    scard('⚡','Énergie',dpe!='?'?'DPE '+dpe:'N/D',ap&&ap.dpe_nb_bilans?ap.dpe_nb_bilans+' bilans':'',{'A':100,'B':85,'C':70,'D':50,'E':35,'F':20,'G':10}[dpe]||30,'var(--green)')+
-    scard('⚠️','Risques',rn+' risque'+(rn!==1?'s':''),risk?'Séisme '+(['','Z1','Z2','Z3','Z4','Z5'][risk.risque_seisme||0]||'Z0'):'',Math.max(0,100-rn*20),'var(--red)')+
-    scard('💧','Enviro.',conf!=null?conf+'%':'N/D',trans+' arrêts TC',conf||80,'var(--blue)');
+    scard('📈','Prix',pz?fmt(pz):'N/D',trend?(trend>0?'▲ +':'▼ ')+Number(trend).toFixed(1)+'%/an':'',pz?Math.min(100,Math.round(pz/70)):0,'var(--blue)')+
+    scard('⚡','Énergie',dpe?'DPE '+dpe:'N/D',ap&&ap.dpe_nb_bilans?ap.dpe_nb_bilans+' bilans':'',{A:100,B:85,C:70,D:50,E:35,F:20,G:10}[dpe]||30,'var(--green)')+
+    scard('⚠️','Risques',rn+' risque'+(rn!==1?'s':''),risk?(['','Z1','Z2','Z3','Z4','Z5'][risk.risque_seisme||0]||'Z0'):'',Math.max(0,100-rn*20),'var(--red)')+
+    scard('💧','Enviro.',conf?conf+'%':'N/D',trans+' arrêts TC',conf||80,'var(--blue)');
 }
 function scard(ico,title,main,sub,pct,color){
   return'<div class="scard"><div class="scard-header"><div class="scard-title">'+ico+' '+title+'</div><div class="scard-score">'+Math.round(pct)+'</div></div>'+
@@ -695,74 +671,54 @@ function scard(ico,title,main,sub,pct,color){
     '<div class="scard-main">'+main+'</div><div class="scard-sub">'+sub+'</div></div>';
 }
 
-// PRIX — analyse comparative
+// ── PRIX ──
 function renderPrix(d){
-  var ap=d.ap&&d.ap[0]||null;
-  var trend=ap&&ap.dvf_prix_m2_trend_1y;
-  // Toutes transactions valides
-  var allF=d.dvf.filter(function(r){return r.surface_reelle_bati>=9&&r.valeur_fonciere>=5000;});
-  var allP=allF.map(function(r){return r.valeur_fonciere/r.surface_reelle_bati;}).filter(function(v){return v>500&&v<50000;}).sort(function(a,b){return a-b;});
-  // Par type
-  var apptF=allF.filter(function(r){return r.type_local==='Appartement';});
-  var maisonF=allF.filter(function(r){return r.type_local==='Maison';});
-  var apptP=apptF.map(function(r){return r.valeur_fonciere/r.surface_reelle_bati;}).filter(function(v){return v>500&&v<50000;}).sort(function(a,b){return a-b;});
-  var maisonP=maisonF.map(function(r){return r.valeur_fonciere/r.surface_reelle_bati;}).filter(function(v){return v>500&&v<50000;}).sort(function(a,b){return a-b;});
-  function calcStats(arr){
-    if(!arr.length)return null;
-    return{min:arr[0],p25:arr[Math.floor(arr.length*.25)],med:arr[Math.floor(arr.length/2)],p75:arr[Math.floor(arr.length*.75)],max:arr[arr.length-1],n:arr.length};
+  var ap=d.ap,trend=ap&&ap.dvf_prix_m2_trend_1y;
+  var all=d.dvf.filter(function(r){return r.surface_reelle_bati>=9&&r.valeur_fonciere>=5000;});
+  function stats(arr){
+    var p=arr.map(function(r){return r.valeur_fonciere/r.surface_reelle_bati;}).filter(function(v){return v>500&&v<50000;}).sort(function(a,b){return a-b;});
+    if(!p.length)return null;
+    return{min:p[0],p25:p[Math.floor(p.length*.25)],med:p[Math.floor(p.length/2)],p75:p[Math.floor(p.length*.75)],max:p[p.length-1],n:p.length};
   }
-  var statsAll=calcStats(allP);
-  var statsAppt=calcStats(apptP);
-  var statsMaison=calcStats(maisonP);
-  var pz=(ap&&ap.dvf_prix_m2_median)||statsAll&&statsAll.med||0;
-  // KPI
+  var sAll=stats(all);
+  var sAppt=stats(all.filter(function(r){return r.type_local==='Appartement';}));
+  var sMaison=stats(all.filter(function(r){return r.type_local==='Maison';}));
+  var pz=(ap&&ap.dvf_prix_m2_median)||(sAll&&sAll.med)||0;
   document.getElementById('dvfK').innerHTML=
-    kpi('','Médiane/m²',pz?fmt(pz):'—',allP.length+' obs.')+
-    kpi(trend>0?'g':trend<0?'r':'','Tendance 1an',trend!=null?(trend>0?'+':'')+Number(trend).toFixed(1)+'%':'—','')+
-    kpi('','Transactions',fmtN(allF.length),'');
-  var html='';
-  // Appartements : scale si >5 obs
-  if(statsAppt&&statsAppt.n>=5){
-    var diff=Math.round(statsAppt.med-statsAppt.med);
-    var note=trend!=null&&trend>3?'Marché en hausse (+'+Number(trend).toFixed(1)+'%/an). Les appartements se revendent rapidement au-dessus de la mise en vente.':
-      trend!=null&&trend<-3?'Marché en repli ('+Number(trend).toFixed(1)+'%/an). Marge de négociation estimée à 3-7%.':
-      'Marché stable. Prix en ligne avec la tendance départementale.';
-    var noteType=trend!=null&&trend>3?'warn':trend!=null&&trend<-3?'good':'';
-    html+='<div class="card"><div class="card-title">Appartements · '+statsAppt.n+' ventes</div>'+
-      scaleBar({label:'Prix m² appartements',val:statsAppt.med,min:statsAppt.min,p25:statsAppt.p25,med:statsAppt.med,p75:statsAppt.p75,max:statsAppt.max,unit:'€',obs:statsAppt.n+' obs.',note:note,noteType:noteType,color:'var(--blue)'})+
-      '</div>';
+    kpi('','Médiane/m²',pz?fmt(pz):'—',(sAll?sAll.n:0)+' obs.')+
+    kpi(trend>0?'g':trend<0?'r':'','Tendance 1an',trend?(trend>0?'+':'')+Number(trend).toFixed(1)+'%':'—','')+
+    kpi('','Transactions',fmtN(all.length),'');
+  var scales='';
+  if(sAppt&&sAppt.n>=5){
+    var p25=ap&&ap.dvf_prix_m2_p25||sAppt.p25;
+    var p75=ap&&ap.dvf_prix_m2_p75||sAppt.p75;
+    var noteT=trend>3?'Hausse de '+Number(trend).toFixed(1)+'%/an — marché tendu, peu de marges de négociation.':trend<-3?'Repli de '+Math.abs(Number(trend)).toFixed(1)+'%/an — marge de négociation possible.':'Marché stable.';
+    scales+='<div class="card"><div class="card-title">Appartements · '+sAppt.n+' ventes</div>'+scaleBar({label:'Prix m² vs local',val:sAppt.med,min:sAppt.min,p25:p25,med:sAppt.med,p75:p75,max:sAppt.max,unit:'€',obs:sAppt.n+' obs.',note:noteT,color:'var(--blue)'})+'</div>';
   }
-  // Maisons : scale si >5 obs
-  if(statsMaison&&statsMaison.n>=5){
-    html+='<div class="card"><div class="card-title">Maisons · '+statsMaison.n+' ventes</div>'+
-      scaleBar({label:'Prix m² maisons',val:statsMaison.med,min:statsMaison.min,p25:statsMaison.p25,med:statsMaison.med,p75:statsMaison.p75,max:statsMaison.max,unit:'€',obs:statsMaison.n+' obs.',color:'var(--purple,#7c3aed)'})+
-      '</div>';
+  if(sMaison&&sMaison.n>=5){
+    scales+='<div class="card"><div class="card-title">Maisons · '+sMaison.n+' ventes</div>'+scaleBar({label:'Prix m² vs local',val:sMaison.med,min:sMaison.min,p25:sMaison.p25,med:sMaison.med,p75:sMaison.p75,max:sMaison.max,unit:'€',obs:sMaison.n+' obs.',color:'#7c3aed'})+'</div>';
   }
-  if(html)document.getElementById('dvfK').insertAdjacentHTML('afterend',html);
-  // Tableau
-  document.getElementById('dvfT').innerHTML=allF.slice(0,15).map(function(r){
+  document.getElementById('dvfScales').innerHTML=scales;
+  document.getElementById('dvfT').innerHTML=all.slice(0,15).map(function(r){
     var pm=r.valeur_fonciere/r.surface_reelle_bati;
-    var med2=r.type_local==='Appartement'&&statsAppt?statsAppt.med:r.type_local==='Maison'&&statsMaison?statsMaison.med:statsAll?statsAll.med:0;
-    var cl=pm<med2*.85?'color:var(--green)':pm>med2*1.15?'color:var(--red)':'';
-    var type=r.type_local==='Appartement'?'Appt':r.type_local==='Maison'?'Maison':r.type_local||'—';
-    return'<tr><td style="font-family:var(--mono);font-size:.66rem">'+(r.date_mutation&&r.date_mutation.substring(0,7)||'—')+'</td>'+
-      '<td><span class="type-badge">'+type+'</span></td>'+
-      '<td style="font-family:var(--mono);font-size:.66rem">'+fmtN(r.surface_reelle_bati)+'</td>'+
+    var ref=r.type_local==='Appartement'&&sAppt?sAppt.med:r.type_local==='Maison'&&sMaison?sMaison.med:sAll?sAll.med:0;
+    var cl=pm<ref*.85?'color:var(--green)':pm>ref*1.15?'color:var(--red)':'';
+    return'<tr><td style="font-family:var(--mono);font-size:.64rem">'+(r.date_mutation?r.date_mutation.substring(0,7):'—')+'</td>'+
+      '<td><span class="type-badge">'+(r.type_local==='Appartement'?'Appt':r.type_local==='Maison'?'Maison':r.type_local||'—')+'</span></td>'+
+      '<td style="font-family:var(--mono);font-size:.64rem">'+fmtN(r.surface_reelle_bati)+'</td>'+
       '<td class="price-tag" style="'+cl+'">'+fmt(pm)+'</td></tr>';
-  }).join('')||'<tr><td colspan="4" style="text-align:center;padding:.75rem;color:var(--g4)">Aucune transaction</td></tr>';
+  }).join('')||'<tr><td colspan="4" style="text-align:center;padding:.7rem;color:var(--g4)">Aucune transaction</td></tr>';
 }
 
-
-
-// ESTIMATION
+// ── ESTIMATION ──
 function doEstim(d){
   var el=document.getElementById('esec');
   el.innerHTML='<div class="estim-card"><div class="estim-tag">CALCUL…</div></div>';
-  var ap=d.ap&&d.ap[0]||null;
+  var ap=d.ap;
   var dvfP=d.dvf.filter(function(r){return r.surface_reelle_bati>=9&&r.valeur_fonciere>=5000;}).map(function(r){return r.valeur_fonciere/r.surface_reelle_bati;}).filter(function(v){return v>500&&v<50000;}).sort(function(a,b){return a-b;});
-  var pz=ap&&ap.dvf_prix_m2_median?ap.dvf_prix_m2_median:(dvfP.length?dvfP[Math.floor(dvfP.length/2)]:(d.ml&&d.ml[0]&&d.ml[0].prix_zone_median||3000));
+  var pz=(ap&&ap.dvf_prix_m2_median)||(dvfP.length?dvfP[Math.floor(dvfP.length/2)]:null)||(d.ml&&d.ml[0]&&d.ml[0].prix_zone_median)||3000;
   var trend=ap&&ap.dvf_prix_m2_trend_1y!=null?ap.dvf_prix_m2_trend_1y:null;
-  rpc('predict_hedonic_prix_m2',{p_type_local:'Appartement',p_surface:75,p_prix_zone:Math.round(pz),p_revenu_commune:d.demo&&d.demo.revenu_median_uc||null,p_score_transport:d.sc&&d.sc.score_accessibilite||null,p_annee_vente:2024,p_trend_1y:trend}).then(function(res){
+  rpc('predict_hedonic_prix_m2',{p_type_local:'Appartement',p_surface:75,p_prix_zone:Math.round(pz),p_annee_vente:2024,p_trend_1y:trend}).then(function(res){
     if(!res||!res.prix_m2_estime){el.innerHTML='';return;}
     var pm=res.prix_m2_estime,tot=res.prix_total_estime,bas=res.prix_m2_bas,haut=res.prix_m2_haut;
     var tpill=trend!=null?'<div class="estim-pill '+(trend>0?'up':'down')+'">'+(trend>0?'▲ +':'▼ ')+Number(trend).toFixed(1)+'%/an</div>':'';
@@ -777,545 +733,347 @@ function doEstim(d){
   });
 }
 
-// RISQUES — contexte national
+// ── RISQUES ──
 function renderRisques(d){
   var r=d.risk;
-  if(!r){
-    document.getElementById('riskK').innerHTML=kpi('','Risques','N/D','');
-    document.getElementById('riskD').innerHTML='<span class="empty">Données non disponibles</span>';
-    return;
-  }
+  if(!r){document.getElementById('riskK').innerHTML=kpi('','Risques','N/D','');document.getElementById('riskD').innerHTML='<span class="empty">Non disponible</span>';return;}
   var rn=[r.risque_inondation,r.risque_argile,r.pprn_prescrit,r.pprt_prescrit].filter(Boolean).length;
-  var seisme=r.risque_seisme||0;
+  var sz=r.risque_seisme||0;
   document.getElementById('riskK').innerHTML=
     kpi(rn>2?'r':rn>0?'a':'g','Risques identifiés',rn,'sur 4 types')+
-    kpi('','Sismicité',['Nul','Zone 1','Zone 2','Zone 3','Zone 4','Zone 5'][seisme]||'—','')+
-    kpi(r.nb_catnat>3?'r':r.nb_catnat>0?'a':'g','Arrêtés Cat-Nat',r.nb_catnat||0,'historique');
-  // Scale risques vs national (60% communes ont au moins 1 risque naturel)
-  var noteRisk=rn===0?'Aucun risque identifié dans les bases officielles. Commune à faible exposition.':
-    rn===1?'1 risque modéré. La majorité des communes françaises (60%) présentent au moins un risque naturel.':
-    rn===2?"2 risques identifiés. Vérifier les obligations d\'information acheteur (loi Alur).":
-    rn>=3?'Exposition multi-risques. Obligation d\'annexer l\'etat des risques à toute promesse de vente (Art. L125-5).':'';
-  var noteType=rn===0?'good':rn<=1?'':rn===2?'warn':'bad';
-  var html=interp(noteRisk,noteType);
-  html+=scaleBar({label:'Risques vs communes françaises',val:rn,min:0,p25:0,med:1,p75:2,max:4,unit:'',note:null,obs:'national: méd. 1',color:rn===0?'var(--green)':rn<=2?'var(--amber)':'var(--red)'});
-  if(r.nb_catnat>0)html+=interp(r.nb_catnat+' arrêté(s) Cat-Nat historique. Moyenne nationale : 2,3 par commune. '+(r.nb_catnat>5?'Territoire fortement impacté — impact sur les primes d\'assurance.':''),r.nb_catnat>5?'warn':'');
-  function ri(ico,l,v){return'<div class="rrow"><span class="rb '+(v?'rb-y':'rb-n')+'">'+(v?'Oui':'Non')+'</span><span>'+ico+' '+l+'</span></div>';}
-  html+=ri('🌊','Inondation PPRI',r.risque_inondation)+ri('🏔','Retrait-gonflement argiles',r.risque_argile)+ri('📋','PPRN prescrit',r.pprn_prescrit)+ri('⚙️','PPRT prescrit',r.pprt_prescrit);
-  if(seisme>0)html+=interp('Zone sismique '+['','1 (très faible)','2 (faible)','3 (modérée)','4 (moyenne)','5 (forte)'][seisme]+'. '+(seisme>=3?'Normes parasismiques obligatoires pour les constructions neuves.':'Impact limité, normes PS MI applicables.'),seisme>=3?'warn':'');
-  document.getElementById('riskD').innerHTML=html;
+    kpi('','Sismicité',['Nul','Z1','Z2','Z3','Z4','Z5'][sz]||'Nul','')+
+    kpi(r.nb_catnat>3?'r':r.nb_catnat>0?'a':'g','Cat-Nat',r.nb_catnat||0,'arrêtés');
+  var note=rn===0?'Aucun risque identifié — commune à faible exposition naturelle.':
+    rn===1?'1 risque modéré. 60% des communes françaises ont au moins un risque.':
+    rn>=3?'Exposition multi-risques. Annexe état des risques obligatoire (Art. L125-5).':'2 risques identifiés. Vérifier l\'état des risques.';
+  var h=interp(note,rn===0?'good':rn>=3?'bad':'warn');
+  h+=scaleBar({label:'Risques vs communes françaises',val:rn,min:0,p25:0,med:1,p75:2,max:4,unit:'',color:rn===0?'var(--green)':rn>=3?'var(--red)':'var(--amber)'});
+  function ri(ico,l,v){return'<div class="rrow"><span class="rb '+(v?'rb-y':'rb-n')+'">'+(v?'Oui':'Non')+'</span>'+ico+' '+l+'</div>';}
+  h+=ri('🌊','Inondation PPRI',r.risque_inondation)+ri('🏔','Argiles',r.risque_argile)+ri('📋','PPRN',r.pprn_prescrit)+ri('⚙️','PPRT',r.pprt_prescrit);
+  if(sz>0)h+=interp('Zone sismique '+['','1 (très faible)','2 (faible)','3 (modérée)','4 (moyenne)','5 (forte)'][sz]+'. '+(sz>=3?'Normes parasismiques obligatoires.':'Impact limité.'),sz>=3?'warn':'');
+  document.getElementById('riskD').innerHTML=h;
   var p=d.plu;
-  document.getElementById('pluD').innerHTML=p?dr('Zone dominante',p.zone_dominante||'—')+dr('Zone U',p.pct_zone_u?p.pct_zone_u+'%':'—')+dr('Zone N',p.pct_zone_n?p.pct_zone_n+'%':'—'):'<span class="empty">PLU non numérisé pour cette commune</span>';
+  document.getElementById('pluD').innerHTML=p?dr('Zone dominante',p.zone_dominante||'—')+dr('Zone U',p.pct_zone_u?p.pct_zone_u+'%':'—')+dr('Zone N',p.pct_zone_n?p.pct_zone_n+'%':'—'):'<span class="empty">PLU non numérisé</span>';
 }
 
-
-
-// DPE — analyse comparative locale + nationale
+// ── DPE ──
 function renderDPE(d){
   if(d.dpe.length<3){
     document.getElementById('dpeK').innerHTML=kpi('','DPE','Insuffisant',d.dpe.length+' bilans');
     document.getElementById('dpeStack').innerHTML='';
-    document.getElementById('dpeI').innerHTML=interp('Moins de 3 diagnostics disponibles sur ce code postal. Données insuffisantes pour une analyse fiable.','warn');
-    document.getElementById('renoD').innerHTML='<span class="empty">Données DPE insuffisantes</span>';
+    document.getElementById('dpeI').innerHTML=interp('Moins de 3 diagnostics — données insuffisantes pour cette analyse.','warn');
+    document.getElementById('renoD').innerHTML='<span class="empty">Données insuffisantes</span>';
     return;
   }
   var cnt={A:0,B:0,C:0,D:0,E:0,F:0,G:0};
-  d.dpe.forEach(function(r){if(r.classe_energie&&cnt.hasOwnProperty(r.classe_energie))cnt[r.classe_energie]++;});
+  d.dpe.forEach(function(r){if(r.classe_energie&&cnt[r.classe_energie]!==undefined)cnt[r.classe_energie]++;});
   var tot=Object.values(cnt).reduce(function(a,b){return a+b;},0)||1;
   var mod=Object.entries(cnt).sort(function(a,b){return b[1]-a[1];})[0][0];
   var pFG=Math.round((cnt.F+cnt.G)/tot*100);
   var pABC=Math.round((cnt.A+cnt.B+cnt.C)/tot*100);
-  // National reference: F+G = 17%, ABC = 38%
-  document.getElementById('dpeK').innerHTML=
-    kpi('','Classe modale',mod,tot+' bilans')+
-    kpi(pFG>20?'r':'g','Passoires F+G',pFG+'%','nat: 17%')+
-    kpi(pABC>45?'g':'','Perform. A-C',pABC+'%','nat: 38%');
+  document.getElementById('dpeK').innerHTML=kpi('','Classe modale',mod,tot+' bilans')+kpi(pFG>20?'r':'g','Passoires F+G',pFG+'%','nat:17%')+kpi(pABC>=38?'g':'','Perfor. A-C',pABC+'%','nat:38%');
   document.getElementById('dpeStack').innerHTML=['A','B','C','D','E','F','G'].map(function(c){return cnt[c]?'<div class="ds d'+c+'" style="flex:'+cnt[c]+'">'+(cnt[c]/tot>.1?c:'')+'</div>':'';}).join('');
-  // Analyse comparative
-  var noteType=pFG>25?'bad':pFG>17?'warn':'good';
-  var noteTxt=pFG>25?pFG+'% de passoires (F+G) contre 17% en moyenne nationale. Ce parc est énergivore — impact direct sur la valeur : -5% à -20% pour un bien F/G.':
-    pFG>17?pFG+'% de passoires, légèrement au-dessus de la moyenne nationale (17%). Tendance défavorable avec la réglementation actuelle.':
-    pFG+'% de passoires, en dessous de la moyenne nationale (17%). Parc performant — atout pour la valorisation immobilière.';
-  document.getElementById('dpeI').innerHTML=interp(noteTxt,noteType)+
-    scaleBar({label:'Part F+G vs nationale',val:pFG,min:0,p25:10,med:17,p75:28,max:60,unit:'%',obs:tot+' bilans',note:null,color:pFG>25?'var(--red)':pFG>17?'var(--amber)':'var(--green)'})+
-    scaleBar({label:'Part A-B-C vs nationale',val:pABC,min:10,p25:30,med:38,p75:55,max:90,unit:'%',note:null,color:'var(--green)'});
-  // Simulation rénovation
-  var ap=d.ap&&d.ap[0]||null;
-  var dvfP=d.dvf.map(function(r){return r.valeur_fonciere/r.surface_reelle_bati;}).filter(function(v){return v>500&&v<50000;}).sort(function(a,b){return a-b;});
-  var pz=ap&&ap.dvf_prix_m2_median||(dvfP.length?dvfP[Math.floor(dvfP.length/2)]:null);
-  if(pz){
-    var s=75,cout=s*575,aides=s*250,reste=cout-aides,pv=Math.round(pz*s*.17);
-    document.getElementById('renoD').innerHTML=
-      interp('Simulation de rénovation énergétique G→C sur 75m². La plus-value estimée couvre généralement 60-80% du reste à charge.','good')+
-      dr('Coût travaux estimé',fmt(cout))+dr('Aides MaPrimeRénov + CEE','− '+fmt(aides))+
-      '<div class="dr"><span class="dl" style="font-weight:700">Reste à charge</span><span class="dv" style="font-weight:800;color:var(--amber)">'+fmt(reste)+'</span></div>'+
-      dr('Plus-value estimée','+'+fmt(pv))+
-      scaleBar({label:'Rentabilité rénovation',val:Math.round(pv/reste*100),min:0,p25:40,med:70,p75:95,max:150,unit:'%',note:'Ratio plus-value / reste à charge. Au-dessus de 100% = opération rentable.',noteType:'good',color:'var(--green)'});
-  }
-  else document.getElementById('renoD').innerHTML='<span class="empty">Données prix insuffisantes pour la simulation</span>';
+  var noteD=pFG>25?pFG+'% passoires vs 17% national. Impact -5% à -20% sur la valeur.':pFG>17?pFG+'% passoires, légèrement au-dessus de la nationale.':pFG+'% passoires, sous la moyenne nationale (17%). Parc performant.';
+  document.getElementById('dpeI').innerHTML=interp(noteD,pFG>25?'bad':pFG>17?'warn':'good')+
+    scaleBar({label:'Part F+G vs nationale',val:pFG,min:0,p25:10,med:17,p75:28,max:60,unit:'%',color:pFG>25?'var(--red)':pFG>17?'var(--amber)':'var(--green)'});
+  var ap=d.ap,dvfP=d.dvf.map(function(r){return r.valeur_fonciere/r.surface_reelle_bati;}).filter(function(v){return v>500&&v<50000;}).sort(function(a,b){return a-b;});
+  var pz=(ap&&ap.dvf_prix_m2_median)||(dvfP.length?dvfP[Math.floor(dvfP.length/2)]:null);
+  if(pz){var s=75,cout=s*575,aides=s*250,reste=cout-aides,pv=Math.round(pz*s*.17);document.getElementById('renoD').innerHTML=interp('Simulation G→C sur 75m². La plus-value couvre généralement 60-80% du reste à charge.','good')+dr('Coût travaux',fmt(cout))+dr('Aides MaPrimeRénov','− '+fmt(aides))+'<div class="dr"><span class="dl" style="font-weight:700">Reste à charge</span><span class="dv" style="font-weight:800;color:var(--amber)">'+fmt(reste)+'</span></div>'+dr('Plus-value estimée','+'+fmt(pv));}
+  else document.getElementById('renoD').innerHTML='<span class="empty">Données prix insuffisantes</span>';
 }
 
-
-
-// TRANSPORTS & INFRAS PUBLIQUES
+// ── TRANSPORTS ──
 function renderTransports(d){
-  var by={};
-  (d.trans||[]).forEach(function(t){
-    var k=t.network_name||t.agency_name||'Réseau';
-    if(!by[k])by[k]=[];
-    // Calculer distance pour chaque arrêt
-    if(t.stop_lat&&t.stop_lon)t._dist=dist(d.lat,d.lng,t.stop_lat,t.stop_lon);
-    by[k].push(t);
-  });
-  // Trier chaque réseau par distance
-  Object.keys(by).forEach(function(k){by[k].sort(function(a,b){return(a._dist||9999)-(b._dist||9999);});});
-  var nb=(d.trans||[]).length;
-  var reseaux=Object.keys(by).length;
-  var plusProche=nb>0?(d.trans||[]).filter(function(t){return t._dist;}).sort(function(a,b){return a._dist-b._dist;})[0]:null;
-  document.getElementById('transK').innerHTML=
-    kpi(nb>50?'g':nb>10?'a':'r','Arrêts TC',fmtN(nb),'commune')+
-    kpi('','Réseaux',reseaux,'')+
-    kpi('','Plus proche',plusProche?fd(plusProche._dist):' — ','');
-  var noteT=nb>100?'Excellente desserte. Impact estimé +3 à +8% sur les prix par rapport à communes moins bien desservies.':
-    nb>20?'Bonne desserte ('+nb+' arrêts). Mobilité quotidienne possible sans voiture.':
-    nb>5?'Desserte modérée. Horaires probablement limités.':
-    nb>0?'Très peu d\'arrêts ('+nb+'). Voiture indispensable.':'Aucun arrêt TC référencé.';
-  var html=interp(noteT,nb>50?'good':nb>20?'':nb>5?'warn':'bad');
-  if(nb>0){
-    html+=scaleBar({label:'Arrêts TC vs communes françaises',val:Math.min(nb,200),min:0,p25:5,med:30,p75:80,max:200,unit:'',obs:nb+' arrêts',color:nb>80?'var(--green)':nb>20?'var(--blue)':'var(--amber)'});
-    Object.keys(by).slice(0,4).forEach(function(net){
-      html+='<div class="card"><div class="card-title">🚌 '+net+' · '+by[net].length+' arrêts</div>';
-      by[net].slice(0,5).forEach(function(t){
-        var dd=t._dist;var mins=dd?Math.round(dd/80):'?';
-        html+='<div class="poi-item"><div><div class="poi-name">'+(t.stop_name||'—')+'</div></div>'+
-          '<div class="poi-meta">'+(dd?'<span class="poi-dist">'+fd(dd)+' · '+mins+'min</span>':'')+
-          (t.stop_lat&&t.stop_lon?'<a class="poi-nav" href="https://www.google.com/maps/dir/?api=1&destination='+t.stop_lat+','+t.stop_lon+'&origin='+d.lat+','+d.lng+'" target="_blank">↗</a>':'')+
-          '</div></div>';
-      });
-      html+='</div>';
-    });
+  var trans=d.trans;
+  if(!trans.length){
+    document.getElementById('transK').innerHTML=kpi('r','Arrêts TC','0','commune');
+    document.getElementById('transContent').innerHTML=interp('Aucun arrêt TC référencé dans la commune. Voiture indispensable.','bad');
+    return;
   }
-  document.getElementById('transD').innerHTML=html;
-  // Charger infras publiques via Overpass
-  loadInfrasPubliques(d);
-}
-
-function loadInfrasPubliques(d){
-  var el=document.getElementById('scolD');
-  // D\'abord les écoles depuis Supabase
-  var etabs=(d.ecoles||[]).filter(function(e){return e.latitude&&e.longitude;});
-  if(etabs.length){
-    var h='';
-    etabs.sort(function(a,b){return dist(d.lat,d.lng,a.latitude,a.longitude)-dist(d.lat,d.lng,b.latitude,b.longitude);}).slice(0,8).forEach(function(e){
-      var dd=dist(d.lat,d.lng,e.latitude,e.longitude);
-      h+='<div class="poi-item"><div>'+
-        '<div class="poi-name">'+(e.nom||'—')+'</div>'+
-        '<div class="poi-sub">'+(e.type||'')+(e.secteur?' · '+e.secteur:'')+(e.taux_reussite_bac?' · Bac '+e.taux_reussite_bac+'%':'')+'</div>'+
-        '</div><div class="poi-meta"><span class="poi-dist">'+fd(dd)+'</span>'+
-        '<a class="poi-nav" href="https://www.google.com/maps/dir/?api=1&destination='+e.latitude+','+e.longitude+'&origin='+d.lat+','+d.lng+'" target="_blank">↗</a>'+
+  trans.forEach(function(t){if(t.stop_lat&&t.stop_lon)t._d=dist(d.lat,d.lng,t.stop_lat,t.stop_lon);});
+  trans.sort(function(a,b){return(a._d||9999)-(b._d||9999);});
+  var by={};trans.forEach(function(t){var k=t.network_name||t.agency_name||'Réseau';if(!by[k])by[k]=[];by[k].push(t);});
+  var proche=trans[0];
+  document.getElementById('transK').innerHTML=
+    kpi(trans.length>50?'g':trans.length>10?'a':'r','Arrêts TC',trans.length,'commune')+
+    kpi('','Réseaux',Object.keys(by).length,'')+
+    kpi('','Plus proche',proche&&proche._d?fd(proche._d):'—','');
+  var noteT=trans.length>100?'Excellente desserte. Impact estimé +3 à +8% sur les prix.':trans.length>30?'Bonne desserte.':trans.length>10?'Desserte modérée.':'Desserte limitée.';
+  var h=interp(noteT,trans.length>50?'good':trans.length>10?'':'warn');
+  h+=scaleBar({label:'Arrêts vs communes françaises',val:Math.min(trans.length,200),min:0,p25:5,med:30,p75:80,max:200,unit:'',color:trans.length>80?'var(--green)':trans.length>20?'var(--blue)':'var(--amber)'});
+  Object.keys(by).slice(0,4).forEach(function(net){
+    h+='<div class="card"><div class="card-title">🚌 '+net+' · '+by[net].length+' arrêts</div>';
+    by[net].slice(0,5).forEach(function(t){
+      h+='<div class="poi-item"><div class="poi-name">'+(t.stop_name||'—')+'</div><div class="poi-meta">'+
+        (t._d?'<span class="poi-dist">'+fd(t._d)+' · '+Math.round(t._d/80)+'min</span>':'')+
+        (t.stop_lat&&t.stop_lon?'<a class="poi-nav" href="https://www.google.com/maps/dir/?api=1&destination='+t.stop_lat+','+t.stop_lon+'&origin='+d.lat+','+d.lng+'" target="_blank">↗</a>':'')+
         '</div></div>';
     });
-    el.innerHTML=h;
+    h+='</div>';
+  });
+  // Écoles Supabase
+  var ecoles=d.ecoles.filter(function(e){return e.latitude&&e.longitude;});
+  ecoles.forEach(function(e){e._d=dist(d.lat,d.lng,e.latitude,e.longitude);});
+  ecoles.sort(function(a,b){return a._d-b._d;});
+  if(ecoles.length){
+    h+='<div class="card"><div class="card-title">📚 Établissements scolaires</div>';
+    ecoles.slice(0,8).forEach(function(e){
+      h+='<div class="poi-item"><div><div class="poi-name">'+(e.nom||'—')+'</div><div class="poi-sub">'+(e.type||'')+(e.taux_reussite_bac?' · Bac '+e.taux_reussite_bac+'%':'')+'</div></div>'+
+        '<div class="poi-meta"><span class="poi-dist">'+fd(e._d)+'</span><a class="poi-nav" href="https://www.google.com/maps/dir/?api=1&destination='+e.latitude+','+e.longitude+'&origin='+d.lat+','+d.lng+'" target="_blank">↗</a></div></div>';
+    });
+    h+='</div>';
   }
-  // Infras publiques OSM : police, pompiers, hôpitaux, mairie, poste
-  var query='[out:json][timeout:12];('+
-    'node["amenity"~"police|fire_station|post_office|townhall|hospital|clinic"](around:3000,'+d.lat+','+d.lng+');'+
-    'node["amenity"="school"](around:1500,'+d.lat+','+d.lng+');'+
-    ');out 30;';
-  fetch('https://overpass-api.de/api/interpreter?data='+encodeURIComponent(query))
-    .then(function(r){return r.ok?r.json():null;})
-    .then(function(res){
-      if(!res||!res.elements)return;
-      var icoMap={police:'👮',fire_station:'🚒',post_office:'📮',townhall:'🏛️',hospital:'🏥',clinic:'🏥',school:'🏫'};
-      var nameMap={police:'Police / Gendarmerie',fire_station:'Pompiers',post_office:'La Poste',townhall:'Mairie',hospital:'Hôpital',clinic:'Clinique',school:'École'};
+  document.getElementById('transContent').innerHTML=h;
+  // Infras publiques OSM
+  var q='[out:json][timeout:10];(node["amenity"~"police|fire_station|post_office|townhall|hospital"](around:3000,'+d.lat+','+d.lng+'););out 20;';
+  fetch('https://overpass-api.de/api/interpreter?data='+encodeURIComponent(q))
+    .then(function(r){return r.ok?r.json():null;}).then(function(res){
+      if(!res||!res.elements||!res.elements.length)return;
+      var ico={police:'👮',fire_station:'🚒',post_office:'📮',townhall:'🏛️',hospital:'🏥'};
+      var nom={police:'Police',fire_station:'Pompiers',post_office:'La Poste',townhall:'Mairie',hospital:'Hôpital'};
       var groups={};
-      res.elements.filter(function(e){return e.tags&&e.lat&&e.lon;}).forEach(function(e){
-        var am=e.tags.amenity;
-        if(!groups[am])groups[am]=[];
-        e._dist=dist(d.lat,d.lng,e.lat,e.lon);
-        groups[am].push(e);
+      res.elements.filter(function(e){return e.tags&&e.lat;}).forEach(function(e){
+        var am=e.tags.amenity;e._d=dist(d.lat,d.lng,e.lat,e.lon);
+        if(!groups[am])groups[am]=[];groups[am].push(e);
       });
-      var html='';
+      var extra='';
       Object.keys(groups).sort().forEach(function(am){
-        var items=groups[am].sort(function(a,b){return a._dist-b._dist;});
-        html+='<div class="card"><div class="card-title">'+(icoMap[am]||'📍')+' '+(nameMap[am]||am)+'</div>';
-        items.slice(0,3).forEach(function(e){
-          var dd=e._dist;var mins=Math.round(dd/80);
-          html+='<div class="poi-item"><div>'+
-            '<div class="poi-name">'+(e.tags.name||nameMap[am]||am)+'</div>'+
-            (e.tags['addr:street']?'<div class="poi-sub">'+e.tags['addr:street']+'</div>':'')+
-            '</div><div class="poi-meta"><span class="poi-dist">'+fd(dd)+' · '+mins+'min</span>'+
-            '<a class="poi-nav" href="https://www.google.com/maps/dir/?api=1&destination='+e.lat+','+e.lon+'&origin='+d.lat+','+d.lng+'" target="_blank">↗</a>'+
-            '</div></div>';
+        var items=groups[am].sort(function(a,b){return a._d-b._d;});
+        extra+='<div class="card"><div class="card-title">'+(ico[am]||'📍')+' '+(nom[am]||am)+'</div>';
+        items.slice(0,2).forEach(function(e){
+          extra+='<div class="poi-item"><div><div class="poi-name">'+(e.tags.name||nom[am]||am)+'</div></div>'+
+            '<div class="poi-meta"><span class="poi-dist">'+fd(e._d)+' · '+Math.round(e._d/80)+'min</span>'+
+            '<a class="poi-nav" href="https://www.google.com/maps/dir/?api=1&destination='+e.lat+','+e.lon+'&origin='+d.lat+','+d.lng+'" target="_blank">↗</a></div></div>';
         });
-        html+='</div>';
+        extra+='</div>';
       });
-      if(html){var div=document.createElement('div');div.innerHTML=html;document.getElementById('transD').insertAdjacentHTML('beforeend',div.innerHTML);}
+      document.getElementById('transContent').insertAdjacentHTML('beforeend',extra);
     }).catch(function(){});
 }
 
-// COMMERCES & SERVICES
-function renderCommerces(d){
+// ── SERVICES (commerces + santé) ──
+function renderServices(d){
   var poi=d.poi;
-  document.getElementById('poiK').innerHTML= poi?
-    kpi(Math.round(poi.score_global||0)>=70?'g':Math.round(poi.score_global||0)>=40?'a':'r','Score global',Math.round(poi.score_global||0),'/100')+
-    kpi('','Équipements BPE',fmtN(poi.nb_equipements||0),''):
-    kpi('','Équipements','N/D','');
-  if(poi){
-    var glob=Math.round(poi.score_global||0);
-    var note=glob>=70?'Commune bien équipée. Les services de proximité sont un critère d\'achat prioritaire.':
-      glob>=40?'Équipements corrects. Quelques services à distance en voiture.':
-      'Déficit d\'équipements — vérifier les communes limitrophes.';
-    var html=interp(note,glob>=70?'good':glob>=40?'':'warn');
-    html+=scaleBar({label:'Score équipements vs communes',val:glob,min:0,p25:30,med:50,p75:75,max:100,unit:'',color:glob>=70?'var(--green)':glob>=40?'var(--amber)':'var(--red)'});
-    ['score_transport','score_education','score_sante','score_commerce','score_loisirs'].forEach(function(k){
-      var v=poi[k]||0,label={'score_transport':'🚌 Transports','score_education':'📚 Éducation','score_sante':'🏥 Santé','score_commerce':'🛒 Commerce','score_loisirs':'🎭 Loisirs'}[k];
-      html+='<div class="bb"><div class="bbl">'+label+'</div><div class="bbr"><div class="bbf" style="width:'+v+'%;background:'+(v>=70?'var(--green)':v>=40?'var(--amber)':'var(--red)')+'"></div></div><div class="bbv">'+Math.round(v)+'</div></div>';
-    });
-    document.getElementById('poiD').innerHTML=html;
-  } else {
-    document.getElementById('poiD').innerHTML='<span class="empty">Score BPE non disponible</span>';
-  }
-  // Charger commerces OSM avec distances
-  loadCommercesOSM(d);
+  if(!poi){document.getElementById('poiK').innerHTML=kpi('','Équipements','N/D','');document.getElementById('poiD').innerHTML='<span class="empty">Score BPE non disponible</span>';return;}
+  var glob=Math.round(poi.score_global||0);
+  document.getElementById('poiK').innerHTML=kpi(glob>=70?'g':glob>=40?'a':'r','Score global',glob,'/100')+kpi('','Équipements BPE',fmtN(poi.nb_equipements||0),'');
+  var h=scaleBar({label:'Score équipements vs communes',val:glob,min:0,p25:30,med:50,p75:75,max:100,unit:'',note:glob>=70?'Commune bien équipée.':glob>=40?'Équipements corrects.':'Déficit d\'équipements.',noteType:glob>=70?'good':glob>=40?'':'warn',color:glob>=70?'var(--green)':glob>=40?'var(--amber)':'var(--red)'});
+  ['score_transport','score_education','score_sante','score_commerce','score_loisirs'].forEach(function(k){
+    var v=poi[k]||0,lbl={'score_transport':'🚌 Transport','score_education':'📚 Éducation','score_sante':'🏥 Santé','score_commerce':'🛒 Commerce','score_loisirs':'🎭 Loisirs'}[k];
+    h+=bb(lbl,v);
+  });
+  document.getElementById('poiD').innerHTML=h;
 }
 
-function loadCommercesOSM(d){
-  var santeEl=document.getElementById('santeD');
-  var shopEl=document.getElementById('shopD');
-  var query='[out:json][timeout:12];('+
-    'node["amenity"~"hospital|pharmacy|doctors|clinic|dentist"](around:2000,'+d.lat+','+d.lng+');'+
-    'node["shop"~"supermarket|bakery|butcher|greengrocer|convenience|clothes|hardware"](around:800,'+d.lat+','+d.lng+');'+
-    'node["amenity"~"restaurant|cafe|bar|fast_food"](around:500,'+d.lat+','+d.lng+');'+
-    ');out 60;';
-  fetch('https://overpass-api.de/api/interpreter?data='+encodeURIComponent(query))
+function loadServicesOSM(d){
+  var q='[out:json][timeout:12];(node["amenity"~"hospital|pharmacy|doctors|clinic|dentist"](around:2000,'+d.lat+','+d.lng+');node["shop"~"supermarket|bakery|butcher|greengrocer|convenience"](around:800,'+d.lat+','+d.lng+');node["amenity"~"restaurant|cafe"](around:600,'+d.lat+','+d.lng+'););out 60;';
+  fetch('https://overpass-api.de/api/interpreter?data='+encodeURIComponent(q))
     .then(function(r){return r.ok?r.json():null;})
     .then(function(res){
       if(!res||!res.elements){
-        santeEl.innerHTML='<span class="empty">Données OSM non disponibles</span>';
-        shopEl.innerHTML='<span class="empty">Données OSM non disponibles</span>';
+        document.getElementById('santeD').innerHTML='<span class="empty">Données OSM indisponibles</span>';
+        document.getElementById('shopD').innerHTML='<span class="empty">Données OSM indisponibles</span>';
         return;
       }
       var sante=[],shop=[];
-      var santeTypes={hospital:'🏥 Hôpital',pharmacy:'💊 Pharmacie',doctors:'👨‍⚕️ Médecin',clinic:'🏥 Clinique',dentist:'🦷 Dentiste'};
-      res.elements.filter(function(e){return e.tags&&e.lat&&e.lon;}).forEach(function(e){
-        e._dist=dist(d.lat,d.lng,e.lat,e.lon);
-        if(santeTypes[e.tags.amenity])sante.push(e);
-        else shop.push(e);
+      var santeT={hospital:'🏥',pharmacy:'💊',doctors:'👨‍⚕️',clinic:'🏥',dentist:'🦷'};
+      res.elements.filter(function(e){return e.tags&&e.tags.name&&e.lat;}).forEach(function(e){
+        e._d=dist(d.lat,d.lng,e.lat,e.lon);
+        if(santeT[e.tags.amenity])sante.push(e);else shop.push(e);
       });
-      sante.sort(function(a,b){return a._dist-b._dist;});
-      shop.sort(function(a,b){return a._dist-b._dist;});
-      // Santé
-      if(sante.length){
-        var h='';
-        sante.slice(0,8).forEach(function(e){
-          var mins=Math.round(e._dist/80);
-          h+='<div class="poi-item"><div>'+
-            '<div class="poi-name">'+(santeTypes[e.tags.amenity]||'🏥')+' '+(e.tags.name||'—')+'</div>'+
-            (e.tags['opening_hours']?'<div class="poi-sub">'+e.tags['opening_hours']+'</div>':'')+
-            '</div><div class="poi-meta"><span class="poi-dist">'+fd(e._dist)+' · '+mins+'min</span>'+
-            '<a class="poi-nav" href="https://www.google.com/maps/dir/?api=1&destination='+e.lat+','+e.lon+'&origin='+d.lat+','+d.lng+'" target="_blank">↗</a>'+
-            '</div></div>';
-        });
-        santeEl.innerHTML=h;
-      } else santeEl.innerHTML='<span class="empty">Aucun établissement de santé dans 2km</span>';
-      // Commerces
-      if(shop.length){
-        var h2='';
-        var shopIco={supermarket:'🛒',bakery:'🥖',butcher:'🥩',greengrocer:'🥦',convenience:'🏪',clothes:'👕',hardware:'🔧',restaurant:'🍽️',cafe:'☕',bar:'🍺',fast_food:'🍔'};
-        shop.slice(0,10).forEach(function(e){
-          var mins=Math.round(e._dist/80);
-          var type=e.tags.shop||e.tags.amenity||'';
-          h2+='<div class="poi-item"><div>'+
-            '<div class="poi-name">'+(shopIco[type]||'🛒')+' '+(e.tags.name||type||'—')+'</div>'+
-            '</div><div class="poi-meta"><span class="poi-dist">'+fd(e._dist)+' · '+mins+'min</span>'+
-            '</div></div>';
-        });
-        shopEl.innerHTML=h2;
-      } else shopEl.innerHTML='<span class="empty">Aucun commerce dans 800m</span>';
+      sante.sort(function(a,b){return a._d-b._d;});
+      shop.sort(function(a,b){return a._d-b._d;});
+      function poiList(arr,icoFn){
+        if(!arr.length)return'<span class="empty">Aucun dans le rayon</span>';
+        return arr.slice(0,8).map(function(e){
+          return'<div class="poi-item"><div><div class="poi-name">'+icoFn(e)+' '+(e.tags.name||'—')+'</div></div>'+
+            '<div class="poi-meta"><span class="poi-dist">'+fd(e._d)+' · '+Math.round(e._d/80)+'min</span>'+
+            '<a class="poi-nav" href="https://www.google.com/maps/dir/?api=1&destination='+e.lat+','+e.lon+'&origin='+d.lat+','+d.lng+'" target="_blank">↗</a></div></div>';
+        }).join('');
+      }
+      document.getElementById('santeD').innerHTML=poiList(sante,function(e){return santeT[e.tags.amenity]||'🏥';});
+      var shopIco={supermarket:'🛒',bakery:'🥖',butcher:'🥩',greengrocer:'🥦',convenience:'🏪',restaurant:'🍽️',cafe:'☕'};
+      document.getElementById('shopD').innerHTML=poiList(shop,function(e){return shopIco[e.tags.shop||e.tags.amenity]||'🛒';});
     }).catch(function(){
-      santeEl.innerHTML='<span class="empty">Service temporairement indisponible</span>';
-      shopEl.innerHTML='<span class="empty">Service temporairement indisponible</span>';
+      document.getElementById('santeD').innerHTML='<span class="empty">Service temporairement indisponible</span>';
+      document.getElementById('shopD').innerHTML='<span class="empty">Service temporairement indisponible</span>';
     });
 }
 
-// EAU
+// ── EAU ──
 function renderEau(d){
   var e=d.eau;
   if(!e){document.getElementById('eauD').innerHTML='<span class="empty">Données non disponibles</span>';return;}
   var conf=e.taux_conformite_global!=null?Math.round(e.taux_conformite_global):null;
-  document.getElementById('eauK').innerHTML=kpi(conf>=90?'g':conf>=70?'a':'r','Conformité',conf!=null?conf+'%':'—','')+kpi(e.conformite_bacterio?'g':'r','Bactério',e.conformite_bacterio?'✓ OK':'⚠ NON','')+kpi(e.pesticides_detectes?'r':'g','Pesticides',e.pesticides_detectes?'Détectés':'Nul','');
-  // Interprétation
-  var interpTxt=conf>=95?'Excellente qualité d\'eau. Tous les paramètres sont conformes aux normes sanitaires europeennes.':
-    conf>=80?'Bonne qualité générale. Quelques dépassements ponctuels, sans danger pour la santé.':
-    conf>=60?'Qualité correcte mais irrégulière. Recommandé de vérifier les contrôles récents.':
-    'Qualité insuffisante. Des dépassements de normes ont été relevés — se renseigner auprès de la mairie.';
-  var interpType=conf>=95?'good':conf>=80?'':conf>=60?'warn':'bad';
-  var html=interp(interpTxt,interpType);
+  document.getElementById('eauK').innerHTML=
+    kpi(conf!=null&&conf>=90?'g':conf!=null&&conf>=70?'a':'r','Conformité',conf!=null?conf+'%':'—','')+
+    kpi(e.conformite_bacterio?'g':'r','Bactério',e.conformite_bacterio?'✓ OK':'⚠ NON','')+
+    kpi(e.pesticides_detectes?'r':'g','Pesticides',e.pesticides_detectes?'Oui':'Non','');
+  var noteE=conf>=95?'Excellente qualité. Tous paramètres conformes aux normes européennes.':conf>=80?'Bonne qualité générale.':conf>=60?'Qualité irrégulière.':'Qualité insuffisante — se renseigner auprès de la mairie.';
   function wr(ico,l,v,s){return'<div class="eau-param"><div class="eau-ico">'+ico+'</div><div class="eau-lbl">'+l+'</div><div class="eau-val">'+v+'</div><span class="eau-badge '+s+'">'+(s==='ok'?'✓':s==='warn'?'⚠':'✗')+'</span></div>';}
-  html+=wr('💧','Nitrates',e.nitrates_mg_l!=null?Number(e.nitrates_mg_l).toFixed(1)+' mg/L':'—',e.nitrates_mg_l>50?'bad':e.nitrates_mg_l>25?'warn':'ok');
-  html+=cmpSlider('Nitrates vs limite légale',e.nitrates_mg_l,null,null,0,100,' mg/L',e.nitrates_mg_l>50?'var(--red)':e.nitrates_mg_l>25?'var(--amber)':'var(--green)');
-  html+=wr('🔬','Dureté TH',e.durete!=null?Number(e.durete).toFixed(0)+' °f':'—',e.durete>30?'warn':e.durete>8?'ok':'warn');
-  html+=cmpSlider('Dureté vs eau idéale',e.durete,null,null,0,60,' °f','var(--blue)');
-  html+=wr('🦠','Bactériologie',e.conformite_bacterio?'Conforme':'Non conforme',e.conformite_bacterio?'ok':'bad');
-  html+=wr('🌿','Pesticides',e.pesticides_detectes?'Détectés':'Non détectés',e.pesticides_detectes?'warn':'ok');
-  html+=wr('🔩','Plomb',e.plomb_conforme!==false?'Conforme':'Non conforme',e.plomb_conforme!==false?'ok':'bad');
-  if(conf!=null)html+=cmpSlider('Conformité globale vs nationale',conf,null,94,0,100,'%',conf>=90?'var(--green)':conf>=70?'var(--amber)':'var(--red)');
-  html+=(e.date_dernier_controle?'<div style="font-size:.63rem;color:var(--g4);margin-top:.4rem;font-family:var(--mono)">Dernier contrôle : '+e.date_dernier_controle+'</div>':'');
-  document.getElementById('eauD').innerHTML=html;
+  var h=interp(noteE,conf>=95?'good':conf>=80?'':conf>=60?'warn':'bad');
+  h+=wr('💧','Nitrates',e.nitrates_mg_l!=null?Number(e.nitrates_mg_l).toFixed(1)+' mg/L':'—',e.nitrates_mg_l>50?'bad':e.nitrates_mg_l>25?'warn':'ok');
+  if(e.nitrates_mg_l!=null)h+=scaleBar({label:'Nitrates vs limite légale (50)',val:e.nitrates_mg_l,min:0,p25:10,med:20,p75:35,max:80,unit:'mg/L',color:e.nitrates_mg_l>50?'var(--red)':e.nitrates_mg_l>25?'var(--amber)':'var(--green)'});
+  h+=wr('🔬','Dureté TH',e.durete!=null?Number(e.durete).toFixed(0)+' °f':'—','ok');
+  h+=wr('🦠','Bactériologie',e.conformite_bacterio?'Conforme':'Non conforme',e.conformite_bacterio?'ok':'bad');
+  h+=wr('🌿','Pesticides',e.pesticides_detectes?'Détectés':'Non détectés',e.pesticides_detectes?'warn':'ok');
+  h+=wr('🔩','Plomb',e.plomb_conforme!==false?'Conforme':'Non conforme',e.plomb_conforme!==false?'ok':'bad');
+  if(conf!=null)h+=scaleBar({label:'Conformité vs nationale (94%)',val:conf,min:0,p25:80,med:94,p75:99,max:100,unit:'%',color:conf>=90?'var(--green)':conf>=70?'var(--amber)':'var(--red)'});
+  if(e.date_dernier_controle)h+='<div style="font-size:.6rem;color:var(--g4);margin-top:.4rem;font-family:var(--mono)">Dernier contrôle : '+e.date_dernier_controle+'</div>';
+  document.getElementById('eauD').innerHTML=h;
 }
 
-// DEMO — données réelles INSEE
+// ── DEMO ──
 function renderDemo(d){
   var dm=d.demo;
-  if(!dm){
-    document.getElementById('demoK').innerHTML='';
-    document.getElementById('demoD').innerHTML='<span class="empty">Données démographiques non disponibles</span>';
-    return;
-  }
+  if(!dm){document.getElementById('demoD').innerHTML='<span class="empty">Données non disponibles</span>';return;}
   var pop=dm.population_2024||dm.population_2019||0;
-  var dens=dm.densite_hab_km2||null;
-  var evol=dm.evolution_pop_5ans_pct||null;
-  var age=dm.age_moyen||null;
-  var menages=dm.nb_menages||null;
-  var tailleMen=dm.taille_menage_moy||null;
-  var monopar=dm.pct_familles_monoparentales||null;
-  var seuls=dm.pct_personnes_seules||null;
-  var couples=dm.pct_couples_avec_enfants||null;
+  var evol=dm.evolution_pop_5ans_pct,dens=dm.densite_hab_km2;
   document.getElementById('demoK').innerHTML=
     kpi('','Population',fmtN(pop),'')+
-    kpi(evol!=null&&evol>2?'g':evol!=null&&evol<-2?'r':'','Évolution 5 ans',evol!=null?(evol>0?'+':'')+evol.toFixed(1)+'%':'—','')+
-    kpi('','Densité',dens?fmtN(dens)+' hab/km²':'—','');
-  var html='';
-  // Évolution population
+    kpi(evol>2?'g':evol<-2?'r':'','Évol. 5 ans',evol!=null?(evol>0?'+':'')+Number(evol).toFixed(1)+'%':'—','')+
+    kpi('','Densité',dens?fmtN(dens)+' h/km²':'—','');
+  var h='';
   if(evol!=null){
-    var noteEvol=evol>5?'Forte croissance démographique (+'+evol.toFixed(1)+'%). Commune attractive, tension haussière sur le marché immobilier.':
-      evol>0?'Légère croissance (+'+evol.toFixed(1)+'%). Dynamisme modéré, marché stable.':
-      evol>-2?'Population quasi-stable ('+evol.toFixed(1)+'%). Marché équilibré.':
-      'Déclin démographique ('+evol.toFixed(1)+'%). Vigilance sur la demande locative.';
-    html+=scaleBar({label:'Évolution population 5 ans',val:evol,min:-10,p25:-1,med:0.5,p75:3,max:15,unit:'%',note:noteEvol,noteType:evol>5?'good':evol>0?'':evol>-2?'warn':'bad',color:evol>0?'var(--green)':'var(--red)'});
+    var nE=evol>5?'Forte croissance (+'+Number(evol).toFixed(1)+'%). Tension haussière sur les prix.':evol>0?'Légère croissance. Marché stable.':evol>-2?'Population stable.':'Déclin démographique. Vigilance sur la demande locative.';
+    h+=scaleBar({label:'Évolution population 5 ans',val:evol,min:-10,p25:-1,med:0.5,p75:3,max:15,unit:'%',note:nE,noteType:evol>5?'good':evol>0?'':evol>-2?'warn':'bad',color:evol>0?'var(--green)':'var(--red)'});
   }
-  // Densité
   if(dens!=null){
-    var noteDens=dens>5000?'Commune très dense ('+fmtN(dens)+' hab/km²). Tissu urbain dense — offre locative abondante.':
-      dens>1000?'Commune urbaine ('+fmtN(dens)+' hab/km²). Bonne accessibilité aux services.':
-      dens>200?'Commune péri-urbaine. Équilibre entre espace et services.':
-      'Commune rurale ou peu dense. Services éloignés — vérifier les transports.';
-    html+=scaleBar({label:'Densité vs communes françaises',val:Math.min(dens,8000),min:0,p25:80,med:300,p75:1500,max:8000,unit:' hab/km²',note:noteDens,noteType:dens>1000?'good':dens>200?'':dens<50?'warn':'',color:'var(--blue)'});
+    var nD=dens>5000?'Très dense ('+fmtN(dens)+' h/km²). Tissu urbain.':dens>1000?'Commune urbaine.':dens>200?'Péri-urbaine.':'Commune rurale — services éloignés.';
+    h+=scaleBar({label:'Densité vs communes françaises',val:Math.min(dens,8000),min:0,p25:80,med:300,p75:1500,max:8000,unit:' h/km²',note:nD,noteType:dens>1000?'good':dens<50?'warn':'',color:'var(--blue)'});
   }
-  // Structure ménages
-  if(tailleMen||seuls||couples){
-    html+='<div class="card"><div class="card-title">Structure des ménages</div>';
-    if(tailleMen)html+=dr('Taille moyenne ménage',tailleMen.toFixed(1)+' personnes');
-    if(age)html+=dr('Âge moyen',age.toFixed(1)+' ans');
-    if(seuls!=null)html+=dr('Personnes seules',seuls.toFixed(1)+'%')+(seuls>40?interp('Part élevée de personnes seules — forte demande de petits logements (T1/T2).',''):  '');
-    if(couples!=null)html+=dr('Couples avec enfants',couples.toFixed(1)+'%')+(couples>35?interp('Forte proportion de familles — demande soutenue en grands logements et écoles.','good'):'');
-    if(monopar!=null)html+=dr('Familles monoparentales',monopar.toFixed(1)+'%');
-    html+='</div>';
+  if(dm.nb_menages||dm.taille_menage_moy||dm.pct_personnes_seules){
+    h+='<div class="card"><div class="card-title">Structure des ménages</div>';
+    if(dm.taille_menage_moy)h+=dr('Taille moy. ménage',Number(dm.taille_menage_moy).toFixed(1)+' pers.');
+    if(dm.age_moyen)h+=dr('Âge moyen',Number(dm.age_moyen).toFixed(1)+' ans');
+    if(dm.pct_personnes_seules!=null)h+=dr('Personnes seules',Number(dm.pct_personnes_seules).toFixed(1)+'%')+(dm.pct_personnes_seules>40?interp('Part élevée — forte demande petits logements T1/T2.',''):'');
+    if(dm.pct_couples_avec_enfants!=null)h+=dr('Couples avec enfants',Number(dm.pct_couples_avec_enfants).toFixed(1)+'%')+(dm.pct_couples_avec_enfants>35?interp('Forte proportion de familles — demande grands logements et écoles.','good'):'');
+    if(dm.pct_familles_monoparentales!=null)h+=dr('Familles monop.',Number(dm.pct_familles_monoparentales).toFixed(1)+'%');
+    h+='</div>';
   }
-  document.getElementById('demoD').innerHTML=html||dr('Population',fmtN(pop));
+  document.getElementById('demoD').innerHTML=h||dr('Population',fmtN(pop));
 }
 
-// COMMUNE — description wiki + analyse territoire
+// ── BATIMENT ──
+function renderBatiment(d){
+  if(!d.bdnb.length){document.getElementById('bdnbD').innerHTML='<span class="empty">Données BDNB non disponibles</span>';return;}
+  var b=d.bdnb[0];
+  document.getElementById('bdnbD').innerHTML=dr('Année construction',b.annee_construction||'—')+dr('Hauteur',b.hauteur_mean?Math.round(b.hauteur_mean)+'m':'—')+dr('Logements',b.nb_log||'—')+dr('DPE bâtiment',b.classe_bilan_dpe||'—')+dr('Matériaux',b.mat_mur_txt||'—');
+}
+
+// ── COMMUNE ──
 function renderCommune(d){
-  var el=document.getElementById('communeD');
-  if(!el)return;
-  var wiki=d.wiki;
-  var sc=d.sc;
-  var dem=d.demo;
-  var html='';
-  // Description naturelle depuis commune_wiki
+  var wiki=d.wiki,sc=d.sc,dem=d.demo;
+  var h='';
   if(wiki&&wiki.description&&wiki.description.length>50){
-    html+='<div class="card"><div class="card-title">🏘️ Présentation de '+d.geo.city+'</div>'+
-      '<p style="font-size:.8rem;line-height:1.6;color:var(--g5);margin-bottom:.5rem">'+wiki.description+'</p>'+
-      '</div>';
+    h+='<div class="card"><div class="card-title">🏘️ '+d.geo.city+'</div><p style="font-size:.78rem;line-height:1.6;color:var(--g5)">'+wiki.description+'</p></div>';
   }
-  // Analyse territoire en langage naturel
   var analyses=[];
   if(sc){
     var s=Math.round(sc.score_localisation||0);
-    analyses.push(d.geo.city+' obtient un score de localisation de '+s+'/100. '+
-      (s>=70?'C\'est un excellent emplacement, reconnu pour la qualité de ses infrastructures et de son cadre de vie.':
-       s>=50?'La commune offre un cadre de vie correct avec des points forts à valoriser.':
-       'La commune présente des axes d\'amélioration en termes d\'accessibilité et de services.'));
+    analyses.push(d.geo.city+' obtient un score de localisation de '+s+'/100 (note '+grade(s)+'). '+(s>=70?'Excellent emplacement avec de solides fondamentaux.':s>=50?'Commune correcte avec des points d\'amélioration.':'Commune présentant des axes d\'amélioration.'));
     if(sc.detail_accessibilite)analyses.push(sc.detail_accessibilite);
     if(sc.detail_dynamisme)analyses.push(sc.detail_dynamisme);
   }
   if(dem){
     var pop=dem.population_2024||dem.population_2019||0;
-    var evol=dem.evolution_pop_5ans_pct;
-    if(pop>0)analyses.push('La commune compte '+fmtN(pop)+' habitants'+(evol!=null?' avec une évolution de population de '+(evol>0?'+':'')+evol.toFixed(1)+'% sur 5 ans':'')+'.');
-    if(dem.densite_hab_km2)analyses.push('Avec '+fmtN(dem.densite_hab_km2)+' habitants par km², c\'est une commune '+(dem.densite_hab_km2>5000?'très dense':dem.densite_hab_km2>1000?'urbaine':dem.densite_hab_km2>200?'péri-urbaine':'rurale')+'.');
+    if(pop)analyses.push('La commune compte '+fmtN(pop)+' habitants.'+(dem.densite_hab_km2?' Densité : '+fmtN(dem.densite_hab_km2)+' hab/km².':''));
   }
   if(analyses.length){
-    html+='<div class="card"><div class="card-title">📊 Analyse du territoire</div>';
-    analyses.forEach(function(a){
-      html+='<p style="font-size:.8rem;line-height:1.6;color:var(--g5);margin-bottom:.4rem">'+a+'</p>';
-    });
-    html+='</div>';
+    h+='<div class="card"><div class="card-title">📊 Analyse du territoire</div>';
+    analyses.forEach(function(a){h+='<p style="font-size:.78rem;line-height:1.55;color:var(--g5);margin-bottom:.4rem">'+a+'</p>';});
+    h+='</div>';
   }
-  // Données SEO structurées (invisible, pour le SEO si la page est indexée)
-  var seoData={
-    '@context':'https://schema.org',
-    '@type':'RealEstateListing',
-    'name':'Analyse immobilière — '+d.geo.label,
-    'description':wiki&&wiki.description?wiki.description:'Rapport d\'analyse immobilière pour '+d.geo.label,
-    'addressLocality':d.geo.city,
-    'postalCode':d.cp,
-    'addressCountry':'FR'
-  };
-  html+='<script type="application/ld+json">'+JSON.stringify(seoData)+'<\/script>';
-  if(!html){el.innerHTML='<span class="empty">Données commune non disponibles</span>';return;}
-  el.innerHTML=html;
+  if(!h)h='<span class="empty">Données commune non disponibles</span>';
+  document.getElementById('communeD').innerHTML=h;
+  // JSON-LD SEO
+  var geo_coord=d.geo;
+  var ld={'@context':'https://schema.org','@type':'Place','name':d.geo.city,'address':{'@type':'PostalAddress','streetAddress':d.geo.label,'postalCode':d.cp,'addressLocality':d.geo.city,'addressCountry':'FR'},'geo':{'@type':'GeoCoordinates','latitude':d.lat,'longitude':d.lng},'description':wiki&&wiki.description?wiki.description:'Analyse immobilière de '+d.geo.label};
+  var ex=document.getElementById('ld-json');if(ex)ex.remove();
+  var sc2=document.createElement('script');sc2.type='application/ld+json';sc2.id='ld-json';sc2.textContent=JSON.stringify(ld);document.head.appendChild(sc2);
 }
 
-// BATIMENT
-function renderBatiment(d){
-  if(!d.bdnb.length){document.getElementById('bdnbD').innerHTML='<span class="empty">Données BDNB non disponibles</span>';return;}
-  var b=d.bdnb[0];
-  document.getElementById('bdnbD').innerHTML=dr('Année construction',b.annee_construction||'—')+dr('Hauteur',b.hauteur_mean?Math.round(b.hauteur_mean)+'m':'—')+dr('Nb logements',b.nb_log||'—')+dr('DPE bâtiment',b.classe_bilan_dpe||'—')+dr('Matériaux murs',b.mat_mur_txt||'—');
-}
-
-// ASYNC : Scolaire
-function rscolaire(d){
-  var el=document.getElementById('scolD');
-  var etabs=(d.ecoles||[]).filter(function(e){return e.latitude&&e.longitude;});
-  if(etabs.length){
-    var html='';
-    etabs.sort(function(a,b){return dist(d.lat,d.lng,a.latitude,a.longitude)-dist(d.lat,d.lng,b.latitude,b.longitude);}).slice(0,8).forEach(function(e){
-      var dd=dist(d.lat,d.lng,e.latitude,e.longitude);
-      html+='<div class="poi-item"><div><div class="poi-name">'+(e.nom||'—')+'</div><div class="poi-sub">'+(e.type||'')+(e.taux_reussite_bac?' · Bac '+e.taux_reussite_bac+'%':'')+'</div></div>'+
-        '<div class="poi-meta"><span class="poi-dist">'+fd(dd)+'</span>'+
-        '<a class="poi-nav" href="https://www.google.com/maps/dir/?api=1&destination='+e.latitude+','+e.longitude+'&origin='+d.lat+','+d.lng+'" target="_blank">↗</a></div></div>';
-    });
-    el.innerHTML=html;return;
-  }
-  fetch('https://data.education.gouv.fr/api/explore/v2.1/catalog/datasets/fr-en-annuaire-education/records?where=within_distance(position%2Cgeom\'POINT('+d.lng+' '+d.lat+')\'%2C1km)&limit=10&select=nom_etablissement%2Ctype_etablissement%2Clatitude%2Clongitude',{headers:{Accept:'application/json'}})
-    .then(function(r){return r.ok?r.json():null;}).then(function(res){
-      if(!res||!res.results||!res.results.length){el.innerHTML='<span class="empty">Aucun dans 1km</span>';return;}
-      var html='';
-      res.results.forEach(function(e){
-        var dd=e.latitude&&e.longitude?dist(d.lat,d.lng,e.latitude,e.longitude):null;
-        html+='<div class="poi-item"><div><div class="poi-name">'+(e.nom_etablissement||'—')+'</div><div class="poi-sub">'+(e.type_etablissement||'')+'</div></div>'+
-          '<div class="poi-meta">'+(dd?'<span class="poi-dist">'+fd(dd)+'</span>':'')+
-          (e.latitude&&e.longitude?'<a class="poi-nav" href="https://www.google.com/maps/dir/?api=1&destination='+e.latitude+','+e.longitude+'&origin='+d.lat+','+d.lng+'" target="_blank">↗</a>':'')+
-          '</div></div>';
-      });
-      el.innerHTML=html;
-    }).catch(function(){el.innerHTML='<span class="empty">Indisponible</span>';});
-}
-
-// ASYNC : Santé
-function rsante(d){
-  var el=document.getElementById('santeD');
-  fetch('https://overpass-api.de/api/interpreter?data=[out:json][timeout:8];node["amenity"~"hospital|pharmacy|doctors|clinic|dentist"](around:1500,'+d.lat+','+d.lng+');out 12;')
-    .then(function(r){return r.ok?r.json():null;}).then(function(res){
-      if(!res||!res.elements||!res.elements.length){el.innerHTML='<span class="empty">Aucun</span>';return;}
-      var types={hospital:'🏥',pharmacy:'💊',doctors:'👨‍⚕️',clinic:'🏥',dentist:'🦷'};
-      var html='';
-      res.elements.filter(function(e){return e.tags&&e.tags.name;}).slice(0,8).forEach(function(e){
-        var dd=dist(d.lat,d.lng,e.lat,e.lon);
-        html+='<div class="poi-item"><div><div class="poi-name">'+(types[e.tags.amenity]||'🏥')+' '+(e.tags.name||'—')+'</div><div class="poi-sub">'+(e.tags.amenity||'')+'</div></div>'+
-          '<div class="poi-meta"><span class="poi-dist">'+fd(dd)+'</span><a class="poi-nav" href="https://www.google.com/maps/dir/?api=1&destination='+e.lat+','+e.lon+'&origin='+d.lat+','+d.lng+'" target="_blank">↗</a></div></div>';
-      });
-      el.innerHTML=html||'<span class="empty">Aucun</span>';
-    }).catch(function(){el.innerHTML='<span class="empty">Indisponible</span>';});
-}
-
-// ASYNC : Commerces
-function rshop(d){
-  var el=document.getElementById('shopD');
-  fetch('https://overpass-api.de/api/interpreter?data=[out:json][timeout:8];node["shop"](around:500,'+d.lat+','+d.lng+');out 12;')
-    .then(function(r){return r.ok?r.json():null;}).then(function(res){
-      if(!res||!res.elements||!res.elements.length){el.innerHTML='<span class="empty">Aucun dans 500m</span>';return;}
-      var html='';
-      res.elements.filter(function(e){return e.tags&&e.tags.name;}).slice(0,8).forEach(function(e){
-        var dd=dist(d.lat,d.lng,e.lat,e.lon);
-        html+='<div class="poi-item"><div><div class="poi-name">🛒 '+(e.tags.name||'—')+'</div><div class="poi-sub">'+(e.tags.shop||'')+'</div></div>'+
-          '<div class="poi-meta"><span class="poi-dist">'+fd(dd)+'</span></div></div>';
-      });
-      el.innerHTML=html||'<span class="empty">Aucun</span>';
-    }).catch(function(){el.innerHTML='<span class="empty">Indisponible</span>';});
-}
-
-// ASYNC : Cadastre
+// ── CADASTRE ──
 function rcadastre(d){
-  var el=document.getElementById('cadastreD');
   fetch('https://apicarto.ign.fr/api/cadastre/parcelle?lon='+d.lng+'&lat='+d.lat+'&_limit=1')
-    .then(function(r){return r.ok?r.json():null;}).then(function(res){
-      if(!res||!res.features||!res.features.length){el.innerHTML='<span class="empty">Parcelle non trouvée</span>';return;}
+    .then(function(r){return r.ok?r.json():null;})
+    .then(function(res){
+      if(!res||!res.features||!res.features.length){document.getElementById('cadastreD').innerHTML='<span class="empty">Parcelle non trouvée</span>';return;}
       var p=res.features[0].properties;
-      el.innerHTML=dr('Parcelle',p.id||'—')+dr('Surface',p.contenance?fmtN(p.contenance)+' m²':'—')+dr('Section',p.section||'—')+dr('Commune',p.commune||'—');
-      L.geoJSON(res.features[0],{style:{color:'#b45309',weight:2.5,fillColor:'rgba(180,87,9,.08)',fillOpacity:1}}).addTo(mGroup);
-    }).catch(function(){el.innerHTML='<span class="empty">Non disponible</span>';});
+      document.getElementById('cadastreD').innerHTML=dr('Parcelle',p.id||'—')+dr('Surface',p.contenance?fmtN(p.contenance)+' m²':'—')+dr('Section',p.section||'—');
+      L.geoJSON(res.features[0],{style:{color:'#b45309',weight:2,fillColor:'rgba(180,87,9,.08)',fillOpacity:1}}).addTo(mGroup);
+    }).catch(function(){document.getElementById('cadastreD').innerHTML='<span class="empty">Non disponible</span>';});
 }
 
-// ASYNC : Air
+// ── AIR ──
 function rair(d){
   var el=document.getElementById('airD');
-  fetch('https://api.waqi.info/feed/geo:'+d.lat+';'+d.lng+'/?token=demo').then(function(r){return r.json();}).then(function(res){
-    if(res.status!=='ok'||!res.data){el.innerHTML='<div class="interp warn">Station de mesure non disponible pour cette zone. Données WAQI indisponibles.</div>';return;}
-    var aqi=res.data.aqi,iaqi=res.data.iaqi||{};
-    var col=aqi<=50?'var(--green)':aqi<=100?'var(--amber)':aqi<=150?'var(--red)':'#7c3aed';
-    var label=aqi<=50?'Bonne':aqi<=100?'Modérée':aqi<=150?'Dégradée':'Mauvaise';
-    var interpTxt=aqi<=50?'Qualité de l\'air excellente. Aucune restriction, favorable pour les activités extérieures.':
-      aqi<=100?'Qualité acceptable. Des personnes sensibles (asthmatiques, enfants) peuvent ressentir une gêne.':
-      aqi<=150?'Qualité dégradée. Limiter les activités intenses en extérieur. Ventiler les logements aux heures creuses.':
-      'Mauvaise qualité de l\'air. Eviter les sorties prolongées.';
-    var interpType=aqi<=50?'good':aqi<=100?'':aqi<=150?'warn':'bad';
-    document.getElementById('airK').innerHTML=kpi(aqi<=50?'g':aqi<=100?'a':'r','IQA',aqi,label);
-    el.innerHTML=interp(interpTxt,interpType)+
-      '<div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.5rem;padding:.6rem;background:var(--g1);border-radius:10px">'+
-      '<div style="font-size:2rem;font-weight:800;color:'+col+';letter-spacing:-.05em">'+aqi+'</div>'+
-      '<div><div style="font-weight:700;color:'+col+'">'+label+'</div><div style="font-size:.68rem;color:var(--g4)">Indice Qualité Air · WAQI</div></div></div>'+
-      cmpSlider('IQA vs seuil santé',aqi,null,50,0,200,'',col)+
-      (iaqi.pm25?dr('PM2.5 (particules fines)',iaqi.pm25.v+' µg/m³')+
-        (iaqi.pm25.v>25?interp('PM2.5 au-dessus du seuil OMS (25 µg/m³). Exposition chronique à risque.','bad'):''):'')+
-      (iaqi.pm10?dr('PM10',iaqi.pm10.v+' µg/m³'):'')+
-      (iaqi.no2?dr('NO₂ (dioxyde d\'azote)',iaqi.no2.v+' µg/m³'):'');
-  }).catch(function(){el.innerHTML='<div class="interp warn">Service WAQI indisponible. Réessayez dans quelques instants.</div>';});
+  fetch('https://api.waqi.info/feed/geo:'+d.lat+';'+d.lng+'/?token=demo')
+    .then(function(r){return r.json();})
+    .then(function(res){
+      if(res.status!=='ok'||!res.data){el.innerHTML='<span class="empty">Station WAQI non disponible</span>';return;}
+      var aqi=res.data.aqi,iaqi=res.data.iaqi||{};
+      var col=aqi<=50?'var(--green)':aqi<=100?'var(--amber)':'var(--red)';
+      var lbl=aqi<=50?'Bonne':aqi<=100?'Modérée':aqi<=150?'Dégradée':'Mauvaise';
+      document.getElementById('airK').innerHTML=kpi(aqi<=50?'g':aqi<=100?'a':'r','IQA',aqi,lbl);
+      var noteA=aqi<=50?'Qualité excellente. Aucune restriction.':aqi<=100?'Qualité acceptable. Sensibles peuvent ressentir une gêne.':'Qualité dégradée. Limiter les activités intenses en extérieur.';
+      el.innerHTML=interp(noteA,aqi<=50?'good':aqi<=100?'':'warn')+
+        '<div style="display:flex;align-items:center;gap:.7rem;padding:.55rem;background:var(--g1);border-radius:9px;margin-bottom:.4rem">'+
+        '<div style="font-size:1.9rem;font-weight:800;color:'+col+'">'+aqi+'</div>'+
+        '<div><div style="font-weight:700;color:'+col+'">'+lbl+'</div><div style="font-size:.68rem;color:var(--g4)">Indice Qualité Air</div></div></div>'+
+        scaleBar({label:'IQA vs seuil OMS (50)',val:aqi,min:0,p25:20,med:50,p75:100,max:200,unit:'',color:col})+
+        (iaqi.pm25?dr('PM2.5',iaqi.pm25.v+' µg/m³'):'')+
+        (iaqi.pm10?dr('PM10',iaqi.pm10.v+' µg/m³'):'');
+    }).catch(function(){el.innerHTML='<span class="empty">Service indisponible</span>';});
 }
 
-// ASYNC : Météo
+// ── MÉTÉO ──
 function rclimat(d){
   var el=document.getElementById('climatD');
-  var url='https://api.open-meteo.com/v1/forecast?latitude='+d.lat.toFixed(4)+'&longitude='+d.lng.toFixed(4)+
-    '&current=temperature_2m,weather_code,wind_speed_10m,relative_humidity_2m'+
-    '&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,sunshine_duration'+
-    '&timezone=Europe%2FParis&forecast_days=3';
-  fetch(url)
-    .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();})
+  fetch('https://api.open-meteo.com/v1/forecast?latitude='+d.lat+'&longitude='+d.lng+'&current=temperature_2m,weather_code,wind_speed_10m,relative_humidity_2m&daily=temperature_2m_max,temperature_2m_min,precipitation_sum&timezone=auto&forecast_days=1')
+    .then(function(r){if(!r.ok)throw'err';return r.json();})
     .then(function(res){
       var cur=res.current||{},daily=res.daily||{};
-      var wc=parseInt(cur.weather_code)||0;
-      var em=wc===0?'☀️':wc<=3?'🌤️':wc<=45?'🌥️':wc<=49?'🌫️':wc<=67?'🌧️':wc<=77?'🌨️':wc<=82?'🌦️':'⛈️';
-      var desc=wc===0?'Ciel dégagé':wc<=3?'Peu nuageux':wc<=45?'Nuageux':wc<=49?'Brouillard':wc<=67?'Pluie':wc<=77?'Neige':wc<=82?'Averses':'Orage';
+      var wc=cur.weather_code||0;
+      var em=wc===0?'☀️':wc<=3?'🌤️':wc<=49?'🌥️':wc<=67?'🌧️':wc<=77?'🌨️':'⛈️';
       var t=cur.temperature_2m!=null?Math.round(cur.temperature_2m):null;
-      var tmin=daily.temperature_2m_min&&daily.temperature_2m_min[0]!=null?Math.round(daily.temperature_2m_min[0]):null;
-      var tmax=daily.temperature_2m_max&&daily.temperature_2m_max[0]!=null?Math.round(daily.temperature_2m_max[0]):null;
-      var rain=daily.precipitation_sum&&daily.precipitation_sum[0]!=null?Math.round(daily.precipitation_sum[0]*10)/10:0;
-      var sun=daily.sunshine_duration&&daily.sunshine_duration[0]!=null?Math.round(daily.sunshine_duration[0]/3600):null;
-      var wind=cur.wind_speed_10m!=null?Math.round(cur.wind_speed_10m):null;
-      var hum=cur.relative_humidity_2m!=null?cur.relative_humidity_2m:null;
-      var noteT=t!=null?(t<5?'Temps froid — prévoir chauffage actif, impact sur la consommation énergétique du logement.':t<15?'Température fraîche, journée typique de demi-saison.':t<25?'Conditions agréables, températures dans la norme saisonnière.':'Chaleur notable — vérifier la qualité de l\'isolation thermique du bien.'):'';
-      el.innerHTML=
-        '<div style="display:flex;align-items:center;gap:.75rem;background:var(--g1);border-radius:10px;padding:.6rem;margin-bottom:.5rem">'+
-          '<div style="font-size:2.2rem">'+em+'</div>'+
-          '<div style="flex:1"><div style="font-size:1.5rem;font-weight:800;letter-spacing:-.04em;line-height:1">'+(t!=null?t+'°C':'—')+'</div>'+
-          '<div style="font-size:.72rem;color:var(--g5);margin-top:.1rem">'+desc+(wind?' · Vent '+wind+' km/h':'')+'</div></div>'+
-          (tmin!=null&&tmax!=null?'<div style="text-align:right"><div style="font-size:.6rem;color:var(--g4)">min/max</div><div style="font-family:var(--mono);font-weight:700;font-size:.78rem">'+tmin+'°/'+tmax+'°</div></div>':'')+
+      var tmin=daily.temperature_2m_min?Math.round(daily.temperature_2m_min[0]):null;
+      var tmax=daily.temperature_2m_max?Math.round(daily.temperature_2m_max[0]):null;
+      var noteC=t!=null?(t<5?'Froid — impact sur la consommation énergétique.':t<15?'Frais, demi-saison.':t<25?'Agréable.':'Chaud — vérifier l\'isolation thermique.'):'';
+      el.innerHTML='<div style="display:flex;align-items:center;gap:.7rem;padding:.55rem;background:var(--g1);border-radius:9px;margin-bottom:.4rem">'+
+        '<div style="font-size:2rem">'+em+'</div>'+
+        '<div style="flex:1"><div style="font-size:1.4rem;font-weight:800;letter-spacing:-.04em">'+(t!=null?t+'°C':'—')+'</div>'+
+        '<div style="font-size:.7rem;color:var(--g5)">'+(cur.wind_speed_10m?'Vent '+Math.round(cur.wind_speed_10m)+' km/h':'')+'</div></div>'+
+        (tmin!=null&&tmax!=null?'<div style="text-align:right"><div style="font-size:.62rem;color:var(--g4)">min/max</div><div style="font-family:var(--mono);font-weight:700">'+tmin+'°/'+tmax+'°</div></div>':'')+
         '</div>'+
-        (noteT?interp(noteT,''):'')+
-        dr('Humidité',hum!=null?hum+'%':'—')+
-        dr('Précipitations aujourd\'hui',rain+'mm')+
-        (sun!=null?dr('Ensoleillement',sun+'h'):'')+
-        (tmin!=null&&tmax!=null?scaleBar({label:'Température vs normale Bordeaux',val:t||15,min:-5,p25:8,med:14,p75:22,max:38,unit:'°C',color:'var(--amber)'}):'');
-    }).catch(function(err){
-      el.innerHTML=interp('Données météo indisponibles pour le moment.','warn');
-    });
+        (noteC?interp(noteC,''):'')+
+        dr('Humidité',cur.relative_humidity_2m?cur.relative_humidity_2m+'%':'—')+
+        (daily.precipitation_sum?dr('Précipitations',Math.round(daily.precipitation_sum[0]*10)/10+'mm'):'');
+    }).catch(function(){el.innerHTML='<span class="empty">Météo indisponible</span>';});
 }
 
-function copyLink(){if(!geo)return toast('Aucune adresse chargée');navigator.clipboard.writeText(location.origin+location.pathname+'?lat='+geo.y+'&lng='+geo.x).then(function(){toast('Lien copié !');});}
+// ── COUCHES CARTE ──
+function loadMapLayers(d){
+  if(!mGroup)return;
+  mGroup.clearLayers();
+  // Arrêts TC
+  d.trans.slice(0,60).forEach(function(t){
+    if(!t.stop_lat||!t.stop_lon)return;
+    var dd=dist(d.lat,d.lng,t.stop_lat,t.stop_lon);
+    var m=L.marker([t.stop_lat,t.stop_lon],{icon:L.divIcon({className:'',html:'<div style="width:9px;height:9px;background:#2563eb;border-radius:50%;border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.3)"></div>',iconSize:[9,9],iconAnchor:[4.5,4.5]})});
+    m.bindPopup(mkPop('🚌','Arrêt TC',t.stop_name||'—',t.network_name||'',dd,'#2563eb',t.stop_lat,t.stop_lon));
+    mGroup.addLayer(m);
+  });
+  // Écoles
+  d.ecoles.filter(function(e){return e.latitude&&e.longitude;}).forEach(function(e){
+    var dd=dist(d.lat,d.lng,e.latitude,e.longitude);
+    var m=L.marker([e.latitude,e.longitude],{icon:L.divIcon({className:'',html:'<div style="width:9px;height:9px;background:#16a34a;border-radius:50%;border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.3)"></div>',iconSize:[9,9],iconAnchor:[4.5,4.5]})});
+    m.bindPopup(mkPop('📚','École',e.nom||'—',(e.type||'')+(e.taux_reussite_bac?' · Bac '+e.taux_reussite_bac+'%':''),dd,'#16a34a',e.latitude,e.longitude));
+    mGroup.addLayer(m);
+  });
+}
+
+function copyLink(){if(!geo)return toast('Aucune adresse');navigator.clipboard.writeText(location.origin+location.pathname+'?lat='+geo.y+'&lng='+geo.x).then(function(){toast('Lien copié !');});}
 </script>
 </body>
 </html>
