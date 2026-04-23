@@ -627,13 +627,7 @@ function loadReport(){
   if(!geo)return;
   var cc=geo.citycode,cp=geo.postcode,lat=+geo.y,lng=+geo.x;
   if(!cc){toast('Code INSEE introuvable');return;}
-  var pinEl=document.createElement('div');pinEl.className='map-pin';
-  if(pin)pin.remove();
-  pin=new maplibregl.Marker({element:pinEl,anchor:'center'}).setLngLat([lng,lat]).addTo(map);
-  // Attendre que le style MapLibre soit chargé avant flyTo
-  function doFly(){map.flyTo({center:[lng,lat],zoom:15});}
-  if(map.isStyleLoaded()){doFly();}else{map.once('load',doFly);}
-  setTimeout(function(){if(map)map.resize();},300);
+  // UI d'abord — quoi qu'il arrive avec la carte
   clearMarkers();
   document.getElementById('pempty').style.display='none';
   document.getElementById('ph-loaded').style.display='none';
@@ -642,6 +636,17 @@ function loadReport(){
   document.getElementById('pload').classList.add('on');
   document.getElementById('pfoot').style.display='none';
   openPanel();
+  // Carte — dans try/catch pour ne pas bloquer les données
+  try{
+    var pinEl=document.createElement('div');pinEl.className='map-pin';
+    if(pin)try{pin.remove();}catch(e){}
+    pin=new maplibregl.Marker({element:pinEl}).setLngLat([lng,lat]).addTo(map);
+    function doFly(){try{map.flyTo({center:[lng,lat],zoom:15});}catch(e){}}
+    if(map&&map.isStyleLoaded){
+      if(map.isStyleLoaded()){doFly();}else{map.once('load',doFly);}
+    }
+    setTimeout(function(){try{if(map)map.resize();}catch(e){}},300);
+  }catch(e){}
   // SEO dynamique
   document.getElementById('page-title').textContent='Analyse immobilière '+geo.label+' — Intent Analytics';
   document.getElementById('meta-desc').setAttribute('content','Rapport complet : prix au m², risques, DPE, transports, qualité eau pour '+geo.label+'. Données officielles DVF, DPE, BAN.');
