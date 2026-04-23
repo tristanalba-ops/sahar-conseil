@@ -74,7 +74,7 @@ html,body{width:100%;height:100%;font-family:var(--sans);background:var(--bg);co
   #content{position:relative}
   #mwrap{position:absolute;inset:0;z-index:1}
   #panel{position:absolute;bottom:0;left:0;right:0;z-index:10;width:100%;border-left:none;border-top:1px solid var(--bd);height:78vh;border-radius:18px 18px 0 0;transform:translateY(100%);transition:transform .35s cubic-bezier(.4,0,.2,1);box-shadow:0 -8px 40px rgba(0,0,0,.15);display:flex;flex-direction:column}
-  #panel.open{transform:translateY(0)}
+  #panel.open{transform:translateY(0);max-height:100vh}
   #panel.peek{transform:translateY(calc(100% - 72px))}
 }
 .drag-handle{width:40px;height:4px;background:var(--g3);border-radius:2px;margin:10px auto 0;display:none}
@@ -82,14 +82,14 @@ html,body{width:100%;height:100%;font-family:var(--sans);background:var(--bg);co
 
 /* PANEL HEADER */
 #ph{flex-shrink:0;background:var(--w);border-bottom:1px solid var(--bd);border-radius:inherit}
-#ph-inner{padding:.85rem 1rem .75rem}
-#ph-top{display:flex;align-items:flex-start;gap:.75rem;margin-bottom:.6rem}
+#ph-inner{padding:.5rem .85rem .5rem}
+#ph-top{display:flex;align-items:flex-start;gap:.6rem;margin-bottom:.4rem}
 #ph-addr{flex:1;min-width:0}
-#paddr{font-size:.95rem;font-weight:700;letter-spacing:-.02em;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#paddr{font-size:.85rem;font-weight:700;letter-spacing:-.02em;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #psub{font-size:.72rem;color:var(--g4);font-family:var(--mono);margin-top:.1rem}
 
 /* SCORE CIRCLE */
-.score-circ{width:64px;height:64px;position:relative;flex-shrink:0}
+.score-circ{width:52px;height:52px;position:relative;flex-shrink:0}
 .score-circ svg{transform:rotate(-90deg)}
 .sc-track{fill:none;stroke:var(--g2);stroke-width:5}
 .sc-fill{fill:none;stroke-width:5;stroke-linecap:round;transition:stroke-dashoffset .8s cubic-bezier(.4,0,.2,1)}
@@ -98,22 +98,22 @@ html,body{width:100%;height:100%;font-family:var(--sans);background:var(--bg);co
 .sc-letter{font-size:.55rem;font-weight:700;color:var(--g4)}
 
 /* PROFILE PILLS */
-.profile-pills{display:flex;gap:.4rem;margin-bottom:.5rem;flex-wrap:wrap}
-.ppill{padding:.3rem .7rem;border:1.5px solid var(--bd);border-radius:20px;font-size:.72rem;font-weight:600;cursor:pointer;color:var(--g5);background:var(--g1);white-space:nowrap}
+.profile-pills{display:flex;gap:.3rem;margin-bottom:.4rem;flex-wrap:nowrap}
+.ppill{padding:.22rem .55rem;border:1.5px solid var(--bd);border-radius:20px;font-size:.68rem;font-weight:600;cursor:pointer;color:var(--g5);background:var(--g1);white-space:nowrap}
 .ppill.on{background:var(--k);color:#fff;border-color:var(--k)}
 
 /* SUMMARY */
-.summary-box{background:var(--g1);border:1px solid var(--bd);border-radius:10px;padding:.65rem .85rem;font-size:.78rem;line-height:1.55;color:var(--g5);margin-bottom:.5rem}
+.summary-box{background:var(--g1);border:1px solid var(--bd);border-radius:8px;padding:.45rem .75rem;font-size:.73rem;line-height:1.45;color:var(--g5);margin-bottom:.4rem}
 
 /* SCORE CARDS 2x2 */
-.score-cards{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
-.scard{background:var(--w);border:1px solid var(--bd);border-radius:10px;padding:.65rem .75rem;box-shadow:var(--sh)}
+.score-cards{display:grid;grid-template-columns:1fr 1fr;gap:.35rem}
+.scard{background:var(--w);border:1px solid var(--bd);border-radius:8px;padding:.45rem .6rem;box-shadow:var(--sh)}
 .scard-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:.4rem}
 .scard-title{font-size:.72rem;font-weight:700}
 .scard-score{font-size:.72rem;font-weight:700;color:var(--g4)}
 .scard-bar{height:4px;background:var(--g2);border-radius:2px;overflow:hidden;margin-bottom:.3rem}
 .scard-fill{height:100%;border-radius:2px;transition:width .6s ease}
-.scard-main{font-size:.8rem;font-weight:700;letter-spacing:-.01em;margin-bottom:.1rem}
+.scard-main{font-size:.78rem;font-weight:700;letter-spacing:-.01em;margin-bottom:.05rem}
 .scard-sub{font-size:.68rem;color:var(--g5);line-height:1.4}
 
 /* TABS */
@@ -127,7 +127,7 @@ html,body{width:100%;height:100%;font-family:var(--sans);background:var(--bg);co
 #pbody.on{display:block}
 #pbody::-webkit-scrollbar{width:4px}
 #pbody::-webkit-scrollbar-thumb{background:var(--g3);border-radius:2px}
-.tab-pane{display:none;padding:.75rem}
+.tab-pane{display:none;padding:.6rem}
 .tab-pane.on{display:block}
 
 /* LOADER */
@@ -298,7 +298,7 @@ html,body{width:100%;height:100%;font-family:var(--sans);background:var(--bg);co
                 <div id="psub"></div>
               </div>
               <div class="score-circ">
-                <svg width="64" height="64" viewBox="0 0 64 64">
+                <svg width="52" height="52" viewBox="0 0 64 64">
                   <circle class="sc-track" cx="32" cy="32" r="27"/>
                   <circle class="sc-fill" id="sc-fill" cx="32" cy="32" r="27" stroke-dasharray="169.6" stroke-dashoffset="169.6" stroke="#16a34a"/>
                 </svg>
@@ -879,7 +879,7 @@ function rair(d){
     var col=aqi<=50?'var(--green)':aqi<=100?'var(--amber)':'var(--red)';
     var label=aqi<=50?'Bonne':aqi<=100?'Modérée':aqi<=150?'Dégradée':'Mauvaise';
     document.getElementById('airK').innerHTML=kpi(aqi<=50?'g':aqi<=100?'a':'r','IQA',aqi,label);
-    el.innerHTML='<div style="display:flex;align-items:center;gap:1rem;margin-bottom:.5rem">'+
+    el.innerHTML='<div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.6rem;padding:.6rem;background:var(--g1);border-radius:10px">'+
       '<div style="font-size:2.2rem;font-weight:800;color:'+col+';letter-spacing:-.05em">'+aqi+'</div>'+
       '<div><div style="font-weight:700;color:'+col+'">'+label+'</div><div style="font-size:.7rem;color:var(--g4)">Indice Qualité Air · WAQI</div></div></div>'+
       (iaqi.pm25?dr('PM2.5',iaqi.pm25.v+' µg/m³'):'')+
