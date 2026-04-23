@@ -421,7 +421,7 @@ function initMap(){
   var container=document.getElementById('map');
   // Hauteurs en pixels — fiable sur tous les iOS Safari
   var barH=document.getElementById('bar').offsetHeight||52;
-  var halfH=Math.floor((window.innerHeight-barH)/2);
+  var halfH=Math.floor((window.innerHeight-barH)*0.38);// 38% carte, 62% panel
   document.getElementById('mwrap').style.height=halfH+'px';
   document.getElementById('panel').style.top=halfH+'px';
   container.style.height=halfH+'px';
@@ -641,10 +641,10 @@ function loadReport(){
     var pinEl=document.createElement('div');pinEl.className='map-pin';
     if(pin)try{pin.remove();}catch(e){}
     pin=new maplibregl.Marker({element:pinEl}).setLngLat([lng,lat]).addTo(map);
+    // flyTo : appel immédiat + fallback 600ms (si style pas encore chargé)
     function doFly(){try{map.flyTo({center:[lng,lat],zoom:15});}catch(e){}}
-    if(map&&map.isStyleLoaded){
-      if(map.isStyleLoaded()){doFly();}else{map.once('load',doFly);}
-    }
+    doFly();
+    setTimeout(doFly,600);
     setTimeout(function(){try{if(map)map.resize();}catch(e){}},300);
   }catch(e){}
   // SEO dynamique
@@ -709,15 +709,16 @@ function renderAll(d){
   var pbody=document.getElementById('pbody');
   pbody.classList.add('on');
   // Hauteur explicite en pixels — seul moyen fiable sur iOS Safari
-  requestAnimationFrame(function(){
+  // setTimeout pour laisser le browser finir le layout après le render
+  setTimeout(function(){
     var panel=document.getElementById('panel');
     var handle=document.querySelector('.ph-handle');
     var ph=document.getElementById('ph');
     var tabs=document.getElementById('tabs');
     var usedH=(handle?handle.offsetHeight:0)+(ph?ph.offsetHeight:0)+(tabs?tabs.offsetHeight:0);
     var availH=panel.offsetHeight-usedH;
-    if(availH>50)pbody.style.height=availH+'px';
-  });
+    if(availH>50){pbody.style.height=availH+'px';pbody.style.overflow='scroll';}
+  },200);
   document.getElementById('pfoot').style.display='flex';
   document.getElementById('paddr').textContent=d.geo.label||'—';
   document.getElementById('psub').textContent=(d.cp||'')+' '+(d.geo.city||'')+(d.cc?' · INSEE '+d.cc:'');
