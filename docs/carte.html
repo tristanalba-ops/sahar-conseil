@@ -552,7 +552,7 @@ function rgc(lat,lng){
 
 // ═══ SUPABASE helpers ═══
 var SUPA_URL='https://wwvdpixzfaviaapixarb.supabase.co';
-var SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3dmRwaXh6ZmF2aWFhcGl4YXJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ3MDg2MzEsImV4cCI6MjA1MDI4NDYzMX0.VjrTaYGxJCe1wmf-rKRkzZd2iPE6VrHVbC6_PHK47Mo';
+var SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3dmRwaXh6ZmF2aWFhcGl4YXJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3Mzk0NDgsImV4cCI6MjA5MDMxNTQ0OH0.NjOeWzUCo2BJPcxnkEJNm215GJBr1RAHba1eL_EF758';
 function sr(path){
   return fetch(SUPA_URL+'/rest/v1/'+path,{headers:{apikey:SUPA_KEY,Authorization:'Bearer '+SUPA_KEY}})
     .then(function(r){return r.ok?r.json():[];}).catch(function(){return [];});
