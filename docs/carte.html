@@ -391,42 +391,37 @@ var WAQI_TOKEN='demo';
 
 // ══ SEO : mise à jour complète de tous les tags après chargement d'adresse ══
 function updateSEO(d){
-  if(!d||!d.geo)return;
-  var lab=d.geo.label||'';
-  var city=d.geo.city||'';
-  var cp=d.cp||'';
-  var lat=d.lat, lng=d.lng;
-  var url='https://intentanalytics.fr/carte?lat='+lat+'&lng='+lng;
-  var prix=(d.ap&&d.ap.dvf_prix_m2_median)?Math.round(d.ap.dvf_prix_m2_median)+'€/m²':'données non disponibles';
-  var title='Analyse immobilière '+lab+' — Intent Analytics';
-  var desc='Prix au m² ('+prix+'), risques, DPE, transports, démographie à '+lab+'. Rapport complet sur données publiques DVF, DPE, BAN, INSEE.';
-  function setAttr(id,attr,val){var e=document.getElementById(id);if(e)e.setAttribute(attr,val);}
-  document.title=title;
-  setAttr('page-title','',''); // noop marker
-  var pt=document.getElementById('page-title');if(pt)pt.textContent=title;
-  setAttr('meta-desc','content',desc);
-  setAttr('meta-og-title','content',title);
-  setAttr('meta-og-desc','content',desc);
-  setAttr('meta-og-url','content',url);
-  setAttr('meta-geo-pos','content',lat+';'+lng);
-  setAttr('meta-geo-region','content','FR-'+(cp?cp.substring(0,2):''));
-  setAttr('meta-geo-place','content',city);
-  setAttr('canonical-link','href',url);
-  // JSON-LD Schema.org
-  var jsonld=document.getElementById('jsonld');
-  if(jsonld){
-    jsonld.textContent=JSON.stringify({
-      "@context":"https://schema.org",
-      "@type":"Place",
-      "name":lab,
-      "description":desc,
-      "url":url,
-      "address":{"@type":"PostalAddress","streetAddress":lab,"postalCode":cp,"addressLocality":city,"addressCountry":"FR"},
-      "geo":{"@type":"GeoCoordinates","latitude":lat,"longitude":lng}
-    });
-  }
-  // URL propre
-  try{history.replaceState({},title,'?lat='+lat+'&lng='+lng);}catch(e){}
+  try{
+    if(!d||!d.geo)return;
+    var lab=d.geo.label||'';
+    var city=d.geo.city||'';
+    var cp=d.cp||'';
+    var lat=d.lat, lng=d.lng;
+    var url='https://intentanalytics.fr/carte?lat='+lat+'&lng='+lng;
+    var prix=(d.ap&&d.ap.dvf_prix_m2_median)?Math.round(d.ap.dvf_prix_m2_median)+'€/m²':'données non disponibles';
+    var title='Analyse immobilière '+lab+' — Intent Analytics';
+    var desc='Prix au m² ('+prix+'), risques, DPE, transports, démographie à '+lab+'. Rapport complet sur données publiques DVF, DPE, BAN, INSEE.';
+    function setA(id,attr,val){try{var e=document.getElementById(id);if(e&&attr)e.setAttribute(attr,val);}catch(e){}}
+    try{document.title=title;}catch(e){}
+    var pt=document.getElementById('page-title');if(pt)try{pt.textContent=title;}catch(e){}
+    setA('meta-desc','content',desc);
+    setA('meta-og-title','content',title);
+    setA('meta-og-desc','content',desc);
+    setA('meta-og-url','content',url);
+    setA('meta-geo-pos','content',lat+';'+lng);
+    setA('meta-geo-region','content','FR-'+(cp?cp.substring(0,2):''));
+    setA('meta-geo-place','content',city);
+    setA('canonical-link','href',url);
+    var jsonld=document.getElementById('jsonld');
+    if(jsonld){try{
+      jsonld.textContent=JSON.stringify({
+        "@context":"https://schema.org","@type":"Place","name":lab,"description":desc,"url":url,
+        "address":{"@type":"PostalAddress","streetAddress":lab,"postalCode":cp,"addressLocality":city,"addressCountry":"FR"},
+        "geo":{"@type":"GeoCoordinates","latitude":lat,"longitude":lng}
+      });
+    }catch(e){}}
+    try{history.replaceState({},title,'?lat='+lat+'&lng='+lng);}catch(e){}
+  }catch(err){/* updateSEO ne doit JAMAIS bloquer renderAll */}
 }
 var currentProfile='standard';
 
@@ -785,15 +780,16 @@ function loadReport(){
   });
 }
 
+function safeCall(fn,d){try{fn(d);}catch(e){/* jamais bloquer le render global */}}
 function renderAll(d){
-  updateSEO(d);
-  renderHeader(d);renderPrix(d);renderRisques(d);renderDPE(d);
-  renderTransports(d);renderServices(d);renderEau(d);renderDemo(d);
-  renderBatiment(d);renderCommune(d);doEstim(d);
-  loadSirene(d);renderAides(d);
-  loadMapLayers(d);
-  rcadastre(d);rair(d);rclimat(d);
-  loadServicesOSM(d);
+  safeCall(updateSEO,d);
+  safeCall(renderHeader,d);safeCall(renderPrix,d);safeCall(renderRisques,d);safeCall(renderDPE,d);
+  safeCall(renderTransports,d);safeCall(renderServices,d);safeCall(renderEau,d);safeCall(renderDemo,d);
+  safeCall(renderBatiment,d);safeCall(renderCommune,d);safeCall(doEstim,d);
+  safeCall(loadSirene,d);safeCall(renderAides,d);
+  safeCall(loadMapLayers,d);
+  safeCall(rcadastre,d);safeCall(rair,d);safeCall(rclimat,d);
+  safeCall(loadServicesOSM,d);
   document.getElementById('ph-loaded').style.display='block';
   document.getElementById('tabs').style.display='flex';
   var pbody=document.getElementById('pbody');
@@ -1176,6 +1172,7 @@ function renderBatiment(d){
 // ── COMMUNE ──
 // ══ SIRENE : entreprises actives dans la commune ══
 function loadSirene(d){
+  try{
   var el=document.getElementById('sireneD');
   if(!el||!d.cc){if(el)el.innerHTML='<span class="empty">Commune non renseignée</span>';return;}
   fetch('https://recherche-entreprises.api.gouv.fr/search?code_commune='+d.cc+'&etat_administratif=A&page=1&per_page=8')
@@ -1191,10 +1188,12 @@ function loadSirene(d){
       });
       el.innerHTML=html;
     }).catch(function(){el.innerHTML='<span class="empty">API indisponible</span>';});
+  }catch(e){}
 }
 
 // ══ AIDES RÉNOVATION : ADEME AGIR + Mes Aides Réno + CEE ══
 function renderAides(d){
+  try{
   var el=document.getElementById('aidesD');
   if(!el||!d.cc){if(el)el.innerHTML='<span class="empty">Commune non renseignée</span>';return;}
   var dpeMode=d.ap&&d.ap.dpe_etiquette_modale;
@@ -1214,6 +1213,7 @@ function renderAides(d){
     '<div class="poi-item"><div style="flex:1"><div class="poi-name">🔋 CEE — Certificats</div><div class="poi-sub">Coup de pouce énergie</div></div>'+
     '<a href="https://www.ecologie.gouv.fr/politiques-publiques/dispositif-certificats-deconomies-denergie-cee" target="_blank" rel="noopener" class="poi-nav">Conditions</a></div>';
   el.innerHTML=html;
+  }catch(e){}
 }
 
 function renderCommune(d){
