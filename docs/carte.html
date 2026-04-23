@@ -305,7 +305,10 @@ html,body{width:100%;height:100%;font-family:var(--sans);background:var(--bg);co
 
     <div id="panel" class="peek">
       <div id="ph">
-        <div class="drag-handle" id="drag-handle"></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:.4rem .85rem 0">
+          <div class="drag-handle" id="drag-handle" style="margin:6px auto 0;display:none"></div>
+          <div id="map-btn" style="display:none;font-size:.7rem;font-weight:700;color:var(--g5);cursor:pointer;padding:.2rem .5rem;background:var(--g2);border-radius:20px" onclick="peekPanel()">🗺️ Carte</div>
+        </div>
         <div id="ph-inner">
           <div id="pempty">
             <div class="emp-ico">🏠</div>
@@ -473,8 +476,8 @@ function initFromURL(){
 }
 function openPanel(){
   var p=document.getElementById('panel');p.classList.remove('peek');p.classList.add('open');
-  var btn=document.getElementById('toggle-panel');
-  if(btn)btn.style.display='none';
+  var btn=document.getElementById('toggle-panel');if(btn)btn.style.display='none';
+  var mb=document.getElementById('map-btn');if(mb&&window.innerWidth<=900)mb.style.display='block';
 }
 function togglePanel(){
   var p=document.getElementById('panel');
@@ -488,8 +491,8 @@ function togglePanel(){
 }
 function peekPanel(){
   var p=document.getElementById('panel');p.classList.remove('open');p.classList.add('peek');
-  var btn=document.getElementById('toggle-panel');
-  if(btn&&curD)btn.style.display='block';
+  var btn=document.getElementById('toggle-panel');if(btn&&curD)btn.style.display='block';
+  var mb=document.getElementById('map-btn');if(mb)mb.style.display='none';
 }
 
 // SEARCH
@@ -600,24 +603,28 @@ function loadReport(){
   document.getElementById('pfoot').style.display='none';
   openPanel();
   Promise.all([
-    sr('address_profile?code_commune=eq.'+cc+'&select=dvf_prix_m2_median,dvf_prix_m2_p25,dvf_prix_m2_p75,dvf_prix_m2_trend_1y,dpe_etiquette_modale,dpe_nb_bilans,bpe_score_global,bpe_score_transport,bpe_score_education,score_potentiel_dpe&dvf_prix_m2_median=not.is.null&order=dvf_prix_m2_median.desc&limit=1'),
-    sr('score_localisation_commune?code_commune=eq.'+cc+'&select=score_localisation,score_accessibilite,score_securite,score_services,score_risques_naturels,score_dynamisme,detail_accessibilite,detail_dynamisme&limit=1'),
-    sr('dvf_mutations?code_commune=eq.'+cc+'&select=valeur_fonciere,surface_reelle_bati,type_local,date_mutation&order=date_mutation.desc&limit=200'),
-    sr('dpe_diagnostics?code_postal=eq.'+cp+'&select=classe_energie,date_reception_dpe&limit=500'),
-    sf('data_georisques',{code_commune:cc},1),sf('data_plu_communes',{code_commune:cc},1),
-    sf('data_bdnb_batiments',{code_commune_insee:cc},50),
-    sf('data_demographie_commune',{code_commune:cc},1),sf('poi_scores_commune',{code_commune:cc},1),sf('commune_wiki',{code_commune:cc},1),
-    sf('data_qualite_eau',{code_commune:cc},1),
-    sr('ml_training_v8?code_commune=eq.'+cc+'&select=prix_m2_target,prix_zone_median,revenu_median_commune&limit=20'),
-    sr('transport_stops?code_commune=eq.'+cc+'&select=stop_id,stop_name,stop_lat,stop_lon,network_name,agency_name&limit=200'),
-    sr('data_etablissements_scolaires?code_commune=eq.'+cc+'&select=uai,nom,type,latitude,longitude,secteur,taux_reussite_bac,nb_eleves&limit=150')
+    sr('address_profile?code_commune=eq.'+cc+'&select=dvf_prix_m2_median,dvf_prix_m2_p25,dvf_prix_m2_p75,dvf_prix_m2_trend_1y,dpe_etiquette_modale,dpe_nb_bilans,bpe_score_global,bpe_score_transport,bpe_score_education,score_potentiel_dpe&dvf_prix_m2_median=not.is.null&order=dvf_prix_m2_median.desc&limit=1'),  // R[0]
+    sr('score_localisation_commune?code_commune=eq.'+cc+'&select=score_localisation,score_accessibilite,score_securite,score_services,score_risques_naturels,score_dynamisme,detail_accessibilite,detail_dynamisme&limit=1'),  // R[1]
+    sr('dvf_mutations?code_commune=eq.'+cc+'&select=valeur_fonciere,surface_reelle_bati,type_local,date_mutation&order=date_mutation.desc&limit=200'),  // R[2]
+    sr('dpe_diagnostics?code_postal=eq.'+cp+'&select=classe_energie,date_reception_dpe&limit=500'),  // R[3]
+    sf('data_georisques',{code_commune:cc},1),  // R[4]
+    sf('data_plu_communes',{code_commune:cc},1),  // R[5]
+    sf('data_bdnb_batiments',{code_commune_insee:cc},50),  // R[6]
+    sf('data_demographie_commune',{code_commune:cc},1),  // R[7]
+    sf('poi_scores_commune',{code_commune:cc},1),  // R[8]
+    sf('data_qualite_eau',{code_commune:cc},1),  // R[9]
+    sr('ml_training_v8?code_commune=eq.'+cc+'&select=prix_m2_target,prix_zone_median,revenu_median_commune&limit=20'),  // R[10]
+    sr('transport_stops?code_commune=eq.'+cc+'&select=stop_id,stop_name,stop_lat,stop_lon,network_name,agency_name&limit=200'),  // R[11]
+    sr('data_etablissements_scolaires?code_commune=eq.'+cc+'&select=uai,nom,type,latitude,longitude,secteur,taux_reussite_bac,nb_eleves&limit=150'),  // R[12]
+    sf('commune_wiki',{code_commune:cc},1)  // R[13]
   ]).then(function(R){
     document.getElementById('pload').classList.remove('on');
     curD={geo:geo,cc:cc,cp:cp,lat:lat,lng:lng,
-      ap:R[0],sc:R[1][0]||null,dvf:R[2],dpe:R[3],risk:R[4][0]||null,plu:R[5][0]||null,
-      bdnb:R[6],demo:R[7][0]||null,poi:R[8][0]||null,eau:R[9][0]||null,
-      ml:R[10],trans:R[11],ecoles:R[12],wiki:R[13]&&R[13][0]||null};
-    renderAll(curD);
+      ap:R[0],sc:R[1][0]||null,dvf:R[2],dpe:R[3],
+      risk:R[4][0]||null,plu:R[5][0]||null,
+      bdnb:R[6],demo:R[7][0]||null,poi:R[8][0]||null,
+      eau:R[9][0]||null,ml:R[10],trans:R[11],ecoles:R[12],
+      wiki:R[13]&&R[13][0]||null};    renderAll(curD);
     history.replaceState({},'','?lat='+lat+'&lng='+lng);
   });
 }
