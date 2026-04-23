@@ -649,21 +649,6 @@ function renderAll(d){
 
 // ═══ FONCTIONS UTILITAIRES + RENDER (préservées) ═══
 
-function sr(path){
-  return fetch(SB+'/rest/v1/'+path,{headers:{'apikey':AK,'Authorization':'Bearer '+AK}})
-    .then(function(r){return r.ok?r.json():[];}).catch(function(){return[];});
-}
-
-function sf(t,f,l){
-  var q=Object.entries(f).map(function(e){return e[0]+'=eq.'+e[1];}).join('&');
-  return sr(t+'?'+q+'&limit='+(l||10));
-}
-
-function rpc(fn,p){
-  return fetch(SB+'/rest/v1/rpc/'+fn,{method:'POST',headers:{'apikey':AK,'Authorization':'Bearer '+AK,'Content-Type':'application/json'},body:JSON.stringify(p)})
-    .then(function(r){return r.ok?r.json():null;}).catch(function(){return null;});
-}
-
 function fmt(n){if(!n&&n!==0)return'—';return Math.round(n).toLocaleString('fr-FR')+'€';}
 
 function fmtN(n){if(!n&&n!==0)return'—';return Math.round(n).toLocaleString('fr-FR');}
