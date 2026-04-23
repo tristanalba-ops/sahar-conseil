@@ -11,7 +11,10 @@
 <meta id="meta-geo-pos" name="geo.position" content="">
 <meta id="meta-geo-region" name="geo.region" content="FR">
 <meta id="meta-geo-place" name="geo.placename" content="">
+<meta property="og:site_name" content="Intent Analytics">
 <meta name="theme-color" content="#0f0f0f">
+<link id="canonical-link" rel="canonical" href="https://intentanalytics.fr/carte">
+<script id="jsonld" type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Intent Analytics","description":"Analyse immobilière par adresse (DVF, DPE, risques, transports)","url":"https://intentanalytics.fr/carte"}</script>
 <title id="page-title">Intent Analytics — Rapport Adresse</title>
 <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -328,6 +331,7 @@ html,body{width:100%;height:100%;font-family:var(--sans);background:var(--bg);co
           <div class="kpi-row" id="dpeK"></div>
           <div class="card"><div class="card-title">Répartition par classe</div><div class="dpe-stack" id="dpeStack"></div><div id="dpeI"></div></div>
           <div class="card"><div class="card-title">Simulation rénovation · 75m²</div><div id="renoD"></div></div>
+          <div class="card"><div class="card-title">Aides à la rénovation</div><div id="aidesD"><span class="empty">Chargement…</span></div></div>
         </div>
         <div class="tab-pane" id="tab-transports">
           <div class="kpi-row" id="transK"></div>
@@ -338,6 +342,7 @@ html,body{width:100%;height:100%;font-family:var(--sans);background:var(--bg);co
           <div id="poiD"></div>
           <div class="card"><div class="card-title">Santé · 2km</div><div id="santeD"><span class="empty">Chargement…</span></div></div>
           <div class="card"><div class="card-title">Commerces · 800m</div><div id="shopD"><span class="empty">Chargement…</span></div></div>
+          <div class="card"><div class="card-title">Entreprises actives · commune</div><div id="sireneD"><span class="empty">Chargement…</span></div></div>
         </div>
         <div class="tab-pane" id="tab-eau">
           <div class="kpi-row" id="eauK"></div>
@@ -379,6 +384,50 @@ var SB='https://wwvdpixzfaviaapixarb.supabase.co';
 var AK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3dmRwaXh6ZmF2aWFhcGl4YXJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3Mzk0NDgsImV4cCI6MjA5MDMxNTQ0OH0.NjOeWzUCo2BJPcxnkEJNm215GJBr1RAHba1eL_EF758';
 var PINS=['2213'];
 var map,pin,geo,curD,markers=[];
+
+// ══ WAQI TOKEN (qualité air) ══
+// Token public "demo" limité. Pour prod : https://aqicn.org/data-platform/token/ (gratuit)
+var WAQI_TOKEN='demo';
+
+// ══ SEO : mise à jour complète de tous les tags après chargement d'adresse ══
+function updateSEO(d){
+  if(!d||!d.geo)return;
+  var lab=d.geo.label||'';
+  var city=d.geo.city||'';
+  var cp=d.cp||'';
+  var lat=d.lat, lng=d.lng;
+  var url='https://intentanalytics.fr/carte?lat='+lat+'&lng='+lng;
+  var prix=(d.ap&&d.ap.dvf_prix_m2_median)?Math.round(d.ap.dvf_prix_m2_median)+'€/m²':'données non disponibles';
+  var title='Analyse immobilière '+lab+' — Intent Analytics';
+  var desc='Prix au m² ('+prix+'), risques, DPE, transports, démographie à '+lab+'. Rapport complet sur données publiques DVF, DPE, BAN, INSEE.';
+  function setAttr(id,attr,val){var e=document.getElementById(id);if(e)e.setAttribute(attr,val);}
+  document.title=title;
+  setAttr('page-title','',''); // noop marker
+  var pt=document.getElementById('page-title');if(pt)pt.textContent=title;
+  setAttr('meta-desc','content',desc);
+  setAttr('meta-og-title','content',title);
+  setAttr('meta-og-desc','content',desc);
+  setAttr('meta-og-url','content',url);
+  setAttr('meta-geo-pos','content',lat+';'+lng);
+  setAttr('meta-geo-region','content','FR-'+(cp?cp.substring(0,2):''));
+  setAttr('meta-geo-place','content',city);
+  setAttr('canonical-link','href',url);
+  // JSON-LD Schema.org
+  var jsonld=document.getElementById('jsonld');
+  if(jsonld){
+    jsonld.textContent=JSON.stringify({
+      "@context":"https://schema.org",
+      "@type":"Place",
+      "name":lab,
+      "description":desc,
+      "url":url,
+      "address":{"@type":"PostalAddress","streetAddress":lab,"postalCode":cp,"addressLocality":city,"addressCountry":"FR"},
+      "geo":{"@type":"GeoCoordinates","latitude":lat,"longitude":lng}
+    });
+  }
+  // URL propre
+  try{history.replaceState({},title,'?lat='+lat+'&lng='+lng);}catch(e){}
+}
 var currentProfile='standard';
 
 // ── AUTH ──
@@ -445,7 +494,62 @@ function initMap(){
   map.addControl(new maplibregl.AttributionControl({compact:true}),'bottom-right');
   markers=[];
   map.on('click',function(e){rgc(e.lngLat.lat,e.lngLat.lng);});
+  // Flag quand la carte est prête à recevoir des commandes
+  window._mapReady=false;
+  map.on('load',function(){window._mapReady=true;map.resize();});
+  map.on('idle',function(){if(!window._mapReady){window._mapReady=true;map.resize();}});
+  setTimeout(resizeLayout,100);
 }
+
+// Force le centrage avec retry+vérif (bulletproof)
+function forceCenter(lng,lat,zoom){
+  if(!map)return;
+  var tries=0;
+  function attempt(){
+    tries++;
+    try{
+      map.setCenter([lng,lat]);
+      map.setZoom(zoom);
+      map.resize();
+      var c=map.getCenter();
+      if(Math.abs(c.lng-lng)<0.005&&Math.abs(c.lat-lat)<0.005)return;
+    }catch(e){}
+    if(tries<15)setTimeout(attempt,180);
+  }
+  attempt();
+}
+
+// Layout pixels — UNIQUE source de vérité pour les hauteurs
+function resizeLayout(){
+  var bar=document.getElementById('bar');
+  var mwrap=document.getElementById('mwrap');
+  var panel=document.getElementById('panel');
+  var pbody=document.getElementById('pbody');
+  if(!bar||!mwrap||!panel||!pbody)return;
+  var barH=bar.offsetHeight||52;
+  var avail=window.innerHeight-barH;
+  var mapH=Math.floor(avail*0.38);
+  var panelH=avail-mapH;
+  mwrap.style.height=mapH+'px';
+  document.getElementById('map').style.height=mapH+'px';
+  panel.style.top=mapH+'px';
+  panel.style.height=panelH+'px';
+  // pbody = panel - handle - ph - tabs - pfoot
+  var handle=panel.querySelector('.ph-handle');
+  var ph=document.getElementById('ph');
+  var tabs=document.getElementById('tabs');
+  var pfoot=document.getElementById('pfoot');
+  var used=0;
+  if(handle)used+=handle.offsetHeight;
+  if(ph)used+=ph.offsetHeight;
+  if(tabs&&tabs.style.display!=='none')used+=tabs.offsetHeight;
+  if(pfoot&&pfoot.style.display!=='none')used+=pfoot.offsetHeight;
+  var pbH=panelH-used;
+  if(pbH>50){pbody.style.height=pbH+'px';pbody.style.maxHeight=pbH+'px';}
+  if(map)map.resize();
+}
+window.addEventListener('resize',function(){setTimeout(resizeLayout,50);});
+window.addEventListener('orientationchange',function(){setTimeout(resizeLayout,300);});
 function initFromURL(){
   var p=new URLSearchParams(location.search);
   var lat=parseFloat(p.get('lat')),lng=parseFloat(p.get('lng'));
@@ -522,13 +626,7 @@ function pickSugg(i){
   document.getElementById('sdd').style.display='none';
   si.blur();
   geo=f.properties;
-  try{
-    if(map){
-      var cx=+f.properties.x,cy=+f.properties.y;
-      if(map.isStyleLoaded()){map.jumpTo({center:[cx,cy],zoom:16});}
-      else{map.once('load',function(){map.jumpTo({center:[cx,cy],zoom:16});});}
-    }
-  }catch(e){}
+  forceCenter(+f.properties.x,+f.properties.y,16);
   loadReport();
 }
 function hideSugg(){document.getElementById('sdd').style.display='none';}
@@ -536,11 +634,7 @@ function hideSugg(){document.getElementById('sdd').style.display='none';}
 function locate(){
   if(!navigator.geolocation)return toast('Non supporté');
   navigator.geolocation.getCurrentPosition(function(p){
-    try{
-      var lc=[p.coords.longitude,p.coords.latitude];
-      if(map.isStyleLoaded()){map.jumpTo({center:lc,zoom:17});}
-      else{map.once('load',function(){map.jumpTo({center:lc,zoom:17});});}
-    }catch(e){}
+    forceCenter(p.coords.longitude,p.coords.latitude,17);
     rgc(p.coords.latitude,p.coords.longitude);
   },function(){toast('Refusé');});
 }
@@ -636,24 +730,14 @@ function loadReport(){
   document.getElementById('pload').classList.add('on');
   document.getElementById('pfoot').style.display='none';
   openPanel();
-  // Carte — dans try/catch pour ne pas bloquer les données
+  // Carte — forceCenter avec retry+vérif, pin Marker isolé
   try{
     var pinEl=document.createElement('div');pinEl.className='map-pin';
     if(pin)try{pin.remove();}catch(e){}
     pin=new maplibregl.Marker({element:pinEl}).setLngLat([lng,lat]).addTo(map);
-    // jumpTo : synchrone, pas d'animation, marche immédiatement
-    function doJump(){
-      try{map.jumpTo({center:[lng,lat],zoom:15});}catch(e){
-        setTimeout(function(){try{map.jumpTo({center:[lng,lat],zoom:15});}catch(e2){}},500);
-      }
-    }
-    if(map.isStyleLoaded()){doJump();}
-    else{map.once('load',doJump);setTimeout(doJump,800);}
-    setTimeout(function(){try{if(map)map.resize();}catch(e){}},300);
   }catch(e){}
-  // SEO dynamique
-  document.getElementById('page-title').textContent='Analyse immobilière '+geo.label+' — Intent Analytics';
-  document.getElementById('meta-desc').setAttribute('content','Rapport complet : prix au m², risques, DPE, transports, qualité eau pour '+geo.label+'. Données officielles DVF, DPE, BAN.');
+  forceCenter(lng,lat,15);
+  // SEO updated in renderAll via updateSEO()
   Promise.all([
     sr('address_profile?code_commune=eq.'+cc+'&select=dvf_prix_m2_median,dvf_prix_m2_p25,dvf_prix_m2_p75,dvf_prix_m2_trend_1y,dpe_etiquette_modale,dpe_nb_bilans,bpe_score_global,bpe_score_transport,bpe_score_education,score_potentiel_dpe&dvf_prix_m2_median=not.is.null&order=dvf_prix_m2_median.desc&limit=1'),
     sr('score_localisation_commune?code_commune=eq.'+cc+'&select=score_localisation,score_accessibilite,score_securite,score_services,score_risques_naturels,score_dynamisme,detail_accessibilite,detail_dynamisme&limit=1'),
@@ -702,9 +786,11 @@ function loadReport(){
 }
 
 function renderAll(d){
+  updateSEO(d);
   renderHeader(d);renderPrix(d);renderRisques(d);renderDPE(d);
   renderTransports(d);renderServices(d);renderEau(d);renderDemo(d);
   renderBatiment(d);renderCommune(d);doEstim(d);
+  loadSirene(d);renderAides(d);
   loadMapLayers(d);
   rcadastre(d);rair(d);rclimat(d);
   loadServicesOSM(d);
@@ -712,9 +798,10 @@ function renderAll(d){
   document.getElementById('tabs').style.display='flex';
   var pbody=document.getElementById('pbody');
   pbody.classList.add('on');
-  // Hauteur explicite en pixels — seul moyen fiable sur iOS Safari
-  // flex:1 + min-height:0 gèrent la hauteur — pas besoin de JS ici
   document.getElementById('pfoot').style.display='flex';
+  // Recalcul layout pixel après affichage de tous les éléments
+  setTimeout(resizeLayout,50);
+  setTimeout(resizeLayout,300);
   document.getElementById('paddr').textContent=d.geo.label||'—';
   document.getElementById('psub').textContent=(d.cp||'')+' '+(d.geo.city||'')+(d.cc?' · INSEE '+d.cc:'');
 }
@@ -1087,6 +1174,48 @@ function renderBatiment(d){
 }
 
 // ── COMMUNE ──
+// ══ SIRENE : entreprises actives dans la commune ══
+function loadSirene(d){
+  var el=document.getElementById('sireneD');
+  if(!el||!d.cc){if(el)el.innerHTML='<span class="empty">Commune non renseignée</span>';return;}
+  fetch('https://recherche-entreprises.api.gouv.fr/search?code_commune='+d.cc+'&etat_administratif=A&page=1&per_page=8')
+    .then(function(r){return r.ok?r.json():null;})
+    .then(function(res){
+      if(!res||!res.results||!res.results.length){el.innerHTML='<span class="empty">Aucune entreprise active</span>';return;}
+      var total=res.total_results||res.results.length;
+      var html='<div style="font-size:.7rem;color:var(--g5);margin-bottom:.4rem">'+fmtN(total)+' entreprises actives dans la commune</div>';
+      res.results.forEach(function(e){
+        var naf=e.activite_principale||'';
+        var nom=e.nom_complet||e.nom_raison_sociale||'—';
+        html+='<div class="poi-item"><div style="flex:1;min-width:0"><div class="poi-name">'+nom+'</div><div class="poi-sub">'+naf+'</div></div></div>';
+      });
+      el.innerHTML=html;
+    }).catch(function(){el.innerHTML='<span class="empty">API indisponible</span>';});
+}
+
+// ══ AIDES RÉNOVATION : ADEME AGIR + Mes Aides Réno + CEE ══
+function renderAides(d){
+  var el=document.getElementById('aidesD');
+  if(!el||!d.cc){if(el)el.innerHTML='<span class="empty">Commune non renseignée</span>';return;}
+  var dpeMode=d.ap&&d.ap.dpe_etiquette_modale;
+  var ctx='';
+  if(dpeMode){
+    var isPassoire=/^[FG]$/i.test(dpeMode);
+    ctx='<div class="interp '+(isPassoire?'warn':'')+'" style="margin-bottom:.5rem">DPE dominant : <b>'+dpeMode+'</b>'+(isPassoire?' · passoire thermique, aides majorées possibles':'')+'</div>';
+  }
+  var params='?commune='+d.cc+(d.cp?'&codePostal='+d.cp:'');
+  var html=ctx+
+    '<div class="poi-item"><div style="flex:1"><div class="poi-name">🏛️ Mes Aides Réno</div><div class="poi-sub">Simulateur officiel France Rénov\'</div></div>'+
+    '<a href="https://mesaidesreno.beta.gouv.fr/" target="_blank" rel="noopener" class="poi-nav">Simuler</a></div>'+
+    '<div class="poi-item"><div style="flex:1"><div class="poi-name">💰 AGIR ADEME</div><div class="poi-sub">Aides financières régionales</div></div>'+
+    '<a href="https://agirpourlatransition.ademe.fr/particuliers/aides-renovation-logement" target="_blank" rel="noopener" class="poi-nav">Voir</a></div>'+
+    '<div class="poi-item"><div style="flex:1"><div class="poi-name">⚡ MaPrimeRénov\'</div><div class="poi-sub">Principale aide nationale</div></div>'+
+    '<a href="https://france-renov.gouv.fr/aides/maprimerenov" target="_blank" rel="noopener" class="poi-nav">Barème</a></div>'+
+    '<div class="poi-item"><div style="flex:1"><div class="poi-name">🔋 CEE — Certificats</div><div class="poi-sub">Coup de pouce énergie</div></div>'+
+    '<a href="https://www.ecologie.gouv.fr/politiques-publiques/dispositif-certificats-deconomies-denergie-cee" target="_blank" rel="noopener" class="poi-nav">Conditions</a></div>';
+  el.innerHTML=html;
+}
+
 function renderCommune(d){
   var wiki=d.wiki,sc=d.sc,dem=d.demo;
   var h='';
@@ -1154,7 +1283,7 @@ function rcadastre(d){
 // ── AIR ──
 function rair(d){
   var el=document.getElementById('airD');
-  fetch('https://api.waqi.info/feed/geo:'+d.lat+';'+d.lng+'/?token=demo')
+  fetch('https://api.waqi.info/feed/geo:'+d.lat+';'+d.lng+'/?token='+WAQI_TOKEN)
     .then(function(r){return r.json();})
     .then(function(res){
       if(res.status!=='ok'||!res.data){el.innerHTML='<span class="empty">Station WAQI non disponible</span>';return;}
