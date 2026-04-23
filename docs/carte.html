@@ -964,9 +964,35 @@ function renderDPE(d){
 
 function renderTransports(d){
   var trans=d.trans;
+  // ── Diagnostic forcé si trans vide : refetch direct avec status visible ──
   if(!trans.length){
-    document.getElementById('transK').innerHTML=kpi('r','Arrêts TC','0','commune');
-    document.getElementById('transContent').innerHTML=interp('Aucun arrêt TC référencé dans la commune. Voiture indispensable.','bad');
+    document.getElementById('transK').innerHTML=kpi('a','Arrêts TC','...','chargement');
+    document.getElementById('transContent').innerHTML='<span class="empty">Chargement arrêts transport…</span>';
+    var t0=Date.now();
+    fetch(SUPA_URL+'/rest/v1/transport_stops?code_commune=eq.'+d.cc+'&select=stop_id,stop_name,stop_lat,stop_lon,network_name,agency_name&limit=200',{
+      headers:{apikey:SUPA_KEY,Authorization:'Bearer '+SUPA_KEY,'Cache-Control':'no-cache'},
+      cache:'no-store'
+    }).then(function(r){
+      var ms=Date.now()-t0;
+      if(!r.ok){
+        return r.text().then(function(txt){
+          document.getElementById('transContent').innerHTML='<div class="interp bad"><b>Erreur '+r.status+'</b> · '+ms+'ms<br><code style="font-size:.65rem">'+txt.substring(0,200)+'</code></div>';
+          throw new Error('HTTP '+r.status);
+        });
+      }
+      return r.json();
+    }).then(function(rows){
+      if(!rows||!rows.length){
+        document.getElementById('transContent').innerHTML='<div class="interp warn">Requête OK mais 0 lignes reçues pour code_commune='+d.cc+' ('+(Date.now()-t0)+'ms)</div>';
+        return;
+      }
+      // Recharge d.trans et relance le render
+      d.trans=rows; curD&&(curD.trans=rows);
+      renderTransports(d);
+      if(typeof loadMapLayers==='function')try{loadMapLayers(d);}catch(e){}
+    }).catch(function(e){
+      document.getElementById('transContent').innerHTML='<div class="interp bad">Fetch échoué : '+(e&&e.message||'inconnu')+'</div>';
+    });
     return;
   }
   trans.forEach(function(t){if(t.stop_lat&&t.stop_lon)t._d=dist(d.lat,d.lng,t.stop_lat,t.stop_lon);});
