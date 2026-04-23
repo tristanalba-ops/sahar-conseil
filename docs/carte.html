@@ -384,6 +384,8 @@ var WAQI_TOKEN='demo';
 var map=null, pin=null, geo=null, curD=null, markers=[];
 var _mapReady=false;
 var _pendingCenter=null;
+var deb=null;
+var currentProfile='standard';
 
 // ═══ UTIL : safeCall (aucune erreur isolée ne peut casser l\'UI) ═══
 function safeCall(fn,d){try{if(typeof fn==='function')fn(d);}catch(e){console.warn('[safeCall]',e);}}
@@ -717,34 +719,11 @@ function mkPop(ico,type,name,detail,dd,color,lat,lng){
   '</div>';
 }
 
-function hideSugg(){document.getElementById('sdd').style.display='none';}
-
-function locate(){
-  if(!navigator.geolocation)return toast('Non supporté');
-  navigator.geolocation.getCurrentPosition(function(p){
-    forceCenter(p.coords.longitude,p.coords.latitude,17);
-    rgc(p.coords.latitude,p.coords.longitude);
-  },function(){toast('Refusé');});
-}
-
-function rgc(lat,lng){
-  fetch('https://api-adresse.data.gouv.fr/reverse/?lon='+lng+'&lat='+lat)
-    .then(function(r){return r.json();})
-    .then(function(res){
-      if(res.features&&res.features.length){
-        geo=res.features[0].properties;geo.x=+lng;geo.y=+lat;
-        document.getElementById('si').value=geo.label||'';
-        loadReport();
-      }else toast('Adresse introuvable');
-    }).catch(function(){toast('Erreur');});
-}
-
 function switchTab(id,el){
   document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('on');});
   document.querySelectorAll('.tab-pane').forEach(function(p){p.classList.remove('on');});
   el.classList.add('on');
   document.getElementById('tab-'+id).classList.add('on');
-  openPanel();
 }
 
 function setProfile(p,el){
