@@ -448,44 +448,50 @@ function closePanel(){
 }
 
 // ── SEARCH ──
-var deb, isTouching=false;
-document.getElementById('si').addEventListener('input',function(){
+var deb;
+var si=document.getElementById('si');
+var dd=document.getElementById('sdd');
+
+si.oninput=function(){
   clearTimeout(deb);
-  var q=this.value.trim();
-  var dd=document.getElementById('sdd');
+  var q=si.value.trim();
   if(q.length<3){dd.style.display='none';return;}
   deb=setTimeout(function(){
-    fetch('https://api-adresse.data.gouv.fr/search/?q='+encodeURIComponent(q)+'&limit=6&autocomplete=1')
+    fetch('https://api-adresse.data.gouv.fr/search/?q='+encodeURIComponent(q)+'&limit=6')
       .then(function(r){return r.json();})
       .then(function(res){
         dd.innerHTML='';
-        if(!res.features||!res.features.length){dd.style.display='none';return;}
+        if(!res||!res.features||!res.features.length){dd.style.display='none';return;}
         res.features.forEach(function(f){
-          var el=document.createElement('div');
-          el.className='sg';
-          el.innerHTML='<span style="color:var(--g4)">📍</span> '+f.properties.label;
-          function pick(){
-            document.getElementById('si').value=f.properties.label||'';
-            geo=f.properties;
-            dd.style.display='none';
-            if(map)map.setView([f.properties.y,f.properties.x],16);
-            loadReport();
-          }
-          el.addEventListener('mousedown',function(e){e.preventDefault();pick();});
-          el.addEventListener('touchend',function(e){e.preventDefault();pick();});
-          dd.appendChild(el);
+          var div=document.createElement('div');
+          div.className='sg';
+          div.textContent=f.properties.label;
+          div.ontouchend=function(e){
+            e.preventDefault();
+            choisir(f);
+          };
+          div.onmousedown=function(e){
+            e.preventDefault();
+            choisir(f);
+          };
+          dd.appendChild(div);
         });
         dd.style.display='block';
       }).catch(function(){dd.style.display='none';});
-  },280);
-});
-document.getElementById('si').addEventListener('blur',function(){
-  // Délai long pour laisser touchend se déclencher sur iOS
-  setTimeout(function(){document.getElementById('sdd').style.display='none';},500);
-});
-document.getElementById('si').addEventListener('keydown',function(e){
-  if(e.key==='Enter'){document.getElementById('sdd').style.display='none';}
-});
+  },300);
+};
+
+si.onblur=function(){
+  setTimeout(function(){dd.style.display='none';},600);
+};
+
+function choisir(f){
+  si.value=f.properties.label||'';
+  geo=f.properties;
+  dd.style.display='none';
+  if(map)map.setView([+f.properties.y,+f.properties.x],16);
+  loadReport();
+}
 
 function locate(){
   if(!navigator.geolocation)return toast('Non supporté');
