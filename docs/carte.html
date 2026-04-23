@@ -73,9 +73,9 @@ html,body{width:100%;height:100%;font-family:var(--sans);background:var(--bg);co
 @media(max-width:900px){
   #content{position:relative}
   #mwrap{position:absolute;inset:0;z-index:1}
-  #panel{position:absolute;bottom:0;left:0;right:0;z-index:10;width:100%;border-left:none;border-top:1px solid var(--bd);height:72vh;border-radius:18px 18px 0 0;transform:translateY(100%);transition:transform .35s cubic-bezier(.4,0,.2,1);box-shadow:0 -8px 40px rgba(0,0,0,.15)}
+  #panel{position:absolute;bottom:0;left:0;right:0;z-index:10;width:100%;border-left:none;border-top:1px solid var(--bd);height:78vh;border-radius:18px 18px 0 0;transform:translateY(100%);transition:transform .35s cubic-bezier(.4,0,.2,1);box-shadow:0 -8px 40px rgba(0,0,0,.15);display:flex;flex-direction:column}
   #panel.open{transform:translateY(0)}
-  #panel.peek{transform:translateY(calc(100% - 80px))}
+  #panel.peek{transform:translateY(calc(100% - 72px))}
 }
 .drag-handle{width:40px;height:4px;background:var(--g3);border-radius:2px;margin:10px auto 0;display:none}
 @media(max-width:900px){.drag-handle{display:block}}
@@ -117,13 +117,13 @@ html,body{width:100%;height:100%;font-family:var(--sans);background:var(--bg);co
 .scard-sub{font-size:.68rem;color:var(--g5);line-height:1.4}
 
 /* TABS */
-#tabs{flex-shrink:0;background:var(--w);border-bottom:1px solid var(--bd);display:flex;overflow-x:auto;scrollbar-width:none;padding:0 .25rem;gap:0}
+#tabs{flex-shrink:0;background:var(--w);border-bottom:1px solid var(--bd);display:flex;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;padding:0 .25rem;gap:0;-webkit-overflow-scrolling:touch}
 #tabs::-webkit-scrollbar{display:none}
 .tab{padding:.65rem .75rem;font-size:.76rem;font-weight:600;color:var(--g4);cursor:pointer;border-bottom:2.5px solid transparent;white-space:nowrap;flex-shrink:0}
 .tab.on{color:var(--k);border-bottom-color:var(--k)}
 
 /* PANEL BODY */
-#pbody{flex:1;overflow-y:auto;display:none}
+#pbody{flex:1;overflow-y:auto;overflow-x:hidden;display:none;-webkit-overflow-scrolling:touch}
 #pbody.on{display:block}
 #pbody::-webkit-scrollbar{width:4px}
 #pbody::-webkit-scrollbar-thumb{background:var(--g3);border-radius:2px}
