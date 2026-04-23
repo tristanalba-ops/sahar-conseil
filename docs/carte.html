@@ -776,12 +776,12 @@ function renderRisques(d){
   // Scale risques vs national (60% communes ont au moins 1 risque naturel)
   var noteRisk=rn===0?'Aucun risque identifié dans les bases officielles. Commune à faible exposition.':
     rn===1?'1 risque modéré. La majorité des communes françaises (60%) présentent au moins un risque naturel.':
-    rn===2?'2 risques identifiés. Vérifier les obligations d'information acheteur (loi Alur).':
-    rn>=3?'Exposition multi-risques. Obligation d'annexer l'état des risques à toute promesse de vente (Art. L125-5).':'';
+    rn===2?"2 risques identifiés. Vérifier les obligations d\'information acheteur (loi Alur).":
+    rn>=3?'Exposition multi-risques. Obligation d\'annexer l\'etat des risques à toute promesse de vente (Art. L125-5).':'';
   var noteType=rn===0?'good':rn<=1?'':rn===2?'warn':'bad';
   var html=interp(noteRisk,noteType);
   html+=scaleBar({label:'Risques vs communes françaises',val:rn,min:0,p25:0,med:1,p75:2,max:4,unit:'',note:null,obs:'national: méd. 1',color:rn===0?'var(--green)':rn<=2?'var(--amber)':'var(--red)'});
-  if(r.nb_catnat>0)html+=interp(r.nb_catnat+' arrêté(s) Cat-Nat historique. Moyenne nationale : 2,3 par commune. '+(r.nb_catnat>5?'Territoire fortement impacté — impact sur les primes d'assurance.':''),r.nb_catnat>5?'warn':'');
+  if(r.nb_catnat>0)html+=interp(r.nb_catnat+' arrêté(s) Cat-Nat historique. Moyenne nationale : 2,3 par commune. '+(r.nb_catnat>5?'Territoire fortement impacté — impact sur les primes d\'assurance.':''),r.nb_catnat>5?'warn':'');
   function ri(ico,l,v){return'<div class="rrow"><span class="rb '+(v?'rb-y':'rb-n')+'">'+(v?'Oui':'Non')+'</span><span>'+ico+' '+l+'</span></div>';}
   html+=ri('🌊','Inondation PPRI',r.risque_inondation)+ri('🏔','Retrait-gonflement argiles',r.risque_argile)+ri('📋','PPRN prescrit',r.pprn_prescrit)+ri('⚙️','PPRT prescrit',r.pprt_prescrit);
   if(seisme>0)html+=interp('Zone sismique '+['','1 (très faible)','2 (faible)','3 (modérée)','4 (moyenne)','5 (forte)'][seisme]+'. '+(seisme>=3?'Normes parasismiques obligatoires pour les constructions neuves.':'Impact limité, normes PS MI applicables.'),seisme>=3?'warn':'');
@@ -851,7 +851,7 @@ function renderTransports(d){
   var noteT=nb>100?'Excellente desserte. Plus de 100 arrêts TC — commune très bien desservie, impact positif estimé +3 à +8% sur les prix.':
     nb>20?'Bonne desserte ('+nb+' arrêts). Mobilité quotidienne possible sans voiture.':
     nb>5?'Desserte modérée. Horaires probablement limités — vérifier les lignes disponibles.':
-    nb>0?'Très peu d'arrêts ('+nb+'). Dépendance à la voiture.':'Aucun arrêt TC référencé dans la commune.';
+    nb>0?'Très peu d\'arrêts ('+nb+'). Dépendance à la voiture.':'Aucun arrêt TC reference dans la commune.';
   var html=interp(noteT,nb>100?'good':nb>20?'':nb>5?'warn':'bad');
   if(nb>0)html+=scaleBar({label:'Arrêts TC vs communes françaises',val:Math.min(nb,200),min:0,p25:5,med:30,p75:80,max:200,unit:'',obs:nb+' arrêts',color:nb>80?'var(--green)':nb>20?'var(--blue)':'var(--amber)'});
   if(!Object.keys(by).length){document.getElementById('transD').innerHTML=html+'<span class="empty">Aucun arrêt référencé</span>';return;}
@@ -886,13 +886,13 @@ function renderCommerces(d){
     kpi('','Équipements',fmtN(poi.nb_equipements||0),'recensés BPE');
   var notes={
     score_transport:['Transports en commun quasi-absents. Dépendance totale à la voiture.','Desserte TC limitée. Voiture indispensable.','Desserte correcte. TC utilisables pour les trajets quotidiens.','Excellente desserte TC. Atout majeur pour la valorisation.'],
-    score_education:['Aucun équipement scolaire à proximité. Périscolaire contraint.','Offre éducative limitée. Écoles élémentaires éloignées.','Bon maillage scolaire. Crèches, écoles et collèges accessibles.','Offre scolaire complète et de qualité.'],
+    score_education:["Aucun équipement scolaire à proximité. Périscolaire contraint.",'Offre éducative limitée. Écoles élémentaires éloignées.','Bon maillage scolaire. Crèches, écoles et collèges accessibles.','Offre scolaire complète et de qualité.'],
     score_sante:['Désert médical. Accès aux soins difficile — facteur dépréciatif.','Offre médicale insuffisante. Spécialistes éloignés.','Services de santé accessibles. Généralistes et pharmacies présents.','Forte densité médicale. Cliniques et spécialistes à proximité.'],
-    score_commerce:['Commune sans commerce de proximité. Courses en voiture obligatoires.','Commerces rares. Supérette ou boulangerie éloignée.','Commerces de base accessibles. Vie de quartier présente.','Offre commerciale riche. Marché, supermarchés, commerces spécialisés.'],
+    score_commerce:["Commune sans commerce de proximité. Courses en voiture obligatoires.",'Commerces rares. Supérette ou boulangerie éloignée.','Commerces de base accessibles. Vie de quartier présente.','Offre commerciale riche. Marché, supermarchés, commerces spécialisés.'],
     score_loisirs:['Aucun équipement culturel ou sportif.','Offre culturelle et sportive limitée.','Salles de sport et espaces verts disponibles.','Offre loisirs complète : cinéma, salles de sport, musées, parcs.']
   };
   function getBand(v){return v>=75?3:v>=50?2:v>=25?1:0;}
-  var html=scaleBar({label:'Score global équipements vs communes',val:glob,min:0,p25:30,med:50,p75:75,max:100,unit:'',obs:'score BPE INSEE',note:glob>=70?'Commune bien équipée. Les services de proximité sont un critère d'achat prioritaire (source: baromètre SeLoger 2023).':glob>=40?'Equipements corrects mais perfectibles.':'Déficit d'équipements. Potentiel de tension locative.',noteType:glob>=70?'good':glob>=40?'':'warn',color:glob>=70?'var(--green)':glob>=40?'var(--amber)':'var(--red)'});
+  var html=scaleBar({label:'Score global équipements vs communes',val:glob,min:0,p25:30,med:50,p75:75,max:100,unit:'',obs:'score BPE INSEE',note:glob>=70?'Commune bien équipée. Les services de proximité sont un critère d\'achat prioritaire (source: baromètre SeLoger 2023).':glob>=40?'Equipements corrects mais perfectibles.':'Déficit d\'équipements. Potentiel de tension locative.',noteType:glob>=70?'good':glob>=40?'':'warn',color:glob>=70?'var(--green)':glob>=40?'var(--amber)':'var(--red)'});
   ['score_transport','score_education','score_sante','score_commerce','score_loisirs'].forEach(function(k){
     var v=poi[k]||0;
     var label={'score_transport':'🚌 Transports','score_education':'📚 Éducation','score_sante':'🏥 Santé','score_commerce':'🛒 Commerce','score_loisirs':'🎭 Loisirs'}[k];
@@ -910,7 +910,7 @@ function renderEau(d){
   var conf=e.taux_conformite_global!=null?Math.round(e.taux_conformite_global):null;
   document.getElementById('eauK').innerHTML=kpi(conf>=90?'g':conf>=70?'a':'r','Conformité',conf!=null?conf+'%':'—','')+kpi(e.conformite_bacterio?'g':'r','Bactério',e.conformite_bacterio?'✓ OK':'⚠ NON','')+kpi(e.pesticides_detectes?'r':'g','Pesticides',e.pesticides_detectes?'Détectés':'Nul','');
   // Interprétation
-  var interpTxt=conf>=95?'Excellente qualité d'eau. Tous les paramètres sont conformes aux normes sanitaires européennes.':
+  var interpTxt=conf>=95?'Excellente qualité d\'eau. Tous les paramètres sont conformes aux normes sanitaires europeennes.':
     conf>=80?'Bonne qualité générale. Quelques dépassements ponctuels, sans danger pour la santé.':
     conf>=60?'Qualité correcte mais irrégulière. Recommandé de vérifier les contrôles récents.':
     'Qualité insuffisante. Des dépassements de normes ont été relevés — se renseigner auprès de la mairie.';
@@ -951,7 +951,7 @@ function renderDemo(d){
   if(revenu){
     var diffR=Math.round(revenu-22500);
     var noteR=diffR>2000?'Revenu médian '+fmt(diffR)+' au-dessus de la nationale (22 500€/UC). Territoire attractif, marché immobilier soutenu.':
-      diffR<-2000?'Revenu médian '+fmt(Math.abs(diffR)+' en-dessous de la nationale. Pouvoir d'achat immobilier limité — frein sur les prix.'):
+      diffR<-2000?'Revenu médian '+fmt(Math.abs(diffR)+' en-dessous de la nationale. Pouvoir d\'achat immobilier limité — frein sur les prix.'):
       'Revenu en ligne avec la médiane nationale. Marché équilibré.';
     html+=scaleBar({label:'Revenu médian/UC vs national',val:revenu,min:12000,p25:18000,med:22500,p75:28000,max:45000,unit:'€',note:noteR,noteType:diffR>2000?'good':diffR<-2000?'warn':'',color:diffR>0?'var(--green)':'var(--amber)'});
   }
@@ -1068,10 +1068,10 @@ function rair(d){
     var aqi=res.data.aqi,iaqi=res.data.iaqi||{};
     var col=aqi<=50?'var(--green)':aqi<=100?'var(--amber)':aqi<=150?'var(--red)':'#7c3aed';
     var label=aqi<=50?'Bonne':aqi<=100?'Modérée':aqi<=150?'Dégradée':'Mauvaise';
-    var interpTxt=aqi<=50?'Qualité de l'air excellente. Aucune restriction, favorable pour les activités extérieures.':
+    var interpTxt=aqi<=50?'Qualité de l\'air excellente. Aucune restriction, favorable pour les activités extérieures.':
       aqi<=100?'Qualité acceptable. Des personnes sensibles (asthmatiques, enfants) peuvent ressentir une gêne.':
       aqi<=150?'Qualité dégradée. Limiter les activités intenses en extérieur. Ventiler les logements aux heures creuses.':
-      'Mauvaise qualité de l'air. Eviter les sorties prolongées.';
+      'Mauvaise qualité de l\'air. Eviter les sorties prolongées.';
     var interpType=aqi<=50?'good':aqi<=100?'':aqi<=150?'warn':'bad';
     document.getElementById('airK').innerHTML=kpi(aqi<=50?'g':aqi<=100?'a':'r','IQA',aqi,label);
     el.innerHTML=interp(interpTxt,interpType)+
@@ -1082,7 +1082,7 @@ function rair(d){
       (iaqi.pm25?dr('PM2.5 (particules fines)',iaqi.pm25.v+' µg/m³')+
         (iaqi.pm25.v>25?interp('PM2.5 au-dessus du seuil OMS (25 µg/m³). Exposition chronique à risque.','bad'):''):'')+
       (iaqi.pm10?dr('PM10',iaqi.pm10.v+' µg/m³'):'')+
-      (iaqi.no2?dr('NO₂ (dioxyde d'azote)',iaqi.no2.v+' µg/m³'):'');
+      (iaqi.no2?dr('NO₂ (dioxyde d\'azote)',iaqi.no2.v+' µg/m³'):'');
   }).catch(function(){el.innerHTML='<div class="interp warn">Service WAQI indisponible. Réessayez dans quelques instants.</div>';});
 }
 
@@ -1105,7 +1105,7 @@ function rclimat(d){
     var sun=daily.sunshine_duration?Math.round(daily.sunshine_duration[0]/3600):null;
     var wind=cur.wind_speed_10m?Math.round(cur.wind_speed_10m):null;
     var hum=cur.relative_humidity_2m||null;
-    var interp=t!==null?(t<5?'Temps froid — prévoir chauffage actif, impact sur la consommation énergétique.':t<15?'Température fraîche, journée typique de demi-saison.':t<25?'Conditions agréables, températures dans la norme saisonnière.':'Chaleur notable — vérifier la qualité de l'isolation du bien.'): '';
+    var interp=t!==null?(t<5?'Temps froid — prévoir chauffage actif, impact sur la consommation énergétique.':t<15?'Température fraîche, journée typique de demi-saison.':t<25?'Conditions agréables, températures dans la norme saisonnière.':'Chaleur notable — vérifier la qualité de l\'isolation du bien.'): '';
     el.innerHTML=
       '<div style="display:flex;align-items:center;gap:.75rem;background:var(--g1);border-radius:10px;padding:.6rem;margin-bottom:.5rem">'+
         '<div style="font-size:2.2rem">'+em+'</div>'+
