@@ -1188,6 +1188,16 @@ function renderServices(d){
 
 function loadMobilityOSM(d){
   var _addrM=d.lat+','+d.lng;
+  // Card diagnostic posée TOUT DE SUITE (avant même le fetch) pour prouver l'exécution
+  var tc0=document.getElementById('transContent');
+  if(tc0){
+    tc0.insertAdjacentHTML('beforeend',
+      '<div class="card" style="background:#f0fdf4;border-left:3px solid #059669">'+
+      '<div class="card-title" id="mobilityDiag">🚦 Mobilité complémentaire · chargement…</div>'+
+      '<div id="mobilityBody" style="font-size:.72rem;color:var(--g5)"></div></div>');
+  }
+  // Délai 800ms pour désynchroniser avec loadServicesOSM (éviter rate-limit Overpass)
+  setTimeout(function(){
   var q='[out:json][timeout:12];('+
     'node["amenity"="parking"](around:500,'+d.lat+','+d.lng+');'+
     'way["amenity"="parking"](around:500,'+d.lat+','+d.lng+');'+
@@ -1197,7 +1207,11 @@ function loadMobilityOSM(d){
   fetch('https://overpass-api.de/api/interpreter?data='+encodeURIComponent(q))
     .then(function(r){return r.ok?r.json():null;})
     .then(function(res){
-      if(!res||!res.elements)return;
+      if(!res||!res.elements){
+        var diag=document.getElementById('mobilityDiag');
+        if(diag)diag.innerHTML='🚦 Mobilité complémentaire · <span style="color:#dc2626">réponse Overpass vide (rate-limit?)</span>';
+        return;
+      }
       var parks=[],velos=[],taxis=[];
       res.elements.forEach(function(e){
         var lat=e.lat||(e.center&&e.center.lat);
@@ -1232,7 +1246,10 @@ function loadMobilityOSM(d){
       // Rendu dans l'onglet Transports (append)
       var tc=document.getElementById('transContent');
       if(!tc)return;
-      var html='<div class="card" style="background:#f0fdf4;border-left:3px solid #059669"><div class="card-title">🚦 Mobilité complémentaire</div><div style="font-size:.72rem;color:var(--g5)">'+parks.length+' parking(s) · '+velos.length+' vélo(s) · '+taxis.length+' taxi(s) trouvés via Overpass</div></div>';
+      // Compléter la card de diagnostic déjà posée avec les counts réels
+      var diag=document.getElementById('mobilityDiag');
+      if(diag)diag.innerHTML='🚦 Mobilité : '+parks.length+' parking(s) · '+velos.length+' vélo(s) · '+taxis.length+' taxi(s) dans 500-800m';
+      var html='';
       function poiLine(e,ico,subFn){
         var sub=subFn(e)||'';
         return'<div class="poi-item"><div style="flex:1;min-width:0"><div class="poi-name">'+ico+' '+(e.tags.name||'—')+'</div>'+
@@ -1303,7 +1320,11 @@ function loadMobilityOSM(d){
           });
         }
       }
-    }).catch(function(){});
+    }).catch(function(err){
+      var diag=document.getElementById('mobilityDiag');
+      if(diag)diag.innerHTML='🚦 Mobilité complémentaire · <span style="color:#dc2626">erreur Overpass ('+(err&&err.message||'timeout')+')</span>';
+    });
+  },800);
 }
 
 function loadServicesOSM(d){
