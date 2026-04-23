@@ -350,6 +350,7 @@ html,body{width:100%;height:100%;font-family:var(--sans);background:var(--bg);co
         <div class="tab" data-tab="air" onclick="switchTab('air',this)">🌬️ Air</div>
         <div class="tab" data-tab="demo" onclick="switchTab('demo',this)">👥 Démographie</div>
         <div class="tab" data-tab="batiment" onclick="switchTab('batiment',this)">🏗️ Bâtiment</div>
+        <div class="tab" data-tab="commune" onclick="switchTab('commune',this)">🏘️ Commune</div>
       </div>
 
       <div id="pload"><div class="loader"></div><div class="load-txt">Analyse en cours…</div></div>
@@ -600,12 +601,12 @@ function loadReport(){
   openPanel();
   Promise.all([
     sr('address_profile?code_commune=eq.'+cc+'&select=dvf_prix_m2_median,dvf_prix_m2_p25,dvf_prix_m2_p75,dvf_prix_m2_trend_1y,dpe_etiquette_modale,dpe_nb_bilans,bpe_score_global,bpe_score_transport,bpe_score_education,score_potentiel_dpe&dvf_prix_m2_median=not.is.null&order=dvf_prix_m2_median.desc&limit=1'),
-    sf('score_localisation_commune',{code_commune:cc},1),
+    sr('score_localisation_commune?code_commune=eq.'+cc+'&select=score_localisation,score_accessibilite,score_securite,score_services,score_risques_naturels,score_dynamisme,detail_accessibilite,detail_dynamisme&limit=1'),
     sr('dvf_mutations?code_commune=eq.'+cc+'&select=valeur_fonciere,surface_reelle_bati,type_local,date_mutation&order=date_mutation.desc&limit=200'),
     sr('dpe_diagnostics?code_postal=eq.'+cp+'&select=classe_energie,date_reception_dpe&limit=500'),
     sf('data_georisques',{code_commune:cc},1),sf('data_plu_communes',{code_commune:cc},1),
     sf('data_bdnb_batiments',{code_commune_insee:cc},50),
-    sf('data_demographie_commune',{code_commune:cc},1),sf('poi_scores_commune',{code_commune:cc},1),
+    sf('data_demographie_commune',{code_commune:cc},1),sf('poi_scores_commune',{code_commune:cc},1),sf('commune_wiki',{code_commune:cc},1),
     sf('data_qualite_eau',{code_commune:cc},1),
     sr('ml_training_v8?code_commune=eq.'+cc+'&select=prix_m2_target,prix_zone_median,revenu_median_commune&limit=20'),
     sr('transport_stops?code_commune=eq.'+cc+'&select=stop_id,stop_name,stop_lat,stop_lon,network_name,agency_name&limit=200'),
@@ -615,7 +616,7 @@ function loadReport(){
     curD={geo:geo,cc:cc,cp:cp,lat:lat,lng:lng,
       ap:R[0],sc:R[1][0]||null,dvf:R[2],dpe:R[3],risk:R[4][0]||null,plu:R[5][0]||null,
       bdnb:R[6],demo:R[7][0]||null,poi:R[8][0]||null,eau:R[9][0]||null,
-      ml:R[10],trans:R[11],ecoles:R[12]};
+      ml:R[10],trans:R[11],ecoles:R[12],wiki:R[13]&&R[13][0]||null};
     renderAll(curD);
     history.replaceState({},'','?lat='+lat+'&lng='+lng);
   });
@@ -839,69 +840,187 @@ function renderDPE(d){
 
 
 
-// TRANSPORTS
+// TRANSPORTS & INFRAS PUBLIQUES
 function renderTransports(d){
-  var by={};(d.trans||[]).forEach(function(t){var k=t.network_name||t.agency_name||'Réseau';if(!by[k])by[k]=[];by[k].push(t);});
+  var by={};
+  (d.trans||[]).forEach(function(t){
+    var k=t.network_name||t.agency_name||'Réseau';
+    if(!by[k])by[k]=[];
+    // Calculer distance pour chaque arrêt
+    if(t.stop_lat&&t.stop_lon)t._dist=dist(d.lat,d.lng,t.stop_lat,t.stop_lon);
+    by[k].push(t);
+  });
+  // Trier chaque réseau par distance
+  Object.keys(by).forEach(function(k){by[k].sort(function(a,b){return(a._dist||9999)-(b._dist||9999);});});
   var nb=(d.trans||[]).length;
   var reseaux=Object.keys(by).length;
+  var plusProche=nb>0?(d.trans||[]).filter(function(t){return t._dist;}).sort(function(a,b){return a._dist-b._dist;})[0]:null;
   document.getElementById('transK').innerHTML=
-    kpi(nb>50?'g':nb>10?'a':'r','Arrêts TC',fmtN(nb),'dans la commune')+
-    kpi('','Réseaux',reseaux,'lignes');
-  // Analyse
-  var noteT=nb>100?'Excellente desserte. Plus de 100 arrêts TC — commune très bien desservie, impact positif estimé +3 à +8% sur les prix.':
+    kpi(nb>50?'g':nb>10?'a':'r','Arrêts TC',fmtN(nb),'commune')+
+    kpi('','Réseaux',reseaux,'')+
+    kpi('','Plus proche',plusProche?fd(plusProche._dist):' — ','');
+  var noteT=nb>100?'Excellente desserte. Impact estimé +3 à +8% sur les prix par rapport à communes moins bien desservies.':
     nb>20?'Bonne desserte ('+nb+' arrêts). Mobilité quotidienne possible sans voiture.':
-    nb>5?'Desserte modérée. Horaires probablement limités — vérifier les lignes disponibles.':
-    nb>0?'Très peu d\'arrêts ('+nb+'). Dépendance à la voiture.':'Aucun arrêt TC reference dans la commune.';
-  var html=interp(noteT,nb>100?'good':nb>20?'':nb>5?'warn':'bad');
-  if(nb>0)html+=scaleBar({label:'Arrêts TC vs communes françaises',val:Math.min(nb,200),min:0,p25:5,med:30,p75:80,max:200,unit:'',obs:nb+' arrêts',color:nb>80?'var(--green)':nb>20?'var(--blue)':'var(--amber)'});
-  if(!Object.keys(by).length){document.getElementById('transD').innerHTML=html+'<span class="empty">Aucun arrêt référencé</span>';return;}
-  Object.keys(by).slice(0,5).forEach(function(net){
-    html+='<div style="margin-bottom:.5rem"><div style="font-size:.7rem;font-weight:700;color:var(--blue);margin-bottom:.2rem">🚌 '+net+' ('+by[net].length+' arrêts)</div>';
-    by[net].slice(0,4).forEach(function(t){
-      var dd=t.stop_lat&&t.stop_lon?dist(d.lat,d.lng,t.stop_lat,t.stop_lon):null;
-      var mins=dd?Math.round(dd/80):'?';
-      html+='<div class="poi-item"><div><div class="poi-name">'+(t.stop_name||'—')+'</div></div><div class="poi-meta">'+
-        (dd?'<span class="poi-dist">'+fd(dd)+' · ~'+mins+'min</span>':'')+
-        (t.stop_lat&&t.stop_lon?'<a class="poi-nav" href="https://www.google.com/maps/dir/?api=1&destination='+t.stop_lat+','+t.stop_lon+'&origin='+d.lat+','+d.lng+'" target="_blank">↗</a>':'')+
-        '</div></div>';
+    nb>5?'Desserte modérée. Horaires probablement limités.':
+    nb>0?'Très peu d\'arrêts ('+nb+'). Voiture indispensable.':'Aucun arrêt TC référencé.';
+  var html=interp(noteT,nb>50?'good':nb>20?'':nb>5?'warn':'bad');
+  if(nb>0){
+    html+=scaleBar({label:'Arrêts TC vs communes françaises',val:Math.min(nb,200),min:0,p25:5,med:30,p75:80,max:200,unit:'',obs:nb+' arrêts',color:nb>80?'var(--green)':nb>20?'var(--blue)':'var(--amber)'});
+    Object.keys(by).slice(0,4).forEach(function(net){
+      html+='<div class="card"><div class="card-title">🚌 '+net+' · '+by[net].length+' arrêts</div>';
+      by[net].slice(0,5).forEach(function(t){
+        var dd=t._dist;var mins=dd?Math.round(dd/80):'?';
+        html+='<div class="poi-item"><div><div class="poi-name">'+(t.stop_name||'—')+'</div></div>'+
+          '<div class="poi-meta">'+(dd?'<span class="poi-dist">'+fd(dd)+' · '+mins+'min</span>':'')+
+          (t.stop_lat&&t.stop_lon?'<a class="poi-nav" href="https://www.google.com/maps/dir/?api=1&destination='+t.stop_lat+','+t.stop_lon+'&origin='+d.lat+','+d.lng+'" target="_blank">↗</a>':'')+
+          '</div></div>';
+      });
+      html+='</div>';
     });
-    html+='</div>';
-  });
+  }
   document.getElementById('transD').innerHTML=html;
+  // Charger infras publiques via Overpass
+  loadInfrasPubliques(d);
 }
 
-
+function loadInfrasPubliques(d){
+  var el=document.getElementById('scolD');
+  // D\'abord les écoles depuis Supabase
+  var etabs=(d.ecoles||[]).filter(function(e){return e.latitude&&e.longitude;});
+  if(etabs.length){
+    var h='';
+    etabs.sort(function(a,b){return dist(d.lat,d.lng,a.latitude,a.longitude)-dist(d.lat,d.lng,b.latitude,b.longitude);}).slice(0,8).forEach(function(e){
+      var dd=dist(d.lat,d.lng,e.latitude,e.longitude);
+      h+='<div class="poi-item"><div>'+
+        '<div class="poi-name">'+(e.nom||'—')+'</div>'+
+        '<div class="poi-sub">'+(e.type||'')+(e.secteur?' · '+e.secteur:'')+(e.taux_reussite_bac?' · Bac '+e.taux_reussite_bac+'%':'')+'</div>'+
+        '</div><div class="poi-meta"><span class="poi-dist">'+fd(dd)+'</span>'+
+        '<a class="poi-nav" href="https://www.google.com/maps/dir/?api=1&destination='+e.latitude+','+e.longitude+'&origin='+d.lat+','+d.lng+'" target="_blank">↗</a>'+
+        '</div></div>';
+    });
+    el.innerHTML=h;
+  }
+  // Infras publiques OSM : police, pompiers, hôpitaux, mairie, poste
+  var query='[out:json][timeout:12];('+
+    'node["amenity"~"police|fire_station|post_office|townhall|hospital|clinic"](around:3000,'+d.lat+','+d.lng+');'+
+    'node["amenity"="school"](around:1500,'+d.lat+','+d.lng+');'+
+    ');out 30;';
+  fetch('https://overpass-api.de/api/interpreter?data='+encodeURIComponent(query))
+    .then(function(r){return r.ok?r.json():null;})
+    .then(function(res){
+      if(!res||!res.elements)return;
+      var icoMap={police:'👮',fire_station:'🚒',post_office:'📮',townhall:'🏛️',hospital:'🏥',clinic:'🏥',school:'🏫'};
+      var nameMap={police:'Police / Gendarmerie',fire_station:'Pompiers',post_office:'La Poste',townhall:'Mairie',hospital:'Hôpital',clinic:'Clinique',school:'École'};
+      var groups={};
+      res.elements.filter(function(e){return e.tags&&e.lat&&e.lon;}).forEach(function(e){
+        var am=e.tags.amenity;
+        if(!groups[am])groups[am]=[];
+        e._dist=dist(d.lat,d.lng,e.lat,e.lon);
+        groups[am].push(e);
+      });
+      var html='';
+      Object.keys(groups).sort().forEach(function(am){
+        var items=groups[am].sort(function(a,b){return a._dist-b._dist;});
+        html+='<div class="card"><div class="card-title">'+(icoMap[am]||'📍')+' '+(nameMap[am]||am)+'</div>';
+        items.slice(0,3).forEach(function(e){
+          var dd=e._dist;var mins=Math.round(dd/80);
+          html+='<div class="poi-item"><div>'+
+            '<div class="poi-name">'+(e.tags.name||nameMap[am]||am)+'</div>'+
+            (e.tags['addr:street']?'<div class="poi-sub">'+e.tags['addr:street']+'</div>':'')+
+            '</div><div class="poi-meta"><span class="poi-dist">'+fd(dd)+' · '+mins+'min</span>'+
+            '<a class="poi-nav" href="https://www.google.com/maps/dir/?api=1&destination='+e.lat+','+e.lon+'&origin='+d.lat+','+d.lng+'" target="_blank">↗</a>'+
+            '</div></div>';
+        });
+        html+='</div>';
+      });
+      if(html){var div=document.createElement('div');div.innerHTML=html;document.getElementById('transD').insertAdjacentHTML('beforeend',div.innerHTML);}
+    }).catch(function(){});
+}
 
 // COMMERCES & SERVICES
 function renderCommerces(d){
   var poi=d.poi;
-  if(!poi){
-    document.getElementById('poiK').innerHTML=kpi('','Équipements','N/D','');
-    document.getElementById('poiD').innerHTML='<span class="empty">Données BPE non disponibles pour cette commune</span>';
-    return;
+  document.getElementById('poiK').innerHTML= poi?
+    kpi(Math.round(poi.score_global||0)>=70?'g':Math.round(poi.score_global||0)>=40?'a':'r','Score global',Math.round(poi.score_global||0),'/100')+
+    kpi('','Équipements BPE',fmtN(poi.nb_equipements||0),''):
+    kpi('','Équipements','N/D','');
+  if(poi){
+    var glob=Math.round(poi.score_global||0);
+    var note=glob>=70?'Commune bien équipée. Les services de proximité sont un critère d\'achat prioritaire.':
+      glob>=40?'Équipements corrects. Quelques services à distance en voiture.':
+      'Déficit d\'équipements — vérifier les communes limitrophes.';
+    var html=interp(note,glob>=70?'good':glob>=40?'':'warn');
+    html+=scaleBar({label:'Score équipements vs communes',val:glob,min:0,p25:30,med:50,p75:75,max:100,unit:'',color:glob>=70?'var(--green)':glob>=40?'var(--amber)':'var(--red)'});
+    ['score_transport','score_education','score_sante','score_commerce','score_loisirs'].forEach(function(k){
+      var v=poi[k]||0,label={'score_transport':'🚌 Transports','score_education':'📚 Éducation','score_sante':'🏥 Santé','score_commerce':'🛒 Commerce','score_loisirs':'🎭 Loisirs'}[k];
+      html+='<div class="bb"><div class="bbl">'+label+'</div><div class="bbr"><div class="bbf" style="width:'+v+'%;background:'+(v>=70?'var(--green)':v>=40?'var(--amber)':'var(--red)')+'"></div></div><div class="bbv">'+Math.round(v)+'</div></div>';
+    });
+    document.getElementById('poiD').innerHTML=html;
+  } else {
+    document.getElementById('poiD').innerHTML='<span class="empty">Score BPE non disponible</span>';
   }
-  var glob=Math.round(poi.score_global||0);
-  document.getElementById('poiK').innerHTML=
-    kpi(glob>=70?'g':glob>=40?'a':'r','Score global',glob,'/100')+
-    kpi('','Équipements',fmtN(poi.nb_equipements||0),'recensés BPE');
-  var notes={
-    score_transport:['Transports en commun quasi-absents. Dépendance totale à la voiture.','Desserte TC limitée. Voiture indispensable.','Desserte correcte. TC utilisables pour les trajets quotidiens.','Excellente desserte TC. Atout majeur pour la valorisation.'],
-    score_education:["Aucun équipement scolaire à proximité. Périscolaire contraint.",'Offre éducative limitée. Écoles élémentaires éloignées.','Bon maillage scolaire. Crèches, écoles et collèges accessibles.','Offre scolaire complète et de qualité.'],
-    score_sante:['Désert médical. Accès aux soins difficile — facteur dépréciatif.','Offre médicale insuffisante. Spécialistes éloignés.','Services de santé accessibles. Généralistes et pharmacies présents.','Forte densité médicale. Cliniques et spécialistes à proximité.'],
-    score_commerce:["Commune sans commerce de proximité. Courses en voiture obligatoires.",'Commerces rares. Supérette ou boulangerie éloignée.','Commerces de base accessibles. Vie de quartier présente.','Offre commerciale riche. Marché, supermarchés, commerces spécialisés.'],
-    score_loisirs:['Aucun équipement culturel ou sportif.','Offre culturelle et sportive limitée.','Salles de sport et espaces verts disponibles.','Offre loisirs complète : cinéma, salles de sport, musées, parcs.']
-  };
-  function getBand(v){return v>=75?3:v>=50?2:v>=25?1:0;}
-  var html=scaleBar({label:'Score global équipements vs communes',val:glob,min:0,p25:30,med:50,p75:75,max:100,unit:'',obs:'score BPE INSEE',note:glob>=70?'Commune bien équipée. Les services de proximité sont un critère d\'achat prioritaire (source: baromètre SeLoger 2023).':glob>=40?'Equipements corrects mais perfectibles.':'Déficit d\'équipements. Potentiel de tension locative.',noteType:glob>=70?'good':glob>=40?'':'warn',color:glob>=70?'var(--green)':glob>=40?'var(--amber)':'var(--red)'});
-  ['score_transport','score_education','score_sante','score_commerce','score_loisirs'].forEach(function(k){
-    var v=poi[k]||0;
-    var label={'score_transport':'🚌 Transports','score_education':'📚 Éducation','score_sante':'🏥 Santé','score_commerce':'🛒 Commerce','score_loisirs':'🎭 Loisirs'}[k];
-    html+='<div class="bb"><div class="bbl">'+label+'</div><div class="bbr"><div class="bbf" style="width:'+v+'%;background:'+(v>=70?'var(--green)':v>=40?'var(--amber)':'var(--red)')+'"></div></div><div class="bbv">'+Math.round(v)+'</div></div>';
-  });
-  document.getElementById('poiD').innerHTML=html;
+  // Charger commerces OSM avec distances
+  loadCommercesOSM(d);
 }
 
-
+function loadCommercesOSM(d){
+  var santeEl=document.getElementById('santeD');
+  var shopEl=document.getElementById('shopD');
+  var query='[out:json][timeout:12];('+
+    'node["amenity"~"hospital|pharmacy|doctors|clinic|dentist"](around:2000,'+d.lat+','+d.lng+');'+
+    'node["shop"~"supermarket|bakery|butcher|greengrocer|convenience|clothes|hardware"](around:800,'+d.lat+','+d.lng+');'+
+    'node["amenity"~"restaurant|cafe|bar|fast_food"](around:500,'+d.lat+','+d.lng+');'+
+    ');out 60;';
+  fetch('https://overpass-api.de/api/interpreter?data='+encodeURIComponent(query))
+    .then(function(r){return r.ok?r.json():null;})
+    .then(function(res){
+      if(!res||!res.elements){
+        santeEl.innerHTML='<span class="empty">Données OSM non disponibles</span>';
+        shopEl.innerHTML='<span class="empty">Données OSM non disponibles</span>';
+        return;
+      }
+      var sante=[],shop=[];
+      var santeTypes={hospital:'🏥 Hôpital',pharmacy:'💊 Pharmacie',doctors:'👨‍⚕️ Médecin',clinic:'🏥 Clinique',dentist:'🦷 Dentiste'};
+      res.elements.filter(function(e){return e.tags&&e.lat&&e.lon;}).forEach(function(e){
+        e._dist=dist(d.lat,d.lng,e.lat,e.lon);
+        if(santeTypes[e.tags.amenity])sante.push(e);
+        else shop.push(e);
+      });
+      sante.sort(function(a,b){return a._dist-b._dist;});
+      shop.sort(function(a,b){return a._dist-b._dist;});
+      // Santé
+      if(sante.length){
+        var h='';
+        sante.slice(0,8).forEach(function(e){
+          var mins=Math.round(e._dist/80);
+          h+='<div class="poi-item"><div>'+
+            '<div class="poi-name">'+(santeTypes[e.tags.amenity]||'🏥')+' '+(e.tags.name||'—')+'</div>'+
+            (e.tags['opening_hours']?'<div class="poi-sub">'+e.tags['opening_hours']+'</div>':'')+
+            '</div><div class="poi-meta"><span class="poi-dist">'+fd(e._dist)+' · '+mins+'min</span>'+
+            '<a class="poi-nav" href="https://www.google.com/maps/dir/?api=1&destination='+e.lat+','+e.lon+'&origin='+d.lat+','+d.lng+'" target="_blank">↗</a>'+
+            '</div></div>';
+        });
+        santeEl.innerHTML=h;
+      } else santeEl.innerHTML='<span class="empty">Aucun établissement de santé dans 2km</span>';
+      // Commerces
+      if(shop.length){
+        var h2='';
+        var shopIco={supermarket:'🛒',bakery:'🥖',butcher:'🥩',greengrocer:'🥦',convenience:'🏪',clothes:'👕',hardware:'🔧',restaurant:'🍽️',cafe:'☕',bar:'🍺',fast_food:'🍔'};
+        shop.slice(0,10).forEach(function(e){
+          var mins=Math.round(e._dist/80);
+          var type=e.tags.shop||e.tags.amenity||'';
+          h2+='<div class="poi-item"><div>'+
+            '<div class="poi-name">'+(shopIco[type]||'🛒')+' '+(e.tags.name||type||'—')+'</div>'+
+            '</div><div class="poi-meta"><span class="poi-dist">'+fd(e._dist)+' · '+mins+'min</span>'+
+            '</div></div>';
+        });
+        shopEl.innerHTML=h2;
+      } else shopEl.innerHTML='<span class="empty">Aucun commerce dans 800m</span>';
+    }).catch(function(){
+      santeEl.innerHTML='<span class="empty">Service temporairement indisponible</span>';
+      shopEl.innerHTML='<span class="empty">Service temporairement indisponible</span>';
+    });
+}
 
 // EAU
 function renderEau(d){
@@ -929,7 +1048,7 @@ function renderEau(d){
   document.getElementById('eauD').innerHTML=html;
 }
 
-// DEMO — benchmarks nationaux
+// DEMO — données réelles INSEE
 function renderDemo(d){
   var dm=d.demo;
   if(!dm){
@@ -937,47 +1056,101 @@ function renderDemo(d){
     document.getElementById('demoD').innerHTML='<span class="empty">Données démographiques non disponibles</span>';
     return;
   }
-  var pop=dm.population_2024||dm.population_2020||0;
-  var revenu=dm.revenu_median_uc||null;
-  var chomage=dm.taux_chomage||null;
-  var proprios=dm.part_proprietaires||null;
-  var pauvrete=dm.taux_pauvrete||null;
+  var pop=dm.population_2024||dm.population_2019||0;
+  var dens=dm.densite_hab_km2||null;
+  var evol=dm.evolution_pop_5ans_pct||null;
+  var age=dm.age_moyen||null;
+  var menages=dm.nb_menages||null;
+  var tailleMen=dm.taille_menage_moy||null;
+  var monopar=dm.pct_familles_monoparentales||null;
+  var seuls=dm.pct_personnes_seules||null;
+  var couples=dm.pct_couples_avec_enfants||null;
   document.getElementById('demoK').innerHTML=
     kpi('','Population',fmtN(pop),'')+
-    kpi(revenu&&revenu>24000?'g':revenu&&revenu<18000?'r':'','Revenu médian/UC',revenu?fmt(revenu):'—','nat: 22 500€')+
-    kpi(chomage>12?'r':chomage>8?'a':'g','Chômage',chomage?chomage+'%':'—','nat: 7%');
+    kpi(evol!=null&&evol>2?'g':evol!=null&&evol<-2?'r':'','Évolution 5 ans',evol!=null?(evol>0?'+':'')+evol.toFixed(1)+'%':'—','')+
+    kpi('','Densité',dens?fmtN(dens)+' hab/km²':'—','');
   var html='';
-  // Revenu
-  if(revenu){
-    var diffR=Math.round(revenu-22500);
-    var noteR=diffR>2000?'Revenu médian '+fmt(diffR)+' au-dessus de la nationale (22 500€/UC). Territoire attractif, marché immobilier soutenu.':
-      diffR<-2000?'Revenu médian '+fmt(Math.abs(diffR)+' en-dessous de la nationale. Pouvoir d\'achat immobilier limité — frein sur les prix.'):
-      'Revenu en ligne avec la médiane nationale. Marché équilibré.';
-    html+=scaleBar({label:'Revenu médian/UC vs national',val:revenu,min:12000,p25:18000,med:22500,p75:28000,max:45000,unit:'€',note:noteR,noteType:diffR>2000?'good':diffR<-2000?'warn':'',color:diffR>0?'var(--green)':'var(--amber)'});
+  // Évolution population
+  if(evol!=null){
+    var noteEvol=evol>5?'Forte croissance démographique (+'+evol.toFixed(1)+'%). Commune attractive, tension haussière sur le marché immobilier.':
+      evol>0?'Légère croissance (+'+evol.toFixed(1)+'%). Dynamisme modéré, marché stable.':
+      evol>-2?'Population quasi-stable ('+evol.toFixed(1)+'%). Marché équilibré.':
+      'Déclin démographique ('+evol.toFixed(1)+'%). Vigilance sur la demande locative.';
+    html+=scaleBar({label:'Évolution population 5 ans',val:evol,min:-10,p25:-1,med:0.5,p75:3,max:15,unit:'%',note:noteEvol,noteType:evol>5?'good':evol>0?'':evol>-2?'warn':'bad',color:evol>0?'var(--green)':'var(--red)'});
   }
-  // Chômage
-  if(chomage!=null){
-    var noteC=chomage<5?'Très faible chômage ('+chomage+'% vs 7% national). Territoire économiquement dynamique.':
-      chomage<8?'Chômage proche de la moyenne nationale (7%). Marché du travail équilibré.':
-      chomage<12?'Chômage au-dessus de la nationale ('+chomage+'% vs 7%). Tension économique modérée.':
-      'Fort chômage ('+chomage+'% vs 7% national). Impact sur le marché locatif et la solvabilité des acheteurs.';
-    html+=scaleBar({label:'Taux de chômage vs national',val:chomage,min:2,p25:5,med:7,p75:11,max:25,unit:'%',note:noteC,noteType:chomage>12?'bad':chomage>8?'warn':chomage<5?'good':'',color:chomage>10?'var(--red)':chomage>7?'var(--amber)':'var(--green)'});
+  // Densité
+  if(dens!=null){
+    var noteDens=dens>5000?'Commune très dense ('+fmtN(dens)+' hab/km²). Tissu urbain dense — offre locative abondante.':
+      dens>1000?'Commune urbaine ('+fmtN(dens)+' hab/km²). Bonne accessibilité aux services.':
+      dens>200?'Commune péri-urbaine. Équilibre entre espace et services.':
+      'Commune rurale ou peu dense. Services éloignés — vérifier les transports.';
+    html+=scaleBar({label:'Densité vs communes françaises',val:Math.min(dens,8000),min:0,p25:80,med:300,p75:1500,max:8000,unit:' hab/km²',note:noteDens,noteType:dens>1000?'good':dens>200?'':dens<50?'warn':'',color:'var(--blue)'});
   }
-  // Propriétaires
-  if(proprios!=null){
-    var noteP=proprios>65?proprios+'% de propriétaires (national: 57%). Commune résidentielle stable, demande locative plus faible.':
-      proprios<45?'Seulement '+proprios+'% de propriétaires. Forte demande locative — intéressant pour un investissement.':
-      proprios+'% de propriétaires, dans la norme nationale (57%).';
-    html+=scaleBar({label:'Part propriétaires vs nationale',val:proprios,min:20,p25:45,med:57,p75:70,max:90,unit:'%',note:noteP,noteType:proprios>65?'good':proprios<40?'warn':'',color:'var(--blue)'});
+  // Structure ménages
+  if(tailleMen||seuls||couples){
+    html+='<div class="card"><div class="card-title">Structure des ménages</div>';
+    if(tailleMen)html+=dr('Taille moyenne ménage',tailleMen.toFixed(1)+' personnes');
+    if(age)html+=dr('Âge moyen',age.toFixed(1)+' ans');
+    if(seuls!=null)html+=dr('Personnes seules',seuls.toFixed(1)+'%')+(seuls>40?interp('Part élevée de personnes seules — forte demande de petits logements (T1/T2).',''):  '');
+    if(couples!=null)html+=dr('Couples avec enfants',couples.toFixed(1)+'%')+(couples>35?interp('Forte proportion de familles — demande soutenue en grands logements et écoles.','good'):'');
+    if(monopar!=null)html+=dr('Familles monoparentales',monopar.toFixed(1)+'%');
+    html+='</div>';
   }
-  // Pauvreté
-  if(pauvrete!=null){
-    html+=scaleBar({label:'Taux de pauvreté vs national',val:pauvrete,min:3,p25:10,med:15,p75:22,max:45,unit:'%',note:pauvrete>20?'Taux de pauvreté élevé. Indicateur de fragilité sociale à surveiller pour un investissement locatif.':pauvrete<10?'Très faible taux de pauvreté. Territoire aisé.':null,noteType:pauvrete>20?'warn':pauvrete<10?'good':'',color:pauvrete>20?'var(--red)':pauvrete>15?'var(--amber)':'var(--green)'});
-  }
-  document.getElementById('demoD').innerHTML=html||'<span class="empty">Données socio-économiques incomplètes</span>';
+  document.getElementById('demoD').innerHTML=html||dr('Population',fmtN(pop));
 }
 
-
+// COMMUNE — description wiki + analyse territoire
+function renderCommune(d){
+  var el=document.getElementById('communeD');
+  if(!el)return;
+  var wiki=d.wiki;
+  var sc=d.sc;
+  var dem=d.demo;
+  var html='';
+  // Description naturelle depuis commune_wiki
+  if(wiki&&wiki.description&&wiki.description.length>50){
+    html+='<div class="card"><div class="card-title">🏘️ Présentation de '+d.geo.city+'</div>'+
+      '<p style="font-size:.8rem;line-height:1.6;color:var(--g5);margin-bottom:.5rem">'+wiki.description+'</p>'+
+      '</div>';
+  }
+  // Analyse territoire en langage naturel
+  var analyses=[];
+  if(sc){
+    var s=Math.round(sc.score_localisation||0);
+    analyses.push(d.geo.city+' obtient un score de localisation de '+s+'/100. '+
+      (s>=70?'C\'est un excellent emplacement, reconnu pour la qualité de ses infrastructures et de son cadre de vie.':
+       s>=50?'La commune offre un cadre de vie correct avec des points forts à valoriser.':
+       'La commune présente des axes d\'amélioration en termes d\'accessibilité et de services.'));
+    if(sc.detail_accessibilite)analyses.push(sc.detail_accessibilite);
+    if(sc.detail_dynamisme)analyses.push(sc.detail_dynamisme);
+  }
+  if(dem){
+    var pop=dem.population_2024||dem.population_2019||0;
+    var evol=dem.evolution_pop_5ans_pct;
+    if(pop>0)analyses.push('La commune compte '+fmtN(pop)+' habitants'+(evol!=null?' avec une évolution de population de '+(evol>0?'+':'')+evol.toFixed(1)+'% sur 5 ans':'')+'.');
+    if(dem.densite_hab_km2)analyses.push('Avec '+fmtN(dem.densite_hab_km2)+' habitants par km², c\'est une commune '+(dem.densite_hab_km2>5000?'très dense':dem.densite_hab_km2>1000?'urbaine':dem.densite_hab_km2>200?'péri-urbaine':'rurale')+'.');
+  }
+  if(analyses.length){
+    html+='<div class="card"><div class="card-title">📊 Analyse du territoire</div>';
+    analyses.forEach(function(a){
+      html+='<p style="font-size:.8rem;line-height:1.6;color:var(--g5);margin-bottom:.4rem">'+a+'</p>';
+    });
+    html+='</div>';
+  }
+  // Données SEO structurées (invisible, pour le SEO si la page est indexée)
+  var seoData={
+    '@context':'https://schema.org',
+    '@type':'RealEstateListing',
+    'name':'Analyse immobilière — '+d.geo.label,
+    'description':wiki&&wiki.description?wiki.description:'Rapport d\'analyse immobilière pour '+d.geo.label,
+    'addressLocality':d.geo.city,
+    'postalCode':d.cp,
+    'addressCountry':'FR'
+  };
+  html+='<script type="application/ld+json">'+JSON.stringify(seoData)+'<\/script>';
+  if(!html){el.innerHTML='<span class="empty">Données commune non disponibles</span>';return;}
+  el.innerHTML=html;
+}
 
 // BATIMENT
 function renderBatiment(d){
@@ -1086,221 +1259,43 @@ function rair(d){
   }).catch(function(){el.innerHTML='<div class="interp warn">Service WAQI indisponible. Réessayez dans quelques instants.</div>';});
 }
 
-// ASYNC : Climat
+// ASYNC : Météo
 function rclimat(d){
   var el=document.getElementById('climatD');
-  var url='https://api.open-meteo.com/v1/forecast?latitude='+d.lat+'&longitude='+d.lng+
+  var url='https://api.open-meteo.com/v1/forecast?latitude='+d.lat.toFixed(4)+'&longitude='+d.lng.toFixed(4)+
     '&current=temperature_2m,weather_code,wind_speed_10m,relative_humidity_2m'+
     '&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,sunshine_duration'+
-    '&timezone=auto&forecast_days=3';
-  fetch(url).then(function(r){return r.ok?r.json():Promise.reject();}).then(function(res){
-    var cur=res.current||{},daily=res.daily||{};
-    var wc=cur.weather_code||0;
-    var em=wc===0?'☀️':wc<=3?'🌤️':wc<=45?'🌥️':wc<=49?'🌫️':wc<=67?'🌧️':wc<=77?'🌨️':wc<=82?'🌦️':'⛈️';
-    var desc=wc===0?'Ciel dégagé':wc<=3?'Peu nuageux':wc<=45?'Nuageux':wc<=49?'Brouillard':wc<=67?'Pluie':wc<=77?'Neige':wc<=82?'Averses':'Orage';
-    var t=cur.temperature_2m!=null?Math.round(cur.temperature_2m):null;
-    var tmin=daily.temperature_2m_min?Math.round(daily.temperature_2m_min[0]):null;
-    var tmax=daily.temperature_2m_max?Math.round(daily.temperature_2m_max[0]):null;
-    var rain=daily.precipitation_sum?Math.round(daily.precipitation_sum[0]*10)/10:0;
-    var sun=daily.sunshine_duration?Math.round(daily.sunshine_duration[0]/3600):null;
-    var wind=cur.wind_speed_10m?Math.round(cur.wind_speed_10m):null;
-    var hum=cur.relative_humidity_2m||null;
-    var interp=t!==null?(t<5?'Temps froid — prévoir chauffage actif, impact sur la consommation énergétique.':t<15?'Température fraîche, journée typique de demi-saison.':t<25?'Conditions agréables, températures dans la norme saisonnière.':'Chaleur notable — vérifier la qualité de l\'isolation du bien.'): '';
-    el.innerHTML=
-      '<div style="display:flex;align-items:center;gap:.75rem;background:var(--g1);border-radius:10px;padding:.6rem;margin-bottom:.5rem">'+
-        '<div style="font-size:2.2rem">'+em+'</div>'+
-        '<div style="flex:1">'+
-          '<div style="font-size:1.5rem;font-weight:800;letter-spacing:-.04em;line-height:1">'+(t!==null?t+'°C':'—')+'</div>'+
-          '<div style="font-size:.72rem;color:var(--g5);margin-top:.1rem">'+desc+(wind?' · Vent '+wind+' km/h':'')+'</div>'+
+    '&timezone=Europe%2FParis&forecast_days=3';
+  fetch(url)
+    .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();})
+    .then(function(res){
+      var cur=res.current||{},daily=res.daily||{};
+      var wc=parseInt(cur.weather_code)||0;
+      var em=wc===0?'☀️':wc<=3?'🌤️':wc<=45?'🌥️':wc<=49?'🌫️':wc<=67?'🌧️':wc<=77?'🌨️':wc<=82?'🌦️':'⛈️';
+      var desc=wc===0?'Ciel dégagé':wc<=3?'Peu nuageux':wc<=45?'Nuageux':wc<=49?'Brouillard':wc<=67?'Pluie':wc<=77?'Neige':wc<=82?'Averses':'Orage';
+      var t=cur.temperature_2m!=null?Math.round(cur.temperature_2m):null;
+      var tmin=daily.temperature_2m_min&&daily.temperature_2m_min[0]!=null?Math.round(daily.temperature_2m_min[0]):null;
+      var tmax=daily.temperature_2m_max&&daily.temperature_2m_max[0]!=null?Math.round(daily.temperature_2m_max[0]):null;
+      var rain=daily.precipitation_sum&&daily.precipitation_sum[0]!=null?Math.round(daily.precipitation_sum[0]*10)/10:0;
+      var sun=daily.sunshine_duration&&daily.sunshine_duration[0]!=null?Math.round(daily.sunshine_duration[0]/3600):null;
+      var wind=cur.wind_speed_10m!=null?Math.round(cur.wind_speed_10m):null;
+      var hum=cur.relative_humidity_2m!=null?cur.relative_humidity_2m:null;
+      var noteT=t!=null?(t<5?'Temps froid — prévoir chauffage actif, impact sur la consommation énergétique du logement.':t<15?'Température fraîche, journée typique de demi-saison.':t<25?'Conditions agréables, températures dans la norme saisonnière.':'Chaleur notable — vérifier la qualité de l\'isolation thermique du bien.'):'';
+      el.innerHTML=
+        '<div style="display:flex;align-items:center;gap:.75rem;background:var(--g1);border-radius:10px;padding:.6rem;margin-bottom:.5rem">'+
+          '<div style="font-size:2.2rem">'+em+'</div>'+
+          '<div style="flex:1"><div style="font-size:1.5rem;font-weight:800;letter-spacing:-.04em;line-height:1">'+(t!=null?t+'°C':'—')+'</div>'+
+          '<div style="font-size:.72rem;color:var(--g5);margin-top:.1rem">'+desc+(wind?' · Vent '+wind+' km/h':'')+'</div></div>'+
+          (tmin!=null&&tmax!=null?'<div style="text-align:right"><div style="font-size:.6rem;color:var(--g4)">min/max</div><div style="font-family:var(--mono);font-weight:700;font-size:.78rem">'+tmin+'°/'+tmax+'°</div></div>':'')+
         '</div>'+
-        (tmin!==null&&tmax!==null?'<div style="text-align:right"><div style="font-size:.65rem;color:var(--g4)">min/max</div><div style="font-family:var(--mono);font-weight:700;font-size:.8rem">'+tmin+'°/'+tmax+'°</div></div>':'')+
-      '</div>'+
-      (interp?'<div class="interp">'+interp+'</div>':'')+
-      dr('Humidité',hum?hum+'%':'—')+
-      dr('Précipitations',rain?rain+'mm':'0mm')+
-      (sun!==null?dr('Ensoleillement',sun+'h'):'')+
-      '<div class="cmp-block" style="margin-top:.5rem">'+
-        '<div class="cmp-label"><span>Température vs normale</span><span>'+(t!==null?t+'°C':'—')+'</span></div>'+
-        '<div class="cmp-track"><div class="cmp-fill" style="width:'+Math.min(100,Math.max(5,t!=null?(t+10)/45*100:50))+'%;background:var(--amber)"></div>'+
-          (t!==null?'<div class="cmp-marker" style="left:'+Math.min(100,Math.max(5,(t+10)/45*100))+'%;background:var(--k)"></div>':'')+
-        '</div><div class="cmp-legend"><span>-10°</span><span>Normale: 15°</span><span>35°</span></div>'+
-      '</div>';
-  }).catch(function(){el.innerHTML='<div class="interp warn">Données météo temporairement indisponibles.</div>';});
-}
-
-
-// COMPARISON SLIDER helper
-function cmpSlider(label, val, valSecteur, valNational, min, max, unit, color){
-  if(val==null)return'';
-  var pct=Math.min(100,Math.max(3,(val-min)/(max-min)*100));
-  var pctS=valSecteur!=null?Math.min(100,Math.max(3,(valSecteur-min)/(max-min)*100)):null;
-  var pctN=valNational!=null?Math.min(100,Math.max(3,(valNational-min)/(max-min)*100)):null;
-  return'<div class="cmp-block">'+
-    '<div class="cmp-label"><span>'+label+'</span><span>'+Math.round(val)+unit+'</span></div>'+
-    '<div class="cmp-track">'+
-      '<div class="cmp-fill" style="width:'+pct+'%;background:'+color+'"></div>'+
-      '<div class="cmp-marker" style="left:'+pct+'%;background:'+color+'"></div>'+
-      (pctS!=null?'<div class="cmp-marker" style="left:'+pctS+'%;background:var(--g4)"></div>':'')+
-      (pctN!=null?'<div class="cmp-marker" style="left:'+pctN+'%;background:var(--g5);border-style:dashed"></div>':'')+
-    '</div>'+
-    '<div class="cmp-legend">'+
-      '<span>'+min+unit+'</span>'+
-      (pctS!=null?'<span style="color:var(--g4)">Secteur: '+Math.round(valSecteur)+unit+'</span>':'<span></span>')+
-      '<span>'+max+unit+'</span>'+
-    '</div>'+
-  '</div>';
-}
-
-// INTERPRETATION helper
-function interp(msg, type){return'<div class="interp '+(type||'')+'">'+msg+'</div>';}
-
-// MAP LAYERS : DVF + POI
-function loadMapLayers(d){
-  mGroup.clearLayers();
-  // Cadastre polygon (déjà fait dans rcadastre)
-  // DVF colored dots
-  var dvfF=d.dvf.filter(function(r){return r.surface_reelle_bati>=9&&r.valeur_fonciere>=5000;});
-  var prices=dvfF.map(function(r){return r.valeur_fonciere/r.surface_reelle_bati;}).filter(function(v){return v>500&&v<50000;}).sort(function(a,b){return a-b;});
-  var med=prices.length?prices[Math.floor(prices.length/2)]:0;
-  // Pour DVF on a besoin des coords — on utilise la position approx (commune centroïde + bruit)
-  // Afficher les arrêts TC sur la carte
-  (d.trans||[]).slice(0,80).forEach(function(t){
-    if(!t.stop_lat||!t.stop_lon)return;
-    var dd=dist(d.lat,d.lng,t.stop_lat,t.stop_lon);
-    var m=L.marker([t.stop_lat,t.stop_lon],{icon:L.divIcon({className:'',html:'<div class="poi-dot" style="background:#2563eb"></div>',iconSize:[10,10],iconAnchor:[5,5]})});
-    m.bindPopup(mkPop('🚌','Arrêt TC',(t.stop_name||'—'),(t.network_name||''),dd,'#2563eb',t.stop_lat,t.stop_lon,d));
-    mGroup.addLayer(m);
-  });
-  // Écoles sur la carte
-  (d.ecoles||[]).filter(function(e){return e.latitude&&e.longitude;}).forEach(function(e){
-    var dd=dist(d.lat,d.lng,e.latitude,e.longitude);
-    var m=L.marker([e.latitude,e.longitude],{icon:L.divIcon({className:'',html:'<div class="poi-dot" style="background:#16a34a"></div>',iconSize:[10,10],iconAnchor:[5,5]})});
-    var detail=e.taux_reussite_bac?'Bac: '+e.taux_reussite_bac+'%':(e.type||'');
-    m.bindPopup(mkPop('📚','École',(e.nom||'—'),detail,dd,'#16a34a',e.latitude,e.longitude,d));
-    mGroup.addLayer(m);
-  });
-}
-
-function mkPop(ico,type,name,detail,dd,color,lat,lng,d){
-  var gmaps='https://www.google.com/maps/dir/?api=1&destination='+lat+','+lng+'&origin='+d.lat+','+d.lng;
-  return'<div class="pop">'+
-    '<div class="pop-tag" style="color:'+color+'">'+type+'</div>'+
-    '<div class="pop-name">'+ico+' '+name+'</div>'+
-    (detail?'<div style="font-size:.7rem;color:var(--g5);margin-bottom:.3rem">'+detail+'</div>':'')+
-    '<div style="font-family:var(--mono);font-size:.68rem;color:var(--g4);margin-bottom:.4rem">'+fd(dd)+' · ~'+Math.round(dd/80)+' min à pied</div>'+
-    '<a href="'+gmaps+'" target="_blank" style="display:block;padding:.35rem .5rem;background:var(--k);color:#fff;border-radius:7px;text-align:center;font-size:.7rem;font-weight:700;text-decoration:none">↗ Itinéraire Google Maps</a>'+
-  '</div>';
-}
-
-// Charger POI OSM et les mettre sur la carte
-function loadOSMOnMap(d){
-  fetch('https://overpass-api.de/api/interpreter?data=[out:json][timeout:10];(node["amenity"~"hospital|pharmacy|doctors|dentist"](around:1500,'+d.lat+','+d.lng+');node["shop"](around:600,'+d.lat+','+d.lng+');node["amenity"~"restaurant|cafe|supermarket"](around:500,'+d.lat+','+d.lng+'););out 50;')
-    .then(function(r){return r.ok?r.json():null;})
-    .then(function(res){
-      if(!res||!res.elements)return;
-      var colMap={hospital:'#dc2626',pharmacy:'#dc2626',doctors:'#dc2626',dentist:'#dc2626'};
-      res.elements.filter(function(e){return e.tags&&e.tags.name&&e.lat&&e.lon;}).slice(0,40).forEach(function(e){
-        var amenity=e.tags.amenity||'shop';
-        var isHealth=colMap[amenity];
-        var col=isHealth?'#dc2626':'#d97706';
-        var ico=isHealth?'🏥':e.tags.amenity==='restaurant'?'🍽️':e.tags.amenity==='cafe'?'☕':'🛒';
-        var dd=dist(d.lat,d.lng,e.lat,e.lon);
-        var m=L.marker([e.lat,e.lon],{icon:L.divIcon({className:'',html:'<div class="poi-dot-sq" style="background:'+col+'"></div>',iconSize:[10,10],iconAnchor:[5,5]})});
-        m.bindPopup(mkPop(ico,(e.tags.amenity||e.tags.shop||'Commerce'),(e.tags.name||'—'),(e.tags['addr:street']||''),dd,col,e.lat,e.lon,d));
-        mGroup.addLayer(m);
-      });
-    }).catch(function(){});
-}
-
-
-// ── SCALE BAR : échelle comparaison avec marqueur bien ──
-function scaleBar(opts){
-  // opts: {label, val, min, p25, med, p75, max, unit, note, obs, color}
-  if(opts.val==null||opts.min==null||opts.max==null)return'';
-  var range=opts.max-opts.min;if(range<=0)return'';
-  function pct(v){return Math.min(98,Math.max(2,(v-opts.min)/range*100));}
-  var vp=pct(opts.val);
-  var col=opts.color||'var(--blue)';
-  var diff=opts.med?opts.val-opts.med:null;
-  var diffTxt=diff!=null?(diff>0?'+':'')+Math.round(diff)+(opts.unit||''):null;
-  var diffCol=diff>0?'var(--red)':diff<0?'var(--green)':'var(--g5)';
-  return'<div style="margin:.6rem 0">'+
-    '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:.25rem">'+
-      '<span style="font-size:.68rem;font-weight:700;color:var(--g5)">'+opts.label+'</span>'+
-      '<span style="font-size:.7rem;font-weight:800;font-family:var(--mono)">'+Math.round(opts.val)+(opts.unit||'')+(opts.obs?' <span style="font-weight:400;color:var(--g4)">'+opts.obs+'</span>':'')+'</span>'+
-    '</div>'+
-    '<div style="position:relative;height:28px">'+
-      // Track
-      '<div style="position:absolute;top:11px;left:0;right:0;height:6px;background:var(--g2);border-radius:3px"></div>'+
-      // Zone P25-P75
-      (opts.p25!=null&&opts.p75!=null?'<div style="position:absolute;top:11px;left:'+pct(opts.p25)+'%;width:'+(pct(opts.p75)-pct(opts.p25))+'%;height:6px;background:rgba(37,99,235,.15);border-radius:1px"></div>':'')+
-      // Médiane tick
-      (opts.med!=null?'<div style="position:absolute;top:8px;left:'+pct(opts.med)+'%;width:2px;height:12px;background:var(--g4);border-radius:1px;transform:translateX(-50%)"></div>':'')+
-      // Médiane label
-      (opts.med!=null?'<div style="position:absolute;top:22px;left:'+pct(opts.med)+'%;transform:translateX(-50%);font-size:.52rem;color:var(--g4);font-family:var(--mono);white-space:nowrap">méd. '+Math.round(opts.med)+(opts.unit||'')+'</div>':'')+
-      // Marqueur bien
-      '<div style="position:absolute;top:6px;left:'+vp+'%;width:16px;height:16px;background:'+col+';border-radius:50%;border:2.5px solid #fff;box-shadow:0 1px 5px rgba(0,0,0,.35);transform:translateX(-50%);z-index:2"></div>'+
-    '</div>'+
-    '<div style="display:flex;justify-content:space-between;font-size:.55rem;color:var(--g4);font-family:var(--mono);margin-top:16px;padding-top:2px">'+
-      '<span>'+Math.round(opts.min)+(opts.unit||'')+'</span>'+
-      (diffTxt?'<span style="color:'+diffCol+';font-weight:700;font-size:.65rem">'+diffTxt+' vs médiane</span>':'<span></span>')+
-      '<span>'+Math.round(opts.max)+(opts.unit||'')+'</span>'+
-    '</div>'+
-    (opts.note?'<div class="interp '+(opts.noteType||'')+'" style="margin-top:.3rem">'+opts.note+'</div>':'')+
-  '</div>';
-}
-
-// ── INTERP BOX ──
-function interp(msg,type){
-  if(!msg)return'';
-  return'<div class="interp '+(type||'')+'">'+msg+'</div>';
-}
-
-// ── POPUP MAP ──
-function mkPop(ico,type,name,detail,dd,color,lat,lng,d){
-  var gmaps='https://www.google.com/maps/dir/?api=1&destination='+lat+','+lng+'&origin='+d.lat+','+d.lng;
-  return'<div class="pop">'+
-    '<div class="pop-tag" style="color:'+color+'">'+type+'</div>'+
-    '<div class="pop-name">'+ico+' '+name+'</div>'+
-    (detail?'<div style="font-size:.7rem;color:var(--g5);margin-bottom:.3rem">'+detail+'</div>':'')+
-    '<div style="font-family:var(--mono);font-size:.68rem;color:var(--g4);margin-bottom:.4rem">'+fd(dd)+' · ~'+Math.round(dd/80)+' min à pied</div>'+
-    '<a href="'+gmaps+'" target="_blank" style="display:block;padding:.35rem .5rem;background:var(--k);color:#fff;border-radius:7px;text-align:center;font-size:.7rem;font-weight:700;text-decoration:none">↗ Itinéraire Google Maps</a>'+
-  '</div>';
-}
-
-// ── COUCHES CARTE ──
-function loadMapLayers(d){
-  // Arrêts TC
-  (d.trans||[]).slice(0,80).forEach(function(t){
-    if(!t.stop_lat||!t.stop_lon)return;
-    var dd=dist(d.lat,d.lng,t.stop_lat,t.stop_lon);
-    var m=L.marker([t.stop_lat,t.stop_lon],{icon:L.divIcon({className:'',html:'<div style="width:10px;height:10px;background:#2563eb;border-radius:50%;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.3)"></div>',iconSize:[10,10],iconAnchor:[5,5]})});
-    m.bindPopup(mkPop('🚌','Arrêt TC',t.stop_name||'—',t.network_name||'',dd,'#2563eb',t.stop_lat,t.stop_lon,d));
-    mGroup.addLayer(m);
-  });
-  // Écoles
-  (d.ecoles||[]).filter(function(e){return e.latitude&&e.longitude;}).forEach(function(e){
-    var dd=dist(d.lat,d.lng,e.latitude,e.longitude);
-    var m=L.marker([e.latitude,e.longitude],{icon:L.divIcon({className:'',html:'<div style="width:10px;height:10px;background:#16a34a;border-radius:50%;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.3)"></div>',iconSize:[10,10],iconAnchor:[5,5]})});
-    m.bindPopup(mkPop('📚','École',e.nom||'—',(e.type||'')+(e.taux_reussite_bac?' · Bac '+e.taux_reussite_bac+'%':''),dd,'#16a34a',e.latitude,e.longitude,d));
-    mGroup.addLayer(m);
-  });
-}
-function loadOSMOnMap(d){
-  fetch('https://overpass-api.de/api/interpreter?data=[out:json][timeout:10];(node["amenity"~"hospital|pharmacy|doctors|dentist"](around:1500,'+d.lat+','+d.lng+');node["shop"~"supermarket|bakery|butcher|convenience"](around:700,'+d.lat+','+d.lng+');node["amenity"~"restaurant|cafe"](around:500,'+d.lat+','+d.lng+'););out 50;')
-    .then(function(r){return r.ok?r.json():null;})
-    .then(function(res){
-      if(!res||!res.elements)return;
-      res.elements.filter(function(e){return e.tags&&e.tags.name&&e.lat&&e.lon;}).slice(0,40).forEach(function(e){
-        var isH=['hospital','pharmacy','doctors','dentist'].includes(e.tags.amenity);
-        var col=isH?'#dc2626':'#d97706';
-        var ico=isH?'🏥':e.tags.amenity==='restaurant'?'🍽️':e.tags.amenity==='cafe'?'☕':'🛒';
-        var dd=dist(d.lat,d.lng,e.lat,e.lon);
-        var m=L.marker([e.lat,e.lon],{icon:L.divIcon({className:'',html:'<div style="width:9px;height:9px;background:'+col+';border-radius:2px;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.3)"></div>',iconSize:[9,9],iconAnchor:[4.5,4.5]})});
-        m.bindPopup(mkPop(ico,e.tags.amenity||e.tags.shop||'Commerce',e.tags.name||'—','',dd,col,e.lat,e.lon,d));
-        mGroup.addLayer(m);
-      });
-    }).catch(function(){});
+        (noteT?interp(noteT,''):'')+
+        dr('Humidité',hum!=null?hum+'%':'—')+
+        dr('Précipitations aujourd\'hui',rain+'mm')+
+        (sun!=null?dr('Ensoleillement',sun+'h'):'')+
+        (tmin!=null&&tmax!=null?scaleBar({label:'Température vs normale Bordeaux',val:t||15,min:-5,p25:8,med:14,p75:22,max:38,unit:'°C',color:'var(--amber)'}):'');
+    }).catch(function(err){
+      el.innerHTML=interp('Données météo indisponibles pour le moment.','warn');
+    });
 }
 
 function copyLink(){if(!geo)return toast('Aucune adresse chargée');navigator.clipboard.writeText(location.origin+location.pathname+'?lat='+geo.y+'&lng='+geo.x).then(function(){toast('Lien copié !');});}
