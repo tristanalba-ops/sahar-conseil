@@ -80,7 +80,7 @@ html,body{width:100%;height:100%;font-family:var(--sans);background:var(--bg);co
   transition:transform .3s cubic-bezier(.4,0,.2,1);
   will-change:transform;
 }
-#panel.open{transform:translateY(0)}
+#panel.open{transform:translateY(0);height:calc(100vh - 52px)}
 /* PANEL DESKTOP — colonne droite */
 @media(min-width:901px){
   #content{display:flex}
@@ -428,7 +428,7 @@ function initMap(){
   document.getElementById('mwrap').style.height=targetH+'px';
   var w=container.offsetWidth,h=container.offsetHeight;
   if(!w||h<50){setTimeout(initMap,200);return;}
-  map=L.map('map',{zoomControl:true,preferCanvas:true}).setView([46.6,2.3],6);
+  map=L.map('map',{zoomControl:true}).setView([46.6,2.3],6);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
     attribution:'© OpenStreetMap',subdomains:['a','b','c'],maxZoom:19
   }).addTo(map);
@@ -454,6 +454,7 @@ function initFromURL(){
 }
 function openPanel(){
   document.getElementById('panel').classList.add('open');
+  // Map se réduit derrière le panel plein écran — on la laisse en place
   setTimeout(function(){if(map)map.invalidateSize();},350);
 }
 function closePanel(){
@@ -647,6 +648,15 @@ function loadReport(){
     sr('data_etablissements_scolaires?code_commune=eq.'+cc+'&select=uai,nom,type,latitude,longitude,secteur,taux_reussite_bac,nb_eleves&limit=100'),
     sf('commune_wiki',{code_commune:cc},1)
   ]).then(function(R){
+    // Fallback DVF : si 0 résultats par code_commune, essayer par code_postal
+    if((!R[2]||!R[2].length)&&cp){
+      return sr('dvf_mutations?code_postal=eq.'+cp+'&select=valeur_fonciere,surface_reelle_bati,type_local,date_mutation&order=date_mutation.desc&limit=200').then(function(dvfFallback){
+        if(dvfFallback&&dvfFallback.length)R[2]=dvfFallback;
+        return R;
+      });
+    }
+    return R;
+  }).then(function(R){
     document.getElementById('pload').classList.remove('on');
     curD={
       geo:geo,cc:cc,cp:cp,lat:lat,lng:lng,
