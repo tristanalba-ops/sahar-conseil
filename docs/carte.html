@@ -63,12 +63,12 @@ html,body{width:100%;height:100%;font-family:var(--sans);background:var(--bg);co
 #content{flex:1;position:relative;overflow:visible}
 
 /* ── SPLIT LAYOUT MOBILE : 50% carte / 50% panel ── */
-#mwrap{position:absolute;top:0;left:0;right:0;height:calc(50vh - 26px);overflow:hidden}
+#mwrap{position:absolute;top:0;left:0;right:0;overflow:hidden}
 #map{width:100%;height:100%}
 
 #panel{
   position:absolute;
-  top:calc(50vh - 26px);bottom:0;left:0;right:0;
+  top:0;bottom:0;left:0;right:0;
   background:var(--bg);
   border-radius:16px 16px 0 0;
   border-top:1px solid var(--bd);
@@ -419,8 +419,12 @@ function rpc(fn,p){
 // ── MAP ──
 function initMap(){
   var container=document.getElementById('map');
-  // Forcer la hauteur explicitement depuis JS — fiable sur tous les Safari
-  // Hauteur gérée par CSS (50% de #content) — pas de JS height
+  // Hauteurs en pixels — fiable sur tous les iOS Safari
+  var barH=document.getElementById('bar').offsetHeight||52;
+  var halfH=Math.floor((window.innerHeight-barH)/2);
+  document.getElementById('mwrap').style.height=halfH+'px';
+  document.getElementById('panel').style.top=halfH+'px';
+  container.style.height=halfH+'px';
   var w=container.offsetWidth,h=container.offsetHeight;
   if(!w||h<50){setTimeout(initMap,200);return;}
   map=L.map('map',{zoomControl:true}).setView([46.6,2.3],6);
