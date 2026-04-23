@@ -94,6 +94,8 @@ body{
 /* Container visible quand data chargée */
 #content{display:none;background:var(--bg)}
 #content.on{display:block}
+/* Force hide pempty quand content visible — défensif */
+#content.on ~ #pempty, body.loaded #pempty{display:none!important}
 
 /* Header panel (flow normal) */
 #ph{background:var(--w);border-bottom:1px solid var(--bd);padding:.65rem .85rem .75rem}
@@ -441,11 +443,17 @@ function initMap(){
 function goTo(lng,lat,zoom){
   zoom=zoom||15;
   if(!map){_pendingCenter={c:[lng,lat],z:zoom};return;}
-  if(_mapReady){
-    try{map.setCenter([lng,lat]);map.setZoom(zoom);map.resize();}catch(e){console.warn('[goTo]',e);}
-  }else{
-    _pendingCenter={c:[lng,lat],z:zoom};
+  // Tentatives multiples — l'une réussira
+  function doSet(){
+    if(!map)return;
+    try{map.setCenter([lng,lat]);map.setZoom(zoom);}catch(e){console.warn('[goTo]',e);}
   }
+  doSet();
+  setTimeout(doSet,150);
+  setTimeout(doSet,600);
+  setTimeout(function(){if(map)try{doSet();map.resize();}catch(e){}},1200);
+  // Queue aussi pour le load event
+  _pendingCenter={c:[lng,lat],z:zoom};
 }
 
 // ═══ MAP : placer le pin ═══
@@ -602,6 +610,8 @@ function loadReport(){
     return R;
   }).then(function(R){
     document.getElementById('pload').classList.remove('on');
+    var _pe=document.getElementById('pempty');if(_pe){_pe.style.display='none';_pe.style.visibility='hidden';}
+    document.body.classList.add('loaded');
     document.getElementById('content').classList.add('on');
     curD={
       geo:geo,cc:cc,cp:cp,lat:lat,lng:lng,
