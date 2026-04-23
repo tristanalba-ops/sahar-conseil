@@ -63,7 +63,7 @@ html,body{width:100%;height:100%;font-family:var(--sans);background:var(--bg);co
 #content{flex:1;position:relative;overflow:visible}
 
 /* ── SPLIT LAYOUT MOBILE : 50% carte / 50% panel ── */
-#mwrap{position:absolute;top:0;left:0;right:0;height:calc(50vh - 26px)}
+#mwrap{position:absolute;top:0;left:0;right:0;height:calc(50vh - 26px);overflow:hidden}
 #map{width:100%;height:100%}
 
 #panel{
@@ -129,7 +129,7 @@ html,body{width:100%;height:100%;font-family:var(--sans);background:var(--bg);co
 
 /* BODY */
 #pbody{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;display:none}
-#pbody.on{display:block}
+#pbody.on{display:block;height:100%}
 .tab-pane{display:none;padding:.65rem}
 .tab-pane.on{display:block}
 
@@ -428,7 +428,7 @@ function initMap(){
     attribution:'© OpenStreetMap',subdomains:['a','b','c'],maxZoom:19
   }).addTo(map);
   mGroup=L.layerGroup().addTo(map);
-  setTimeout(function(){if(map)map.invalidateSize();},200);
+  map.whenReady(function(){setTimeout(function(){map.invalidateSize();},50);});
   map.on('click',function(e){rgc(e.latlng.lat,e.latlng.lng);});
   // Touch : tap sur la carte ferme le panel
   map.on('click',function(){if(window.innerWidth<=900)closePanel();});
