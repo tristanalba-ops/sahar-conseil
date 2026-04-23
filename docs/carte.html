@@ -431,7 +431,6 @@ function initMap(){
     attribution:'© OpenStreetMap',subdomains:['a','b','c'],maxZoom:19
   }).addTo(map);
   mGroup=L.layerGroup().addTo(map);
-  initSearch();
   map.on('click',function(e){rgc(e.latlng.lat,e.latlng.lng);});
   // Touch : tap sur la carte ferme le panel
   map.on('click',function(){if(window.innerWidth<=900)closePanel();});
@@ -1177,6 +1176,9 @@ function loadMapLayers(d){
 }
 
 function copyLink(){if(!geo)return toast('Aucune adresse');navigator.clipboard.writeText(location.origin+location.pathname+'?lat='+geo.y+'&lng='+geo.x).then(function(){toast('Lien copié !');});}
+
+// Binding immédiat — le DOM est parsé ici, pas besoin d'attendre initMap
+initSearch();
 </script>
 </body>
 </html>
