@@ -531,7 +531,7 @@ function loadReport(){
   document.getElementById('pfoot').style.display='none';
   openPanel();
   Promise.all([
-    sr('address_profile?code_commune=eq.'+cc+'&select=dvf_prix_m2_median,dvf_prix_m2_p25,dvf_prix_m2_p75,dvf_prix_m2_trend_1y,dpe_etiquette_modale,dpe_nb_bilans,bpe_score_global,bpe_score_transport,bpe_score_education,score_potentiel_dpe&limit=3'),
+    sr('address_profile?code_commune=eq.'+cc+'&select=dvf_prix_m2_median,dvf_prix_m2_p25,dvf_prix_m2_p75,dvf_prix_m2_trend_1y,dpe_etiquette_modale,dpe_nb_bilans,bpe_score_global,bpe_score_transport,bpe_score_education,score_potentiel_dpe&dvf_prix_m2_median=not.is.null&order=dvf_prix_m2_median.desc&limit=1'),
     sf('score_localisation_commune',{code_commune:cc},1),
     sr('dvf_mutations?code_commune=eq.'+cc+'&select=valeur_fonciere,surface_reelle_bati,type_local,date_mutation&order=date_mutation.desc&limit=200'),
     sr('dpe_diagnostics?code_postal=eq.'+cp+'&select=classe_energie,date_reception_dpe&limit=500'),
@@ -567,13 +567,24 @@ function renderAll(d){
 
 // HEADER
 function renderHeader(d){
-  var sc=d.sc,score=sc?Math.round(sc.score_localisation||0):0;
-  var circ=2*Math.PI*27,offset=circ-(circ*score/100);
+  var sc=d.sc,score=sc?Math.round(sc.score_localisation||0):null;
+  var circ=2*Math.PI*27;
   var fill=document.getElementById('sc-fill');
-  fill.style.stroke=colorS(score);fill.style.strokeDashoffset=offset;
-  document.getElementById('sc-num').textContent=score;document.getElementById('sc-num').style.color=colorS(score);
-  document.getElementById('sc-letter').textContent=grade(score);
-  var ap=d.ap&&d.ap[0]||null,trend=ap&&ap.dvf_prix_m2_trend_1y,pz=ap&&ap.dvf_prix_m2_median;
+  if(score!==null){
+    var offset=circ-(circ*score/100);
+    fill.style.stroke=colorS(score);fill.style.strokeDashoffset=offset;
+    document.getElementById('sc-num').textContent=score;document.getElementById('sc-num').style.color=colorS(score);
+    document.getElementById('sc-letter').textContent=grade(score);
+  } else {
+    fill.style.strokeDashoffset=circ;fill.style.stroke='var(--g3)';
+    document.getElementById('sc-num').textContent='—';document.getElementById('sc-num').style.color='var(--g4)';
+    document.getElementById('sc-letter').textContent='';
+  }
+  score=score||0;
+  var ap=d.ap&&d.ap[0]||null,trend=ap&&ap.dvf_prix_m2_trend_1y;
+  // Fallback prix : address_profile puis dvf_mutations
+  var dvfP2=d.dvf.filter(function(r){return r.surface_reelle_bati>=9&&r.valeur_fonciere>=5000;}).map(function(r){return r.valeur_fonciere/r.surface_reelle_bati;}).filter(function(v){return v>500&&v<50000;}).sort(function(a,b){return a-b;});
+  var pz=(ap&&ap.dvf_prix_m2_median)||( dvfP2.length?dvfP2[Math.floor(dvfP2.length/2)]:null);
   var dpe=ap&&ap.dpe_etiquette_modale||'?';
   var risk=d.risk,rn=(risk?([risk.risque_inondation,risk.risque_argile,risk.pprn_prescrit,risk.pprt_prescrit].filter(Boolean).length):0);
   var eau=d.eau,conf=eau&&eau.taux_conformite_global!=null?Math.round(eau.taux_conformite_global):null;
