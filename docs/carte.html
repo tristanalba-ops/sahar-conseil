@@ -525,11 +525,11 @@ function pickSugg(i){
   document.getElementById('sdd').style.display='none';
   si.blur();
   geo=f.properties;
-  // BAN retourne properties.x/y en Lambert 93 — utiliser geometry.coordinates (WGS84)
   if(f.geometry&&f.geometry.coordinates){
     geo.x=+f.geometry.coordinates[0];
     geo.y=+f.geometry.coordinates[1];
   }
+  geo.banId=f.properties.id||null;
   try{window.scrollTo({top:0,behavior:'smooth'});}catch(e){window.scrollTo(0,0);}
   loadReport();
 }
@@ -550,11 +550,11 @@ function rgc(lat,lng){
       if(!res||!res.features||!res.features.length){toast('Adresse non trouvée');return;}
       var f=res.features[0];
       geo=f.properties;
-      // Lambert 93 → WGS84 via geometry.coordinates
       if(f.geometry&&f.geometry.coordinates){
         geo.x=+f.geometry.coordinates[0];
         geo.y=+f.geometry.coordinates[1];
       }
+      geo.banId=f.properties.id||null;
       document.getElementById('si').value=f.properties.label||'';
       try{window.scrollTo({top:0,behavior:'smooth'});}catch(e){window.scrollTo(0,0);}
       loadReport();
@@ -596,7 +596,7 @@ function loadReport(){
 
   // Data
   Promise.all([
-    sr('address_profile?code_commune=eq.'+cc+'&select=dvf_prix_m2_median,dvf_prix_m2_p25,dvf_prix_m2_p75,dvf_prix_m2_trend_1y,dpe_etiquette_modale,dpe_nb_bilans,bpe_score_global,bpe_score_transport,bpe_score_education,score_potentiel_dpe&dvf_prix_m2_median=not.is.null&order=dvf_prix_m2_median.desc&limit=1'),
+    (geo.banId?sr('address_profile?ban_id=eq.'+encodeURIComponent(geo.banId)+'&select=*&limit=1'):sr('address_profile?code_commune=eq.'+cc+'&select=*&dvf_prix_m2_median=not.is.null&order=dvf_prix_m2_median.desc&limit=1')),
     sr('score_localisation_commune?code_commune=eq.'+cc+'&select=score_localisation,score_accessibilite,score_securite,score_services,score_risques_naturels,score_dynamisme,detail_accessibilite,detail_dynamisme&limit=1'),
     sr('dvf_mutations?code_commune=eq.'+cc+'&select=valeur_fonciere,surface_reelle_bati,type_local,date_mutation&order=date_mutation.desc&limit=200'),
     sr('dpe_diagnostics?code_postal=eq.'+cp+'&select=classe_energie,date_reception_dpe&limit=500'),
@@ -611,6 +611,15 @@ function loadReport(){
     sr('data_etablissements_scolaires?code_commune=eq.'+cc+'&select=uai,nom,type,latitude,longitude,secteur,taux_reussite_bac,nb_eleves&limit=100'),
     sf('commune_wiki',{code_commune:cc},1)
   ]).then(function(R){
+    // Fallback address_profile par commune si ban_id a rien retourné
+    if(!R[0]||!R[0].length){
+      return sr('address_profile?code_commune=eq.'+cc+'&select=dvf_prix_m2_median,dvf_prix_m2_p25,dvf_prix_m2_p75,dvf_prix_m2_trend_1y,dpe_etiquette_modale,dpe_nb_bilans,bpe_score_global,bpe_score_transport,bpe_score_education,score_potentiel_dpe&dvf_prix_m2_median=gt.0&order=dvf_prix_m2_median.desc&limit=1').then(function(ap2){
+        if(ap2&&ap2.length)R[0]=ap2;
+        return R;
+      });
+    }
+    return R;
+  }).then(function(R){
     // Fallback DVF par code_postal si vide
     if((!R[2]||!R[2].length)&&cp){
       return sr('dvf_mutations?code_postal=eq.'+cp+'&select=valeur_fonciere,surface_reelle_bati,type_local,date_mutation&order=date_mutation.desc&limit=200').then(function(f){
