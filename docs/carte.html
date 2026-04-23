@@ -240,7 +240,7 @@ html,body{width:100%;height:100%;font-family:var(--sans);background:var(--bg);co
     <div class="bname">Intent Analytics</div>
     <div class="bdiv"></div>
     <div id="sw">
-      <input id="si" type="text" placeholder="Rechercher une adresse…" autocomplete="off" oninput="handleSearch(this.value)" onblur="hideSugg()">
+      <input id="si" type="search" placeholder="Rechercher une adresse…" autocomplete="off" spellcheck="false" inputmode="search">
       <div id="sdd"></div>
     </div>
     <button id="locbtn" onclick="locate()">📍</button>
@@ -431,6 +431,7 @@ function initMap(){
     attribution:'© OpenStreetMap',subdomains:['a','b','c'],maxZoom:19
   }).addTo(map);
   mGroup=L.layerGroup().addTo(map);
+  initSearch();
   map.on('click',function(e){rgc(e.latlng.lat,e.latlng.lng);});
   // Touch : tap sur la carte ferme le panel
   map.on('click',function(){if(window.innerWidth<=900)closePanel();});
@@ -461,43 +462,64 @@ function closePanel(){
 
 // ── SEARCH ──
 var deb;
-function handleSearch(q){
-  clearTimeout(deb);
+function initSearch(){
+  var si=document.getElementById('si');
   var dd=document.getElementById('sdd');
-  if(!q||q.trim().length<3){dd.style.display='none';return;}
-  deb=setTimeout(function(){
-    fetch('https://api-adresse.data.gouv.fr/search/?q='+encodeURIComponent(q.trim())+'&limit=6')
-      .then(function(r){return r.json();})
-      .then(function(res){
-        var dd=document.getElementById('sdd');
-        dd.innerHTML='';
-        if(!res||!res.features||!res.features.length){dd.style.display='none';return;}
-        res.features.forEach(function(f,i){
-          // Stocker les données dans une variable globale indexée
-          window._sugg=window._sugg||{};
-          window._sugg[i]=f;
-          var div=document.createElement('div');
-          div.className='sg';
-          div.textContent=f.properties.label;
-          // onclick inline = garanti iOS Safari
-          // pointerdown fire avant blur → pas de race condition iOS
-          div.setAttribute('onpointerdown','event.preventDefault();pickSugg('+i+');');
-          dd.appendChild(div);
-        });
-        dd.style.display='block';
-      }).catch(function(){document.getElementById('sdd').style.display='none';});
-  },350);
+  if(!si||!dd)return;
+  // input event = plus fiable que oninput inline sur iOS Safari
+  si.addEventListener('input',function(){
+    var q=si.value;
+    clearTimeout(deb);
+    if(!q||q.trim().length<3){dd.style.display='none';return;}
+    deb=setTimeout(function(){
+      fetch('https://api-adresse.data.gouv.fr/search/?q='+encodeURIComponent(q.trim())+'&limit=6')
+        .then(function(r){return r.ok?r.json():null;})
+        .then(function(res){
+          dd.innerHTML='';
+          if(!res||!res.features||!res.features.length){dd.style.display='none';return;}
+          window._sugg={};
+          res.features.forEach(function(f,i){
+            window._sugg[i]=f;
+            var div=document.createElement('div');
+            div.className='sg';
+            div.textContent=f.properties.label;
+            // touchstart : fire immédiatement, pas de délai 300ms iOS
+            div.addEventListener('touchstart',function(e){
+              e.preventDefault();
+              pickSugg(i);
+            },{passive:false});
+            // mousedown : desktop
+            div.addEventListener('mousedown',function(e){
+              e.preventDefault();
+              pickSugg(i);
+            });
+            dd.appendChild(div);
+          });
+          dd.style.display='block';
+        }).catch(function(){dd.style.display='none';});
+    },300);
+  });
+  // Fermer dropdown au blur avec délai
+  si.addEventListener('blur',function(){
+    setTimeout(function(){dd.style.display='none';},300);
+  });
+  // Fermer dropdown si clic hors
+  document.addEventListener('touchstart',function(e){
+    if(!dd.contains(e.target)&&e.target!==si)dd.style.display='none';
+  },{passive:true});
 }
 function pickSugg(i){
   var f=window._sugg&&window._sugg[i];
   if(!f)return;
-  document.getElementById('si').value=f.properties.label||'';
+  var si=document.getElementById('si');
+  si.value=f.properties.label||'';
   document.getElementById('sdd').style.display='none';
+  si.blur();
   geo=f.properties;
   if(map)map.setView([+f.properties.y,+f.properties.x],16);
   loadReport();
 }
-function hideSugg(){setTimeout(function(){document.getElementById('sdd').style.display='none';},500);}
+function hideSugg(){document.getElementById('sdd').style.display='none';}
 
 function locate(){
   if(!navigator.geolocation)return toast('Non supporté');
