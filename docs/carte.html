@@ -525,7 +525,11 @@ function pickSugg(i){
   document.getElementById('sdd').style.display='none';
   si.blur();
   geo=f.properties;
-  // Scroll en haut pour voir la carte recentrée
+  // BAN retourne properties.x/y en Lambert 93 — utiliser geometry.coordinates (WGS84)
+  if(f.geometry&&f.geometry.coordinates){
+    geo.x=+f.geometry.coordinates[0];
+    geo.y=+f.geometry.coordinates[1];
+  }
   try{window.scrollTo({top:0,behavior:'smooth'});}catch(e){window.scrollTo(0,0);}
   loadReport();
 }
@@ -546,6 +550,11 @@ function rgc(lat,lng){
       if(!res||!res.features||!res.features.length){toast('Adresse non trouvée');return;}
       var f=res.features[0];
       geo=f.properties;
+      // Lambert 93 → WGS84 via geometry.coordinates
+      if(f.geometry&&f.geometry.coordinates){
+        geo.x=+f.geometry.coordinates[0];
+        geo.y=+f.geometry.coordinates[1];
+      }
       document.getElementById('si').value=f.properties.label||'';
       try{window.scrollTo({top:0,behavior:'smooth'});}catch(e){window.scrollTo(0,0);}
       loadReport();
