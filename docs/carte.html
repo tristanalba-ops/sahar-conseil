@@ -58,9 +58,9 @@ html,body{width:100%;height:100%;font-family:var(--sans);background:var(--bg);co
 #content{flex:1;display:flex;min-height:0;overflow:hidden}
 
 /* MAP */
-#mwrap{position:relative;flex:1;min-width:0;overflow:hidden}
+#mwrap{position:relative;flex:1;min-width:0;overflow:hidden;min-height:200px}
 #map{position:absolute;inset:0}
-.leaflet-tile{filter:saturate(.9) brightness(1.03)}
+.leaflet-tile{}
 .leaflet-control-zoom{border:none!important;background:var(--w)!important;border-radius:10px!important;box-shadow:var(--sh)!important;overflow:hidden}
 .leaflet-control-zoom a{background:transparent!important;color:var(--k)!important;border-bottom:1px solid var(--bd)!important;font-weight:600!important}
 .leaflet-control-attribution{background:rgba(255,255,255,.8)!important;border-radius:8px!important;font-size:9px!important}
@@ -72,7 +72,7 @@ html,body{width:100%;height:100%;font-family:var(--sans);background:var(--bg);co
 /* MOBILE */
 @media(max-width:900px){
   #content{position:relative}
-  #mwrap{position:absolute;inset:0;z-index:1}
+  #mwrap{position:absolute;inset:0;z-index:1;min-height:100%}
   #panel{position:absolute;bottom:0;left:0;right:0;z-index:10;width:100%;border-left:none;border-top:1px solid var(--bd);height:78vh;border-radius:18px 18px 0 0;transform:translateY(100%);transition:transform .35s cubic-bezier(.4,0,.2,1);box-shadow:0 -8px 40px rgba(0,0,0,.15);display:flex;flex-direction:column}
   #panel.open{transform:translateY(0);max-height:100vh}
   #panel.peek{transform:translateY(calc(100% - 72px))}
@@ -457,7 +457,7 @@ function rpc(fn,p){return fetch(SB+'/rest/v1/rpc/'+fn,{method:'POST',headers:{'a
 // MAP
 function initMap(){
   map=L.map('map',{zoomControl:true}).setView([46.6,2.3],6);
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{attribution:'©OpenStreetMap ©CartoDB',maxZoom:20}).addTo(map);
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'©OpenStreetMap contributors',maxZoom:19,crossOrigin:true}).addTo(map);
   mGroup=L.layerGroup().addTo(map);
   map.on('click',function(e){rgc(e.latlng.lat,e.latlng.lng);});
   setTimeout(function(){map.invalidateSize();},100);
@@ -597,7 +597,7 @@ function loadReport(){
   if(!cc){toast('Code INSEE introuvable');return;}
   if(pin)map.removeLayer(pin);
   pin=L.marker([lat,lng],{icon:L.divIcon({className:'',html:'<div class="map-pin"></div>',iconSize:[20,20],iconAnchor:[10,10]})}).addTo(map);
-  map.setView([lat,lng],16);mGroup.clearLayers();
+  map.setView([lat,lng],16);mGroup.clearLayers();setTimeout(function(){map.invalidateSize();},100);
   document.getElementById('pempty').style.display='none';
   document.getElementById('ph-loaded').style.display='none';
   document.getElementById('tabs').style.display='none';
