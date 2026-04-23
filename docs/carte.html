@@ -589,6 +589,47 @@ function rpc(name,params){
     .then(function(r){return r.ok?r.json():null;}).catch(function(){return null;});
 }
 
+// ═══════════════════════════════════════════════════════════════════
+// INGEST : write-through enrichment — chaque fetch API externe devient
+// une observation horodatée dans le data moat (observations_ingest).
+// Jamais UPSERT, toujours INSERT → série temporelle préservée.
+// ═══════════════════════════════════════════════════════════════════
+var _clientFP = (function(){
+  // Fingerprint anonyme non-bloquant : hash court timestamp+random+UA
+  try{
+    var s = navigator.userAgent + '|' + (screen.width+'x'+screen.height) + '|' + new Date().getTimezoneOffset();
+    var h = 0; for(var i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i); h|=0;}
+    return 'fp_'+Math.abs(h).toString(36)+'_'+Math.random().toString(36).substring(2,8);
+  }catch(e){return null;}
+})();
+function ingestObs(source, payload){
+  if(!geo||!payload||!source)return;
+  try{
+    var body = {
+      source: source,
+      code_insee: geo.citycode || null,
+      ban_id: geo.banId || null,
+      lat: geo.y!=null ? +geo.y : null,
+      lng: geo.x!=null ? +geo.x : null,
+      payload: payload,
+      client_fp: _clientFP,
+      user_agent: (navigator.userAgent||'').substring(0,200)
+    };
+    if(!body.code_insee && !body.ban_id && (body.lat==null||body.lng==null))return; // CHECK ck_at_least_one_key
+    fetch(SUPA_URL+'/rest/v1/observations_ingest',{
+      method: 'POST',
+      headers: {
+        apikey: SUPA_KEY,
+        Authorization: 'Bearer '+SUPA_KEY,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify(body),
+      keepalive: true
+    }).catch(function(){});
+  }catch(e){}
+}
+
 // ═══ LOADREPORT : simple, pas de magie ═══
 function loadReport(){
   if(!geo){toast('Adresse manquante');return;}
@@ -1033,6 +1074,8 @@ function loadServicesOSM(d){
       });
       sante.sort(function(a,b){return a._d-b._d;});
       shop.sort(function(a,b){return a._d-b._d;});
+      ingestObs('overpass_poi_sante',{count:sante.length,top:sante.slice(0,5).map(function(e){return{n:(e.tags.name||'').substring(0,60),t:e.tags.amenity||null,d:Math.round(e._d),lat:e.lat,lon:e.lon};})});
+      ingestObs('overpass_poi_shop',{count:shop.length,top:shop.slice(0,5).map(function(e){return{n:(e.tags.name||'').substring(0,60),t:e.tags.shop||e.tags.amenity||null,d:Math.round(e._d),lat:e.lat,lon:e.lon};})});
       function poiList(arr,icoFn){
         if(!arr.length)return'<span class="empty">Aucun dans le rayon</span>';
         return arr.slice(0,8).map(function(e){
@@ -1121,22 +1164,60 @@ function renderBatiment(d){
   document.getElementById('bdnbD').innerHTML=dr('Année construction',b.annee_construction||'—')+dr('Hauteur',b.hauteur_mean?Math.round(b.hauteur_mean)+'m':'—')+dr('Logements',b.nb_log||'—')+dr('DPE bâtiment',b.classe_bilan_dpe||'—')+dr('Matériaux',b.mat_mur_txt||'—');
 }
 
+// Map code dept → région (utilisé car wiki.region est corrompu dans certaines rows)
+var DEPT_REGION={'01':'Auvergne-Rhône-Alpes','02':'Hauts-de-France','03':'Auvergne-Rhône-Alpes','04':'Provence-Alpes-Côte d\'Azur','05':'Provence-Alpes-Côte d\'Azur','06':'Provence-Alpes-Côte d\'Azur','07':'Auvergne-Rhône-Alpes','08':'Grand Est','09':'Occitanie','10':'Grand Est','11':'Occitanie','12':'Occitanie','13':'Provence-Alpes-Côte d\'Azur','14':'Normandie','15':'Auvergne-Rhône-Alpes','16':'Nouvelle-Aquitaine','17':'Nouvelle-Aquitaine','18':'Centre-Val de Loire','19':'Nouvelle-Aquitaine','21':'Bourgogne-Franche-Comté','22':'Bretagne','23':'Nouvelle-Aquitaine','24':'Nouvelle-Aquitaine','25':'Bourgogne-Franche-Comté','26':'Auvergne-Rhône-Alpes','27':'Normandie','28':'Centre-Val de Loire','29':'Bretagne','2A':'Corse','2B':'Corse','30':'Occitanie','31':'Occitanie','32':'Occitanie','33':'Nouvelle-Aquitaine','34':'Occitanie','35':'Bretagne','36':'Centre-Val de Loire','37':'Centre-Val de Loire','38':'Auvergne-Rhône-Alpes','39':'Bourgogne-Franche-Comté','40':'Nouvelle-Aquitaine','41':'Centre-Val de Loire','42':'Auvergne-Rhône-Alpes','43':'Auvergne-Rhône-Alpes','44':'Pays de la Loire','45':'Centre-Val de Loire','46':'Occitanie','47':'Nouvelle-Aquitaine','48':'Occitanie','49':'Pays de la Loire','50':'Normandie','51':'Grand Est','52':'Grand Est','53':'Pays de la Loire','54':'Grand Est','55':'Grand Est','56':'Bretagne','57':'Grand Est','58':'Bourgogne-Franche-Comté','59':'Hauts-de-France','60':'Hauts-de-France','61':'Normandie','62':'Hauts-de-France','63':'Auvergne-Rhône-Alpes','64':'Nouvelle-Aquitaine','65':'Occitanie','66':'Occitanie','67':'Grand Est','68':'Grand Est','69':'Auvergne-Rhône-Alpes','70':'Bourgogne-Franche-Comté','71':'Bourgogne-Franche-Comté','72':'Pays de la Loire','73':'Auvergne-Rhône-Alpes','74':'Auvergne-Rhône-Alpes','75':'Île-de-France','76':'Normandie','77':'Île-de-France','78':'Île-de-France','79':'Nouvelle-Aquitaine','80':'Hauts-de-France','81':'Occitanie','82':'Occitanie','83':'Provence-Alpes-Côte d\'Azur','84':'Provence-Alpes-Côte d\'Azur','85':'Pays de la Loire','86':'Nouvelle-Aquitaine','87':'Nouvelle-Aquitaine','88':'Grand Est','89':'Bourgogne-Franche-Comté','90':'Bourgogne-Franche-Comté','91':'Île-de-France','92':'Île-de-France','93':'Île-de-France','94':'Île-de-France','95':'Île-de-France','971':'Guadeloupe','972':'Martinique','973':'Guyane','974':'La Réunion','976':'Mayotte'};
+
 function renderCommune(d){
   var wiki=d.wiki,sc=d.sc,dem=d.demo;
   var h='';
-  if(wiki&&wiki.description&&wiki.description.length>50){
-    h+='<div class="card"><div class="card-title">🏘️ '+d.geo.city+'</div><p style="font-size:.78rem;line-height:1.6;color:var(--g5)">'+wiki.description+'</p></div>';
+  // Déduire région depuis code INSEE (priorité) pour éviter les données wiki corrompues
+  var deptCode=d.cc?(d.cc.length===5?d.cc.substring(0,2):d.cc.substring(0,3)):'';
+  if(d.cc&&d.cc.substring(0,2)==='97')deptCode=d.cc.substring(0,3);
+  var regionName=DEPT_REGION[deptCode]||'France';
+  var deptName=wiki&&wiki.departement&&wiki.departement.length>2?wiki.departement:'département '+deptCode;
+
+  // Texte factuel reconstitué depuis les vraies data (ignorer wiki.description si corrompue)
+  var pop=(dem&&(dem.population_2024||dem.population_2019))||(wiki&&wiki.population)||0;
+  var superf=wiki&&wiki.superficie_km2?Number(wiki.superficie_km2):0;
+  var densite=(dem&&dem.densite_hab_km2)||(pop&&superf?Math.round(pop/superf):0);
+  var wikiIsCorrupt=wiki&&wiki.description&&/Île-de-France|département de Paris/.test(wiki.description)&&deptCode!=='75'&&!['91','92','93','94','95','77','78'].includes(deptCode);
+  var introText=(d.geo.city||wiki&&wiki.nom||'Cette commune')+' est située en '+regionName+(deptCode?' (dépt '+deptCode+')':'')+'.';
+  if(pop)introText+=' '+fmtN(pop)+' habitants';
+  if(superf)introText+=' sur '+superf.toString().replace('.',',')+' km²';
+  if(densite)introText+=', densité '+fmtN(densite)+' hab/km²';
+  introText+='.';
+
+  h+='<div class="card"><div class="card-title">🏘️ '+(d.geo.city||'Commune')+'</div><p style="font-size:.78rem;line-height:1.6;color:var(--g5)">'+introText+'</p>';
+  if(wiki&&wiki.description&&wiki.description.length>50&&!wikiIsCorrupt){
+    h+='<p style="font-size:.78rem;line-height:1.6;color:var(--g5);margin-top:.5rem">'+wiki.description+'</p>';
   }
+  h+='</div>';
+
   var analyses=[];
   if(sc){
     var s=Math.round(sc.score_localisation||0);
     analyses.push(d.geo.city+' obtient un score de localisation de '+s+'/100 (note '+grade(s)+'). '+(s>=70?'Excellent emplacement avec de solides fondamentaux.':s>=50?'Commune correcte avec des points d\'amélioration.':'Commune présentant des axes d\'amélioration.'));
-    if(sc.detail_accessibilite)analyses.push(sc.detail_accessibilite);
-    if(sc.detail_dynamisme)analyses.push(sc.detail_dynamisme);
+    // detail_accessibilite est JSONB : {transport:100, infrastructure:0}
+    var da=sc.detail_accessibilite;
+    if(da&&typeof da==='object'){
+      var accParts=[];
+      if(da.transport!=null)accParts.push('transports '+da.transport+'/100');
+      if(da.infrastructure!=null)accParts.push('infrastructures '+da.infrastructure+'/100');
+      if(accParts.length)analyses.push('Accessibilité : '+accParts.join(', ')+'.');
+    } else if(typeof da==='string'&&da) analyses.push(da);
+    // detail_dynamisme est JSONB : {plu:true, lgt_crees:0, permis_recents:0}
+    var dd=sc.detail_dynamisme;
+    if(dd&&typeof dd==='object'){
+      var dynParts=[];
+      if(dd.plu===true)dynParts.push('PLU actif');
+      if(dd.permis_recents!=null)dynParts.push(fmtN(dd.permis_recents)+' permis récents');
+      if(dd.lgt_crees!=null)dynParts.push(fmtN(dd.lgt_crees)+' logements créés');
+      if(dynParts.length)analyses.push('Dynamisme : '+dynParts.join(' · ')+'.');
+    } else if(typeof dd==='string'&&dd) analyses.push(dd);
   }
   if(dem){
-    var pop=dem.population_2024||dem.population_2019||0;
-    if(pop)analyses.push('La commune compte '+fmtN(pop)+' habitants.'+(dem.densite_hab_km2?' Densité : '+fmtN(dem.densite_hab_km2)+' hab/km².':''));
+    var pop2=dem.population_2024||dem.population_2019||0;
+    if(pop2)analyses.push('La commune compte '+fmtN(pop2)+' habitants.'+(dem.densite_hab_km2?' Densité : '+fmtN(dem.densite_hab_km2)+' hab/km².':''));
   }
   if(analyses.length){
     h+='<div class="card"><div class="card-title">📊 Analyse du territoire</div>';
@@ -1171,6 +1252,7 @@ function rcadastre(d){
     .then(function(res){
       if(!res||!res.features||!res.features.length){document.getElementById('cadastreD').innerHTML='<span class="empty">Parcelle non trouvée</span>';return;}
       var p=res.features[0].properties;
+      ingestObs('ign_cadastre',{id:p.id||null,section:p.section||null,numero:p.numero||null,contenance:p.contenance||null,commune:p.commune||null});
       document.getElementById('cadastreD').innerHTML=dr('Parcelle',p.id||'—')+dr('Surface',p.contenance?fmtN(p.contenance)+' m²':'—')+dr('Section',p.section||'—');
       // Cadastre via MapLibre source/layer
       if(map.isStyleLoaded()){
@@ -1195,6 +1277,7 @@ function rair(d){
       var lbl=aqi<=50?'Bonne':aqi<=100?'Modérée':aqi<=150?'Dégradée':'Mauvaise';
       document.getElementById('airK').innerHTML=kpi(aqi<=50?'g':aqi<=100?'a':'r','IQA',aqi,lbl);
       var noteA=aqi<=50?'Qualité excellente. Aucune restriction.':aqi<=100?'Qualité acceptable. Sensibles peuvent ressentir une gêne.':'Qualité dégradée. Limiter les activités intenses en extérieur.';
+      ingestObs('waqi',{aqi:aqi,iaqi:iaqi,city:res.data.city&&res.data.city.name||null,ts:res.data.time&&res.data.time.iso||null});
       el.innerHTML=interp(noteA,aqi<=50?'good':aqi<=100?'':'warn')+
         '<div style="display:flex;align-items:center;gap:.7rem;padding:.55rem;background:var(--g1);border-radius:9px;margin-bottom:.4rem">'+
         '<div style="font-size:1.9rem;font-weight:800;color:'+col+'">'+aqi+'</div>'+
@@ -1217,6 +1300,7 @@ function rclimat(d){
       var tmin=daily.temperature_2m_min?Math.round(daily.temperature_2m_min[0]):null;
       var tmax=daily.temperature_2m_max?Math.round(daily.temperature_2m_max[0]):null;
       var noteC=t!=null?(t<5?'Froid — impact sur la consommation énergétique.':t<15?'Frais, demi-saison.':t<25?'Agréable.':'Chaud — vérifier l\'isolation thermique.'):'';
+      ingestObs('open_meteo',{current:cur,daily_tmin:daily.temperature_2m_min&&daily.temperature_2m_min[0],daily_tmax:daily.temperature_2m_max&&daily.temperature_2m_max[0],daily_precip:daily.precipitation_sum&&daily.precipitation_sum[0]});
       el.innerHTML='<div style="display:flex;align-items:center;gap:.7rem;padding:.55rem;background:var(--g1);border-radius:9px;margin-bottom:.4rem">'+
         '<div style="font-size:2rem">'+em+'</div>'+
         '<div style="flex:1"><div style="font-size:1.4rem;font-weight:800;letter-spacing:-.04em">'+(t!=null?t+'°C':'—')+'</div>'+
@@ -1238,6 +1322,7 @@ function loadSirene(d){
     .then(function(res){
       if(!res||!res.results||!res.results.length){el.innerHTML='<span class="empty">Aucune entreprise active</span>';return;}
       var total=res.total_results||res.results.length;
+      ingestObs('sirene',{total:total,top:res.results.slice(0,8).map(function(e){return{nom:(e.nom_complet||e.nom_raison_sociale||'').substring(0,80),naf:e.activite_principale||null};})});
       var html='<div style="font-size:.7rem;color:var(--g5);margin-bottom:.4rem">'+fmtN(total)+' entreprises actives dans la commune</div>';
       res.results.forEach(function(e){
         var naf=e.activite_principale||'';
