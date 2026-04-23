@@ -480,7 +480,8 @@ function handleSearch(q){
           div.className='sg';
           div.textContent=f.properties.label;
           // onclick inline = garanti iOS Safari
-          div.setAttribute('onclick','pickSugg('+i+')');
+          // pointerdown fire avant blur → pas de race condition iOS
+          div.setAttribute('onpointerdown','event.preventDefault();pickSugg('+i+');');
           dd.appendChild(div);
         });
         dd.style.display='block';
@@ -496,7 +497,7 @@ function pickSugg(i){
   if(map)map.setView([+f.properties.y,+f.properties.x],16);
   loadReport();
 }
-function hideSugg(){setTimeout(function(){document.getElementById('sdd').style.display='none';},200);}
+function hideSugg(){setTimeout(function(){document.getElementById('sdd').style.display='none';},500);}
 
 function locate(){
   if(!navigator.geolocation)return toast('Non supporté');
