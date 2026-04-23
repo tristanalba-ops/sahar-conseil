@@ -2,16 +2,16 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta id="meta-desc" name="description" content="Rapport d'analyse immobilière — Intent Analytics">
-<meta id="meta-og-title" property="og:title" content="Rapport adresse — Intent Analytics">
+<meta id="meta-og-title" property="og:title" content="Intent Analytics — Rapport Adresse">
 <meta property="og:type" content="website">
-<meta id="meta-og-desc" property="og:description" content="Analyse immobilière — Intent Analytics">
-<meta id="meta-og-url" property="og:url" content="">
+<meta property="og:site_name" content="Intent Analytics">
+<meta id="meta-og-desc" property="og:description" content="Analyse immobilière par adresse">
+<meta id="meta-og-url" property="og:url" content="https://intentanalytics.fr/carte">
 <meta id="meta-geo-pos" name="geo.position" content="">
 <meta id="meta-geo-region" name="geo.region" content="FR">
 <meta id="meta-geo-place" name="geo.placename" content="">
-<meta property="og:site_name" content="Intent Analytics">
 <meta name="theme-color" content="#0f0f0f">
 <link id="canonical-link" rel="canonical" href="https://intentanalytics.fr/carte">
 <script id="jsonld" type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Intent Analytics","description":"Analyse immobilière par adresse (DVF, DPE, risques, transports)","url":"https://intentanalytics.fr/carte"}</script>
@@ -20,17 +20,24 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
 <style>
+/* ═══ RESET + VARIABLES ═══ */
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 :root{
   --bg:#f2f2f0;--w:#fff;--k:#0f0f0f;
   --g1:#f7f7f6;--g2:#eeeeec;--g3:#d8d8d5;--g4:#9a9a96;--g5:#5a5a56;
   --bd:#e2e2df;--blue:#2563eb;--green:#16a34a;--red:#dc2626;--amber:#d97706;
-  --sans:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
+  --sans:'DM Sans',-apple-system,sans-serif;--mono:'DM Mono',monospace;
   --sh:0 2px 8px rgba(0,0,0,.07);--sh-lg:0 8px 32px rgba(0,0,0,.12);
 }
-html,body{width:100%;height:100%;font-family:var(--sans);background:var(--bg);color:var(--k)}
+html{height:100%;-webkit-text-size-adjust:100%}
+body{
+  min-height:100vh;
+  background:var(--bg);color:var(--k);font-family:var(--sans);
+  -webkit-overflow-scrolling:touch;
+  overflow-x:hidden;
+}
 
-/* LOCK */
+/* ═══ PIN LOCK ═══ */
 #lock{position:fixed;inset:0;background:var(--k);display:flex;align-items:center;justify-content:center;z-index:9999;padding:1.5rem}
 .lbox{width:100%;max-width:340px;background:var(--w);border-radius:20px;padding:2rem 1.75rem}
 .llogo{display:flex;align-items:center;gap:.6rem;margin-bottom:1.5rem}
@@ -43,110 +50,101 @@ html,body{width:100%;height:100%;font-family:var(--sans);background:var(--bg);co
 .lgo{width:100%;margin-top:.6rem;padding:.8rem;background:var(--k);border:none;border-radius:10px;color:#fff;font-size:.88rem;font-weight:700;cursor:pointer}
 .lerr{font-size:.72rem;color:var(--red);margin-top:.4rem;min-height:14px}
 
-/* APP SHELL */
-#app{position:fixed;inset:0;display:flex;flex-direction:column}
-
-/* TOPBAR */
-#bar{height:52px;flex-shrink:0;background:var(--w);border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:.6rem;padding:0 .85rem;z-index:100}
+/* ═══ TOPBAR STICKY ═══ */
+#topbar{
+  position:sticky;top:0;z-index:200;
+  height:52px;background:var(--w);border-bottom:1px solid var(--bd);
+  display:flex;align-items:center;gap:.5rem;padding:0 .85rem;
+}
 .bico{width:26px;height:26px;background:var(--k);border-radius:6px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:.68rem;flex-shrink:0}
 .bname{font-size:.82rem;font-weight:700;flex-shrink:0}
 .bdiv{width:1px;height:18px;background:var(--bd);flex-shrink:0}
-#sw{flex:1;position:relative;z-index:200;max-width:480px}
+#sw{flex:1;position:relative;min-width:0}
 #si{width:100%;padding:.5rem .8rem;background:var(--g1);border:1.5px solid var(--bd);border-radius:9px;color:var(--k);font-size:.83rem;outline:none;font-family:var(--sans)}
 #si:focus{border-color:var(--k);background:var(--w)}
 #si::placeholder{color:var(--g3)}
-#sdd{position:fixed;top:58px;left:.85rem;right:.85rem;background:var(--w);border:1.5px solid var(--bd);border-radius:11px;z-index:9000;display:none;max-height:250px;overflow-y:auto;box-shadow:var(--sh-lg)}
-.sg{padding:.6rem .9rem;cursor:pointer;font-size:.8rem;border-bottom:1px solid var(--g2);display:flex;align-items:center;gap:7px}
+#sdd{position:fixed;top:58px;left:.85rem;right:.85rem;background:var(--w);border:1.5px solid var(--bd);border-radius:11px;z-index:9000;display:none;max-height:280px;overflow-y:auto;-webkit-overflow-scrolling:touch;box-shadow:var(--sh-lg)}
+.sg{padding:.7rem .9rem;cursor:pointer;font-size:.8rem;border-bottom:1px solid var(--g2)}
 .sg:last-child{border-bottom:none}
 .sg:active{background:var(--g1)}
 #locbtn{width:36px;height:36px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:var(--g1);border:1.5px solid var(--bd);border-radius:9px;cursor:pointer;font-size:1rem}
 @media(max-width:600px){.bdiv,.bname{display:none}}
 
-/* MAIN CONTENT */
-#content{flex:1;position:relative;overflow:visible}
-
-/* ── SPLIT LAYOUT MOBILE : 50% carte / 50% panel ── */
-#mwrap{position:absolute;top:0;left:0;right:0;overflow:hidden}
+/* ═══ MAP (hauteur fixe, pas sticky — disparaît au scroll naturel) ═══ */
+#mapwrap{
+  position:relative;width:100%;
+  height:45vh;min-height:280px;max-height:450px;
+  background:var(--g2);
+}
 #map{width:100%;height:100%}
 
-#panel{
-  position:absolute;
-  top:0;bottom:0;left:0;right:0;
-  background:var(--bg);
-  border-radius:16px 16px 0 0;
-  border-top:1px solid var(--bd);
-  box-shadow:0 -4px 20px rgba(0,0,0,.10);
-  display:flex;flex-direction:column;
-  z-index:50;
-}
-/* open = identique, le panel est déjà en position */
-#panel.open{transform:none}
-/* PANEL DESKTOP — colonne droite */
-@media(min-width:901px){
-  #content{display:flex}
-  #mwrap{position:relative;flex:1;height:auto}
-  #map{height:100%}
-  #panel{position:relative;width:400px;height:auto;top:auto;bottom:auto;transform:none;border-radius:0;border-top:none;border-left:1px solid var(--bd);box-shadow:none}
-  #btn-carte{display:flex}
-}
+/* ═══ REPORT (scroll natif body, pas de flex magique) ═══ */
+#report{background:var(--bg);min-height:60vh;padding-bottom:env(safe-area-inset-bottom,0)}
 
-/* HANDLE + BOUTON CARTE */
-.ph-handle{display:flex;align-items:center;justify-content:space-between;padding:.5rem 1rem .3rem;flex-shrink:0}
-.drag-bar{width:36px;height:4px;background:var(--g3);border-radius:2px}
-#btn-carte{font-size:.7rem;font-weight:700;color:var(--k);cursor:pointer;padding:.25rem .6rem;background:var(--g2);border-radius:20px;border:1px solid var(--bd);display:none;display:none}
-@media(max-width:900px){#btn-carte{display:block}}
+/* États vides/loading */
+#pempty{padding:3rem 1.5rem;display:flex;flex-direction:column;align-items:center;gap:.75rem;text-align:center;color:var(--g4);background:var(--w)}
+.emp-ico{font-size:2.4rem}
+.emp-title{font-size:.95rem;font-weight:600;color:var(--g5)}
+.emp-sub{font-size:.75rem;line-height:1.6}
+#pload{display:none;flex-direction:column;align-items:center;justify-content:center;padding:3rem 1.5rem;gap:.75rem;background:var(--w)}
+#pload.on{display:flex}
+.spinner{width:32px;height:32px;border:3px solid var(--g2);border-top-color:var(--k);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
 
-/* PANEL HEADER */
-#ph{flex-shrink:0;background:var(--w);border-bottom:1px solid var(--bd)}
-#ph-inner{padding:.5rem .85rem .6rem}
-#ph-top{display:flex;align-items:flex-start;gap:.6rem;margin-bottom:.4rem}
+/* Container visible quand data chargée */
+#content{display:none;background:var(--bg)}
+#content.on{display:block}
+
+/* Header panel (flow normal) */
+#ph{background:var(--w);border-bottom:1px solid var(--bd);padding:.65rem .85rem .75rem}
+#ph-top{display:flex;align-items:flex-start;gap:.65rem;margin-bottom:.5rem}
 #ph-addr{flex:1;min-width:0}
-#paddr{font-size:.85rem;font-weight:700;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#psub{font-size:.68rem;color:var(--g4);font-family:var(--mono);margin-top:.1rem}
-.score-circ{width:50px;height:50px;position:relative;flex-shrink:0}
+#paddr{font-size:.88rem;font-weight:700;line-height:1.25}
+#psub{font-size:.7rem;color:var(--g4);font-family:var(--mono);margin-top:.15rem}
+.score-circ{width:52px;height:52px;position:relative;flex-shrink:0}
 .score-circ svg{transform:rotate(-90deg)}
 .sc-track{fill:none;stroke:var(--g2);stroke-width:5}
 .sc-fill{fill:none;stroke-width:5;stroke-linecap:round;transition:stroke-dashoffset .8s ease}
 .score-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
-.sc-num{font-size:.95rem;font-weight:800;line-height:1}
-.sc-letter{font-size:.5rem;font-weight:700;color:var(--g4)}
-.profile-pills{display:flex;gap:.3rem;margin-bottom:.4rem;flex-wrap:nowrap;overflow-x:auto}
-.ppill{padding:.22rem .55rem;border:1.5px solid var(--bd);border-radius:20px;font-size:.68rem;font-weight:600;cursor:pointer;color:var(--g5);background:var(--g1);white-space:nowrap;flex-shrink:0}
+.sc-num{font-size:1rem;font-weight:800;line-height:1}
+.sc-letter{font-size:.55rem;font-weight:700;color:var(--g4)}
+.profile-pills{display:flex;gap:.35rem;margin-bottom:.5rem;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.profile-pills::-webkit-scrollbar{display:none}
+.ppill{padding:.25rem .6rem;border:1.5px solid var(--bd);border-radius:20px;font-size:.7rem;font-weight:600;cursor:pointer;color:var(--g5);background:var(--g1);white-space:nowrap;flex-shrink:0}
 .ppill.on{background:var(--k);color:#fff;border-color:var(--k)}
-.summary-box{background:var(--g1);border:1px solid var(--bd);border-radius:8px;padding:.45rem .75rem;font-size:.73rem;line-height:1.5;color:var(--g5);margin-bottom:.4rem}
-.score-cards{display:grid;grid-template-columns:1fr 1fr;gap:.35rem}
-.scard{background:var(--w);border:1px solid var(--bd);border-radius:8px;padding:.45rem .6rem;box-shadow:var(--sh)}
+.summary-box{background:var(--g1);border:1px solid var(--bd);border-radius:8px;padding:.5rem .75rem;font-size:.75rem;line-height:1.55;color:var(--g5);margin-bottom:.5rem}
+.score-cards{display:grid;grid-template-columns:1fr 1fr;gap:.4rem}
+.scard{background:var(--w);border:1px solid var(--bd);border-radius:8px;padding:.5rem .65rem;box-shadow:var(--sh)}
 .scard-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:.35rem}
-.scard-title{font-size:.7rem;font-weight:700}
-.scard-score{font-size:.68rem;font-weight:700;color:var(--g4)}
-.scard-bar{height:4px;background:var(--g2);border-radius:2px;overflow:hidden;margin-bottom:.25rem}
+.scard-title{font-size:.72rem;font-weight:700}
+.scard-score{font-size:.7rem;font-weight:700;color:var(--g4)}
+.scard-bar{height:4px;background:var(--g2);border-radius:2px;overflow:hidden;margin-bottom:.3rem}
 .scard-fill{height:100%;border-radius:2px;transition:width .5s ease}
-.scard-main{font-size:.78rem;font-weight:700}
-.scard-sub{font-size:.65rem;color:var(--g5);line-height:1.35;margin-top:.05rem}
+.scard-main{font-size:.8rem;font-weight:700}
+.scard-sub{font-size:.66rem;color:var(--g5);line-height:1.35;margin-top:.1rem}
 
-/* TABS */
-#tabs{flex-shrink:0;background:var(--w);border-bottom:1px solid var(--bd);display:flex;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+/* Tabs sticky sous le topbar */
+#tabs{
+  position:sticky;top:52px;z-index:100;
+  background:var(--w);border-bottom:1px solid var(--bd);
+  display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;
+}
 #tabs::-webkit-scrollbar{display:none}
-.tab{padding:.6rem .7rem;font-size:.74rem;font-weight:600;color:var(--g4);cursor:pointer;border-bottom:2.5px solid transparent;white-space:nowrap;flex-shrink:0}
+.tab{padding:.7rem .85rem;font-size:.76rem;font-weight:600;color:var(--g4);cursor:pointer;border-bottom:2.5px solid transparent;white-space:nowrap;flex-shrink:0}
 .tab.on{color:var(--k);border-bottom-color:var(--k)}
 
-/* BODY */
-#pbody{flex:1;min-height:0;overflow-y:scroll;-webkit-overflow-scrolling:touch;display:none}
-#pbody.on{display:block;-webkit-overflow-scrolling:touch}
-.tab-pane{display:none;padding:.65rem}
+/* Body : simple padding, scroll natif du body */
+#pbody{padding:.7rem}
+.tab-pane{display:none}
 .tab-pane.on{display:block}
 
-/* STATES */
-#pload{display:none;flex-direction:column;align-items:center;justify-content:center;padding:3rem 1.5rem;gap:.75rem}
-#pload.on{display:flex}
-.spinner{width:32px;height:32px;border:3px solid var(--g2);border-top-color:var(--k);border-radius:50%;animation:spin .7s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-#pempty{padding:2.5rem 1.5rem;display:flex;flex-direction:column;align-items:center;gap:.65rem;text-align:center;color:var(--g4)}
-.emp-ico{font-size:2.2rem}
-.emp-title{font-size:.88rem;font-weight:600;color:var(--g5)}
-.emp-sub{font-size:.75rem;line-height:1.5}
+/* Footer */
+#pfoot{padding:.6rem .85rem;border-top:1px solid var(--bd);background:var(--w);display:flex;align-items:center;justify-content:space-between}
+.pfoot-brand{font-size:.62rem;color:var(--g4);font-family:var(--mono)}
+.pfoot-actions{display:flex;gap:.4rem}
+.faction{padding:.3rem .55rem;background:var(--g1);border:1px solid var(--bd);border-radius:6px;font-size:.68rem;cursor:pointer;color:var(--g5);text-decoration:none}
 
-/* COMPONENTS */
+/* ═══ COMPONENTS (KPI, cards, tables, etc.) ═══ */
 .kpi-row{display:flex;gap:.45rem;margin-bottom:.65rem;flex-wrap:wrap}
 .kpi{background:var(--w);border:1px solid var(--bd);border-radius:9px;padding:.55rem .7rem;flex:1;min-width:75px;box-shadow:var(--sh)}
 .klbl{font-size:.58rem;color:var(--g4);font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.12rem}
@@ -208,57 +206,59 @@ html,body{width:100%;height:100%;font-family:var(--sans);background:var(--bg);co
 .interp.warn{background:linear-gradient(135deg,#fffbeb,#fef3c7);border-color:#fde68a;color:#78350f}
 .interp.bad{background:linear-gradient(135deg,#fff1f2,#ffe4e6);border-color:#fecdd3;color:#881337}
 .interp.good{background:linear-gradient(135deg,#f0fdf4,#dcfce7);border-color:#bbf7d0;color:#14532d}
-.pfoot{padding:.55rem .85rem;border-top:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;background:var(--w);flex-shrink:0}
-.pfoot-brand{font-size:.6rem;color:var(--g4);font-family:var(--mono)}
-.pfoot-actions{display:flex;gap:.35rem}
-.faction{padding:.25rem .45rem;background:var(--g1);border:1px solid var(--bd);border-radius:6px;font-size:.66rem;cursor:pointer;color:var(--g5)}
+.map-pin{width:20px;height:20px;background:var(--red);border:3px solid #fff;border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,.3);cursor:pointer}
 .maplibregl-popup-content{border-radius:11px!important;border:1.5px solid var(--bd)!important;box-shadow:var(--sh-lg)!important;padding:0!important;max-width:220px}
-.maplibregl-popup-content p{margin:0!important;width:210px!important}
 .pop{padding:.7rem}
 .pop-tag{font-family:var(--mono);font-size:.54rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--g4);margin-bottom:.18rem}
 .pop-name{font-size:.82rem;font-weight:700;color:var(--k);margin-bottom:.32rem;line-height:1.3}
-#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--k);color:#fff;padding:.5rem 1rem;border-radius:20px;font-size:.76rem;font-weight:600;z-index:9998;opacity:0;transition:all .25s;pointer-events:none;white-space:nowrap}
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--k);color:#fff;padding:.55rem 1.1rem;border-radius:20px;font-size:.78rem;font-weight:600;z-index:9998;opacity:0;transition:all .25s;pointer-events:none}
 #toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
 .empty{color:var(--g4);font-size:.75rem;font-style:italic}
 </style>
 </head>
 <body>
 
+<!-- PIN LOCK -->
 <div id="lock">
   <div class="lbox">
     <div class="llogo"><div class="lico">IA</div><div class="lname">Intent Analytics</div></div>
-    <div class="ltitle">Rapport Adresse</div>
-    <div class="lsub">Outil terrain professionnel. Accès réservé.</div>
-    <input id="lpin" class="lpin" type="password" placeholder="••••" maxlength="6" autocomplete="off">
+    <div class="ltitle">Accès privé</div>
+    <div class="lsub">Entrez le code d'accès pour consulter le rapport.</div>
+    <input class="lpin" id="pinInput" type="tel" inputmode="numeric" maxlength="6" placeholder="••••" autocomplete="off">
     <button class="lgo" onclick="checkPin()">Accéder →</button>
-    <div class="lerr" id="lerr"></div>
+    <div class="lerr" id="pinErr"></div>
   </div>
 </div>
 
-<div id="app" style="display:none">
-  <div id="bar">
-    <div class="bico">IA</div>
-    <div class="bname">Intent Analytics</div>
-    <div class="bdiv"></div>
-    <div id="sw">
-      <input id="si" type="text" placeholder="Rechercher une adresse…" autocomplete="off" spellcheck="false">
-    </div>
-    <button id="locbtn" onclick="locate()">📍</button>
+<!-- TOPBAR STICKY -->
+<header id="topbar">
+  <div class="bico">IA</div>
+  <div class="bname">Intent</div>
+  <div class="bdiv"></div>
+  <div id="sw">
+    <input id="si" type="text" placeholder="Entrez une adresse..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
   </div>
+  <div id="locbtn" onclick="locate()">📍</div>
+</header>
 
-  <!-- Dropdown autocomplete : hors #bar pour éviter overflow:hidden et touch issues iOS -->
-  <div id="sdd"></div>
+<!-- DROPDOWN AUTOCOMPLETE -->
+<div id="sdd"></div>
 
+<!-- MAP (hauteur fixe, flow normal — disparaît au scroll naturel) -->
+<div id="mapwrap">
+  <div id="map"></div>
+</div>
+
+<!-- RAPPORT (flow normal — scroll natif body) -->
+<main id="report">
+  <div id="pempty">
+    <div class="emp-ico">🏠</div>
+    <div class="emp-title">Analysez une adresse</div>
+    <div class="emp-sub">Prix · Risques · DPE · Transports<br>Eau · Air · Démographie · Bâtiment</div>
+  </div>
+  <div id="pload"><div class="spinner"></div><div style="font-size:.78rem;color:var(--g5)">Analyse en cours…</div></div>
   <div id="content">
-    <div id="mwrap"><div id="map"></div></div>
-
-    <div id="panel">
-      <div class="ph-handle">
-        <div class="drag-bar" id="drag-bar"></div>
-        <div id="btn-carte" onclick="closePanel()">🗺️ Carte</div>
-      </div>
-
-      <div id="ph">
+    <div id="ph">
         <div id="ph-inner">
           <div id="pempty">
             <div class="emp-ico">🏠</div>
@@ -292,8 +292,7 @@ html,body{width:100%;height:100%;font-family:var(--sans);background:var(--bg);co
           </div>
         </div>
       </div>
-
-      <div id="tabs" style="display:none">
+    <div id="tabs" style="display:none">
         <div class="tab on" data-tab="prix" onclick="switchTab('prix',this)">📈 Prix</div>
         <div class="tab" data-tab="risques" onclick="switchTab('risques',this)">⚠️ Risques</div>
         <div class="tab" data-tab="dpe" onclick="switchTab('dpe',this)">⚡ DPE</div>
@@ -305,11 +304,8 @@ html,body{width:100%;height:100%;font-family:var(--sans);background:var(--bg);co
         <div class="tab" data-tab="batiment" onclick="switchTab('batiment',this)">🏗️ Bâtiment</div>
         <div class="tab" data-tab="commune" onclick="switchTab('commune',this)">🏘️ Commune</div>
       </div>
-
-      <div id="pload"><div class="spinner"></div><span style="font-size:.8rem;color:var(--g4)">Analyse en cours…</span></div>
-
-      <div id="pbody">
-        <div class="tab-pane on" id="tab-prix">
+    <div id="pbody">
+<div class="tab-pane on" id="tab-prix">
           <div class="kpi-row" id="dvfK"></div>
           <div style="display:flex;align-items:center;gap:.5rem;padding:.4rem .5rem;background:var(--g1);border-radius:8px;margin-bottom:.5rem;font-size:.72rem;color:var(--g5)">
             <span>🏠 Surface bien :</span>
@@ -322,257 +318,167 @@ html,body{width:100%;height:100%;font-family:var(--sans);background:var(--bg);co
           <div id="esec"></div>
           <div class="card"><div class="card-title">Transactions récentes</div><div style="overflow-x:auto"><table class="dvf-table"><thead><tr><th>Date</th><th>Type</th><th>m²</th><th>€/m²</th></tr></thead><tbody id="dvfT"></tbody></table></div></div>
         </div>
-        <div class="tab-pane" id="tab-risques">
+      <div class="tab-pane" id="tab-risques">
           <div class="kpi-row" id="riskK"></div>
           <div class="card"><div class="card-title">Risques naturels & technologiques</div><div id="riskD"></div></div>
           <div class="card"><div class="card-title">Urbanisme · PLU</div><div id="pluD"></div></div>
         </div>
-        <div class="tab-pane" id="tab-dpe">
+      <div class="tab-pane" id="tab-dpe">
           <div class="kpi-row" id="dpeK"></div>
           <div class="card"><div class="card-title">Répartition par classe</div><div class="dpe-stack" id="dpeStack"></div><div id="dpeI"></div></div>
           <div class="card"><div class="card-title">Simulation rénovation · 75m²</div><div id="renoD"></div></div>
           <div class="card"><div class="card-title">Aides à la rénovation</div><div id="aidesD"><span class="empty">Chargement…</span></div></div>
         </div>
-        <div class="tab-pane" id="tab-transports">
+      <div class="tab-pane" id="tab-transports">
           <div class="kpi-row" id="transK"></div>
           <div id="transContent"></div>
         </div>
-        <div class="tab-pane" id="tab-services">
+      <div class="tab-pane" id="tab-services">
           <div class="kpi-row" id="poiK"></div>
           <div id="poiD"></div>
           <div class="card"><div class="card-title">Santé · 2km</div><div id="santeD"><span class="empty">Chargement…</span></div></div>
           <div class="card"><div class="card-title">Commerces · 800m</div><div id="shopD"><span class="empty">Chargement…</span></div></div>
           <div class="card"><div class="card-title">Entreprises actives · commune</div><div id="sireneD"><span class="empty">Chargement…</span></div></div>
         </div>
-        <div class="tab-pane" id="tab-eau">
+      <div class="tab-pane" id="tab-eau">
           <div class="kpi-row" id="eauK"></div>
           <div class="card"><div class="card-title">Qualité eau · HubEau</div><div id="eauD"></div></div>
         </div>
-        <div class="tab-pane" id="tab-air">
+      <div class="tab-pane" id="tab-air">
           <div class="kpi-row" id="airK"></div>
           <div class="card"><div class="card-title">Qualité de l'air · WAQI</div><div id="airD"></div></div>
           <div class="card"><div class="card-title">Météo · Open-Meteo</div><div id="climatD"></div></div>
         </div>
-        <div class="tab-pane" id="tab-demo">
+      <div class="tab-pane" id="tab-demo">
           <div class="kpi-row" id="demoK"></div>
           <div id="demoD"></div>
         </div>
-        <div class="tab-pane" id="tab-batiment">
+      <div class="tab-pane" id="tab-batiment">
           <div class="card"><div class="card-title">BDNB · Bâtiment</div><div id="bdnbD"></div></div>
           <div class="card"><div class="card-title">Cadastre · IGN</div><div id="cadastreD"></div></div>
         </div>
-        <div class="tab-pane" id="tab-commune">
+      <div class="tab-pane" id="tab-commune">
           <div id="communeD"></div>
         </div>
-      </div>
-
-      <div class="pfoot" id="pfoot" style="display:none">
+    </div>
+    <div class="pfoot" id="pfoot" style="display:none">
         <div class="pfoot-brand">Intent Analytics</div>
         <div class="pfoot-actions">
           <div class="faction" onclick="copyLink()">🔗 Lien</div>
           <div class="faction" onclick="window.print()">🖨️</div>
         </div>
       </div>
-    </div>
   </div>
-</div>
+</main>
+
 <div id="toast"></div>
-
 <script>
-// ── CONFIG ──
-var SB='https://wwvdpixzfaviaapixarb.supabase.co';
-var AK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3dmRwaXh6ZmF2aWFhcGl4YXJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3Mzk0NDgsImV4cCI6MjA5MDMxNTQ0OH0.NjOeWzUCo2BJPcxnkEJNm215GJBr1RAHba1eL_EF758';
-var PINS=['2213'];
-var map,pin,geo,curD,markers=[];
 
-// ══ WAQI TOKEN (qualité air) ══
-// Token public "demo" limité. Pour prod : https://aqicn.org/data-platform/token/ (gratuit)
+// ═══ CONFIG ═══
+var PINS=['2213'];
 var WAQI_TOKEN='demo';
 
-// ══ SEO : mise à jour complète de tous les tags après chargement d'adresse ══
-function updateSEO(d){
-  try{
-    if(!d||!d.geo)return;
-    var lab=d.geo.label||'';
-    var city=d.geo.city||'';
-    var cp=d.cp||'';
-    var lat=d.lat, lng=d.lng;
-    var url='https://intentanalytics.fr/carte?lat='+lat+'&lng='+lng;
-    var prix=(d.ap&&d.ap.dvf_prix_m2_median)?Math.round(d.ap.dvf_prix_m2_median)+'€/m²':'données non disponibles';
-    var title='Analyse immobilière '+lab+' — Intent Analytics';
-    var desc='Prix au m² ('+prix+'), risques, DPE, transports, démographie à '+lab+'. Rapport complet sur données publiques DVF, DPE, BAN, INSEE.';
-    function setA(id,attr,val){try{var e=document.getElementById(id);if(e&&attr)e.setAttribute(attr,val);}catch(e){}}
-    try{document.title=title;}catch(e){}
-    var pt=document.getElementById('page-title');if(pt)try{pt.textContent=title;}catch(e){}
-    setA('meta-desc','content',desc);
-    setA('meta-og-title','content',title);
-    setA('meta-og-desc','content',desc);
-    setA('meta-og-url','content',url);
-    setA('meta-geo-pos','content',lat+';'+lng);
-    setA('meta-geo-region','content','FR-'+(cp?cp.substring(0,2):''));
-    setA('meta-geo-place','content',city);
-    setA('canonical-link','href',url);
-    var jsonld=document.getElementById('jsonld');
-    if(jsonld){try{
-      jsonld.textContent=JSON.stringify({
-        "@context":"https://schema.org","@type":"Place","name":lab,"description":desc,"url":url,
-        "address":{"@type":"PostalAddress","streetAddress":lab,"postalCode":cp,"addressLocality":city,"addressCountry":"FR"},
-        "geo":{"@type":"GeoCoordinates","latitude":lat,"longitude":lng}
-      });
-    }catch(e){}}
-    try{history.replaceState({},title,'?lat='+lat+'&lng='+lng);}catch(e){}
-  }catch(err){/* updateSEO ne doit JAMAIS bloquer renderAll */}
-}
-var currentProfile='standard';
+// ═══ STATE ═══
+var map=null, pin=null, geo=null, curD=null, markers=[];
+var _mapReady=false;
+var _pendingCenter=null;
 
-// ── AUTH ──
+// ═══ UTIL : safeCall (aucune erreur isolée ne peut casser l\'UI) ═══
+function safeCall(fn,d){try{if(typeof fn==='function')fn(d);}catch(e){console.warn('[safeCall]',e);}}
+
+// ═══ PIN ═══
 function checkPin(){
-  var v=document.getElementById('lpin').value;
+  var v=document.getElementById('pinInput').value;
   if(PINS.indexOf(v)>=0){
     document.getElementById('lock').style.display='none';
-    var app=document.getElementById('app');
-    app.style.display='flex';
-    // Laisser le browser faire le reflow AVANT d\'initialiser Leaflet
+    // Init après PIN validé, dans le prochain frame pour que les éléments soient layouts
     requestAnimationFrame(function(){
-      requestAnimationFrame(function(){
-        initMap();
-        initFromURL();
-      });
+      initMap();
+      initSearch();
+      initFromURL();
     });
-  } else {
-    document.getElementById('lerr').textContent='Code incorrect';
-    document.getElementById('lpin').value='';
+  }else{
+    document.getElementById('pinErr').textContent='Code invalide';
   }
 }
-document.getElementById('lpin').addEventListener('keydown',function(e){if(e.key==='Enter')checkPin();});
+document.addEventListener('DOMContentLoaded',function(){
+  var pi=document.getElementById('pinInput');
+  if(pi){pi.focus();pi.addEventListener('keydown',function(e){if(e.key==='Enter')checkPin();});}
+});
 
-// ── SUPABASE ──
-function sr(path){
-  return fetch(SB+'/rest/v1/'+path,{headers:{'apikey':AK,'Authorization':'Bearer '+AK}})
-    .then(function(r){return r.ok?r.json():[];}).catch(function(){return[];});
-}
-function sf(t,f,l){
-  var q=Object.entries(f).map(function(e){return e[0]+'=eq.'+e[1];}).join('&');
-  return sr(t+'?'+q+'&limit='+(l||10));
-}
-function rpc(fn,p){
-  return fetch(SB+'/rest/v1/rpc/'+fn,{method:'POST',headers:{'apikey':AK,'Authorization':'Bearer '+AK,'Content-Type':'application/json'},body:JSON.stringify(p)})
-    .then(function(r){return r.ok?r.json():null;}).catch(function(){return null;});
-}
-
-// ── MAP ──
+// ═══ MAP : init simple + queue si pas prêt ═══
 function initMap(){
+  if(map)return;
   var container=document.getElementById('map');
-  // Hauteurs en pixels — fiable sur tous les iOS Safari
-  var barH=document.getElementById('bar').offsetHeight||52;
-  var halfH=Math.floor((window.innerHeight-barH)*0.38);// 38% carte, 62% panel
-  document.getElementById('mwrap').style.height=halfH+'px';
-  document.getElementById('panel').style.top=halfH+'px';
-  container.style.height=halfH+'px';
-  var w=container.offsetWidth,h=container.offsetHeight;
-  if(!w||h<50){setTimeout(initMap,200);return;}
-  // MapLibre GL — rendu WebGL, fiable iOS Safari
-  maplibregl.accessToken='';
-  map=new maplibregl.Map({
-    container:'map',
-    style:{
-      version:8,
-      sources:{'osm':{type:'raster',tiles:['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],tileSize:256,maxzoom:19,attribution:'© OpenStreetMap'}},
-      layers:[{id:'osm',type:'raster',source:'osm',minzoom:0,maxzoom:22}]
-    },
-    center:[2.3,46.6],zoom:5,
-    attributionControl:false,
-    pitchWithRotate:false,
-    dragRotate:false
-  });
-  map.addControl(new maplibregl.NavigationControl({showCompass:false}),'top-left');
-  map.addControl(new maplibregl.AttributionControl({compact:true}),'bottom-right');
-  markers=[];
-  map.on('click',function(e){rgc(e.lngLat.lat,e.lngLat.lng);});
-  // Flag quand la carte est prête à recevoir des commandes
-  window._mapReady=false;
-  map.on('load',function(){window._mapReady=true;map.resize();});
-  map.on('idle',function(){if(!window._mapReady){window._mapReady=true;map.resize();}});
-  setTimeout(resizeLayout,100);
-}
-
-// Force le centrage avec retry+vérif (bulletproof)
-function forceCenter(lng,lat,zoom){
-  if(!map)return;
-  var tries=0;
-  function attempt(){
-    tries++;
-    try{
-      map.setCenter([lng,lat]);
-      map.setZoom(zoom);
+  if(!container)return;
+  try{
+    map=new maplibregl.Map({
+      container:'map',
+      style:{
+        version:8,
+        sources:{'osm':{type:'raster',tiles:['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],tileSize:256,maxzoom:19,attribution:'© OpenStreetMap'}},
+        layers:[{id:'osm',type:'raster',source:'osm',minzoom:0,maxzoom:22}]
+      },
+      center:[2.3,46.6],zoom:5,
+      attributionControl:false,dragRotate:false,pitchWithRotate:false
+    });
+    map.addControl(new maplibregl.NavigationControl({showCompass:false}),'top-left');
+    map.addControl(new maplibregl.AttributionControl({compact:true}),'bottom-right');
+    map.on('load',function(){
+      _mapReady=true;
       map.resize();
-      var c=map.getCenter();
-      if(Math.abs(c.lng-lng)<0.005&&Math.abs(c.lat-lat)<0.005)return;
-    }catch(e){}
-    if(tries<15)setTimeout(attempt,180);
+      // Flush pending center si l\'utilisateur a cliqué avant le load
+      if(_pendingCenter){
+        try{map.setCenter(_pendingCenter.c);map.setZoom(_pendingCenter.z);}catch(e){}
+        _pendingCenter=null;
+      }
+    });
+    map.on('click',function(e){rgc(e.lngLat.lat,e.lngLat.lng);});
+  }catch(e){console.warn('[initMap]',e);}
+}
+
+// ═══ MAP : centrer sur (lng,lat) — simple, queue si pas ready ═══
+function goTo(lng,lat,zoom){
+  zoom=zoom||15;
+  if(!map){_pendingCenter={c:[lng,lat],z:zoom};return;}
+  if(_mapReady){
+    try{map.setCenter([lng,lat]);map.setZoom(zoom);map.resize();}catch(e){console.warn('[goTo]',e);}
+  }else{
+    _pendingCenter={c:[lng,lat],z:zoom};
   }
-  attempt();
 }
 
-// Layout pixels — UNIQUE source de vérité pour les hauteurs
-function resizeLayout(){
-  var bar=document.getElementById('bar');
-  var mwrap=document.getElementById('mwrap');
-  var panel=document.getElementById('panel');
-  var pbody=document.getElementById('pbody');
-  if(!bar||!mwrap||!panel||!pbody)return;
-  var barH=bar.offsetHeight||52;
-  var avail=window.innerHeight-barH;
-  var mapH=Math.floor(avail*0.38);
-  var panelH=avail-mapH;
-  mwrap.style.height=mapH+'px';
-  document.getElementById('map').style.height=mapH+'px';
-  panel.style.top=mapH+'px';
-  panel.style.height=panelH+'px';
-  // pbody = panel - handle - ph - tabs - pfoot
-  var handle=panel.querySelector('.ph-handle');
-  var ph=document.getElementById('ph');
-  var tabs=document.getElementById('tabs');
-  var pfoot=document.getElementById('pfoot');
-  var used=0;
-  if(handle)used+=handle.offsetHeight;
-  if(ph)used+=ph.offsetHeight;
-  if(tabs&&tabs.style.display!=='none')used+=tabs.offsetHeight;
-  if(pfoot&&pfoot.style.display!=='none')used+=pfoot.offsetHeight;
-  var pbH=panelH-used;
-  if(pbH>50){pbody.style.height=pbH+'px';pbody.style.maxHeight=pbH+'px';}
-  if(map)map.resize();
+// ═══ MAP : placer le pin ═══
+function placePin(lng,lat){
+  if(!map)return;
+  try{
+    if(pin)try{pin.remove();}catch(e){}
+    var el=document.createElement('div');el.className='map-pin';
+    pin=new maplibregl.Marker({element:el}).setLngLat([lng,lat]).addTo(map);
+  }catch(e){console.warn('[placePin]',e);}
 }
-window.addEventListener('resize',function(){setTimeout(resizeLayout,50);});
-window.addEventListener('orientationchange',function(){setTimeout(resizeLayout,300);});
+
+// ═══ URL init ═══
 function initFromURL(){
-  var p=new URLSearchParams(location.search);
-  var lat=parseFloat(p.get('lat')),lng=parseFloat(p.get('lng'));
-  if(lat&&lng)rgc(lat,lng);
-}
-function openPanel(){
-  // Split layout : panel toujours visible en bas, rien à animer
-  document.getElementById('panel').classList.add('open');
-  setTimeout(function(){if(map)map.resize();},100);
-}
-function closePanel(){
-  document.getElementById('panel').classList.remove('open');
-  setTimeout(function(){if(map)map.resize();},100);
+  try{
+    var p=new URLSearchParams(location.search);
+    var lat=parseFloat(p.get('lat')),lng=parseFloat(p.get('lng'));
+    if(isFinite(lat)&&isFinite(lng))rgc(lat,lng);
+  }catch(e){}
 }
 
-// ── SEARCH ──
-var deb;
+// ═══ SEARCH (autocomplete BAN) ═══
 function initSearch(){
   var si=document.getElementById('si');
   var dd=document.getElementById('sdd');
   if(!si||!dd)return;
-  // input event = plus fiable que oninput inline sur iOS Safari
+  var deb=null;
   si.addEventListener('input',function(){
     var q=si.value;
     clearTimeout(deb);
     if(!q||q.trim().length<3){dd.style.display='none';return;}
     deb=setTimeout(function(){
-      fetch('https://api-adresse.data.gouv.fr/search/?q='+encodeURIComponent(q.trim())+'&limit=6')
+      fetch('https://api-adresse.data.gouv.fr/search/?q='+encodeURIComponent(q.trim())+'&limit=6&type=housenumber')
         .then(function(r){return r.ok?r.json():null;})
         .then(function(res){
           dd.innerHTML='';
@@ -583,36 +489,24 @@ function initSearch(){
             var div=document.createElement('div');
             div.className='sg';
             div.textContent=f.properties.label;
-            // touchstart : fire immédiatement, pas de délai 300ms iOS
-            div.addEventListener('touchstart',function(e){
-              e.preventDefault();
-              pickSugg(i);
-            },{passive:false});
-            // mousedown : desktop
-            div.addEventListener('mousedown',function(e){
-              e.preventDefault();
-              pickSugg(i);
-            });
+            div.addEventListener('touchstart',function(e){e.preventDefault();pickSugg(i);},{passive:false});
+            div.addEventListener('mousedown',function(e){e.preventDefault();pickSugg(i);});
             dd.appendChild(div);
           });
-          // Position dynamique sous l'input
           var r=si.getBoundingClientRect();
           dd.style.top=(r.bottom+5)+'px';
           dd.style.left=r.left+'px';
           dd.style.right=(window.innerWidth-r.right)+'px';
           dd.style.display='block';
         }).catch(function(){dd.style.display='none';});
-    },300);
+    },280);
   });
-  // Fermer dropdown au blur avec délai
-  si.addEventListener('blur',function(){
-    setTimeout(function(){dd.style.display='none';},300);
-  });
-  // Fermer dropdown si clic hors
+  si.addEventListener('blur',function(){setTimeout(function(){dd.style.display='none';},280);});
   document.addEventListener('touchstart',function(e){
     if(!dd.contains(e.target)&&e.target!==si)dd.style.display='none';
   },{passive:true});
 }
+
 function pickSugg(i){
   var f=window._sugg&&window._sugg[i];
   if(!f)return;
@@ -621,44 +515,177 @@ function pickSugg(i){
   document.getElementById('sdd').style.display='none';
   si.blur();
   geo=f.properties;
-  forceCenter(+f.properties.x,+f.properties.y,16);
+  // Scroll en haut pour voir la carte recentrée
+  try{window.scrollTo({top:0,behavior:'smooth'});}catch(e){window.scrollTo(0,0);}
   loadReport();
 }
-function hideSugg(){document.getElementById('sdd').style.display='none';}
+
+function hideSugg(){var dd=document.getElementById('sdd');if(dd)dd.style.display='none';}
 
 function locate(){
-  if(!navigator.geolocation)return toast('Non supporté');
+  if(!navigator.geolocation){toast('Géoloc non disponible');return;}
   navigator.geolocation.getCurrentPosition(function(p){
-    forceCenter(p.coords.longitude,p.coords.latitude,17);
     rgc(p.coords.latitude,p.coords.longitude);
-  },function(){toast('Refusé');});
-}
-function rgc(lat,lng){
-  fetch('https://api-adresse.data.gouv.fr/reverse/?lon='+lng+'&lat='+lat)
-    .then(function(r){return r.json();})
-    .then(function(res){
-      if(res.features&&res.features.length){
-        geo=res.features[0].properties;geo.x=+lng;geo.y=+lat;
-        document.getElementById('si').value=geo.label||'';
-        loadReport();
-      }else toast('Adresse introuvable');
-    }).catch(function(){toast('Erreur');});
+  },function(){toast('Géoloc refusée');},{enableHighAccuracy:true,timeout:8000});
 }
 
-// ── UTILS ──
+function rgc(lat,lng){
+  fetch('https://api-adresse.data.gouv.fr/reverse/?lon='+lng+'&lat='+lat+'&limit=1')
+    .then(function(r){return r.ok?r.json():null;})
+    .then(function(res){
+      if(!res||!res.features||!res.features.length){toast('Adresse non trouvée');return;}
+      var f=res.features[0];
+      geo=f.properties;
+      document.getElementById('si').value=f.properties.label||'';
+      try{window.scrollTo({top:0,behavior:'smooth'});}catch(e){window.scrollTo(0,0);}
+      loadReport();
+    }).catch(function(){toast('Erreur géocodage');});
+}
+
+// ═══ SUPABASE helpers ═══
+var SUPA_URL='https://wwvdpixzfaviaapixarb.supabase.co';
+var SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3dmRwaXh6ZmF2aWFhcGl4YXJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ3MDg2MzEsImV4cCI6MjA1MDI4NDYzMX0.VjrTaYGxJCe1wmf-rKRkzZd2iPE6VrHVbC6_PHK47Mo';
+function sr(path){
+  return fetch(SUPA_URL+'/rest/v1/'+path,{headers:{apikey:SUPA_KEY,Authorization:'Bearer '+SUPA_KEY}})
+    .then(function(r){return r.ok?r.json():[];}).catch(function(){return [];});
+}
+function sf(table,filters,limit){
+  var q=Object.keys(filters).map(function(k){return k+'=eq.'+filters[k];}).join('&');
+  return sr(table+'?'+q+(limit?'&limit='+limit:''));
+}
+function rpc(name,params){
+  return fetch(SUPA_URL+'/rest/v1/rpc/'+name,{method:'POST',headers:{apikey:SUPA_KEY,Authorization:'Bearer '+SUPA_KEY,'Content-Type':'application/json'},body:JSON.stringify(params)})
+    .then(function(r){return r.ok?r.json():null;}).catch(function(){return null;});
+}
+
+// ═══ LOADREPORT : simple, pas de magie ═══
+function loadReport(){
+  if(!geo){toast('Adresse manquante');return;}
+  var cc=geo.citycode, cp=geo.postcode;
+  var lat=+geo.y, lng=+geo.x;
+  if(!cc){toast('Code INSEE introuvable');return;}
+
+  // UI : passage en loading
+  document.getElementById('pempty').style.display='none';
+  document.getElementById('content').classList.remove('on');
+  document.getElementById('pload').classList.add('on');
+
+  // Carte : centrer + pin
+  goTo(lng,lat,15);
+  placePin(lng,lat);
+  clearMarkers();
+
+  // Data
+  Promise.all([
+    sr('address_profile?code_commune=eq.'+cc+'&select=dvf_prix_m2_median,dvf_prix_m2_p25,dvf_prix_m2_p75,dvf_prix_m2_trend_1y,dpe_etiquette_modale,dpe_nb_bilans,bpe_score_global,bpe_score_transport,bpe_score_education,score_potentiel_dpe&dvf_prix_m2_median=not.is.null&order=dvf_prix_m2_median.desc&limit=1'),
+    sr('score_localisation_commune?code_commune=eq.'+cc+'&select=score_localisation,score_accessibilite,score_securite,score_services,score_risques_naturels,score_dynamisme,detail_accessibilite,detail_dynamisme&limit=1'),
+    sr('dvf_mutations?code_commune=eq.'+cc+'&select=valeur_fonciere,surface_reelle_bati,type_local,date_mutation&order=date_mutation.desc&limit=200'),
+    sr('dpe_diagnostics?code_postal=eq.'+cp+'&select=classe_energie,date_reception_dpe&limit=500'),
+    sf('data_georisques',{code_commune:cc},1),
+    sf('data_plu_communes',{code_commune:cc},1),
+    sf('data_bdnb_batiments',{code_commune_insee:cc},50),
+    sf('data_demographie_commune',{code_commune:cc},1),
+    sf('poi_scores_commune',{code_commune:cc},1),
+    sf('data_qualite_eau',{code_commune:cc},1),
+    sr('ml_training_v8?code_commune=eq.'+cc+'&select=prix_zone_median&limit=5'),
+    sr('transport_stops?code_commune=eq.'+cc+'&select=stop_id,stop_name,stop_lat,stop_lon,network_name,agency_name&limit=200'),
+    sr('data_etablissements_scolaires?code_commune=eq.'+cc+'&select=uai,nom,type,latitude,longitude,secteur,taux_reussite_bac,nb_eleves&limit=100'),
+    sf('commune_wiki',{code_commune:cc},1)
+  ]).then(function(R){
+    // Fallback DVF par code_postal si vide
+    if((!R[2]||!R[2].length)&&cp){
+      return sr('dvf_mutations?code_postal=eq.'+cp+'&select=valeur_fonciere,surface_reelle_bati,type_local,date_mutation&order=date_mutation.desc&limit=200').then(function(f){
+        if(f&&f.length)R[2]=f;
+        return R;
+      });
+    }
+    return R;
+  }).then(function(R){
+    document.getElementById('pload').classList.remove('on');
+    document.getElementById('content').classList.add('on');
+    curD={
+      geo:geo,cc:cc,cp:cp,lat:lat,lng:lng,
+      ap:R[0]&&R[0][0]||null,
+      sc:R[1]&&R[1][0]||null,
+      dvf:R[2]||[],dpe:R[3]||[],
+      risk:R[4]&&R[4][0]||null,
+      plu:R[5]&&R[5][0]||null,
+      bdnb:R[6]||[],
+      demo:R[7]&&R[7][0]||null,
+      poi:R[8]&&R[8][0]||null,
+      eau:R[9]&&R[9][0]||null,
+      ml:R[10]||[],
+      trans:R[11]||[],
+      ecoles:R[12]||[],
+      wiki:R[13]&&R[13][0]||null
+    };
+    renderAll(curD);
+  }).catch(function(err){
+    console.warn('[loadReport]',err);
+    document.getElementById('pload').classList.remove('on');
+    document.getElementById('pempty').style.display='flex';
+    toast('Erreur chargement');
+  });
+}
+
+// ═══ RENDER ALL : safeCall sur chaque, aucune ne peut bloquer les autres ═══
+function renderAll(d){
+  safeCall(updateSEO,d);
+  safeCall(renderHeader,d);
+  safeCall(renderPrix,d);safeCall(renderRisques,d);safeCall(renderDPE,d);
+  safeCall(renderTransports,d);safeCall(renderServices,d);safeCall(renderEau,d);
+  safeCall(renderDemo,d);safeCall(renderBatiment,d);safeCall(renderCommune,d);
+  safeCall(doEstim,d);safeCall(loadSirene,d);safeCall(renderAides,d);
+  safeCall(loadMapLayers,d);safeCall(rcadastre,d);safeCall(rair,d);safeCall(rclimat,d);
+  safeCall(loadServicesOSM,d);
+  // Pfoot + address
+  var pfoot=document.getElementById('pfoot');if(pfoot)pfoot.style.display='flex';
+  var paddr=document.getElementById('paddr');if(paddr)paddr.textContent=d.geo.label||'—';
+  var psub=document.getElementById('psub');if(psub)psub.textContent=(d.cp||'')+' '+(d.geo.city||'')+(d.cc?' · INSEE '+d.cc:'');
+  // URL propre
+  try{history.replaceState({},'','?lat='+d.lat+'&lng='+d.lng);}catch(e){}
+}
+
+
+// ═══ FONCTIONS UTILITAIRES + RENDER (préservées) ═══
+
+function sr(path){
+  return fetch(SB+'/rest/v1/'+path,{headers:{'apikey':AK,'Authorization':'Bearer '+AK}})
+    .then(function(r){return r.ok?r.json():[];}).catch(function(){return[];});
+}
+
+function sf(t,f,l){
+  var q=Object.entries(f).map(function(e){return e[0]+'=eq.'+e[1];}).join('&');
+  return sr(t+'?'+q+'&limit='+(l||10));
+}
+
+function rpc(fn,p){
+  return fetch(SB+'/rest/v1/rpc/'+fn,{method:'POST',headers:{'apikey':AK,'Authorization':'Bearer '+AK,'Content-Type':'application/json'},body:JSON.stringify(p)})
+    .then(function(r){return r.ok?r.json():null;}).catch(function(){return null;});
+}
+
 function fmt(n){if(!n&&n!==0)return'—';return Math.round(n).toLocaleString('fr-FR')+'€';}
+
 function fmtN(n){if(!n&&n!==0)return'—';return Math.round(n).toLocaleString('fr-FR');}
+
 function fd(m){return m<1000?Math.round(m)+'m':(m/1000).toFixed(1)+'km';}
+
 function dist(a,b,c,d){var R=6371e3,p1=a*Math.PI/180,p2=c*Math.PI/180,dp=(c-a)*Math.PI/180,dl=(d-b)*Math.PI/180;var x=Math.sin(dp/2)*Math.sin(dp/2)+Math.cos(p1)*Math.cos(p2)*Math.sin(dl/2)*Math.sin(dl/2);return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));}
+
 function toast(msg){var el=document.getElementById('toast');el.textContent=msg;el.classList.add('on');setTimeout(function(){el.classList.remove('on');},2400);}
+
 function grade(s){return s>=80?'A':s>=65?'B':s>=50?'C':s>=35?'D':s>=20?'E':'F';}
+
 function colorS(s){return s>=65?'var(--green)':s>=40?'var(--amber)':'var(--red)';}
+
 function kpi(c,l,v,s){return'<div class="kpi"><div class="klbl">'+l+'</div><div class="kval '+(c||'')+'">'+v+'</div>'+(s?'<div class="ksub">'+s+'</div>':'')+'</div>';}
+
 function dr(l,v){return'<div class="dr"><span class="dl">'+l+'</span><span class="dv">'+(v!=null?v:'—')+'</span></div>';}
+
 function bb(l,v){var c=v>=70?'var(--green)':v>=40?'var(--amber)':'var(--red)';return'<div class="bb"><div class="bbl">'+l+'</div><div class="bbr"><div class="bbf" style="width:'+v+'%;background:'+c+'"></div></div><div class="bbv">'+Math.round(v)+'</div></div>';}
+
 function interp(msg,type){if(!msg)return'';return'<div class="interp '+(type||'')+'">'+msg+'</div>';}
 
-// Scale bar avec min/p25/median/p75/max
 function scaleBar(o){
   if(o.val==null||o.min==null||o.max==null)return'';
   var r=o.max-o.min;if(r<=0)return'';
@@ -684,7 +711,6 @@ function scaleBar(o){
     (o.note?interp(o.note,o.noteType):'')+'</div>';
 }
 
-// Popup carte
 function mkPop(ico,type,name,detail,dd,color,lat,lng){
   var gmaps='https://www.google.com/maps/dir/?api=1&destination='+lat+','+lng+'&origin='+curD.lat+','+curD.lng;
   return'<div class="pop">'+
@@ -696,7 +722,28 @@ function mkPop(ico,type,name,detail,dd,color,lat,lng){
   '</div>';
 }
 
-// ── TABS ──
+function hideSugg(){document.getElementById('sdd').style.display='none';}
+
+function locate(){
+  if(!navigator.geolocation)return toast('Non supporté');
+  navigator.geolocation.getCurrentPosition(function(p){
+    forceCenter(p.coords.longitude,p.coords.latitude,17);
+    rgc(p.coords.latitude,p.coords.longitude);
+  },function(){toast('Refusé');});
+}
+
+function rgc(lat,lng){
+  fetch('https://api-adresse.data.gouv.fr/reverse/?lon='+lng+'&lat='+lat)
+    .then(function(r){return r.json();})
+    .then(function(res){
+      if(res.features&&res.features.length){
+        geo=res.features[0].properties;geo.x=+lng;geo.y=+lat;
+        document.getElementById('si').value=geo.label||'';
+        loadReport();
+      }else toast('Adresse introuvable');
+    }).catch(function(){toast('Erreur');});
+}
+
 function switchTab(id,el){
   document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('on');});
   document.querySelectorAll('.tab-pane').forEach(function(p){p.classList.remove('on');});
@@ -704,6 +751,7 @@ function switchTab(id,el){
   document.getElementById('tab-'+id).classList.add('on');
   openPanel();
 }
+
 function setProfile(p,el){
   currentProfile=p;
   document.querySelectorAll('.ppill').forEach(function(x){x.classList.remove('on');});
@@ -711,98 +759,6 @@ function setProfile(p,el){
   if(curD)renderHeader(curD);
 }
 
-// ── LOAD REPORT ──
-function loadReport(){
-  if(!geo)return;
-  var cc=geo.citycode,cp=geo.postcode,lat=+geo.y,lng=+geo.x;
-  if(!cc){toast('Code INSEE introuvable');return;}
-  // UI d'abord — quoi qu'il arrive avec la carte
-  clearMarkers();
-  document.getElementById('pempty').style.display='none';
-  document.getElementById('ph-loaded').style.display='none';
-  document.getElementById('tabs').style.display='none';
-  document.getElementById('pbody').classList.remove('on');
-  document.getElementById('pload').classList.add('on');
-  document.getElementById('pfoot').style.display='none';
-  openPanel();
-  // Carte — forceCenter avec retry+vérif, pin Marker isolé
-  try{
-    var pinEl=document.createElement('div');pinEl.className='map-pin';
-    if(pin)try{pin.remove();}catch(e){}
-    pin=new maplibregl.Marker({element:pinEl}).setLngLat([lng,lat]).addTo(map);
-  }catch(e){}
-  forceCenter(lng,lat,15);
-  // SEO updated in renderAll via updateSEO()
-  Promise.all([
-    sr('address_profile?code_commune=eq.'+cc+'&select=dvf_prix_m2_median,dvf_prix_m2_p25,dvf_prix_m2_p75,dvf_prix_m2_trend_1y,dpe_etiquette_modale,dpe_nb_bilans,bpe_score_global,bpe_score_transport,bpe_score_education,score_potentiel_dpe&dvf_prix_m2_median=not.is.null&order=dvf_prix_m2_median.desc&limit=1'),
-    sr('score_localisation_commune?code_commune=eq.'+cc+'&select=score_localisation,score_accessibilite,score_securite,score_services,score_risques_naturels,score_dynamisme,detail_accessibilite,detail_dynamisme&limit=1'),
-    sr('dvf_mutations?code_commune=eq.'+cc+'&select=valeur_fonciere,surface_reelle_bati,type_local,date_mutation&order=date_mutation.desc&limit=200'),
-    sr('dpe_diagnostics?code_postal=eq.'+cp+'&select=classe_energie,date_reception_dpe&limit=500'),
-    sf('data_georisques',{code_commune:cc},1),
-    sf('data_plu_communes',{code_commune:cc},1),
-    sf('data_bdnb_batiments',{code_commune_insee:cc},50),
-    sf('data_demographie_commune',{code_commune:cc},1),
-    sf('poi_scores_commune',{code_commune:cc},1),
-    sf('data_qualite_eau',{code_commune:cc},1),
-    sr('ml_training_v8?code_commune=eq.'+cc+'&select=prix_zone_median&limit=5'),
-    sr('transport_stops?code_commune=eq.'+cc+'&select=stop_id,stop_name,stop_lat,stop_lon,network_name,agency_name&limit=200'),
-    sr('data_etablissements_scolaires?code_commune=eq.'+cc+'&select=uai,nom,type,latitude,longitude,secteur,taux_reussite_bac,nb_eleves&limit=100'),
-    sf('commune_wiki',{code_commune:cc},1)
-  ]).then(function(R){
-    // Fallback DVF : si 0 résultats par code_commune, essayer par code_postal
-    if((!R[2]||!R[2].length)&&cp){
-      return sr('dvf_mutations?code_postal=eq.'+cp+'&select=valeur_fonciere,surface_reelle_bati,type_local,date_mutation&order=date_mutation.desc&limit=200').then(function(dvfFallback){
-        if(dvfFallback&&dvfFallback.length)R[2]=dvfFallback;
-        return R;
-      });
-    }
-    return R;
-  }).then(function(R){
-    document.getElementById('pload').classList.remove('on');
-    curD={
-      geo:geo,cc:cc,cp:cp,lat:lat,lng:lng,
-      ap:R[0]&&R[0][0]||null,
-      sc:R[1]&&R[1][0]||null,
-      dvf:R[2]||[],dpe:R[3]||[],
-      risk:R[4]&&R[4][0]||null,
-      plu:R[5]&&R[5][0]||null,
-      bdnb:R[6]||[],
-      demo:R[7]&&R[7][0]||null,
-      poi:R[8]&&R[8][0]||null,
-      eau:R[9]&&R[9][0]||null,
-      ml:R[10]||[],
-      trans:R[11]||[],
-      ecoles:R[12]||[],
-      wiki:R[13]&&R[13][0]||null
-    };
-    renderAll(curD);
-    history.replaceState({},'','?lat='+lat+'&lng='+lng);
-  });
-}
-
-function safeCall(fn,d){try{fn(d);}catch(e){/* jamais bloquer le render global */}}
-function renderAll(d){
-  safeCall(updateSEO,d);
-  safeCall(renderHeader,d);safeCall(renderPrix,d);safeCall(renderRisques,d);safeCall(renderDPE,d);
-  safeCall(renderTransports,d);safeCall(renderServices,d);safeCall(renderEau,d);safeCall(renderDemo,d);
-  safeCall(renderBatiment,d);safeCall(renderCommune,d);safeCall(doEstim,d);
-  safeCall(loadSirene,d);safeCall(renderAides,d);
-  safeCall(loadMapLayers,d);
-  safeCall(rcadastre,d);safeCall(rair,d);safeCall(rclimat,d);
-  safeCall(loadServicesOSM,d);
-  document.getElementById('ph-loaded').style.display='block';
-  document.getElementById('tabs').style.display='flex';
-  var pbody=document.getElementById('pbody');
-  pbody.classList.add('on');
-  document.getElementById('pfoot').style.display='flex';
-  // Recalcul layout pixel après affichage de tous les éléments
-  setTimeout(resizeLayout,50);
-  setTimeout(resizeLayout,300);
-  document.getElementById('paddr').textContent=d.geo.label||'—';
-  document.getElementById('psub').textContent=(d.cp||'')+' '+(d.geo.city||'')+(d.cc?' · INSEE '+d.cc:'');
-}
-
-// ── RENDER HEADER ──
 function renderHeader(d){
   var sc=d.sc,score=sc?Math.round(sc.score_localisation||0):null;
   var fill=document.getElementById('sc-fill'),circ=2*Math.PI*27;
@@ -837,13 +793,13 @@ function renderHeader(d){
     scard('⚠️','Risques',rn+' risque'+(rn!==1?'s':''),risk?(['','Z1','Z2','Z3','Z4','Z5'][risk.risque_seisme||0]||'Z0'):'',Math.max(0,100-rn*20),'var(--red)')+
     scard('💧','Enviro.',conf?conf+'%':'N/D',trans+' arrêts TC',conf||80,'var(--blue)');
 }
+
 function scard(ico,title,main,sub,pct,color){
   return'<div class="scard"><div class="scard-header"><div class="scard-title">'+ico+' '+title+'</div><div class="scard-score">'+Math.round(pct)+'</div></div>'+
     '<div class="scard-bar"><div class="scard-fill" style="width:'+Math.max(2,pct)+'%;background:'+color+'"></div></div>'+
     '<div class="scard-main">'+main+'</div><div class="scard-sub">'+sub+'</div></div>';
 }
 
-// ── PRIX ──
 function renderPrix(d){
   var ap=d.ap,trend=ap&&ap.dvf_prix_m2_trend_1y;
   // Filtre surface ±30% si renseigné
@@ -892,7 +848,6 @@ function renderPrix(d){
   }).join('')||'<tr><td colspan="4" style="text-align:center;padding:.7rem;color:var(--g4)">Aucune transaction</td></tr>';
 }
 
-// ── ESTIMATION ──
 function doEstim(d){
   var el=document.getElementById('esec');
   el.innerHTML='<div class="estim-card"><div class="estim-tag">CALCUL…</div></div>';
@@ -915,7 +870,6 @@ function doEstim(d){
   });
 }
 
-// ── RISQUES ──
 function renderRisques(d){
   var r=d.risk;
   if(!r){document.getElementById('riskK').innerHTML=kpi('','Risques','N/D','');document.getElementById('riskD').innerHTML='<span class="empty">Non disponible</span>';return;}
@@ -938,7 +892,6 @@ function renderRisques(d){
   document.getElementById('pluD').innerHTML=p?dr('Zone dominante',p.zone_dominante||'—')+dr('Zone U',p.pct_zone_u?p.pct_zone_u+'%':'—')+dr('Zone N',p.pct_zone_n?p.pct_zone_n+'%':'—'):'<span class="empty">PLU non numérisé</span>';
 }
 
-// ── DPE ──
 function renderDPE(d){
   if(d.dpe.length<3){
     document.getElementById('dpeK').innerHTML=kpi('','DPE','Insuffisant',d.dpe.length+' bilans');
@@ -964,7 +917,6 @@ function renderDPE(d){
   else document.getElementById('renoD').innerHTML='<span class="empty">Données prix insuffisantes</span>';
 }
 
-// ── TRANSPORTS ──
 function renderTransports(d){
   var trans=d.trans;
   if(!trans.length){
@@ -1045,7 +997,6 @@ function renderTransports(d){
     }).catch(function(){});
 }
 
-// ── SERVICES (commerces + santé) ──
 function renderServices(d){
   var poi=d.poi;
   if(!poi){document.getElementById('poiK').innerHTML=kpi('','Équipements','N/D','');document.getElementById('poiD').innerHTML='<span class="empty">Score BPE non disponible</span>';return;}
@@ -1108,7 +1059,6 @@ function loadServicesOSM(d){
     });
 }
 
-// ── EAU ──
 function renderEau(d){
   var e=d.eau;
   if(!e){document.getElementById('eauD').innerHTML='<span class="empty">Données non disponibles</span>';return;}
@@ -1131,7 +1081,6 @@ function renderEau(d){
   document.getElementById('eauD').innerHTML=h;
 }
 
-// ── DEMO ──
 function renderDemo(d){
   var dm=d.demo;
   if(!dm){document.getElementById('demoD').innerHTML='<span class="empty">Données non disponibles</span>';return;}
@@ -1162,58 +1111,10 @@ function renderDemo(d){
   document.getElementById('demoD').innerHTML=h||dr('Population',fmtN(pop));
 }
 
-// ── BATIMENT ──
 function renderBatiment(d){
   if(!d.bdnb.length){document.getElementById('bdnbD').innerHTML='<span class="empty">Données BDNB non disponibles</span>';return;}
   var b=d.bdnb[0];
   document.getElementById('bdnbD').innerHTML=dr('Année construction',b.annee_construction||'—')+dr('Hauteur',b.hauteur_mean?Math.round(b.hauteur_mean)+'m':'—')+dr('Logements',b.nb_log||'—')+dr('DPE bâtiment',b.classe_bilan_dpe||'—')+dr('Matériaux',b.mat_mur_txt||'—');
-}
-
-// ── COMMUNE ──
-// ══ SIRENE : entreprises actives dans la commune ══
-function loadSirene(d){
-  try{
-  var el=document.getElementById('sireneD');
-  if(!el||!d.cc){if(el)el.innerHTML='<span class="empty">Commune non renseignée</span>';return;}
-  fetch('https://recherche-entreprises.api.gouv.fr/search?code_commune='+d.cc+'&etat_administratif=A&page=1&per_page=8')
-    .then(function(r){return r.ok?r.json():null;})
-    .then(function(res){
-      if(!res||!res.results||!res.results.length){el.innerHTML='<span class="empty">Aucune entreprise active</span>';return;}
-      var total=res.total_results||res.results.length;
-      var html='<div style="font-size:.7rem;color:var(--g5);margin-bottom:.4rem">'+fmtN(total)+' entreprises actives dans la commune</div>';
-      res.results.forEach(function(e){
-        var naf=e.activite_principale||'';
-        var nom=e.nom_complet||e.nom_raison_sociale||'—';
-        html+='<div class="poi-item"><div style="flex:1;min-width:0"><div class="poi-name">'+nom+'</div><div class="poi-sub">'+naf+'</div></div></div>';
-      });
-      el.innerHTML=html;
-    }).catch(function(){el.innerHTML='<span class="empty">API indisponible</span>';});
-  }catch(e){}
-}
-
-// ══ AIDES RÉNOVATION : ADEME AGIR + Mes Aides Réno + CEE ══
-function renderAides(d){
-  try{
-  var el=document.getElementById('aidesD');
-  if(!el||!d.cc){if(el)el.innerHTML='<span class="empty">Commune non renseignée</span>';return;}
-  var dpeMode=d.ap&&d.ap.dpe_etiquette_modale;
-  var ctx='';
-  if(dpeMode){
-    var isPassoire=/^[FG]$/i.test(dpeMode);
-    ctx='<div class="interp '+(isPassoire?'warn':'')+'" style="margin-bottom:.5rem">DPE dominant : <b>'+dpeMode+'</b>'+(isPassoire?' · passoire thermique, aides majorées possibles':'')+'</div>';
-  }
-  var params='?commune='+d.cc+(d.cp?'&codePostal='+d.cp:'');
-  var html=ctx+
-    '<div class="poi-item"><div style="flex:1"><div class="poi-name">🏛️ Mes Aides Réno</div><div class="poi-sub">Simulateur officiel France Rénov\'</div></div>'+
-    '<a href="https://mesaidesreno.beta.gouv.fr/" target="_blank" rel="noopener" class="poi-nav">Simuler</a></div>'+
-    '<div class="poi-item"><div style="flex:1"><div class="poi-name">💰 AGIR ADEME</div><div class="poi-sub">Aides financières régionales</div></div>'+
-    '<a href="https://agirpourlatransition.ademe.fr/particuliers/aides-renovation-logement" target="_blank" rel="noopener" class="poi-nav">Voir</a></div>'+
-    '<div class="poi-item"><div style="flex:1"><div class="poi-name">⚡ MaPrimeRénov\'</div><div class="poi-sub">Principale aide nationale</div></div>'+
-    '<a href="https://france-renov.gouv.fr/aides/maprimerenov" target="_blank" rel="noopener" class="poi-nav">Barème</a></div>'+
-    '<div class="poi-item"><div style="flex:1"><div class="poi-name">🔋 CEE — Certificats</div><div class="poi-sub">Coup de pouce énergie</div></div>'+
-    '<a href="https://www.ecologie.gouv.fr/politiques-publiques/dispositif-certificats-deconomies-denergie-cee" target="_blank" rel="noopener" class="poi-nav">Conditions</a></div>';
-  el.innerHTML=html;
-  }catch(e){}
 }
 
 function renderCommune(d){
@@ -1260,7 +1161,6 @@ function renderCommune(d){
   document.getElementById('meta-geo-place').setAttribute('content',city);
 }
 
-// ── CADASTRE ──
 function rcadastre(d){
   fetch('https://apicarto.ign.fr/api/cadastre/parcelle?lon='+d.lng+'&lat='+d.lat+'&_limit=1')
     .then(function(r){return r.ok?r.json():null;})
@@ -1280,7 +1180,6 @@ function rcadastre(d){
     }).catch(function(){document.getElementById('cadastreD').innerHTML='<span class="empty">Non disponible</span>';});
 }
 
-// ── AIR ──
 function rair(d){
   var el=document.getElementById('airD');
   fetch('https://api.waqi.info/feed/geo:'+d.lat+';'+d.lng+'/?token='+WAQI_TOKEN)
@@ -1302,7 +1201,6 @@ function rair(d){
     }).catch(function(){el.innerHTML='<span class="empty">Service indisponible</span>';});
 }
 
-// ── MÉTÉO ──
 function rclimat(d){
   var el=document.getElementById('climatD');
   fetch('https://api.open-meteo.com/v1/forecast?latitude='+d.lat+'&longitude='+d.lng+'&current=temperature_2m,weather_code,wind_speed_10m,relative_humidity_2m&daily=temperature_2m_max,temperature_2m_min,precipitation_sum&timezone=auto&forecast_days=1')
@@ -1327,7 +1225,84 @@ function rclimat(d){
     }).catch(function(){el.innerHTML='<span class="empty">Météo indisponible</span>';});
 }
 
-// ── COUCHES CARTE ──
+function loadSirene(d){
+  try{
+  var el=document.getElementById('sireneD');
+  if(!el||!d.cc){if(el)el.innerHTML='<span class="empty">Commune non renseignée</span>';return;}
+  fetch('https://recherche-entreprises.api.gouv.fr/search?code_commune='+d.cc+'&etat_administratif=A&page=1&per_page=8')
+    .then(function(r){return r.ok?r.json():null;})
+    .then(function(res){
+      if(!res||!res.results||!res.results.length){el.innerHTML='<span class="empty">Aucune entreprise active</span>';return;}
+      var total=res.total_results||res.results.length;
+      var html='<div style="font-size:.7rem;color:var(--g5);margin-bottom:.4rem">'+fmtN(total)+' entreprises actives dans la commune</div>';
+      res.results.forEach(function(e){
+        var naf=e.activite_principale||'';
+        var nom=e.nom_complet||e.nom_raison_sociale||'—';
+        html+='<div class="poi-item"><div style="flex:1;min-width:0"><div class="poi-name">'+nom+'</div><div class="poi-sub">'+naf+'</div></div></div>';
+      });
+      el.innerHTML=html;
+    }).catch(function(){el.innerHTML='<span class="empty">API indisponible</span>';});
+  }catch(e){}
+}
+
+function renderAides(d){
+  try{
+  var el=document.getElementById('aidesD');
+  if(!el||!d.cc){if(el)el.innerHTML='<span class="empty">Commune non renseignée</span>';return;}
+  var dpeMode=d.ap&&d.ap.dpe_etiquette_modale;
+  var ctx='';
+  if(dpeMode){
+    var isPassoire=/^[FG]$/i.test(dpeMode);
+    ctx='<div class="interp '+(isPassoire?'warn':'')+'" style="margin-bottom:.5rem">DPE dominant : <b>'+dpeMode+'</b>'+(isPassoire?' · passoire thermique, aides majorées possibles':'')+'</div>';
+  }
+  var params='?commune='+d.cc+(d.cp?'&codePostal='+d.cp:'');
+  var html=ctx+
+    '<div class="poi-item"><div style="flex:1"><div class="poi-name">🏛️ Mes Aides Réno</div><div class="poi-sub">Simulateur officiel France Rénov\'</div></div>'+
+    '<a href="https://mesaidesreno.beta.gouv.fr/" target="_blank" rel="noopener" class="poi-nav">Simuler</a></div>'+
+    '<div class="poi-item"><div style="flex:1"><div class="poi-name">💰 AGIR ADEME</div><div class="poi-sub">Aides financières régionales</div></div>'+
+    '<a href="https://agirpourlatransition.ademe.fr/particuliers/aides-renovation-logement" target="_blank" rel="noopener" class="poi-nav">Voir</a></div>'+
+    '<div class="poi-item"><div style="flex:1"><div class="poi-name">⚡ MaPrimeRénov\'</div><div class="poi-sub">Principale aide nationale</div></div>'+
+    '<a href="https://france-renov.gouv.fr/aides/maprimerenov" target="_blank" rel="noopener" class="poi-nav">Barème</a></div>'+
+    '<div class="poi-item"><div style="flex:1"><div class="poi-name">🔋 CEE — Certificats</div><div class="poi-sub">Coup de pouce énergie</div></div>'+
+    '<a href="https://www.ecologie.gouv.fr/politiques-publiques/dispositif-certificats-deconomies-denergie-cee" target="_blank" rel="noopener" class="poi-nav">Conditions</a></div>';
+  el.innerHTML=html;
+  }catch(e){}
+}
+
+function updateSEO(d){
+  try{
+    if(!d||!d.geo)return;
+    var lab=d.geo.label||'';
+    var city=d.geo.city||'';
+    var cp=d.cp||'';
+    var lat=d.lat, lng=d.lng;
+    var url='https://intentanalytics.fr/carte?lat='+lat+'&lng='+lng;
+    var prix=(d.ap&&d.ap.dvf_prix_m2_median)?Math.round(d.ap.dvf_prix_m2_median)+'€/m²':'données non disponibles';
+    var title='Analyse immobilière '+lab+' — Intent Analytics';
+    var desc='Prix au m² ('+prix+'), risques, DPE, transports, démographie à '+lab+'. Rapport complet sur données publiques DVF, DPE, BAN, INSEE.';
+    function setA(id,attr,val){try{var e=document.getElementById(id);if(e&&attr)e.setAttribute(attr,val);}catch(e){}}
+    try{document.title=title;}catch(e){}
+    var pt=document.getElementById('page-title');if(pt)try{pt.textContent=title;}catch(e){}
+    setA('meta-desc','content',desc);
+    setA('meta-og-title','content',title);
+    setA('meta-og-desc','content',desc);
+    setA('meta-og-url','content',url);
+    setA('meta-geo-pos','content',lat+';'+lng);
+    setA('meta-geo-region','content','FR-'+(cp?cp.substring(0,2):''));
+    setA('meta-geo-place','content',city);
+    setA('canonical-link','href',url);
+    var jsonld=document.getElementById('jsonld');
+    if(jsonld){try{
+      jsonld.textContent=JSON.stringify({
+        "@context":"https://schema.org","@type":"Place","name":lab,"description":desc,"url":url,
+        "address":{"@type":"PostalAddress","streetAddress":lab,"postalCode":cp,"addressLocality":city,"addressCountry":"FR"},
+        "geo":{"@type":"GeoCoordinates","latitude":lat,"longitude":lng}
+      });
+    }catch(e){}}
+    try{history.replaceState({},title,'?lat='+lat+'&lng='+lng);}catch(e){}
+  }catch(err){/* updateSEO ne doit JAMAIS bloquer renderAll */}
+}
+
 function mkMarker(lat,lng,color,popupHtml){
   var el=document.createElement('div');
   el.style.cssText='width:10px;height:10px;background:'+color+';border-radius:50%;border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.3);cursor:pointer';
@@ -1338,7 +1313,9 @@ function mkMarker(lat,lng,color,popupHtml){
   markers.push(m);
   return m;
 }
+
 function clearMarkers(){markers.forEach(function(m){m.remove();});markers=[];}
+
 function loadMapLayers(d){
   if(!map)return;
   clearMarkers();
@@ -1356,9 +1333,6 @@ function loadMapLayers(d){
 }
 
 function copyLink(){if(!geo)return toast('Aucune adresse');navigator.clipboard.writeText(location.origin+location.pathname+'?lat='+geo.y+'&lng='+geo.x).then(function(){toast('Lien copié !');});}
-
-// Binding immédiat — le DOM est parsé ici, pas besoin d'attendre initMap
-initSearch();
 </script>
 </body>
 </html>
