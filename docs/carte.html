@@ -6,6 +6,11 @@
 <meta id="meta-desc" name="description" content="Rapport d'analyse immobilière — Intent Analytics">
 <meta id="meta-og-title" property="og:title" content="Rapport adresse — Intent Analytics">
 <meta property="og:type" content="website">
+<meta id="meta-og-desc" property="og:description" content="Analyse immobilière — Intent Analytics">
+<meta id="meta-og-url" property="og:url" content="">
+<meta id="meta-geo-pos" name="geo.position" content="">
+<meta id="meta-geo-region" name="geo.region" content="FR">
+<meta id="meta-geo-place" name="geo.placename" content="">
 <meta name="theme-color" content="#0f0f0f">
 <title id="page-title">Intent Analytics — Rapport Adresse</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
@@ -303,6 +308,13 @@ html,body{width:100%;height:100%;font-family:var(--sans);background:var(--bg);co
       <div id="pbody">
         <div class="tab-pane on" id="tab-prix">
           <div class="kpi-row" id="dvfK"></div>
+          <div style="display:flex;align-items:center;gap:.5rem;padding:.4rem .5rem;background:var(--g1);border-radius:8px;margin-bottom:.5rem;font-size:.72rem;color:var(--g5)">
+            <span>🏠 Surface bien :</span>
+            <input id="surf-input" type="number" min="9" max="999" placeholder="m² (optionnel)"
+              style="width:100px;padding:.3rem .5rem;border:1px solid var(--bd);border-radius:6px;font-size:.72rem;font-family:var(--mono);background:var(--w);color:var(--k);outline:none"
+              oninput="if(window.curD)renderPrix(window.curD)">
+            <span id="surf-filter-label" style="color:var(--g4)"></span>
+          </div>
           <div id="dvfScales"></div>
           <div id="esec"></div>
           <div class="card"><div class="card-title">Transactions récentes</div><div style="overflow-x:auto"><table class="dvf-table"><thead><tr><th>Date</th><th>Type</th><th>m²</th><th>€/m²</th></tr></thead><tbody id="dvfT"></tbody></table></div></div>
@@ -687,7 +699,17 @@ function scard(ico,title,main,sub,pct,color){
 // ── PRIX ──
 function renderPrix(d){
   var ap=d.ap,trend=ap&&ap.dvf_prix_m2_trend_1y;
-  var all=d.dvf.filter(function(r){return r.surface_reelle_bati>=9&&r.valeur_fonciere>=5000;});
+  // Filtre surface ±30% si renseigné
+  var surfInput=document.getElementById('surf-input');
+  var surfVal=surfInput?parseFloat(surfInput.value):NaN;
+  var hasSurf=!isNaN(surfVal)&&surfVal>=9;
+  var surfLbl=document.getElementById('surf-filter-label');
+  if(surfLbl)surfLbl.textContent=hasSurf?'→ filtre ±30% actif':'';
+  var all=d.dvf.filter(function(r){
+    if(r.surface_reelle_bati<9||r.valeur_fonciere<5000)return false;
+    if(hasSurf&&Math.abs(r.surface_reelle_bati-surfVal)/surfVal>0.30)return false;
+    return true;
+  });
   function stats(arr){
     var p=arr.map(function(r){return r.valeur_fonciere/r.surface_reelle_bati;}).filter(function(v){return v>500&&v<50000;}).sort(function(a,b){return a-b;});
     if(!p.length)return null;
@@ -838,6 +860,7 @@ function renderTransports(d){
   }
   document.getElementById('transContent').innerHTML=h;
   // Infras publiques OSM
+  var _addrT=d.lat+','+d.lng;
   var q='[out:json][timeout:10];(node["amenity"~"police|fire_station|post_office|townhall|hospital"](around:3000,'+d.lat+','+d.lng+'););out 20;';
   fetch('https://overpass-api.de/api/interpreter?data='+encodeURIComponent(q))
     .then(function(r){return r.ok?r.json():null;}).then(function(res){
@@ -861,6 +884,19 @@ function renderTransports(d){
         extra+='</div>';
       });
       document.getElementById('transContent').insertAdjacentHTML('beforeend',extra);
+      // ── Markers Leaflet infras publiques ──
+      if(mGroup&&curD&&curD.lat+','+curD.lng===_addrT){
+        var infraColor={police:'#6d28d9',fire_station:'#dc2626',post_office:'#0369a1',townhall:'#0f766e',hospital:'#be185d'};
+        Object.keys(groups).forEach(function(am){
+          groups[am].slice(0,2).forEach(function(e){
+            if(!e.lat||!e.lon)return;
+            var col=infraColor[am]||'#6d28d9';
+            var m=L.marker([e.lat,e.lon],{icon:L.divIcon({className:'',html:'<div style="width:9px;height:9px;background:'+col+';border-radius:50%;border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.3)"></div>',iconSize:[9,9],iconAnchor:[4.5,4.5]})});
+            m.bindPopup(mkPop(ico[am]||'📍',(nom[am]||am),e.tags.name||(nom[am]||am),'',e._d,col,e.lat,e.lon));
+            mGroup.addLayer(m);
+          });
+        });
+      }
     }).catch(function(){});
 }
 
@@ -879,6 +915,7 @@ function renderServices(d){
 }
 
 function loadServicesOSM(d){
+  var _addr=d.lat+','+d.lng;
   var q='[out:json][timeout:12];(node["amenity"~"hospital|pharmacy|doctors|clinic|dentist"](around:2000,'+d.lat+','+d.lng+');node["shop"~"supermarket|bakery|butcher|greengrocer|convenience"](around:800,'+d.lat+','+d.lng+');node["amenity"~"restaurant|cafe"](around:600,'+d.lat+','+d.lng+'););out 60;';
   fetch('https://overpass-api.de/api/interpreter?data='+encodeURIComponent(q))
     .then(function(r){return r.ok?r.json():null;})
@@ -907,6 +944,23 @@ function loadServicesOSM(d){
       document.getElementById('santeD').innerHTML=poiList(sante,function(e){return santeT[e.tags.amenity]||'🏥';});
       var shopIco={supermarket:'🛒',bakery:'🥖',butcher:'🥩',greengrocer:'🥦',convenience:'🏪',restaurant:'🍽️',cafe:'☕'};
       document.getElementById('shopD').innerHTML=poiList(shop,function(e){return shopIco[e.tags.shop||e.tags.amenity]||'🛒';});
+      // ── Markers Leaflet santé + commerces ──
+      if(mGroup&&curD&&curD.lat+','+curD.lng===_addr){
+        sante.slice(0,8).forEach(function(e){
+          if(!e.lat||!e.lon)return;
+          var ico=santeT[e.tags.amenity]||'🏥';
+          var m=L.marker([e.lat,e.lon],{icon:L.divIcon({className:'',html:'<div style="width:9px;height:9px;background:#db2777;border-radius:50%;border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.3)"></div>',iconSize:[9,9],iconAnchor:[4.5,4.5]})});
+          m.bindPopup(mkPop(ico,'Santé',e.tags.name||'—',e.tags.amenity||'',e._d,'#db2777',e.lat,e.lon));
+          mGroup.addLayer(m);
+        });
+        shop.slice(0,8).forEach(function(e){
+          if(!e.lat||!e.lon)return;
+          var ico=shopIco[e.tags.shop||e.tags.amenity]||'🛒';
+          var m=L.marker([e.lat,e.lon],{icon:L.divIcon({className:'',html:'<div style="width:9px;height:9px;background:#ea580c;border-radius:50%;border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.3)"></div>',iconSize:[9,9],iconAnchor:[4.5,4.5]})});
+          m.bindPopup(mkPop(ico,'Commerce',e.tags.name||'—',e.tags.shop||e.tags.amenity||'',e._d,'#ea580c',e.lat,e.lon));
+          mGroup.addLayer(m);
+        });
+      }
     }).catch(function(){
       document.getElementById('santeD').innerHTML='<span class="empty">Service temporairement indisponible</span>';
       document.getElementById('shopD').innerHTML='<span class="empty">Service temporairement indisponible</span>';
@@ -1004,6 +1058,19 @@ function renderCommune(d){
   var ld={'@context':'https://schema.org','@type':'Place','name':d.geo.city,'address':{'@type':'PostalAddress','streetAddress':d.geo.label,'postalCode':d.cp,'addressLocality':d.geo.city,'addressCountry':'FR'},'geo':{'@type':'GeoCoordinates','latitude':d.lat,'longitude':d.lng},'description':wiki&&wiki.description?wiki.description:'Analyse immobilière de '+d.geo.label};
   var ex=document.getElementById('ld-json');if(ex)ex.remove();
   var sc2=document.createElement('script');sc2.type='application/ld+json';sc2.id='ld-json';sc2.textContent=JSON.stringify(ld);document.head.appendChild(sc2);
+  // ── SEO/GEO dynamique ──
+  var addr=d.geo.label||d.geo.city||'';
+  var city=d.geo.city||'';
+  var score_s=d.sc?Math.round(d.sc.score_localisation||0):null;
+  var grade_s=score_s!==null?grade(score_s):'';
+  document.getElementById('page-title').textContent=addr+' — Rapport Immobilier · Intent Analytics';
+  document.getElementById('meta-desc').setAttribute('content','Analyse immobilière de '+addr+' : prix au m², DPE, score '+grade_s+', transports, risques environnementaux.');
+  document.getElementById('meta-og-title').setAttribute('content',addr+' — Rapport Immobilier');
+  document.getElementById('meta-og-desc').setAttribute('content','Analyse complète de '+addr+' ('+city+') par Intent Analytics : prix, DPE, accessibilité, risques.');
+  document.getElementById('meta-og-url').setAttribute('content',location.origin+location.pathname+'?lat='+d.lat+'&lng='+d.lng);
+  document.getElementById('meta-geo-pos').setAttribute('content',d.lat+';'+d.lng);
+  document.getElementById('meta-geo-region').setAttribute('content','FR-'+(d.cp?d.cp.substring(0,2):''));
+  document.getElementById('meta-geo-place').setAttribute('content',city);
 }
 
 // ── CADASTRE ──
