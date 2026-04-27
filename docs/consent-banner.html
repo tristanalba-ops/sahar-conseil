@@ -1,0 +1,118 @@
+<!--
+  ═══════════════════════════════════════════════════════════════════
+  BANNIÈRE DE CONSENTEMENT RGPD — Intent Analytics
+  ═══════════════════════════════════════════════════════════════════
+  
+  À INTÉGRER : copier l'ensemble du bloc <style>...</style><div>...</div><script>...</script>
+  juste avant la fermeture </body> de chaque page du site.
+  
+  Pages concernées :
+  - / (landing)
+  - /carte (estimation)
+  - /projet, /donnees, /methodologie, /explorations
+  - /renovation-energetique, /estimation, /documentation, /a-propos
+  - /mes-donnees, /opposition (les pages que vous venez d'ajouter)
+  - Pages /legal/* (mentions, CGU, politique de confidentialité)
+  
+  COMPORTEMENT :
+  - S'affiche au premier chargement si aucun choix n'a été enregistré
+  - Stocke le choix dans localStorage (clé 'ia_consent')
+  - Logge le choix dans gdpr.consent_log via RPC Supabase (traçabilité)
+  - Si refus : la fonction window.iaTrackEvent() devient un no-op
+  - Disparait après choix, accessible à nouveau via le lien "Cookies" du footer
+  ═══════════════════════════════════════════════════════════════════
+-->
+
+<style id="ia-consent-style">
+#ia-consent{position:fixed;bottom:0;left:0;right:0;z-index:99999;background:#0f0f0f;color:#fff;padding:1rem 1.25rem;box-shadow:0 -8px 32px rgba(0,0,0,.25);font-family:'DM Sans',-apple-system,sans-serif;display:none}
+#ia-consent.show{display:block;animation:iaSlideUp .3s ease-out}
+@keyframes iaSlideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+#ia-consent .iac-wrap{max-width:980px;margin:0 auto;display:flex;flex-direction:column;gap:.85rem}
+@media(min-width:720px){#ia-consent .iac-wrap{flex-direction:row;align-items:center;gap:1.5rem}}
+#ia-consent .iac-text{flex:1;font-size:.83rem;line-height:1.5}
+#ia-consent .iac-text strong{color:#fff;font-weight:700;display:block;margin-bottom:.25rem}
+#ia-consent .iac-text a{color:#9ec5fe;text-decoration:underline}
+#ia-consent .iac-btns{display:flex;gap:.5rem;flex-wrap:wrap}
+#ia-consent .iac-btn{padding:.6rem 1rem;border-radius:8px;font-size:.8rem;font-weight:600;cursor:pointer;border:none;font-family:inherit;white-space:nowrap}
+#ia-consent .iac-btn-primary{background:#fff;color:#0f0f0f}
+#ia-consent .iac-btn-secondary{background:transparent;color:#fff;border:1.5px solid #5a5a56}
+#ia-consent .iac-btn:active{opacity:.8}
+.iac-cookie-link{display:inline-block;font-size:.7rem;color:#9a9a96;text-decoration:underline;cursor:pointer}
+</style>
+
+<div id="ia-consent" role="dialog" aria-label="Consentement aux cookies et analyses d'usage">
+  <div class="iac-wrap">
+    <div class="iac-text">
+      <strong>Vos préférences de confidentialité</strong>
+      Intent Analytics utilise des mesures d'audience anonymes pour améliorer le service. Ces mesures n'incluent ni cookie publicitaire ni traceur tiers, et toutes les données personnelles que vous saisissez sont hachées dès leur arrivée sur nos serveurs. <a href="/legal/politique-confidentialite">En savoir plus</a>
+    </div>
+    <div class="iac-btns">
+      <button class="iac-btn iac-btn-secondary" onclick="iaConsentSet(false)">Refuser</button>
+      <button class="iac-btn iac-btn-primary" onclick="iaConsentSet(true)">Accepter</button>
+    </div>
+  </div>
+</div>
+
+<script id="ia-consent-script">
+(function(){
+  var CONSENT_KEY = 'ia_consent';
+  var CONSENT_VERSION = '1.0';
+  var SUPA_URL = 'https://wwvdpixzfaviaapixarb.supabase.co';
+  var SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3dmRwaXh6ZmF2aWFhcGl4YXJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3Mzk0NDgsImV4cCI6MjA5MDMxNTQ0OH0.NjOeWzUCo2BJPcxnkEJNm215GJBr1RAHba1eL_EF758';
+  
+  // Charger le choix existant
+  var stored = null;
+  try { stored = JSON.parse(localStorage.getItem(CONSENT_KEY) || 'null'); } catch(e){}
+  
+  // Afficher si pas de choix ou version obsolète
+  if(!stored || stored.v !== CONSENT_VERSION){
+    document.getElementById('ia-consent').classList.add('show');
+  }
+  
+  // API publique
+  window.iaConsentSet = function(granted){
+    var record = {v: CONSENT_VERSION, granted: granted, t: Date.now()};
+    try { localStorage.setItem(CONSENT_KEY, JSON.stringify(record)); } catch(e){}
+    document.getElementById('ia-consent').classList.remove('show');
+    
+    // Log côté serveur (best effort, non bloquant)
+    fetch(SUPA_URL + '/rest/v1/rpc/log_consent', {
+      method: 'POST',
+      headers: {
+        'apikey': SUPA_KEY,
+        'Authorization': 'Bearer ' + SUPA_KEY,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        p_intent_uid: null,
+        p_email: null,
+        p_purpose: 'analytics',
+        p_granted: granted,
+        p_user_agent: navigator.userAgent.substring(0, 500),
+        p_source: 'web_banner',
+        p_legal_basis: 'consent'
+      })
+    }).catch(function(){});
+  };
+  
+  window.iaConsentShow = function(){
+    document.getElementById('ia-consent').classList.add('show');
+  };
+  
+  window.iaHasConsent = function(){
+    return stored && stored.v === CONSENT_VERSION && stored.granted === true;
+  };
+  
+  // Wrapper pour le tracking : si pas de consentement, no-op
+  var originalTrack = window.iaTrackEvent;
+  window.iaTrackEvent = function(){
+    if(!window.iaHasConsent()) return;
+    if(typeof originalTrack === 'function') return originalTrack.apply(null, arguments);
+  };
+})();
+</script>
+
+<!-- 
+  Lien "Modifier mes préférences" à ajouter dans le footer de chaque page :
+  <a class="iac-cookie-link" onclick="iaConsentShow()">Modifier mes préférences cookies</a>
+-->
