@@ -714,24 +714,24 @@ function loadReport(){
 
   // Data
   Promise.all([
-    (geo.banId?sr('address_profile?ban_id=eq.'+encodeURIComponent(geo.banId)+'&select=*&limit=1'):sr('address_profile?code_commune=eq.'+cc+'&select=*&dvf_prix_m2_median=not.is.null&order=dvf_prix_m2_median.desc&limit=1')),
+    (geo.banId?sr('address_profile_public?ban_id=eq.'+encodeURIComponent(geo.banId)+'&select=*&limit=1'):sr('address_profile_public?code_commune=eq.'+cc+'&select=*&dvf_prix_m2_median=not.is.null&order=dvf_prix_m2_median.desc&limit=1')),
     sr('score_localisation_commune?code_commune=eq.'+cc+'&select=score_localisation,score_accessibilite,score_securite,score_services,score_risques_naturels,score_dynamisme,detail_accessibilite,detail_dynamisme&limit=1'),
-    sr('dvf_mutations?code_commune=eq.'+cc+'&select=valeur_fonciere,surface_reelle_bati,type_local,date_mutation,nombre_pieces_principales&order=date_mutation.desc&limit=300'),
-    (geo.banId?sr('dpe_diagnostics?ban_id=eq.'+encodeURIComponent(geo.banId)+'&select=classe_energie,classe_ges,conso_energie_primaire,surface_habitable,date_diagnostic&limit=50').then(function(a){return a&&a.length?a:sr('dpe_diagnostics?code_postal=eq.'+cp+'&select=classe_energie,date_diagnostic&limit=500');}):sr('dpe_diagnostics?code_postal=eq.'+cp+'&select=classe_energie,date_diagnostic&limit=500')),
+    sr('dvf_mutations_public?code_commune=eq.'+cc+'&select=valeur_fonciere,surface_reelle_bati,type_local,date_mutation,nombre_pieces_principales&order=date_mutation.desc&limit=300'),
+    (geo.banId?sr('dpe_diagnostics_public?ban_id=eq.'+encodeURIComponent(geo.banId)+'&select=classe_energie,classe_ges,conso_energie_primaire,surface_habitable,date_diagnostic&limit=50').then(function(a){return a&&a.length?a:sr('dpe_diagnostics_public?code_postal=eq.'+cp+'&select=classe_energie,date_diagnostic&limit=500');}):sr('dpe_diagnostics_public?code_postal=eq.'+cp+'&select=classe_energie,date_diagnostic&limit=500')),
     sf('data_georisques',{code_commune:cc},1),
     sf('data_plu_communes',{code_commune:cc},1),
-    sf('data_bdnb_batiments',{code_commune_insee:cc},50),
+    sf('data_bdnb_batiments_public',{code_commune_insee:cc},50),
     sf('data_demographie_commune',{code_commune:cc},1),
     sf('poi_scores_commune',{code_commune:cc},1),
     sf('data_qualite_eau',{code_commune:cc},1),
-    sr('ml_training_v8?code_commune=eq.'+cc+'&select=prix_zone_median&limit=5'),
+    sr('ml_training_v8_public?code_commune=eq.'+cc+'&select=prix_zone_median&limit=5'),
     sr('transport_stops?code_commune=eq.'+cc+'&select=stop_id,stop_name,stop_lat,stop_lon,network_name,agency_name&limit=200'),
     sr('data_etablissements_scolaires?code_commune=eq.'+cc+'&select=uai,nom,type,latitude,longitude,secteur,taux_reussite_bac,nb_eleves&limit=100'),
     sf('commune_wiki',{code_commune:cc},1)
   ]).then(function(R){
     // Fallback address_profile par commune si ban_id a rien retourné
     if(!R[0]||!R[0].length){
-      return sr('address_profile?code_commune=eq.'+cc+'&select=dvf_prix_m2_median,dvf_prix_m2_p25,dvf_prix_m2_p75,dvf_prix_m2_trend_1y,dpe_etiquette_modale,dpe_nb_bilans,bpe_score_global,bpe_score_transport,bpe_score_education,score_potentiel_dpe&dvf_prix_m2_median=gt.0&order=dvf_prix_m2_median.desc&limit=1').then(function(ap2){
+      return sr('address_profile_public?code_commune=eq.'+cc+'&select=dvf_prix_m2_median,dvf_prix_m2_p25,dvf_prix_m2_p75,dvf_prix_m2_trend_1y,dpe_etiquette_modale,dpe_nb_bilans,bpe_score_global,bpe_score_transport,bpe_score_education,score_potentiel_dpe&dvf_prix_m2_median=gt.0&order=dvf_prix_m2_median.desc&limit=1').then(function(ap2){
         if(ap2&&ap2.length)R[0]=ap2;
         return R;
       });
@@ -740,7 +740,7 @@ function loadReport(){
   }).then(function(R){
     // Fallback DVF par code_postal si vide
     if((!R[2]||!R[2].length)&&cp){
-      return sr('dvf_mutations?code_postal=eq.'+cp+'&select=valeur_fonciere,surface_reelle_bati,type_local,date_mutation,nombre_pieces_principales&order=date_mutation.desc&limit=300').then(function(f){
+      return sr('dvf_mutations_public?code_postal=eq.'+cp+'&select=valeur_fonciere,surface_reelle_bati,type_local,date_mutation,nombre_pieces_principales&order=date_mutation.desc&limit=300').then(function(f){
         if(f&&f.length)R[2]=f;
         return R;
       });
@@ -974,7 +974,7 @@ function renderPrix(d){
   if(!d.dvf.length){
     banner='<div class="interp warn" style="margin-bottom:.5rem"><b>Aucune transaction DVF remontée</b> pour cette commune. Diagnostic en cours…</div>';
     // Relancer direct pour diagnostic (bypass cache, pas de filtre)
-    fetch(SUPA_URL+'/rest/v1/dvf_mutations?code_commune=eq.'+d.cc+'&select=valeur_fonciere,surface_reelle_bati,type_local,date_mutation,nombre_pieces_principales&order=date_mutation.desc&limit=300',{
+    fetch(SUPA_URL+'/rest/v1/dvf_mutations_public?code_commune=eq.'+d.cc+'&select=valeur_fonciere,surface_reelle_bati,type_local,date_mutation,nombre_pieces_principales&order=date_mutation.desc&limit=300',{
       headers:{apikey:SUPA_KEY,Authorization:'Bearer '+SUPA_KEY,'Cache-Control':'no-cache'},cache:'no-store'
     }).then(function(r){
       if(!r.ok){return r.text().then(function(t){document.getElementById('dvfScales').innerHTML='<div class="interp bad">HTTP '+r.status+' — '+t.substring(0,150)+'</div>';});}
